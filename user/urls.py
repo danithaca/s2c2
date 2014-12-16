@@ -1,6 +1,7 @@
-from django.conf.urls import patterns, include, url
+from django.conf.urls import patterns, url
 
 urlpatterns = patterns(
     '',
-    url(r'^login$', '', name='home'),
+    url(r'^login/$', 'user.views.login', name='login'),
+    url(r'^signup/$', 'user.views.signup', name='signup'),
 )

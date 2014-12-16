@@ -39,12 +39,13 @@ INSTALLED_APPS = (
 
     # external
     # 'pinax_theme_bootstrap',
-    # 'bootstrapform', # from django-bootstrap-form
+    'bootstrapform', # from django-bootstrap-form
     # 'account',
 
     # customized
     's2c2',
-    'location'
+    'location',
+    'user',
 )
 
 MIDDLEWARE_CLASSES = (
