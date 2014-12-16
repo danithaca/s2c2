@@ -111,4 +111,10 @@ STATIC_URL = '/static/'
 # )
 
 # not added from startproject. need to manually add this.
-TEMPLATE_DIRS = [os.path.join(BASE_DIR, 'templates')]
+TEMPLATE_DIRS = (
+    os.path.join(BASE_DIR, 'templates'),
+)
+
+STATICFILES_DIRS = (
+    os.path.join(BASE_DIR, 'static'),
+)
