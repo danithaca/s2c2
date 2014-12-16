@@ -38,9 +38,9 @@ INSTALLED_APPS = (
     'django.contrib.staticfiles',
 
     # external
-    'pinax_theme_bootstrap',
-    'bootstrapform', # from django-bootstrap-form
-    'account',
+    # 'pinax_theme_bootstrap',
+    # 'bootstrapform', # from django-bootstrap-form
+    # 'account',
 
     # customized
     's2c2',
@@ -57,8 +57,8 @@ MIDDLEWARE_CLASSES = (
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 
     # external
-    'account.middleware.LocaleMiddleware',
-    'account.middleware.TimezoneMiddleware',
+    # 'account.middleware.LocaleMiddleware',
+    # 'account.middleware.TimezoneMiddleware',
 )
 
 ROOT_URLCONF = 's2c2.urls'
@@ -95,20 +95,20 @@ USE_TZ = True
 
 STATIC_URL = '/static/'
 
-TEMPLATE_CONTEXT_PROCESSORS = (
-    "django.contrib.auth.context_processors.auth",
-    "django.core.context_processors.debug",
-    "django.core.context_processors.i18n",
-    "django.core.context_processors.media",
-    "django.core.context_processors.static",
-    "django.core.context_processors.tz",
-    "django.contrib.messages.context_processors.messages",
-
-    # external
-    'django.core.context_processors.request',
-    'pinax_theme_bootstrap.context_processors.theme',
-    'account.context_processors.account',
-)
+# TEMPLATE_CONTEXT_PROCESSORS = (
+#     "django.contrib.auth.context_processors.auth",
+#     "django.core.context_processors.debug",
+#     "django.core.context_processors.i18n",
+#     "django.core.context_processors.media",
+#     "django.core.context_processors.static",
+#     "django.core.context_processors.tz",
+#     "django.contrib.messages.context_processors.messages",
+#
+#     # external
+#     'django.core.context_processors.request',
+#     'pinax_theme_bootstrap.context_processors.theme',
+#     'account.context_processors.account',
+# )
 
 # not added from startproject. need to manually add this.
 TEMPLATE_DIRS = [os.path.join(BASE_DIR, 'templates')]

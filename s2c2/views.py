@@ -2,4 +2,4 @@ from django.shortcuts import render
 
 
 def home(request):
-    return render(request, 'site_base.html')
+    return render(request, 'home.jinja2')
