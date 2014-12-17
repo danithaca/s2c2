@@ -4,14 +4,15 @@
 {% block title %}Signup{% endblock %}
 
 {% block page %}
-<div class="row">
-  <div class="col-md-6">
-    <form role="form" method="post" action="{% url 'user:signup' %}">
-      {% csrf_token %}
-      {{ form|bootstrap }}
-      <button type="submit" class="btn btn-primary">Signup</button>
-      <input type="hidden" name="next" value="{{ next }}" />
-    </form>
+<div class="alert alert-info" role="alert">Please signup below. You have to use the invitation code.</div>
+<form class="form-horizontal" role="form" method="post" action="{% url 'user:signup' %}">
+  {% csrf_token %}
+  {{ form_user|bootstrap_horizontal }}
+  {{ form_staff|bootstrap_horizontal }}
+  <div class="form-group">
+    <div class="col-sm-offset-2 col-sm-10">
+      <button type="submit" class="btn btn-primary btn-lg">Signup</button>
+    </div>
   </div>
-</div>
+</form>
 {% endblock %}

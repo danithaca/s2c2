@@ -1,7 +1,7 @@
 from django.db import models
 from django.contrib.auth.models import User
 from location.models import Center
-from phonenumber_field.modelfields import PhoneNumberField
+# from phonenumber_field.modelfields import PhoneNumberField
 
 
 class Profile(models.Model):
@@ -9,8 +9,10 @@ class Profile(models.Model):
     address = models.CharField(max_length=200, blank=True)
     # giver = models.BooleanField(default=False)
     # taker = models.BooleanField(default=False)
-    phone_main = PhoneNumberField(max_length=20)
-    phone_backup = PhoneNumberField(max_length=20, blank=True)
+    # phone_main = PhoneNumberField(max_length=20)
+    # phone_backup = PhoneNumberField(max_length=20, blank=True)
+    phone_main = models.CharField(max_length=12)
+    phone_backup = models.CharField(max_length=12, blank=True)
 
     def __str__(self):
         return self.user.get_full_name()
