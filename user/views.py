@@ -7,6 +7,7 @@ from django.shortcuts import render, redirect
 from django.views.generic import FormView
 from user.models import Staff
 from django.utils.translation import ugettext_lazy as _
+from django.contrib import auth
 
 
 class UserForm(UserCreationForm):
@@ -94,6 +95,12 @@ def signup(request):
             s.save()
             # this is required since we used commit=False first. see django documentation for details.
             form_staff.save_m2m()
+
+            # login a user after signup
+            if not request.user.is_authenticated():
+                # requires authentication() first.
+                au = auth.authenticate(username=form_user.cleaned_data['username'], password=form_user.cleaned_data['password1'])
+                auth.login(request, au)
 
             return redirect('/')
     else:
