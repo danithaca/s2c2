@@ -1,7 +1,17 @@
 {% extends "base.jinja2" %}
+{% load bootstrap %}
 
 {% block title %}Signup{% endblock %}
 
 {% block page %}
-  <p class="well">Signup</p>
+<div class="row">
+  <div class="col-md-6">
+    <form role="form" method="post" action="{% url 'user:signup' %}">
+      {% csrf_token %}
+      {{ form|bootstrap }}
+      <button type="submit" class="btn btn-primary">Signup</button>
+      <input type="hidden" name="next" value="{{ next }}" />
+    </form>
+  </div>
+</div>
 {% endblock %}

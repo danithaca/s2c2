@@ -3,17 +3,13 @@
 
 {% block page %}
 
-{% if form.errors %}
-<p>Your username and password didn't match. Please try again.</p>
-{% endif %}
-
 <div class="row">
-<div class="col-md-4">
-  <form role="form" method="post" action="{% url 'user:login' %}">
+<div class="col-md-6">
+  <form class="form-horizontal" role="form" method="post" action="{% url 'user:login' %}">
     {% csrf_token %}
-    {{ form|bootstrap }}
+    {{ form|bootstrap_horizontal }}
     <button type="submit" class="btn btn-primary">Log in</button>
-    <input type="hidden" name="next" value="{{ next }}" />
+    <div class="form-group"><input class="form-control" type="hidden" name="next" value="{{ next }}" /></div>
   </form>
 </div>
 </div>

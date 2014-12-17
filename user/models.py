@@ -25,12 +25,12 @@ class Staff(Profile):
     ROLE_TEACHER = 2    # full-time
     ROLE_SUPPORT = 3    # part-time
     ROLE_INTERN = 4     # student
-    ROLES = {
+    ROLES = (
         (ROLE_DIRECTOR, 'Director'),
         (ROLE_TEACHER, 'Teacher'),
         (ROLE_SUPPORT, 'NC Support'),
         (ROLE_INTERN, 'Student Intern'),
-    }
+    )
     role = models.PositiveSmallIntegerField(choices=ROLES)
     centers = models.ManyToManyField(Center)
     checked = models.BooleanField(default=False)
