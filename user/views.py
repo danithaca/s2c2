@@ -1,13 +1,13 @@
-from django.contrib.auth.forms import UserCreationForm
-from django.contrib.auth import views as auth_views
+from django.contrib import auth, messages
+from django.contrib.auth import views as auth_views, user_logged_out, user_logged_in
+from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
 from django.contrib.auth.models import User
-from django.contrib.formtools.wizard.views import SessionWizardView
-from django.forms import ModelForm, CharField, RegexField, TextInput, CheckboxSelectMultiple
+from django.dispatch import receiver
+from django.forms import ModelForm, RegexField, TextInput, CheckboxSelectMultiple
 from django.shortcuts import render, redirect
-from django.views.generic import FormView
-from user.models import Staff
 from django.utils.translation import ugettext_lazy as _
-from django.contrib import auth
+
+from user.models import Staff
 
 
 class UserForm(UserCreationForm):
@@ -110,4 +110,20 @@ def signup(request):
 
 
 def login(request):
-    return auth_views.login(request, template_name='user/login.jinja2', extra_context={'next': '/'})
+    # extra_context={'next': '/'} is not needed since we have settings.LOGIN_REDIRECT_URL
+    return auth_views.login(request, template_name='user/login.jinja2', authentication_form=AuthenticationForm)
+
+
+@receiver(user_logged_in)
+def on_user_logged_in(sender, request, user, **kwargs):
+    messages.info(request, 'User %s logged in successfully.' % user.get_username())
+
+
+def logout(request):
+    # if request.user.is_authenticated():
+    return auth_views.logout(request, template_name='user/logout.jinja2', next_page='/')
+
+
+@receiver(user_logged_out)
+def on_user_logged_out(sender, request, user, **kwargs):
+    messages.info(request, 'User %s logged out successfully.' % user.get_username())

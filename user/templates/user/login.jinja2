@@ -1,17 +1,17 @@
 {% extends "base.jinja2" %}
 {% load bootstrap %}
 
+{% block title %}Login{% endblock %}
+
 {% block page %}
-
-<div class="row">
-<div class="col-md-6">
-  <form class="form-horizontal" role="form" method="post" action="{% url 'user:login' %}">
-    {% csrf_token %}
-    {{ form|bootstrap_horizontal }}
-    <button type="submit" class="btn btn-primary">Log in</button>
-    <div class="form-group"><input class="form-control" type="hidden" name="next" value="{{ next }}" /></div>
-  </form>
-</div>
-</div>
-
+<div class="alert alert-info" role="alert">Please login below.</div>
+<form class="form-horizontal" role="form" method="post" action="{% url 'user:login' %}">
+  {% csrf_token %}
+  {{ form|bootstrap_horizontal }}
+  <div class="form-group">
+    <div class="col-sm-offset-2 col-sm-10">
+      <button type="submit" class="btn btn-primary btn-lg">Log in</button> or <a href="{% url 'user:signup' %}">sign up</a>
+    </div>
+  </div>
+</form>
 {% endblock %}
