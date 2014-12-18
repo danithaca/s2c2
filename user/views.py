@@ -4,10 +4,14 @@ from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
 from django.contrib.auth.models import User
 from django.dispatch import receiver
 from django.forms import ModelForm, RegexField, TextInput, CheckboxSelectMultiple
+from django.http import HttpResponseRedirect
 from django.shortcuts import render, redirect
 from django.utils.translation import ugettext_lazy as _
 
 from user.models import Staff
+
+# keep session open for 3 days.
+REMEMBER_ME_EXPIRY = 60 * 60 * 24 * 3
 
 
 class UserForm(UserCreationForm):
@@ -111,19 +115,29 @@ def signup(request):
 
 def login(request):
     # extra_context={'next': '/'} is not needed since we have settings.LOGIN_REDIRECT_URL
-    return auth_views.login(request, template_name='user/login.jinja2', authentication_form=AuthenticationForm)
+    response = auth_views.login(request, template_name='user/login.jinja2', authentication_form=AuthenticationForm)
+    if isinstance(response, HttpResponseRedirect):
+        messages.info(request, 'User %s logged in successfully.' % request.user.get_username())
+        # TODO: allow user set REMEMBER_ME later.
+        request.session.set_expiry(REMEMBER_ME_EXPIRY)
+    return response
 
 
-@receiver(user_logged_in)
-def on_user_logged_in(sender, request, user, **kwargs):
-    messages.info(request, 'User %s logged in successfully.' % user.get_username())
+# this will get called even in "admin", so we don't use it.
+# @receiver(user_logged_in)
+# def on_user_logged_in(sender, request, user, **kwargs):
+#     messages.info(request, 'User %s logged in successfully.' % user.get_username())
 
 
 def logout(request):
-    # if request.user.is_authenticated():
-    return auth_views.logout(request, template_name='user/logout.jinja2', next_page='/')
+    username = request.user.get_username() if request.user.is_authenticated() else None
+    response = auth_views.logout(request, template_name='user/logout.jinja2', next_page='/')
+    if username is not None and request.user.is_anonymous():
+        messages.info(request, 'User %s logged out successfully.' % username)
+    return response
 
 
-@receiver(user_logged_out)
-def on_user_logged_out(sender, request, user, **kwargs):
-    messages.info(request, 'User %s logged out successfully.' % user.get_username())
+# this will get called even in "admin", so we don't use it.
+# @receiver(user_logged_out)
+# def on_user_logged_out(sender, request, user, **kwargs):
+#     messages.info(request, 'User %s logged out successfully.' % user.get_username())
