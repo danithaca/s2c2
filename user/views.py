@@ -84,10 +84,6 @@ class StaffForm(ModelForm):
 #         return super(SignupView, self).form_valid(form)
 
 
-# class SignupWizardView(SessionWizardView):
-#     pass
-
-
 def signup(request):
     if request.method == 'POST':
         form_user = UserForm(request.POST)
@@ -237,5 +233,7 @@ def password_reset(request):
 
 def password_reset_confirm(request, uidb64, token):
     response = auth_views.password_reset_confirm(request,  uidb64=uidb64, token=token,
-        template_name='user/password_reset_confirm.jinja2', post_reset_redirect=reverse('user:login'))
+        template_name='user/password_reset_confirm.jinja2', post_reset_redirect=reverse('login'))
+    if isinstance(response, HttpResponseRedirect):
+        messages.info(request, 'Password reset successfully. Please login using your new password.')
     return response

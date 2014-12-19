@@ -4,6 +4,17 @@ from location.models import Center
 # from phonenumber_field.modelfields import PhoneNumberField
 
 
+class UserProfile(User):
+    """
+    A proxy class for User to have profile data.
+    """
+    class Meta():
+        proxy = True
+
+    def get_profile(self):
+        return self.profile if hasattr(self, 'profile') else None
+
+
 class Profile(models.Model):
     user = models.OneToOneField(User)
     address = models.CharField(max_length=200, blank=True)
@@ -34,5 +45,6 @@ class Staff(Profile):
         (ROLE_INTERN, 'Student Intern'),
     )
     role = models.PositiveSmallIntegerField(choices=ROLES)
+
     centers = models.ManyToManyField(Center)
     checked = models.BooleanField(default=False)
