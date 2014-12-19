@@ -3,6 +3,7 @@ from django.contrib.auth import views as auth_views, user_logged_out, user_logge
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.forms import UserCreationForm, AuthenticationForm, PasswordChangeForm, PasswordResetForm
 from django.contrib.auth.models import User
+from django.core.urlresolvers import reverse
 from django.dispatch import receiver
 from django.forms import ModelForm, RegexField, TextInput, CheckboxSelectMultiple
 from django.http import HttpResponseRedirect
@@ -219,10 +220,10 @@ def password_reset(request):
     redirect_url = '/'
     try:
         response = auth_views.password_reset(request,
-                                             template_name='user/password_reset.jinja2',
-                                             post_reset_redirect=redirect_url,
-                                             email_template_name='user/email/password_reset_email.jinja2',
-                                             subject_template_name='user/email/password_reset_subject.jinja2'
+            template_name='user/password_reset.jinja2',
+            post_reset_redirect=redirect_url,
+            email_template_name='user/email/password_reset_email.jinja2',
+            subject_template_name='user/email/password_reset_subject.jinja2'
         )
         # note: auth.views.password_reset() doesn't tell you if the email exists or not for security reasons.
         if isinstance(response, HttpResponseRedirect):
@@ -235,4 +236,6 @@ def password_reset(request):
 
 
 def password_reset_confirm(request, uidb64, token):
-    return auth_views.password_reset_confirm(request,  uidb64=uidb64, token=token, template_name='user/password_reset_confirm.jinja2', post_reset_redirect='/')
+    response = auth_views.password_reset_confirm(request,  uidb64=uidb64, token=token,
+        template_name='user/password_reset_confirm.jinja2', post_reset_redirect=reverse('user:login'))
+    return response
