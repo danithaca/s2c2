@@ -11,11 +11,20 @@ class UserProfile(User):
     class Meta():
         proxy = True
 
+    @staticmethod
+    def convert_user(user):
+        if user.__class__ == User:
+            user.__class__ = UserProfile
+
     def get_profile(self):
         return self.profile if hasattr(self, 'profile') else None
 
 
 class Profile(models.Model):
+    """
+    This has a one-to-one relationship with User.
+    Use UserProfile as a proxy to User and easy access to Profile.
+    """
     user = models.OneToOneField(User)
     address = models.CharField(max_length=200, blank=True)
     # giver = models.BooleanField(default=False)
