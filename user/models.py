@@ -16,6 +16,15 @@ class UserProfile(User):
         if user.__class__ == User:
             user.__class__ = UserProfile
 
+    @staticmethod
+    def get_user_profile(user):
+        """ This will hit DB again. But will load a new clean instance"""
+        return UserProfile.objects.get(pk=user.id)
+
+    @staticmethod
+    def load(pk):
+        return UserProfile.objects.get(pk=pk)
+
     def get_profile(self):
         return self.profile if hasattr(self, 'profile') else None
 
