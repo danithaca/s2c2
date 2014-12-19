@@ -1,14 +1,17 @@
 from django.contrib import auth, messages
 from django.contrib.auth import views as auth_views, user_logged_out, user_logged_in
-from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
+from django.contrib.auth.decorators import login_required
+from django.contrib.auth.forms import UserCreationForm, AuthenticationForm, PasswordChangeForm, PasswordResetForm
 from django.contrib.auth.models import User
 from django.dispatch import receiver
 from django.forms import ModelForm, RegexField, TextInput, CheckboxSelectMultiple
 from django.http import HttpResponseRedirect
 from django.shortcuts import render, redirect
 from django.utils.translation import ugettext_lazy as _
+from django.views.defaults import server_error
+from django.views.generic import FormView
 
-from user.models import Staff
+from user.models import Staff, Profile
 
 # keep session open for 3 days.
 REMEMBER_ME_EXPIRY = 60 * 60 * 24 * 3
@@ -141,3 +144,95 @@ def logout(request):
 # @receiver(user_logged_out)
 # def on_user_logged_out(sender, request, user, **kwargs):
 #     messages.info(request, 'User %s logged out successfully.' % user.get_username())
+
+
+class UserEditForm(ModelForm):
+    required_css_class = 'required'
+
+    def __init__(self, *args, **kwargs):
+        super(UserEditForm, self).__init__(*args, **kwargs)
+        self.fields['email'].required = True
+        self.fields['first_name'].required = True
+        self.fields['last_name'].required = True
+
+    class Meta:
+        model = User
+        fields = ('first_name', 'last_name', 'email')
+
+
+class StaffEditForm(StaffForm):
+    pass
+
+
+@login_required
+def edit(request):
+    edit_user = request.user
+    try:
+        edit_profile = edit_user.profile
+        # this might cause exception so there's chance it's not executed.
+        edit_profile = Staff.objects.get(user_id=edit_user.id)
+    except (Profile.DoesNotExist, Staff.DoesNotExist) as e:
+        edit_profile = None
+
+    if request.method == 'POST':
+        # handle password
+        form_password = PasswordChangeForm(user=edit_user, data=request.POST)
+        # d = form_password.cleaned_data
+        # pw_filled = d['old_password'] is not None or d['new_password1'] is not None or d['new_password2'] is not None
+
+        form_user = UserEditForm(request.POST, instance=edit_user)
+        form_staff = StaffEditForm(request.POST, instance=edit_profile)
+
+        # if no password, or if password set but form is correct, and the other forms are correct, then save.
+        # otherwise show message.
+        if (not form_password.has_changed() or (form_password.has_changed() and form_password.is_valid())) and form_user.is_valid() and form_staff.is_valid():
+            if form_password.has_changed():
+                form_password.save()
+                messages.info(request, 'Password changed successfully. Please login again.')
+
+            if form_user.has_changed():
+                form_user.save()
+
+            if form_staff.has_changed():
+                if edit_profile is None:
+                    s = form_staff.save(commit=False)
+                    s.user = edit_user
+                    s.save()
+                    form_staff.save_m2m()
+                else:
+                    form_staff.save()
+
+            if form_password.has_changed() or form_user.has_changed() or form_staff.has_changed():
+                messages.info(request, 'Profile updated.')
+            else:
+                messages.warning(request, 'Nothing has updated.')
+            return redirect('user:edit')
+    else:
+        form_password = PasswordChangeForm(edit_user)
+        form_user = UserEditForm(instance=edit_user)
+        form_staff = StaffEditForm(instance=edit_profile)
+
+    return render(request, 'user/edit.jinja2', {'form_password': form_password, 'form_user': form_user, 'form_staff': form_staff, 'edit_user': edit_user})
+
+
+def password_reset(request):
+    redirect_url = '/'
+    try:
+        response = auth_views.password_reset(request,
+                                             template_name='user/password_reset.jinja2',
+                                             post_reset_redirect=redirect_url,
+                                             email_template_name='user/email/password_reset_email.jinja2',
+                                             subject_template_name='user/email/password_reset_subject.jinja2'
+        )
+        # note: auth.views.password_reset() doesn't tell you if the email exists or not for security reasons.
+        if isinstance(response, HttpResponseRedirect):
+            messages.info(request, 'Your request has been received. We will send you an email shortly if the email is valid.')
+        return response
+    except ConnectionRefusedError:
+        messages.error(request, 'Email service is not configured. No email is sent out. Please report the bug to system admin.')
+        # return server_error(request)
+        return HttpResponseRedirect(redirect_url)
+
+
+def password_reset_confirm(request, uidb64, token):
+    return auth_views.password_reset_confirm(request,  uidb64=uidb64, token=token, template_name='user/password_reset_confirm.jinja2', post_reset_redirect='/')

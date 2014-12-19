@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 {% load staticfiles %}
+{% load s2c2_tags %}
 <html lang="en">
 <head>
   <meta charset="utf-8">
@@ -52,9 +53,8 @@
 </nav>
 
 <div class="container">
-
   {% for message in messages %}
-    <div class="alert fade in {% if message.tags %} alert-{{ message.tags }}{% endif %} alert-dismissible">
+    <div class="alert fade in {{ message|bootstrap_alert }} alert-dismissible">
       <button type="button" class="close" data-dismiss="alert">&times;</button>
       {{ message }}
     </div>
