@@ -1,5 +1,5 @@
 from django.db import models
-from django.contrib.auth.models import User
+from django.contrib.auth.models import User, Group
 from location.models import Center
 # from phonenumber_field.modelfields import PhoneNumberField
 
@@ -45,6 +45,14 @@ class Profile(models.Model):
 
     def __str__(self):
         return self.user.get_full_name()
+
+
+class Role(Group):
+    # human readable name
+    title = models.CharField(max_length=50)
+    # giver = models.BooleanField(default=False)
+    # taker = models.BooleanField(default=False)
+    function_center = models.BooleanField(default=False)
 
 
 class Staff(Profile):
