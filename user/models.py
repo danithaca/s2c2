@@ -60,6 +60,10 @@ class FullUser(User):
     centers = models.ManyToManyField(Center)
     validated = models.NullBooleanField()
 
+    class Meta(User.Meta):
+        verbose_name = 'full user'
+        verbose_name_plural = 'full users'
+
 
 class Role(Group):
     # human readable name
