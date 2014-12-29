@@ -24,13 +24,13 @@ class UserAdmin(UserAdmin):
 #
 #
 # class RoleAdmin(GroupAdmin):
-    # inlines = (RoleInline, )
+#     inlines = (RoleInline, )
 
 
 # Re-register UserAdmin, GroupAdmin
 admin.site.unregister(User)
 admin.site.register(User, UserAdmin)
-admin.site.unregister(Group)
+# admin.site.unregister(Group)
 # admin.site.register(Group, RoleAdmin)
 
 admin.site.register(models.Role, GroupAdmin)
