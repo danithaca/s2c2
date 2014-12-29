@@ -35,9 +35,14 @@ from user import models
 
 admin.site.register(models.Role, GroupAdmin)
 
+
+class FullUserAdmin(UserAdmin):
+    fieldsets = UserAdmin.fieldsets + (('Full user details', {'fields': ('address', 'phone_main', 'phone_backup', 'centers', 'validated')}), )
+
+
 # register fulluser
 # admin.site.register(models.FullUser, UserAdmin)
-admin.site.register(models.FullUser)
+admin.site.register(models.FullUser, FullUserAdmin)
 # admin.site.register(models.Staff)
 
 
