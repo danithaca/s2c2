@@ -6,15 +6,15 @@ from user import models
 
 # Define an inline admin descriptor for Employee model
 # which acts a bit like a singleton
-class ProfileInline(admin.StackedInline):
-    model = models.Profile
-    can_delete = False
-    verbose_name_plural = 'profile'
+# class ProfileInline(admin.StackedInline):
+#     model = models.Profile
+#     can_delete = False
+#     verbose_name_plural = 'profile'
 
 
 # Define a new User admin
-class UserAdmin(UserAdmin):
-    inlines = (ProfileInline, )
+# class UserAdmin(UserAdmin):
+#     inlines = (ProfileInline, )
 
 
 # class RoleInline(admin.StackedInline):
@@ -28,14 +28,16 @@ class UserAdmin(UserAdmin):
 
 
 # Re-register UserAdmin, GroupAdmin
-admin.site.unregister(User)
-admin.site.register(User, UserAdmin)
+# admin.site.unregister(User)
+# admin.site.register(User, UserAdmin)
 # admin.site.unregister(Group)
 # admin.site.register(Group, RoleAdmin)
 
 admin.site.register(models.Role, GroupAdmin)
 
-# register Staff
-admin.site.register(models.Staff)
+# register fulluser
+# admin.site.register(models.FullUser, UserAdmin)
+admin.site.register(models.FullUser)
+# admin.site.register(models.Staff)
 
 

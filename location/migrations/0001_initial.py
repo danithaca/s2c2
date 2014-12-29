@@ -15,9 +15,9 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='Location',
             fields=[
-                ('id', models.AutoField(verbose_name='ID', auto_created=True, primary_key=True, serialize=False)),
+                ('id', models.AutoField(auto_created=True, serialize=False, primary_key=True, verbose_name='ID')),
                 ('name', models.CharField(max_length=30)),
-                ('address', models.CharField(max_length=200)),
+                ('address', models.CharField(blank=True, max_length=200)),
                 ('status', models.BooleanField(default=True)),
             ],
             options={
@@ -27,7 +27,7 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='Classroom',
             fields=[
-                ('location_ptr', models.OneToOneField(auto_created=True, parent_link=True, primary_key=True, serialize=False, to='location.Location')),
+                ('location_ptr', models.OneToOneField(serialize=False, auto_created=True, parent_link=True, to='location.Location', primary_key=True)),
             ],
             options={
             },
@@ -36,7 +36,7 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='Center',
             fields=[
-                ('location_ptr', models.OneToOneField(auto_created=True, parent_link=True, primary_key=True, serialize=False, to='location.Location')),
+                ('location_ptr', models.OneToOneField(serialize=False, auto_created=True, parent_link=True, to='location.Location', primary_key=True)),
             ],
             options={
             },

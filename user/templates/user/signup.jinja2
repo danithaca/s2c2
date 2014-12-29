@@ -10,8 +10,9 @@
 <div class="panel-body">
   <form class="form-horizontal" role="form" method="post" action="{% url 'user:signup' %}">
     {% csrf_token %}
-    {{ form_user|bootstrap_horizontal }}
-    {{ form_staff|bootstrap_horizontal }}
+{#    {{ form_user|bootstrap_horizontal }}#}
+{#    {{ form_staff|bootstrap_horizontal }}#}
+    {{ form|bootstrap_horizontal }}
     <div class="form-group">
       <div class="col-sm-offset-2 col-sm-10">
         <button type="submit" class="btn btn-primary">Signup</button>

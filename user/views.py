@@ -6,19 +6,102 @@ from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse
 from django.dispatch import receiver
 from django.forms import ModelForm, RegexField, TextInput, CheckboxSelectMultiple
-from django.http import HttpResponseRedirect
+from django.http import HttpResponseRedirect, HttpResponse
 from django.shortcuts import render, redirect
 from django.utils.translation import ugettext_lazy as _
 from django.views.defaults import server_error
-from django.views.generic import FormView
+from django.views.generic import FormView, UpdateView
 
-from user.models import Staff, Profile
+# from user.models import Staff, Profile
+from user.models import FullUser, Role
 
 # keep session open for 3 days.
 REMEMBER_ME_EXPIRY = 60 * 60 * 24 * 3
 
 
-class UserForm(UserCreationForm):
+# class UserForm(UserCreationForm):
+#     required_css_class = 'required'
+#     invitation_code = RegexField(
+#         label=_('Invitation code'),
+#         help_text=_('Signup is only available for people who have the correct invitation code.'),
+#         regex=r'^north$',
+#         error_messages={'invalid': _('Wrong invitation code. Please contact your coordinator.')},
+#         required=True,
+#     )
+#
+#     def __init__(self, *args, **kwargs):
+#         super(UserForm, self).__init__(*args, **kwargs)
+#         self.fields['email'].required = True
+#         self.fields['first_name'].required = True
+#         self.fields['last_name'].required = True
+#
+#     class Meta:
+#         model = User
+#         # by default, User->email is nullable, and allows duplicate.
+#         # if we don't override form field here, the email setting would be like that.
+#         fields = ('invitation_code', "username", 'password1', 'password2', 'first_name', 'last_name', 'email')
+#
+#         # doesn't work this way:
+#         # required = {
+#         #     'email': True,
+#         #     'first_name': True,
+#         #     'last_name': True,
+#         # }
+
+
+# class StaffForm(ModelForm):
+#     required_css_class = 'required'
+#
+#     _phone_field_options = {
+#         'regex': r'^\d\d\d-\d\d\d-\d\d\d\d$',
+#         'error_messages': {'invalid': _('Please type in your phone number such as 734-555-5555.')}
+#     }
+#
+#     phone_main = RegexField(
+#         label=_('Phone number'),
+#         help_text=_('10 digits phone number to contact you, e.g. 734-555-5555.'),
+#         widget=TextInput(attrs={'placeholder': '555-555-5555'}),
+#         **_phone_field_options
+#     )
+#
+#     class Meta:
+#         model = Staff
+#         fields = ('phone_main', 'address', 'role', 'centers')
+#         widgets = {
+#             'centers': CheckboxSelectMultiple()
+#         }
+
+
+# def signup(request):
+#     if request.method == 'POST':
+#         form_user = UserForm(request.POST)
+#         form_staff = StaffForm(request.POST)
+#         if form_user.is_valid() and form_staff.is_valid():
+#             # save user and commit
+#             u = form_user.save()
+#             # u.first_name = form_staff.clean_data['first_name']
+#             # u.last_name = form_staff.clean_data['last_name']
+#
+#             s = form_staff.save(commit=False)
+#             s.user = u
+#             s.save()
+#             # this is required since we used commit=False first. see django documentation for details.
+#             form_staff.save_m2m()
+#
+#             # login a user after signup
+#             if not request.user.is_authenticated():
+#                 # requires authentication() first.
+#                 au = auth.authenticate(username=form_user.cleaned_data['username'], password=form_user.cleaned_data['password1'])
+#                 auth.login(request, au)
+#
+#             return redirect('/')
+#     else:
+#         form_user = UserForm()
+#         form_staff = StaffForm()
+#     return render(request, 'user/signup.jinja2', {'form_user': form_user, 'form_staff': form_staff})
+
+
+class CenterStaffFrom(UserCreationForm):
     required_css_class = 'required'
     invitation_code = RegexField(
         label=_('Invitation code'),
@@ -27,29 +110,6 @@ class UserForm(UserCreationForm):
         error_messages={'invalid': _('Wrong invitation code. Please contact your coordinator.')},
         required=True,
     )
-
-    def __init__(self, *args, **kwargs):
-        super(UserForm, self).__init__(*args, **kwargs)
-        self.fields['email'].required = True
-        self.fields['first_name'].required = True
-        self.fields['last_name'].required = True
-
-    class Meta:
-        model = User
-        # by default, User->email is nullable, and allows duplicate.
-        # if we don't override form field here, the email setting would be like that.
-        fields = ('invitation_code', "username", 'password1', 'password2', 'first_name', 'last_name', 'email')
-
-        # doesn't work this way:
-        # required = {
-        #     'email': True,
-        #     'first_name': True,
-        #     'last_name': True,
-        # }
-
-
-class StaffForm(ModelForm):
-    required_css_class = 'required'
 
     _phone_field_options = {
         'regex': r'^\d\d\d-\d\d\d-\d\d\d\d$',
@@ -63,54 +123,36 @@ class StaffForm(ModelForm):
         **_phone_field_options
     )
 
+    def __init__(self, *args, **kwargs):
+        super(CenterStaffFrom, self).__init__(*args, **kwargs)
+        self.fields['email'].required = True
+        self.fields['first_name'].required = True
+        self.fields['last_name'].required = True
+
     class Meta:
-        model = Staff
-        fields = ('phone_main', 'address', 'role', 'centers')
+        model = FullUser
+        # by default, User->email is nullable, and allows duplicate.
+        # if we don't override form field here, the email setting would be like that.
+        fields = ('invitation_code', 'username', 'password1', 'password2', 'first_name', 'last_name', 'email', 'phone_main', 'centers')
         widgets = {
             'centers': CheckboxSelectMultiple()
         }
 
 
-# class SignupView(FormView):
-#     template_name = 'user/signup.jinja2'
-#     #form_class = SignupForm
-#     form_class = StaffForm
-#     success_url = '/'
-#
-#     def form_valid(self, form):
-#         # this calls SignupForm::UserCreationForm::save()
-#         form.save()
-#         # this calls the default FormView::form_valid()
-#         return super(SignupView, self).form_valid(form)
+class SignupView(FormView):
+    template_name = 'user/signup.jinja2'
+    form_class = CenterStaffFrom
+    success_url = '/'
+
+    def form_valid(self, form):
+        # this calls SignupForm::UserCreationForm::save()
+        form.save()
+        # this calls the default FormView::form_valid()
+        return super(SignupView, self).form_valid(form)
 
 
 def signup(request):
-    if request.method == 'POST':
-        form_user = UserForm(request.POST)
-        form_staff = StaffForm(request.POST)
-        if form_user.is_valid() and form_staff.is_valid():
-            # save user and commit
-            u = form_user.save()
-            # u.first_name = form_staff.clean_data['first_name']
-            # u.last_name = form_staff.clean_data['last_name']
-
-            s = form_staff.save(commit=False)
-            s.user = u
-            s.save()
-            # this is required since we used commit=False first. see django documentation for details.
-            form_staff.save_m2m()
-
-            # login a user after signup
-            if not request.user.is_authenticated():
-                # requires authentication() first.
-                au = auth.authenticate(username=form_user.cleaned_data['username'], password=form_user.cleaned_data['password1'])
-                auth.login(request, au)
-
-            return redirect('/')
-    else:
-        form_user = UserForm()
-        form_staff = StaffForm()
-    return render(request, 'user/signup.jinja2', {'form_user': form_user, 'form_staff': form_staff})
+    return SignupView.as_view()(request)
 
 
 def login(request):
@@ -143,73 +185,87 @@ def logout(request):
 #     messages.info(request, 'User %s logged out successfully.' % user.get_username())
 
 
-class UserEditForm(ModelForm):
-    required_css_class = 'required'
+# class UserEditForm(ModelForm):
+#     required_css_class = 'required'
+#
+#     def __init__(self, *args, **kwargs):
+#         super(UserEditForm, self).__init__(*args, **kwargs)
+#         self.fields['email'].required = True
+#         self.fields['first_name'].required = True
+#         self.fields['last_name'].required = True
+#
+#     class Meta:
+#         model = User
+#         fields = ('first_name', 'last_name', 'email')
+#
+#
+# class StaffEditForm(StaffForm):
+#     pass
 
-    def __init__(self, *args, **kwargs):
-        super(UserEditForm, self).__init__(*args, **kwargs)
-        self.fields['email'].required = True
-        self.fields['first_name'].required = True
-        self.fields['last_name'].required = True
 
-    class Meta:
-        model = User
-        fields = ('first_name', 'last_name', 'email')
-
-
-class StaffEditForm(StaffForm):
-    pass
+class EditView(UpdateView):
+    model = FullUser
+    fields = ('first_name', 'last_name', 'email', 'phone_main', 'address', 'centers')
+    template_name = 'user/edit.jinja2'
+    success_url = '/'
 
 
 @login_required
 def edit(request):
+    # TODO: not fully working.
     edit_user = request.user
-    try:
-        edit_profile = edit_user.profile
-        # this might cause exception so there's chance it's not executed.
-        edit_profile = Staff.objects.get(user_id=edit_user.id)
-    except (Profile.DoesNotExist, Staff.DoesNotExist) as e:
-        edit_profile = None
+    return EditView.as_view()(request, pk=edit_user.id)
 
-    if request.method == 'POST':
-        # handle password
-        form_password = PasswordChangeForm(user=edit_user, data=request.POST)
-        # d = form_password.cleaned_data
-        # pw_filled = d['old_password'] is not None or d['new_password1'] is not None or d['new_password2'] is not None
 
-        form_user = UserEditForm(request.POST, instance=edit_user)
-        form_staff = StaffEditForm(request.POST, instance=edit_profile)
-
-        # if no password, or if password set but form is correct, and the other forms are correct, then save.
-        # otherwise show message.
-        if (not form_password.has_changed() or (form_password.has_changed() and form_password.is_valid())) and form_user.is_valid() and form_staff.is_valid():
-            if form_password.has_changed():
-                form_password.save()
-                messages.info(request, 'Password changed successfully. Please login again.')
-
-            if form_user.has_changed():
-                form_user.save()
-
-            if form_staff.has_changed():
-                if edit_profile is None:
-                    s = form_staff.save(commit=False)
-                    s.user = edit_user
-                    s.save()
-                    form_staff.save_m2m()
-                else:
-                    form_staff.save()
-
-            if form_password.has_changed() or form_user.has_changed() or form_staff.has_changed():
-                messages.info(request, 'Profile updated.')
-            else:
-                messages.warning(request, 'Nothing has updated.')
-            return redirect('user:edit')
-    else:
-        form_password = PasswordChangeForm(edit_user)
-        form_user = UserEditForm(instance=edit_user)
-        form_staff = StaffEditForm(instance=edit_profile)
-
-    return render(request, 'user/edit.jinja2', {'form_password': form_password, 'form_user': form_user, 'form_staff': form_staff, 'edit_user': edit_user})
+# @login_required
+# def edit(request):
+#     edit_user = request.user
+#     try:
+#         edit_profile = edit_user.profile
+#         # this might cause exception so there's chance it's not executed.
+#         edit_profile = Staff.objects.get(user_id=edit_user.id)
+#     except (Profile.DoesNotExist, Staff.DoesNotExist) as e:
+#         edit_profile = None
+#
+#     if request.method == 'POST':
+#         # handle password
+#         form_password = PasswordChangeForm(user=edit_user, data=request.POST)
+#         # d = form_password.cleaned_data
+#         # pw_filled = d['old_password'] is not None or d['new_password1'] is not None or d['new_password2'] is not None
+#
+#         form_user = UserEditForm(request.POST, instance=edit_user)
+#         form_staff = StaffEditForm(request.POST, instance=edit_profile)
+#
+#         # if no password, or if password set but form is correct, and the other forms are correct, then save.
+#         # otherwise show message.
+#         if (not form_password.has_changed() or (form_password.has_changed() and form_password.is_valid())) and form_user.is_valid() and form_staff.is_valid():
+#             if form_password.has_changed():
+#                 form_password.save()
+#                 messages.info(request, 'Password changed successfully. Please login again.')
+#
+#             if form_user.has_changed():
+#                 form_user.save()
+#
+#             if form_staff.has_changed():
+#                 if edit_profile is None:
+#                     s = form_staff.save(commit=False)
+#                     s.user = edit_user
+#                     s.save()
+#                     form_staff.save_m2m()
+#                 else:
+#                     form_staff.save()
+#
+#             if form_password.has_changed() or form_user.has_changed() or form_staff.has_changed():
+#                 messages.info(request, 'Profile updated.')
+#             else:
+#                 messages.warning(request, 'Nothing has updated.')
+#             return redirect('user:edit')
+#     else:
+#         form_password = PasswordChangeForm(edit_user)
+#         form_user = UserEditForm(instance=edit_user)
+#         form_staff = StaffEditForm(instance=edit_profile)
+#
+#     return render(request, 'user/edit.jinja2', {'form_password': form_password, 'form_user': form_user, 'form_staff': form_staff, 'edit_user': edit_user})
 
 
 def password_reset(request):
@@ -237,3 +293,7 @@ def password_reset_confirm(request, uidb64, token):
     if isinstance(response, HttpResponseRedirect):
         messages.info(request, 'Password reset successfully. Please login using your new password.')
     return response
+
+
+def dummy(request):
+    return HttpResponse('dummy. please override.')

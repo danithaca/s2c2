@@ -4,47 +4,61 @@ from location.models import Center
 # from phonenumber_field.modelfields import PhoneNumberField
 
 
-class UserProfile(User):
+# class UserProfile(User):
+#     """
+#     A proxy class for User to have profile data.
+#     """
+#     class Meta():
+#         proxy = True
+#
+#     @staticmethod
+#     def convert_user(user):
+#         if user.__class__ == User:
+#             user.__class__ = UserProfile
+#
+#     @staticmethod
+#     def get_user_profile(user):
+#         """ This will hit DB again. But will load a new clean instance"""
+#         return UserProfile.objects.get(pk=user.id)
+#
+#     @staticmethod
+#     def load(pk):
+#         return UserProfile.objects.get(pk=pk)
+#
+#     def get_profile(self):
+#         return self.profile if hasattr(self, 'profile') else None
+
+
+# class Profile(models.Model):
+#     """
+#     This has a one-to-one relationship with User.
+#     Use UserProfile as a proxy to User and easy access to Profile.
+#     """
+#     user = models.OneToOneField(User)
+#     address = models.CharField(max_length=200, blank=True)
+#     # giver = models.BooleanField(default=False)
+#     # taker = models.BooleanField(default=False)
+#     # phone_main = PhoneNumberField(max_length=20)
+#     # phone_backup = PhoneNumberField(max_length=20, blank=True)
+#     phone_main = models.CharField(max_length=12)
+#     phone_backup = models.CharField(max_length=12, blank=True)
+#
+#     def __str__(self):
+#         return self.user.get_full_name()
+
+
+class FullUser(User):
     """
-    A proxy class for User to have profile data.
+    This class extends User but does not replace AUTH_MODULE. It will have the same PK as User object, which is
+    different from using the "profile" design pattern where Profile has its own PK.
     """
-    class Meta():
-        proxy = True
-
-    @staticmethod
-    def convert_user(user):
-        if user.__class__ == User:
-            user.__class__ = UserProfile
-
-    @staticmethod
-    def get_user_profile(user):
-        """ This will hit DB again. But will load a new clean instance"""
-        return UserProfile.objects.get(pk=user.id)
-
-    @staticmethod
-    def load(pk):
-        return UserProfile.objects.get(pk=pk)
-
-    def get_profile(self):
-        return self.profile if hasattr(self, 'profile') else None
-
-
-class Profile(models.Model):
-    """
-    This has a one-to-one relationship with User.
-    Use UserProfile as a proxy to User and easy access to Profile.
-    """
-    user = models.OneToOneField(User)
     address = models.CharField(max_length=200, blank=True)
-    # giver = models.BooleanField(default=False)
-    # taker = models.BooleanField(default=False)
-    # phone_main = PhoneNumberField(max_length=20)
-    # phone_backup = PhoneNumberField(max_length=20, blank=True)
-    phone_main = models.CharField(max_length=12)
+    phone_main = models.CharField(max_length=12, blank=True)
     phone_backup = models.CharField(max_length=12, blank=True)
 
-    def __str__(self):
-        return self.user.get_full_name()
+    # for center related fields if the user belongs to "center" related groups
+    centers = models.ManyToManyField(Center)
+    validated = models.NullBooleanField()
 
 
 class Role(Group):
@@ -55,22 +69,22 @@ class Role(Group):
     function_center = models.BooleanField(default=False)
 
 
-class Staff(Profile):
-    """
-    Staff are those who work for a center.
-    Directors are also staff, but are defined in django "group" in order to have more permissions.
-    """
-    ROLE_DIRECTOR = 1
-    ROLE_TEACHER = 2    # full-time
-    ROLE_SUPPORT = 3    # part-time
-    ROLE_INTERN = 4     # student
-    ROLES = (
-        (ROLE_DIRECTOR, 'Director'),
-        (ROLE_TEACHER, 'Teacher'),
-        (ROLE_SUPPORT, 'NC Support'),
-        (ROLE_INTERN, 'Student Intern'),
-    )
-    role = models.PositiveSmallIntegerField(choices=ROLES)
-
-    centers = models.ManyToManyField(Center)
-    checked = models.BooleanField(default=False)
+# class Staff(Profile):
+#     """
+#     Staff are those who work for a center.
+#     Directors are also staff, but are defined in django "group" in order to have more permissions.
+#     """
+#     ROLE_DIRECTOR = 1
+#     ROLE_TEACHER = 2    # full-time
+#     ROLE_SUPPORT = 3    # part-time
+#     ROLE_INTERN = 4     # student
+#     ROLES = (
+#         (ROLE_DIRECTOR, 'Director'),
+#         (ROLE_TEACHER, 'Teacher'),
+#         (ROLE_SUPPORT, 'NC Support'),
+#         (ROLE_INTERN, 'Student Intern'),
+#     )
+#     role = models.PositiveSmallIntegerField(choices=ROLES)
+#
+#     centers = models.ManyToManyField(Center)
+#     checked = models.BooleanField(default=False)
