@@ -139,19 +139,19 @@ class CenterStaffFrom(UserCreationForm):
         }
 
 
-class SignupView(FormView):
-    template_name = 'user/signup.jinja2'
-    form_class = CenterStaffFrom
-    success_url = '/'
-
-    def form_valid(self, form):
-        # this calls SignupForm::UserCreationForm::save()
-        form.save()
-        # this calls the default FormView::form_valid()
-        return super(SignupView, self).form_valid(form)
-
-
 def signup(request):
+
+    class SignupView(FormView):
+        template_name = 'user/signup.jinja2'
+        form_class = CenterStaffFrom
+        success_url = '/'
+
+        def form_valid(self, form):
+            # this calls SignupForm::UserCreationForm::save()
+            form.save()
+            # this calls the default FormView::form_valid()
+            return super(SignupView, self).form_valid(form)
+
     return SignupView.as_view()(request)
 
 
@@ -203,15 +203,15 @@ def logout(request):
 #     pass
 
 
-class EditView(UpdateView):
-    model = FullUser
-    fields = ('first_name', 'last_name', 'email', 'phone_main', 'address', 'centers')
-    template_name = 'user/edit.jinja2'
-    success_url = '/'
-
-
 @login_required
 def edit(request):
+
+    class EditView(UpdateView):
+        model = FullUser
+        fields = ('first_name', 'last_name', 'email', 'phone_main', 'address', 'centers')
+        template_name = 'user/edit.jinja2'
+        success_url = '/'
+
     # TODO: not fully working.
     edit_user = request.user
     return EditView.as_view()(request, pk=edit_user.id)
@@ -296,4 +296,4 @@ def password_reset_confirm(request, uidb64, token):
 
 
 def dummy(request):
-    return HttpResponse('dummy. please override.')
+    return HttpResponse('Please override.')
