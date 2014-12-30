@@ -8,37 +8,34 @@ from django.conf import settings
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('location', '__first__'),
+        ('location', '0001_initial'),
         ('auth', '0001_initial'),
     ]
 
     operations = [
         migrations.CreateModel(
-            name='FullUser',
+            name='Profile',
             fields=[
-                ('user_ptr', models.OneToOneField(to=settings.AUTH_USER_MODEL, parent_link=True, primary_key=True, serialize=False, auto_created=True)),
+                ('user', models.OneToOneField(primary_key=True, serialize=False, to=settings.AUTH_USER_MODEL)),
                 ('address', models.CharField(max_length=200, blank=True)),
-                ('phone_main', models.CharField(max_length=12, blank=True)),
+                ('phone_main', models.CharField(max_length=12)),
                 ('phone_backup', models.CharField(max_length=12, blank=True)),
-                ('validated', models.NullBooleanField()),
+                ('verified', models.NullBooleanField()),
                 ('centers', models.ManyToManyField(to='location.Center')),
             ],
             options={
-                'verbose_name_plural': 'users',
-                'verbose_name': 'user',
-                'abstract': False,
             },
-            bases=('auth.user',),
+            bases=(models.Model,),
         ),
         migrations.CreateModel(
             name='Role',
             fields=[
-                ('group_ptr', models.OneToOneField(to='auth.Group', parent_link=True, primary_key=True, serialize=False, auto_created=True)),
-                ('title', models.CharField(max_length=50)),
-                ('function_center', models.BooleanField(default=False)),
+                ('group', models.OneToOneField(primary_key=True, serialize=False, to='auth.Group')),
+                ('machine_name', models.SlugField()),
+                ('type_center', models.BooleanField(default=False)),
             ],
             options={
             },
-            bases=('auth.group',),
+            bases=(models.Model,),
         ),
     ]

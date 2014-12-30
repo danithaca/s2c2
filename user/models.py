@@ -29,48 +29,67 @@ from location.models import Center
 #         return self.profile if hasattr(self, 'profile') else None
 
 
-# class Profile(models.Model):
-#     """
-#     This has a one-to-one relationship with User.
-#     Use UserProfile as a proxy to User and easy access to Profile.
-#     """
-#     user = models.OneToOneField(User)
-#     address = models.CharField(max_length=200, blank=True)
-#     # giver = models.BooleanField(default=False)
-#     # taker = models.BooleanField(default=False)
-#     # phone_main = PhoneNumberField(max_length=20)
-#     # phone_backup = PhoneNumberField(max_length=20, blank=True)
-#     phone_main = models.CharField(max_length=12)
-#     phone_backup = models.CharField(max_length=12, blank=True)
-#
-#     def __str__(self):
-#         return self.user.get_full_name()
-
-
-class FullUser(User):
+class Profile(models.Model):
     """
-    This class extends User but does not replace AUTH_MODULE. It will have the same PK as User object, which is
-    different from using the "profile" design pattern where Profile has its own PK.
+    This has a one-to-one relationship with User, using user.pk as pk.
+    A "profile" instance is bound to have a "user" object, but not vice versa.
+    Business logic about users should all happen here.
     """
+    user = models.OneToOneField(User, primary_key=True)
     address = models.CharField(max_length=200, blank=True)
-    phone_main = models.CharField(max_length=12, blank=True)
-    phone_backup = models.CharField(max_length=12, blank=True)
-
-    # for center related fields if the user belongs to "center" related groups
-    centers = models.ManyToManyField(Center)
-    validated = models.NullBooleanField()
-
-    class Meta(User.Meta):
-        verbose_name = 'full user'
-        verbose_name_plural = 'full users'
-
-
-class Role(Group):
-    # human readable name
-    title = models.CharField(max_length=50)
     # giver = models.BooleanField(default=False)
     # taker = models.BooleanField(default=False)
-    function_center = models.BooleanField(default=False)
+    # phone_main = PhoneNumberField(max_length=20)
+    # phone_backup = PhoneNumberField(max_length=20, blank=True)
+    phone_main = models.CharField(max_length=12)
+    phone_backup = models.CharField(max_length=12, blank=True)
+
+    # for center related stuff.
+    centers = models.ManyToManyField(Center)
+    verified = models.NullBooleanField()
+
+    def __str__(self):
+        return self.user.get_full_name()
+
+    # @staticmethod
+    # def get_profile(user):
+    #     return Profile.objects.get(pk=user.id)
+
+
+# class FullUser(User):
+#     """
+#     This class extends User but does not replace AUTH_MODULE. It will have the same PK as User object, which is
+#     different from using the "profile" design pattern where Profile has its own PK.
+#     """
+#     address = models.CharField(max_length=200, blank=True)
+#     phone_main = models.CharField(max_length=12, blank=True)
+#     phone_backup = models.CharField(max_length=12, blank=True)
+#
+#     # for center related fields if the user belongs to "center" related groups
+#     centers = models.ManyToManyField(Center)
+#     validated = models.NullBooleanField()
+#
+#     class Meta(User.Meta):
+#         verbose_name = 'full user'
+#         verbose_name_plural = 'full users'
+
+
+# class Role(Group):
+#     # human readable name
+#     title = models.CharField(max_length=50)
+#     # giver = models.BooleanField(default=False)
+#     # taker = models.BooleanField(default=False)
+#     function_center = models.BooleanField(default=False)
+
+
+class Role(models.Model):
+    """
+    This has one-one relationship to auth.Group instead of inherit from Group.
+    """
+    group = models.OneToOneField(Group, primary_key=True)
+    machine_name = models.SlugField(max_length=50)
+    # specify whether this role is to function for children centers.
+    type_center = models.BooleanField(default=False)
 
 
 # class Staff(Profile):

@@ -48,6 +48,7 @@ INSTALLED_APPS = (
     's2c2',
     'location',
     'user',
+    'slot',
 )
 
 MIDDLEWARE_CLASSES = (

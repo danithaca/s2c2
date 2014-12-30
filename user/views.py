@@ -12,8 +12,6 @@ from django.utils.translation import ugettext_lazy as _
 from django.views.defaults import server_error
 from django.views.generic import FormView, UpdateView
 
-# from user.models import Staff, Profile
-from user.models import FullUser, Role
 
 # keep session open for 3 days.
 REMEMBER_ME_EXPIRY = 60 * 60 * 24 * 3
@@ -72,7 +70,8 @@ REMEMBER_ME_EXPIRY = 60 * 60 * 24 * 3
 #         }
 
 
-# def signup(request):
+def signup(request):
+    return dummy(request)
 #     if request.method == 'POST':
 #         form_user = UserForm(request.POST)
 #         form_staff = StaffForm(request.POST)
@@ -101,58 +100,57 @@ REMEMBER_ME_EXPIRY = 60 * 60 * 24 * 3
 #     return render(request, 'user/signup.jinja2', {'form_user': form_user, 'form_staff': form_staff})
 
 
-class CenterStaffFrom(UserCreationForm):
-    required_css_class = 'required'
-    invitation_code = RegexField(
-        label=_('Invitation code'),
-        help_text=_('Signup is only available for people who have the correct invitation code.'),
-        regex=r'^north$',
-        error_messages={'invalid': _('Wrong invitation code. Please contact your coordinator.')},
-        required=True,
-    )
-
-    _phone_field_options = {
-        'regex': r'^\d\d\d-\d\d\d-\d\d\d\d$',
-        'error_messages': {'invalid': _('Please type in your phone number such as 734-555-5555.')}
-    }
-
-    phone_main = RegexField(
-        label=_('Phone number'),
-        help_text=_('10 digits phone number to contact you, e.g. 734-555-5555.'),
-        widget=TextInput(attrs={'placeholder': '555-555-5555'}),
-        **_phone_field_options
-    )
-
-    def __init__(self, *args, **kwargs):
-        super(CenterStaffFrom, self).__init__(*args, **kwargs)
-        self.fields['email'].required = True
-        self.fields['first_name'].required = True
-        self.fields['last_name'].required = True
-
-    class Meta:
-        model = FullUser
-        # by default, User->email is nullable, and allows duplicate.
-        # if we don't override form field here, the email setting would be like that.
-        fields = ('invitation_code', 'username', 'password1', 'password2', 'first_name', 'last_name', 'email', 'phone_main', 'centers')
-        widgets = {
-            'centers': CheckboxSelectMultiple()
-        }
-
-
-def signup(request):
-
-    class SignupView(FormView):
-        template_name = 'user/signup.jinja2'
-        form_class = CenterStaffFrom
-        success_url = '/'
-
-        def form_valid(self, form):
-            # this calls SignupForm::UserCreationForm::save()
-            form.save()
-            # this calls the default FormView::form_valid()
-            return super(SignupView, self).form_valid(form)
-
-    return SignupView.as_view()(request)
+# def signup(request):
+#
+#     class CenterStaffFrom(UserCreationForm):
+#         required_css_class = 'required'
+#         invitation_code = RegexField(
+#             label=_('Invitation code'),
+#             help_text=_('Signup is only available for people who have the correct invitation code.'),
+#             regex=r'^north$',
+#             error_messages={'invalid': _('Wrong invitation code. Please contact your coordinator.')},
+#             required=True,
+#             )
+#
+#         _phone_field_options = {
+#             'regex': r'^\d\d\d-\d\d\d-\d\d\d\d$',
+#             'error_messages': {'invalid': _('Please type in your phone number such as 734-555-5555.')}
+#         }
+#
+#         phone_main = RegexField(
+#             label=_('Phone number'),
+#             help_text=_('10 digits phone number to contact you, e.g. 734-555-5555.'),
+#             widget=TextInput(attrs={'placeholder': '555-555-5555'}),
+#             **_phone_field_options
+#         )
+#
+#         def __init__(self, *args, **kwargs):
+#             super(CenterStaffFrom, self).__init__(*args, **kwargs)
+#             self.fields['email'].required = True
+#             self.fields['first_name'].required = True
+#             self.fields['last_name'].required = True
+#
+#         class Meta:
+#             model = FullUser
+#             # by default, User->email is nullable, and allows duplicate.
+#             # if we don't override form field here, the email setting would be like that.
+#             fields = ('invitation_code', 'username', 'password1', 'password2', 'first_name', 'last_name', 'email', 'phone_main', 'centers')
+#             widgets = {
+#                 'centers': CheckboxSelectMultiple()
+#             }
+#
+#     class SignupView(FormView):
+#         template_name = 'user/signup.jinja2'
+#         form_class = CenterStaffFrom
+#         success_url = '/'
+#
+#         def form_valid(self, form):
+#             # this calls SignupForm::UserCreationForm::save()
+#             form.save()
+#             # this calls the default FormView::form_valid()
+#             return super(SignupView, self).form_valid(form)
+#
+#     return SignupView.as_view()(request)
 
 
 def login(request):
@@ -203,22 +201,22 @@ def logout(request):
 #     pass
 
 
-@login_required
-def edit(request):
-
-    class EditView(UpdateView):
-        model = FullUser
-        fields = ('first_name', 'last_name', 'email', 'phone_main', 'address', 'centers')
-        template_name = 'user/edit.jinja2'
-        success_url = '/'
-
-    # TODO: not fully working.
-    edit_user = request.user
-    return EditView.as_view()(request, pk=edit_user.id)
-
-
 # @login_required
 # def edit(request):
+#
+#     class EditView(UpdateView):
+#         model = FullUser
+#         fields = ('first_name', 'last_name', 'email', 'phone_main', 'address', 'centers')
+#         template_name = 'user/edit.jinja2'
+#         success_url = '/'
+#
+#     edit_user = request.user
+#     return EditView.as_view()(request, pk=edit_user.id)
+
+
+@login_required
+def edit(request):
+    return dummy(request)
 #     edit_user = request.user
 #     try:
 #         edit_profile = edit_user.profile

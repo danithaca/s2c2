@@ -7,9 +7,7 @@ urlpatterns = patterns(
     url(r'^login/$', user.views.login, name='login'),
     url(r'^logout/$', user.views.logout, name='logout'),
     url(r'^signup/$', user.views.signup, name='signup'),
-    # url(r'^signup/$', user.views.SignupView.as_view(), name='signup'),
     url(r'^edit/$', user.views.edit, name='edit'),
-    # url(r'^edit/$', user.views.EditView.as_view(), name='edit'),
 
 
     # url(r'^password/change/$', 'django.contrib.auth.views.password_change', {
