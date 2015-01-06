@@ -1,31 +1,39 @@
 from django.contrib import admin
-from slot.models import OfferDateslot, OfferWeekslot, NeedWeekslot, NeedDateslot, MeetDateslot, MeetWeekslot
+from slot.models import OfferDate, OfferRegular, NeedRegular, NeedDate, MeetDate, MeetRegular
 
-_weekslot_display = ('start_dow', 'start_time', 'end_dow', 'end_time')
-_dateslot_display = ('start_date', 'start_time', 'end_date', 'end_time')
+_regular_display = ('start_dow', 'start_time', 'end_time')
+_date_display = ('start_date', 'start_time', 'end_time')
 _need_display = ('location',)
 _offer_display = ('user', )
 
 
-class NeedWeekslotAdmin(admin.ModelAdmin):
-    list_display = _need_display + _weekslot_display
+class NeedRegularAdmin(admin.ModelAdmin):
+    list_display = _need_display + _regular_display
 
 
-class NeedDateslotAdmin(admin.ModelAdmin):
-    list_display = _need_display + _dateslot_display
+class NeedDateAdmin(admin.ModelAdmin):
+    list_display = _need_display + _date_display
 
 
-class OfferWeekslotAdmin(admin.ModelAdmin):
-    list_display = _offer_display + _weekslot_display
+class OfferRegularAdmin(admin.ModelAdmin):
+    list_display = _offer_display + _regular_display
 
 
-class OfferDateslotAdmin(admin.ModelAdmin):
-    list_display = _offer_display + _dateslot_display
+class OfferDateAdmin(admin.ModelAdmin):
+    list_display = _offer_display + _date_display
 
 
-admin.site.register(NeedWeekslot, NeedWeekslotAdmin)
-admin.site.register(OfferWeekslot, OfferWeekslotAdmin)
-admin.site.register(MeetWeekslot)
-admin.site.register(NeedDateslot, NeedDateslotAdmin)
-admin.site.register(OfferDateslot, OfferDateslotAdmin)
-admin.site.register(MeetDateslot)
+class MeetRegularAdmin(admin.ModelAdmin):
+    list_display = ('need', 'offer') + _regular_display
+
+
+class MeetDateAdmin(admin.ModelAdmin):
+    list_display = ('need', 'offer') + _date_display
+
+
+admin.site.register(NeedRegular, NeedRegularAdmin)
+admin.site.register(OfferRegular, OfferRegularAdmin)
+admin.site.register(MeetRegular, MeetRegularAdmin)
+admin.site.register(NeedDate, NeedDateAdmin)
+admin.site.register(OfferDate, OfferDateAdmin)
+admin.site.register(MeetDate, MeetDateAdmin)

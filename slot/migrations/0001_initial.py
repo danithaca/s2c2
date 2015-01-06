@@ -14,13 +14,12 @@ class Migration(migrations.Migration):
 
     operations = [
         migrations.CreateModel(
-            name='MeetDateslot',
+            name='MeetDate',
             fields=[
-                ('id', models.AutoField(verbose_name='ID', auto_created=True, primary_key=True, serialize=False)),
+                ('id', models.AutoField(primary_key=True, auto_created=True, serialize=False, verbose_name='ID')),
                 ('start_time', models.TimeField()),
                 ('end_time', models.TimeField()),
                 ('start_date', models.DateField()),
-                ('end_date', models.DateField(blank=True, null=True)),
             ],
             options={
                 'abstract': False,
@@ -28,13 +27,12 @@ class Migration(migrations.Migration):
             bases=(models.Model,),
         ),
         migrations.CreateModel(
-            name='MeetWeekslot',
+            name='MeetRegular',
             fields=[
-                ('id', models.AutoField(verbose_name='ID', auto_created=True, primary_key=True, serialize=False)),
+                ('id', models.AutoField(primary_key=True, auto_created=True, serialize=False, verbose_name='ID')),
                 ('start_time', models.TimeField()),
                 ('end_time', models.TimeField()),
                 ('start_dow', models.PositiveSmallIntegerField(choices=[(0, 'Monday'), (1, 'Tuesday'), (2, 'Wednesday'), (3, 'Thursday'), (4, 'Friday'), (5, 'Saturday'), (6, 'Sunday')])),
-                ('end_dow', models.PositiveSmallIntegerField(choices=[(0, 'Monday'), (1, 'Tuesday'), (2, 'Wednesday'), (3, 'Thursday'), (4, 'Friday'), (5, 'Saturday'), (6, 'Sunday')], null=True, blank=True)),
             ],
             options={
                 'abstract': False,
@@ -42,13 +40,12 @@ class Migration(migrations.Migration):
             bases=(models.Model,),
         ),
         migrations.CreateModel(
-            name='NeedDateslot',
+            name='NeedDate',
             fields=[
-                ('id', models.AutoField(verbose_name='ID', auto_created=True, primary_key=True, serialize=False)),
+                ('id', models.AutoField(primary_key=True, auto_created=True, serialize=False, verbose_name='ID')),
                 ('start_time', models.TimeField()),
                 ('end_time', models.TimeField()),
                 ('start_date', models.DateField()),
-                ('end_date', models.DateField(blank=True, null=True)),
                 ('location', models.ForeignKey(to='location.Location')),
             ],
             options={
@@ -57,13 +54,12 @@ class Migration(migrations.Migration):
             bases=(models.Model,),
         ),
         migrations.CreateModel(
-            name='NeedWeekslot',
+            name='NeedRegular',
             fields=[
-                ('id', models.AutoField(verbose_name='ID', auto_created=True, primary_key=True, serialize=False)),
+                ('id', models.AutoField(primary_key=True, auto_created=True, serialize=False, verbose_name='ID')),
                 ('start_time', models.TimeField()),
                 ('end_time', models.TimeField()),
                 ('start_dow', models.PositiveSmallIntegerField(choices=[(0, 'Monday'), (1, 'Tuesday'), (2, 'Wednesday'), (3, 'Thursday'), (4, 'Friday'), (5, 'Saturday'), (6, 'Sunday')])),
-                ('end_dow', models.PositiveSmallIntegerField(choices=[(0, 'Monday'), (1, 'Tuesday'), (2, 'Wednesday'), (3, 'Thursday'), (4, 'Friday'), (5, 'Saturday'), (6, 'Sunday')], null=True, blank=True)),
                 ('location', models.ForeignKey(to='location.Location')),
             ],
             options={
@@ -72,13 +68,12 @@ class Migration(migrations.Migration):
             bases=(models.Model,),
         ),
         migrations.CreateModel(
-            name='OfferDateslot',
+            name='OfferDate',
             fields=[
-                ('id', models.AutoField(verbose_name='ID', auto_created=True, primary_key=True, serialize=False)),
+                ('id', models.AutoField(primary_key=True, auto_created=True, serialize=False, verbose_name='ID')),
                 ('start_time', models.TimeField()),
                 ('end_time', models.TimeField()),
                 ('start_date', models.DateField()),
-                ('end_date', models.DateField(blank=True, null=True)),
                 ('user', models.ForeignKey(to=settings.AUTH_USER_MODEL)),
             ],
             options={
@@ -87,13 +82,12 @@ class Migration(migrations.Migration):
             bases=(models.Model,),
         ),
         migrations.CreateModel(
-            name='OfferWeekslot',
+            name='OfferRegular',
             fields=[
-                ('id', models.AutoField(verbose_name='ID', auto_created=True, primary_key=True, serialize=False)),
+                ('id', models.AutoField(primary_key=True, auto_created=True, serialize=False, verbose_name='ID')),
                 ('start_time', models.TimeField()),
                 ('end_time', models.TimeField()),
                 ('start_dow', models.PositiveSmallIntegerField(choices=[(0, 'Monday'), (1, 'Tuesday'), (2, 'Wednesday'), (3, 'Thursday'), (4, 'Friday'), (5, 'Saturday'), (6, 'Sunday')])),
-                ('end_dow', models.PositiveSmallIntegerField(choices=[(0, 'Monday'), (1, 'Tuesday'), (2, 'Wednesday'), (3, 'Thursday'), (4, 'Friday'), (5, 'Saturday'), (6, 'Sunday')], null=True, blank=True)),
                 ('user', models.ForeignKey(to=settings.AUTH_USER_MODEL)),
             ],
             options={
@@ -102,27 +96,27 @@ class Migration(migrations.Migration):
             bases=(models.Model,),
         ),
         migrations.AddField(
-            model_name='meetweekslot',
+            model_name='meetregular',
             name='need',
-            field=models.ForeignKey(to='slot.NeedWeekslot'),
+            field=models.ForeignKey(to='slot.NeedRegular'),
             preserve_default=True,
         ),
         migrations.AddField(
-            model_name='meetweekslot',
+            model_name='meetregular',
             name='offer',
-            field=models.ForeignKey(to='slot.OfferWeekslot'),
+            field=models.ForeignKey(to='slot.OfferRegular'),
             preserve_default=True,
         ),
         migrations.AddField(
-            model_name='meetdateslot',
+            model_name='meetdate',
             name='need',
-            field=models.ForeignKey(to='slot.NeedDateslot'),
+            field=models.ForeignKey(to='slot.NeedDate'),
             preserve_default=True,
         ),
         migrations.AddField(
-            model_name='meetdateslot',
+            model_name='meetdate',
             name='offer',
-            field=models.ForeignKey(to='slot.OfferDateslot'),
+            field=models.ForeignKey(to='slot.OfferDate'),
             preserve_default=True,
         ),
     ]
