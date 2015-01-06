@@ -45,7 +45,7 @@ class Profile(models.Model):
     phone_backup = models.CharField(max_length=12, blank=True)
 
     # for center related stuff.
-    centers = models.ManyToManyField(Center)
+    centers = models.ManyToManyField(Center, limit_choices_to={'status': True})
     verified = models.NullBooleanField()
 
     def __str__(self):
