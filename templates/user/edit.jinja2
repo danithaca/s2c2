@@ -1,11 +1,11 @@
-{% extends "base.jinja2" %}
+{% extends "user/user-admin.jinja2" %}
 {% load bootstrap %}
 
-{% block title %}Edit{% endblock %}
+{% block title %}Edit profile{% endblock %}
 
-{% block page %}
+{% block content %}
   <!--div class="alert alert-info" role="alert">Please signup below. You have to use the invitation code.</div-->
-  <div class="panel panel-primary">
+  <div class="panel panel-default">
     <div class="panel-heading">Edit - {{ edit_user.username }}</div>
     <div class="panel-body">
       <form class="form-horizontal" role="form" method="post" action="{% url 'user:edit' %}">

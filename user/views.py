@@ -47,7 +47,7 @@ def signup(request):
 
 
 def signup_simple(request):
-    class SignupForm(UserCreationForm):
+    class SimpleSignupForm(UserCreationForm):
         required_css_class = 'required'
         invitation_code = RegexField(
             label=_('Invitation code'),
@@ -55,10 +55,10 @@ def signup_simple(request):
             regex=r'^north$',
             error_messages={'invalid': _('Wrong invitation code. Please contact your coordinator.')},
             required=True,
-        )
+            )
 
         def __init__(self, *args, **kwargs):
-            super(SignupForm, self).__init__(*args, **kwargs)
+            super(SimpleSignupForm, self).__init__(*args, **kwargs)
             self.fields['email'].required = True
 
         class Meta:
@@ -67,7 +67,7 @@ def signup_simple(request):
 
     class SignupView(FormView):
         template_name = 'user/signup_simple.jinja2'
-        form_class = SignupForm
+        form_class = SimpleSignupForm
         success_url = reverse('user:edit')
 
         def form_valid(self, form):
@@ -84,7 +84,6 @@ def signup_simple(request):
             return super(SignupView, self).form_valid(form)
 
     return SignupView.as_view()(request)
-
 
 
 def signup_full(request):
@@ -215,6 +214,7 @@ def login(request):
 #     messages.info(request, 'User %s logged in successfully.' % user.get_username())
 
 
+@login_required
 def logout(request):
     username = request.user.get_username() if request.user.is_authenticated() else None
     response = auth_views.logout(request, template_name='user/logout.jinja2', next_page='/')
