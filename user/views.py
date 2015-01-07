@@ -43,6 +43,51 @@ class ProfileForm(ModelForm):
 
 
 def signup(request):
+    return signup_simple(request)
+
+
+def signup_simple(request):
+    class SignupForm(UserCreationForm):
+        required_css_class = 'required'
+        invitation_code = RegexField(
+            label=_('Invitation code'),
+            help_text=_('Signup is only available for people who have the correct invitation code.'),
+            regex=r'^north$',
+            error_messages={'invalid': _('Wrong invitation code. Please contact your coordinator.')},
+            required=True,
+        )
+
+        def __init__(self, *args, **kwargs):
+            super(SignupForm, self).__init__(*args, **kwargs)
+            self.fields['email'].required = True
+
+        class Meta:
+            model = User
+            fields = ('invitation_code', "username", 'password1', 'password2', 'email')
+
+    class SignupView(FormView):
+        template_name = 'user/signup_simple.jinja2'
+        form_class = SignupForm
+        success_url = reverse('user:edit')
+
+        def form_valid(self, form):
+            # this calls SignupForm::UserCreationForm::save()
+            form.save()
+
+            if not request.user.is_authenticated():
+                # requires authentication() first.
+                au = auth.authenticate(username=form.cleaned_data['username'], password=form.cleaned_data['password1'])
+                auth.login(request, au)
+                messages.info(request, 'Signup successful. Please edit your profile.')
+
+            # this calls the default FormView::form_valid()
+            return super(SignupView, self).form_valid(form)
+
+    return SignupView.as_view()(request)
+
+
+
+def signup_full(request):
 
     class UserForm(UserCreationForm):
         required_css_class = 'required'
@@ -98,7 +143,7 @@ def signup(request):
     else:
         form_user = UserForm()
         form_staff = ProfileForm()
-    return render(request, 'user/signup.jinja2', {'form_user': form_user, 'form_staff': form_staff})
+    return render(request, 'user/signup_full.jinja2', {'form_user': form_user, 'form_staff': form_staff})
 
 
 # def signup(request):

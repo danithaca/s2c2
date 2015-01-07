@@ -1,0 +1,21 @@
+{% extends "user/pre-login.jinja2" %}
+{% load bootstrap %}
+
+{% block title %}Signup{% endblock %}
+
+{% block content_form %}
+<div class="panel panel-default">
+  <div class="panel-heading">Signup</div>
+  <div class="panel-body">
+    <form class="form-horizontal" role="form" method="post" action="{% url 'user:signup' %}">
+      {% csrf_token %}
+      {{ form|bootstrap_horizontal:'col-sm-4' }}
+      <div class="form-group">
+        <div class="col-sm-offset-4 col-sm-8">
+          <button type="submit" class="btn btn-primary">Signup</button>
+        </div>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}
