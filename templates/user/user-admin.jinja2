@@ -1,17 +1,21 @@
 {% extends "base.jinja2" %}
 
+{% block extra_header %}{% verbatim %}
+  <script type="text/javascript">
+    $(document).ready(function() {
+      // this will copy the same links to user admin sidebar.
+      $('nav.navbar li.user-admin ul li>a').clone().addClass('list-group-item').appendTo('div.user-admin-sidebar')
+    });
+  </script>
+{% endverbatim %}{% endblock %}
+
 {% block page %}
   <div class="page-header">
     <h1>{{ user.get_username|default:'N/A' }}</h1>
   </div>
   <div class="row">
     <div class="col-sm-4">
-      <div class="list-group">
-        <a href="#" class="list-group-item"></a>
-        <a href="#" class="list-group-item">Dapibus ac facilisis in</a>
-        <a href="#" class="list-group-item">Morbi leo risus</a>
-        <a href="#" class="list-group-item">Porta ac consectetur ac</a>
-        <a href="#" class="list-group-item">Vestibulum at eros</a>
+      <div class="list-group user-admin-sidebar">
       </div>
     </div>
     <div class="col-sm-8">

@@ -57,6 +57,30 @@ class Profile(models.Model):
     #     return Profile.objects.get(pk=user.id)
 
 
+class UserProxy(object):
+    """
+    A proxy to django-user. Note the __getattr__() override.
+    """
+    def __init__(self, user):
+        assert user is not None and isinstance(user, User)
+        self.user = user
+        try:
+            self.profile = self.user.profile
+        except Profile.DoesNotExist as e:
+            self.profile = None
+
+    def has_profile(self):
+        return self.profile is not None
+
+    def is_verified(self):
+        return self.has_profile() and self.profile.verified is True
+
+    def __getattr__(self, attrib):
+        if self.has_profile() and hasattr(self.profile, attrib):
+            return getattr(self.profile, attrib)
+        return getattr(self.user, attrib)
+
+
 # class FullUser(User):
 #     """
 #     This class extends User but does not replace AUTH_MODULE. It will have the same PK as User object, which is

@@ -1,7 +1,6 @@
 from django.conf.urls import patterns, url
 import user.views
 from django.core.urlresolvers import reverse_lazy
-
 urlpatterns = patterns(
     '',
     url(r'^login/$', user.views.login, name='login'),
@@ -21,6 +20,8 @@ urlpatterns = patterns(
     #     'post_reset_redirect': reverse_lazy('user:login')
     # }, name='password_reset'),
 
+    url(r'^password/change/$', user.views.password_change, name='password_change'),
     url(r'^password/reset/$', user.views.password_reset, name='password_reset'),
     url(r'^password/reset/(?P<uidb64>\w+)/(?P<token>[-\w]+)/$', user.views.password_reset_confirm, name='password_reset_confirm'),
 )
+

@@ -12,7 +12,7 @@ from django.utils.translation import ugettext_lazy as _
 from django.views.defaults import server_error
 from django.views.generic import FormView, UpdateView
 
-from user.models import Profile
+from user.models import Profile, UserProxy
 
 
 # keep session open for 3 days.
@@ -78,7 +78,7 @@ def signup_simple(request):
                 # requires authentication() first.
                 au = auth.authenticate(username=form.cleaned_data['username'], password=form.cleaned_data['password1'])
                 auth.login(request, au)
-                messages.info(request, 'Signup successful. Please edit your profile.')
+                messages.success(request, 'Signup successful. Please edit your profile.')
 
             # this calls the default FormView::form_valid()
             return super(SignupView, self).form_valid(form)
@@ -202,7 +202,7 @@ def login(request):
     # extra_context={'next': '/'} is not needed since we have settings.LOGIN_REDIRECT_URL
     response = auth_views.login(request, template_name='user/login.jinja2', authentication_form=AuthenticationForm)
     if isinstance(response, HttpResponseRedirect):
-        messages.info(request, 'User %s logged in successfully.' % request.user.get_username())
+        messages.success(request, 'User %s logged in successfully.' % request.user.get_username())
         # TODO: allow user set REMEMBER_ME later.
         request.session.set_expiry(REMEMBER_ME_EXPIRY)
     return response
@@ -219,7 +219,7 @@ def logout(request):
     username = request.user.get_username() if request.user.is_authenticated() else None
     response = auth_views.logout(request, template_name='user/logout.jinja2', next_page='/')
     if username is not None and request.user.is_anonymous():
-        messages.info(request, 'User %s logged out successfully.' % username)
+        messages.success(request, 'User %s logged out successfully.' % username)
     return response
 
 
@@ -261,53 +261,32 @@ def edit(request):
             model = User
             fields = ('first_name', 'last_name', 'email')
 
-    edit_user = request.user
-    try:
-        edit_profile = edit_user.profile
-        # this might cause exception so there's chance it's not executed.
-        edit_profile = Profile.objects.get(user_id=edit_user.id)
-    except (Profile.DoesNotExist, Profile.DoesNotExist) as e:
-        edit_profile = None
+    user_proxy = UserProxy(request.user)
 
     if request.method == 'POST':
-        # handle password
-        form_password = PasswordChangeForm(user=edit_user, data=request.POST)
-        # d = form_password.cleaned_data
-        # pw_filled = d['old_password'] is not None or d['new_password1'] is not None or d['new_password2'] is not None
+        form_user = UserEditForm(request.POST, instance=user_proxy.user)
+        form_profile = ProfileForm(request.POST, instance=user_proxy.profile)
 
-        form_user = UserEditForm(request.POST, instance=edit_user)
-        form_profile = ProfileForm(request.POST, instance=edit_profile)
-
-        # if no password, or if password set but form is correct, and the other forms are correct, then save.
-        # otherwise show message.
-        if (not form_password.has_changed() or (form_password.has_changed() and form_password.is_valid())) and form_user.is_valid() and form_profile.is_valid():
-            if form_password.has_changed():
-                form_password.save()
-                messages.info(request, 'Password changed successfully. Please login again.')
-
+        if form_user.is_valid() and form_profile.is_valid():
             if form_user.has_changed():
                 form_user.save()
 
             if form_profile.has_changed():
-                if edit_profile is None:
-                    s = form_profile.save(commit=False)
-                    s.user = edit_user
-                    s.save()
-                    form_profile.save_m2m()
-                else:
-                    form_profile.save()
+                if not user_proxy.has_profile():
+                    # assign the correct user instance to create a new Profile instance.
+                    form_profile.instance.user = user_proxy.user
+                form_profile.save()
 
-            if form_password.has_changed() or form_user.has_changed() or form_profile.has_changed():
-                messages.info(request, 'Profile updated.')
+            if form_user.has_changed() or form_profile.has_changed():
+                messages.success(request, 'Profile updated.')
             else:
                 messages.warning(request, 'Nothing has updated.')
             return redirect('user:edit')
     else:
-        form_password = PasswordChangeForm(edit_user)
-        form_user = UserEditForm(instance=edit_user)
-        form_profile = ProfileForm(instance=edit_profile)
+        form_user = UserEditForm(instance=user_proxy.user)
+        form_profile = ProfileForm(instance=user_proxy.profile)
 
-    return render(request, 'user/edit.jinja2', {'form_password': form_password, 'form_user': form_user, 'form_profile': form_profile, 'edit_user': edit_user})
+    return render(request, 'user/edit.jinja2', {'form_user': form_user, 'form_profile': form_profile})
 
 
 def password_reset(request):
@@ -321,7 +300,7 @@ def password_reset(request):
         )
         # note: auth.views.password_reset() doesn't tell you if the email exists or not for security reasons.
         if isinstance(response, HttpResponseRedirect):
-            messages.info(request, 'Your request has been received. We will send you an email shortly if the email is valid.')
+            messages.success(request, 'Your request has been received. We will send you an email shortly if the email is valid.')
         return response
     except ConnectionRefusedError:
         messages.error(request, 'Email service is not configured. No email is sent out. Please report the bug to system admin.')
@@ -333,7 +312,18 @@ def password_reset_confirm(request, uidb64, token):
     response = auth_views.password_reset_confirm(request,  uidb64=uidb64, token=token,
         template_name='user/password_reset_confirm.jinja2', post_reset_redirect=reverse('login'))
     if isinstance(response, HttpResponseRedirect):
-        messages.info(request, 'Password reset successfully. Please login using your new password.')
+        messages.success(request, 'Password reset successfully. Please login using your new password.')
+    return response
+
+
+@login_required
+def password_change(request):
+    redirect_url = '/'
+    response = auth_views.password_change(request,
+        template_name='user/password_change.jinja2',
+        post_change_redirect=redirect_url)
+    if isinstance(response, HttpResponseRedirect):
+        messages.success(request, 'Your password has changed successfully.')
     return response
 
 
