@@ -1,30 +1,24 @@
-{% extends "base.jinja2" %}
+{% extends "user/pre-login.jinja2" %}
 {% load bootstrap %}
 
 {% block title %}Login{% endblock %}
 
-{% block page %}
-<!--div class="alert alert-info" role="alert">Please login below.</div-->
-<div class="row">
-  <div class="col-sm-6 col-sm-offset-3">
-    <div class="panel panel-primary">
-      <div class="panel-heading">Login</div>
-      <div class="panel-body">
-        <form class="form-horizontal" role="form" method="post" action="{% url 'user:login' %}">
-          {% csrf_token %}
-          {{ form|bootstrap_horizontal:'col-sm-4' }}
-          <div class="form-group">
-            <div class="col-sm-offset-4 col-sm-8">
-              <button type="submit" class="btn btn-primary">Log in</button>
-{#              or <a href="{% url 'user:signup' %}">sign up</a>#}
-            </div>
-          </div>
-        </form>
+{% block content_form %}
+<div class="panel panel-default">
+  <div class="panel-heading">Login</div>
+  <div class="panel-body">
+    <form class="form-horizontal" role="form" method="post" action="{% url 'user:login' %}">
+      {% csrf_token %}
+      {{ form|bootstrap_horizontal:'col-sm-4' }}
+      <div class="form-group">
+        <div class="col-sm-offset-4 col-sm-8">
+          <button type="submit" class="btn btn-primary">Log in</button>
+        </div>
       </div>
-      <div class="panel-footer">
-        <a href="{% url 'user:password_reset' %}">Forget password?</a>
-      </div>
-    </div>
+    </form>
+  </div>
+  <div class="panel-footer">
+    <a href="{% url 'user:password_reset' %}">Forget password?</a>
   </div>
 </div>
 {% endblock %}
