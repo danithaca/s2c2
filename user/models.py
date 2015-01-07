@@ -57,7 +57,7 @@ class Profile(models.Model):
     #     return Profile.objects.get(pk=user.id)
 
 
-class UserProxy(object):
+class UserProfile(object):
     """
     A proxy to django-user. Note the __getattr__() override.
     """
@@ -69,11 +69,31 @@ class UserProxy(object):
         except Profile.DoesNotExist as e:
             self.profile = None
 
+    @staticmethod
+    def get_by_id(pk):
+        return UserProfile(User.objects.get(pk=pk))
+
     def has_profile(self):
         return self.profile is not None
 
     def is_verified(self):
         return self.has_profile() and self.profile.verified is True
+
+    def get_groups_id_set(self):
+        return set(self.user.groups.values_list('pk', flat=True))
+
+    def is_center_manager(self):
+        manager_role = GroupRole.get_by_name('manager')
+        if self.is_verified() and manager_role is not None and manager_role.pk in self.get_groups_id_set():
+            return True
+        else:
+            return False
+
+    def is_center_staff(self):
+        if self.is_verified() and not GroupRole.get_center_staff_role_id_set().isdisjoint(self.get_groups_id_set()):
+            return True
+        else:
+            return False
 
     def __getattr__(self, attrib):
         if self.has_profile() and hasattr(self.profile, attrib):
@@ -115,6 +135,35 @@ class Role(models.Model):
     machine_name = models.SlugField(max_length=50)
     # specify whether this role is to function for children centers.
     type_center = models.BooleanField(default=False)
+
+
+class GroupRole(object):
+    def __init__(self, group):
+        assert group is not None and isinstance(group, Group)
+        self.group = group
+        # we assume all group has a role, or we'll raise exception.
+        self.role = group.role
+
+    def __getattr__(self, attrib):
+        if hasattr(self.role, attrib):
+            return getattr(self.role, attrib)
+        return getattr(self.group, attrib)
+
+    @property
+    def pk(self):
+        assert self.group.pk == self.role.pk
+        return self.group.pk
+
+    @staticmethod
+    def get_by_name(name):
+        role = Role.objects.get(machine_name=name)
+        return GroupRole(role.group)
+
+    @staticmethod
+    def get_center_staff_role_id_set():
+        # TODO: might want to cache it.
+        # return set([GroupRole.get_by_name(n).pk for n in center_staff_role])
+        return set(Role.objects.filter(machine_name__in=('teacher', 'support', 'intern')).values_list('pk', flat=True))
 
 
 # class Staff(Profile):

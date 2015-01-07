@@ -1,0 +1,15 @@
+{% extends "base.jinja2" %}
+{% load staticfiles %}
+{% load bootstrap %}
+
+{% block title %}Dashboard{% endblock %}
+
+{% block page %}
+  <div class="page-header">
+    <h1>{{ user.username|default:'N/A' }} <small>{{ header_extra }}</small></h1>
+  </div>
+
+  {% if not user_profile.is_center_manager and not user_profile.is_center_staff %}
+  <div class="alert alert-danger">The account {{ user.username|default:'N/A' }} is not verified or does not have a valid role.</div>
+  {% endif %}
+{% endblock %}

@@ -11,17 +11,12 @@
     {#  <div><img src="{% static 'logo.png' %}"></div>#}
     <h1>Welcome</h1>
     <p>Scheduling Software for Children's Center</p>
-    {% if user.is_anonymous %}
-      <p>
-        <a class="btn btn-primary btn-lg" href="{% url 'user:signup' %}" role="button">Sign up</a>
-        {#      <a class="btn btn-primary btn-lg" href="{% url 'user:login' %}" role="button">Login</a>#}
-      </p>
-    {% else %}
-      <p>You are logged in as: {{ user.get_username|default:"N/A" }}</p>
-    {% endif %}
+    <p>
+      <a class="btn btn-primary btn-lg" href="{% url 'user:signup' %}" role="button">Sign up</a>
+      {#      <a class="btn btn-primary btn-lg" href="{% url 'user:login' %}" role="button">Login</a>#}
+    </p>
   </div>
   <div class="col-sm-4">
-    {% if user.is_anonymous %}
     <div class="panel panel-default">
       <div class="panel-heading">Already signed up? Login here:</div>
       <div class="panel-body">
@@ -39,7 +34,6 @@
         <a href="{% url 'user:password_reset' %}">Forget password?</a>
       </div>
     </div>
-    {% endif %}
   </div>
 </div>
 <p class="alert alert-warning">This site is in development is currently only available to the University of Michigan <strong>North Campus Children's Center</strong>. If you are interested in using the site, please <a href="http://consulting.knowsun.com">contact us</a>.</p>
