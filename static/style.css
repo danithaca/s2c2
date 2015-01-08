@@ -11,3 +11,6 @@ body {
   max-height: 60px;
   max-width: 50px;
 }
+
+#page-summary table * { border-top: none; }
+#page-summary table { margin-bottom: 0; }

@@ -260,8 +260,8 @@ def edit(request):
             model = Profile
             fields = ('phone_main', 'address', 'centers', 'role', 'note')
             widgets = {
-                # 'centers': CheckboxSelectMultiple()
-                'centers': Select()
+                'centers': CheckboxSelectMultiple()
+                # 'centers': Select()
             }
 
     user_profile = UserProfile(request.user)

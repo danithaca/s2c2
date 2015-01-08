@@ -1,0 +1,18 @@
+{% extends "base.jinja2" %}
+{% load staticfiles %}
+{% load bootstrap %}
+
+{% block page %}
+  <div class="page-header">
+    <h1>{% block page-header %}Page Header <small>Description</small>{% endblock %}</h1>
+  </div>
+  {% block page-message %}{% endblock %}
+
+  <section class="well" id="page-summary">
+    {% block page-summary %}{% endblock %}
+  </section>
+
+  <section id="page-content">
+    {% block page-content %}{% endblock %}
+  </section>
+{% endblock %}

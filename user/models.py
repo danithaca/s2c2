@@ -83,17 +83,22 @@ class UserProfile(object):
         return set(self.user.groups.values_list('pk', flat=True))
 
     def is_center_manager(self):
-        manager_role = GroupRole.get_by_name('manager')
-        if self.is_verified() and manager_role is not None and manager_role.pk in self.get_groups_id_set():
+        if not GroupRole.get_center_manager_role_id_set().isdisjoint(self.get_groups_id_set()):
             return True
         else:
             return False
 
     def is_center_staff(self):
-        if self.is_verified() and not GroupRole.get_center_staff_role_id_set().isdisjoint(self.get_groups_id_set()):
+        if not GroupRole.get_center_staff_role_id_set().isdisjoint(self.get_groups_id_set()):
             return True
         else:
             return False
+
+    def get_display_name(self, short=False):
+        name = self.user.get_full_name() if not short else self.user.get_short_name()
+        if len(name) == 0:
+            name = self.user.get_username()
+        return name
 
     def __getattr__(self, attrib):
         if self.has_profile() and hasattr(self.profile, attrib):
@@ -165,8 +170,14 @@ class GroupRole(object):
         # return set([GroupRole.get_by_name(n).pk for n in center_staff_role])
         return set(Role.objects.filter(machine_name__in=('teacher', 'support', 'intern')).values_list('pk', flat=True))
 
+    @staticmethod
+    def get_center_manager_role_id_set():
+        return set(Role.objects.filter(machine_name='manager').values_list('pk', flat=True))
 
-# class Staff(Profile):
+
+
+
+        # class Staff(Profile):
 #     """
 #     Staff are those who work for a center.
 #     Directors are also staff, but are defined in django "group" in order to have more permissions.
