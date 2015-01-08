@@ -9,3 +9,11 @@ def staff_date(request, uid=None):
     return TemplateResponse(request, template='slot/staff.jinja2', context={
         'user_profile': user_profile
     })
+
+
+@login_required
+def staff_regular(request, uid=None):
+    user_profile = UserProfile.get_by_id_default(uid, request.user)
+    return TemplateResponse(request, template='slot/staff_regular.jinja2', context={
+        'user_profile': user_profile
+    })
