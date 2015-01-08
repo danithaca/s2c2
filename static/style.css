@@ -14,3 +14,6 @@ body {
 
 #page-summary table * { border-top: none; }
 #page-summary table { margin-bottom: 0; }
+#page-summary:empty { display: none; }
+
+#page-error-message:empty { display: none; }

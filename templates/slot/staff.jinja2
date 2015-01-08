@@ -1,0 +1,60 @@
+{% extends "base.jinja2" %}
+{% block title %}Calendar{% endblock %}
+
+{% block page %}
+  <div class="page-header">
+    <h1>Tracy <small>Staff, NCCC</small></h1>
+    <h2><a href="#" title="Pick a date">Today (Monday, December 12)</a><small><a href="#" title="Switch to the regular schedule" style="margin-left: 40px;"><i class="fa fa-exchange"></i></a></small></h2>
+  </div>
+
+  <div class="row">
+    <div class="col-sm-6">
+      <table class="table table-bordered table-hover table-striped">
+        <thead><tr>
+          <th></th>
+          <th>Availability and Assignment</th>
+        </tr></thead>
+        <tbody>
+        <tr><th scope="row">7:00am~7:30am</th><td class="text-muted">Available</td></tr>
+        <tr><th scope="row">7:00am~7:30am</th><td class="text-muted">Available</td></tr>
+        <tr><th scope="row">7:00am~7:30am</th><td>Sleeping Bears</td></tr>
+        <tr><th scope="row">7:00am~7:30am</th><td>Sleeping Bears</td></tr>
+        <tr><th scope="row">7:00am~7:30am</th><td>Sleeping Bears</td></tr>
+        <tr><th scope="row">7:00am~7:30am</th><td>Sleeping Bears</td></tr>
+        <tr><th scope="row">7:00am~7:30am</th><td>Sleeping Bears</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="col-sm-6">
+
+      <div class="panel-group" id="command-list">
+        <div class="panel panel-default">
+          <div class="panel-heading">
+            <h4 class="panel-title"><a data-toggle="collapse" data-parent="#command-list" href="#command-form-classroom">View classroom needs</a></h4>
+          </div>
+          <div id="command-form-classroom" class="panel-collapse collapse in">
+            <div class="panel-body">N/A</div>
+          </div>
+        </div>
+        <div class="panel panel-default">
+          <div class="panel-heading">
+            <h4 class="panel-title"><a class="collapsed" data-toggle="collapse" data-parent="#command-list" href="#command-form-offer-add">Add availability</a></h4>
+          </div>
+          <div id="command-form-offer-add" class="panel-collapse collapse">
+            <div class="panel-body">N/A</div>
+          </div>
+        </div>
+        <div class="panel panel-default">
+          <div class="panel-heading">
+            <h4 class="panel-title"><a class="collapsed" data-toggle="collapse" data-parent="#command-list" href="#command-form-offer-delete">Delete availability</a></h4>
+          </div>
+          <div id="command-form-offer-delete" class="panel-collapse collapse">
+            <div class="panel-body">N/A</div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+{% endblock %}
+
