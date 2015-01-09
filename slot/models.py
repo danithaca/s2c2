@@ -1,18 +1,9 @@
+from itertools import product
 from django.db import models
 from django.contrib.auth.models import User
 from location.models import Location
 import calendar
-
-
-class Slot(models.Model):
-    """
-    Any class that has the start_time and end_time will be subclass of this.
-    """
-    start_time = models.TimeField()
-    end_time = models.TimeField()
-
-    class Meta():
-        abstract = True
+from datetime import time, timedelta, datetime, date
 
 
 class DayOfWeek(object):
@@ -45,6 +36,65 @@ class DayOfWeek(object):
     @property
     def name(self):
         return DayOfWeek.get_name(self.dow)
+
+
+class HalfHourTime(object):
+    """
+    helper class for handling slot based on half hour interval
+    """
+    tuple = tuple(sorted(time(hour=h, minute=m) for h, m in product(range(24), (0, 30))))
+    set = set(time(hour=h, minute=m) for h, m in product(range(24), (0, 30)))
+    map = {t: i for i, t in enumerate(tuple)}
+    strformat = '%I:%M%p'
+
+    @staticmethod
+    def next(t):
+        assert t in HalfHourTime.set
+        return HalfHourTime.tuple[(HalfHourTime.map[t] + 1) % len(HalfHourTime.tuple)]
+
+    @staticmethod
+    def prev(t):
+        assert t in HalfHourTime.set
+        return HalfHourTime.tuple[(HalfHourTime.map[t] - 1)]
+
+    @staticmethod
+    def interval(start_time, end_time):
+        # this is end-exclusive [start, end)
+        assert start_time in HalfHourTime.set and end_time in HalfHourTime.set and end_time > start_time
+        return HalfHourTime.tuple[HalfHourTime.map[start_time]:HalfHourTime.map[end_time]]
+
+    @staticmethod
+    def display(t):
+        return t.strftime(HalfHourTime.strformat)
+
+    @staticmethod
+    def parse(s):
+        t = datetime.strptime(s, HalfHourTime.strformat).time()
+        assert t in HalfHourTime.set
+        return t
+
+    @staticmethod
+    def get_choices(start_time, end_time):
+        return tuple([(HalfHourTime.display(t), HalfHourTime.display(t)) for t in HalfHourTime.interval(start_time, end_time)])
+
+    def __init__(self, start_time):
+        assert start_time in HalfHourTime.set
+        self.start_time = start_time
+        self.end_time = HalfHourTime.next(self.start_time)
+
+    def __str__(self):
+        return '%s ~ %s' % (HalfHourTime.display(self.start_time), HalfHourTime.display(self.end_time))
+
+
+class Slot(models.Model):
+    """
+    Any class that has the start_time and end_time will be subclass of this.
+    """
+    start_time = models.TimeField()
+    end_time = models.TimeField()
+
+    class Meta():
+        abstract = True
 
 
 class RegularSlot(Slot):
@@ -101,7 +151,14 @@ class OfferRegular(OfferInfo, RegularSlot):
     """
     Real class for offer on the regular schedule
     """
-    pass
+    @staticmethod
+    def add(start_dow, user, start_time, end_time):
+        for st in HalfHourTime.interval(start_time, end_time):
+            h = HalfHourTime(st)
+            if OfferRegular.objects.filter(start_dow=start_dow, user=user, start_time=h.start_time, end_time=h.end_time).exists():
+                continue
+            m = OfferRegular(start_dow=start_dow, user=user, start_time=h.start_time, end_time=h.end_time)
+            m.save()
 
 
 class OfferDate(OfferInfo, DateSlot):

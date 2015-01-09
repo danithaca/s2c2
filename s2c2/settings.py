@@ -39,6 +39,9 @@ INSTALLED_APPS = (
     'django.contrib.messages',
     'django.contrib.staticfiles',
 
+    # should not use in production
+    'django_extensions',
+
     # external
     # 'pinax_theme_bootstrap',
     'bootstrapform', # from django-bootstrap-form

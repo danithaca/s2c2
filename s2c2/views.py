@@ -45,7 +45,3 @@ def classroom(request, pk):
     return TemplateResponse(request, template='classroom.jinja2', context={
         'classroom': cr
     })
-
-
-def dummy(request):
-    return HttpResponse('Please override.')
