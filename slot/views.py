@@ -1,10 +1,11 @@
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.core.urlresolvers import reverse
+from django.http import HttpResponseBadRequest
 from django.shortcuts import render, redirect
 from django.template.response import TemplateResponse
 from django import forms
-from user.models import UserProfile
+from user.models import UserProfile, CenterStaff
 from .models import RegularSlot, DayOfWeek, HalfHourTime, OfferRegular
 from datetime import datetime, time
 
@@ -32,15 +33,25 @@ def staff_regular(request, uid=None):
     user_profile = UserProfile.get_by_id_default(uid, request.user)
     dow = DayOfWeek(_get_request_dow(request))
 
+    if not user_profile.is_center_staff():
+        return HttpResponseBadRequest()
+
     # handle regular offer add form. set data for instance.
     command_form_offer_add = RegularSlotForm()
     command_form_offer_add.fields['start_dow'].widget = forms.HiddenInput()
     command_form_offer_add.fields['start_dow'].initial = dow.dow
 
+    # handle regular offer add form. set data for instance.
+    command_form_offer_delete = RegularSlotForm()
+    command_form_offer_delete.fields['start_dow'].widget = forms.HiddenInput()
+    command_form_offer_delete.fields['start_dow'].initial = dow.dow
+
     return TemplateResponse(request, template='slot/staff_regular.jinja2', context={
         'user_profile': user_profile,
         'dow': dow,
-        'command_form_offer_add': command_form_offer_add
+        'slot_table_data': user_profile.get_slot_table_regular(dow.dow),
+        'command_form_offer_add': command_form_offer_add,
+        'command_form_offer_delete': command_form_offer_delete,
     })
 
 
@@ -99,9 +110,16 @@ def offer_regular_delete(request, uid):
     if request.method == 'POST':
         form = RegularSlotForm(request.POST)
         if form.is_valid():
-            OfferRegular.delete_interval(start_time=form.cleaned_data['start_time'],
-                                         end_time=form.cleaned_data['end_time'],
-                                         start_dow=form.cleaned_data['start_dow'], user=user_profile.user)
+            if 'delete' in form.data:
+                OfferRegular.delete_interval(start_time=form.cleaned_data['start_time'],
+                                             end_time=form.cleaned_data['end_time'],
+                                             start_dow=form.cleaned_data['start_dow'], user=user_profile.user)
+                messages.success(request, 'Delete request is executed.')
+            elif 'delete-all' in form.data:
+                OfferRegular.objects.filter(start_dow=form.cleaned_data['start_dow'], user=user_profile.user).delete()
+                messages.success(request, 'Delete all day is executed.')
+            else:
+                messages.error(request, 'Unrecognized command request.')
             return redirect(request.GET.get('next', request.META['HTTP_REFERER']))
 
     if request.method == 'GET':

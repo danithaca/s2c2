@@ -1,3 +1,4 @@
+from datetime import time
 from django.db import models
 from django.contrib.auth.models import User, Group
 from location.models import Center
@@ -27,6 +28,7 @@ from location.models import Center
 #
 #     def get_profile(self):
 #         return self.profile if hasattr(self, 'profile') else None
+from slot.models import HalfHourTime, OfferRegular
 
 
 class Profile(models.Model):
@@ -71,7 +73,12 @@ class UserProfile(object):
 
     @staticmethod
     def get_by_id(pk):
-        return UserProfile(User.objects.get(pk=pk))
+        """ Factory method. Load UserProfile or its subclass based on which role the user is in. """
+        p = UserProfile(User.objects.get(pk=pk))
+        if p.is_center_staff():
+            return CenterStaff(p.user)
+        else:
+            return p
 
     @staticmethod
     def get_by_id_default(pk, default_user):
@@ -79,7 +86,7 @@ class UserProfile(object):
             u = User.objects.get(pk=pk)
         except User.DoesNotExist as e:
             u = default_user
-        return UserProfile(u)
+        return UserProfile.get_by_id(u.pk)
 
     def has_profile(self):
         return self.profile is not None
@@ -112,6 +119,22 @@ class UserProfile(object):
         if self.has_profile() and hasattr(self.profile, attrib):
             return getattr(self.profile, attrib)
         return getattr(self.user, attrib)
+
+
+class CenterStaff(UserProfile):
+    """ Provide additional functions if the user is a center staff. """
+    def __init__(self, user):
+        super(CenterStaff, self).__init__(user)
+        assert self.is_center_staff()
+
+    def get_slot_table_regular(self, dow):
+        """ This is to prepare data for the table in "staff_regular" view. """
+        data = []
+        for t in HalfHourTime.interval(time(hour=7), time(hour=19, minute=30)):
+            t_obj = HalfHourTime(t)
+            data.append((str(t_obj), OfferRegular.objects.filter(start_dow=dow, user=self.user, start_time=t_obj.start_time, end_time=t_obj.end_time).exists()))
+        return data
+
 
 
 # class FullUser(User):

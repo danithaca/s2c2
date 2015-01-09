@@ -1,5 +1,6 @@
 from django.conf.urls import patterns, include, url
 from django.contrib import admin
+from s2c2 import utils
 import s2c2.views
 
 urlpatterns = patterns(
@@ -11,4 +12,5 @@ urlpatterns = patterns(
     url(r'^user/', include('user.urls', namespace='user')),
     url(r'^slot/', include('slot.urls', namespace='slot')),
     url(r'^admin/', include(admin.site.urls)),
+    url(r'^dummy/$', utils.dummy, name='dummy')
 )
