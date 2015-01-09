@@ -1,6 +1,7 @@
 from django.db import models
 from django.contrib.auth.models import User
 from location.models import Location
+import calendar
 
 
 class Slot(models.Model):
@@ -14,7 +15,40 @@ class Slot(models.Model):
         abstract = True
 
 
+class DayOfWeek(object):
+    @staticmethod
+    def get_tuple():
+        return (calendar.MONDAY, calendar.TUESDAY, calendar.WEDNESDAY, calendar.THURSDAY, calendar.FRIDAY, calendar.SATURDAY, calendar.SUNDAY)
+
+    @staticmethod
+    def get_choices():
+        return tuple((d, calendar.day_name[d]) for d in DayOfWeek.get_tuple())
+
+    @staticmethod
+    def get_set():
+        return set(DayOfWeek.get_tuple())
+
+    @staticmethod
+    def get_name(dow):
+        return calendar.day_name[dow]
+
+    def __init__(self, dow):
+        assert dow in DayOfWeek.get_set()
+        self.dow = dow
+
+    def prev(self):
+        return DayOfWeek(DayOfWeek.get_tuple()[self.dow - 1])
+
+    def next(self):
+        return DayOfWeek(DayOfWeek.get_tuple()[(self.dow + 1) % 7])
+
+    @property
+    def name(self):
+        return DayOfWeek.get_name(self.dow)
+
+
 class RegularSlot(Slot):
+    # todo: use python calendar.MONDAY, calendar.day_name[0] and calendar.iterweekdays() instead.
     MONDAY = 0
     TUESDAY = 1
     WEDNESDAY = 2
@@ -31,6 +65,8 @@ class RegularSlot(Slot):
         (SATURDAY, 'Saturday'),
         (SUNDAY, 'Sunday')
     )
+
+    DAY_OF_WEEK_SET = set([t[0] for t in DAY_OF_WEEK])
 
     start_dow = models.PositiveSmallIntegerField(choices=DAY_OF_WEEK)
     # end_dow = models.PositiveSmallIntegerField(choices=DAY_OF_WEEK, blank=True, null=True)
