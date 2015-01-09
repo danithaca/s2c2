@@ -1,4 +1,5 @@
 {% extends "base.jinja2" %}
+{% load bootstrap %}
 {% load s2c2_tags %}
 
 {% block title %}Staff Regular Schedule | S2C2{% endblock %}
@@ -40,7 +41,7 @@
           <div class="panel-heading">
             <h4 class="panel-title"><a data-toggle="collapse" data-parent="#command-list" href="#command-form-classroom">View classroom needs</a></h4>
           </div>
-          <div id="command-form-classroom" class="panel-collapse collapse in">
+          <div id="command-form-classroom" class="panel-collapse collapse">
             <div class="panel-body">N/A</div>
           </div>
         </div>
@@ -48,8 +49,19 @@
           <div class="panel-heading">
             <h4 class="panel-title"><a class="collapsed" data-toggle="collapse" data-parent="#command-list" href="#command-form-offer-add">Add availability</a></h4>
           </div>
-          <div id="command-form-offer-add" class="panel-collapse collapse">
-            <div class="panel-body">N/A</div>
+          <div id="command-form-offer-add" class="panel-collapse collapse in">
+            <div class="panel-body">
+              <form class="form-horizontal" role="form" method="post" action="{% url 'slot:offer_regular_add' uid=user_profile.pk %}">
+                {% csrf_token %}
+                {{ command_form_offer_add|bootstrap_horizontal:'col-sm-4' }}
+                <div class="form-group">
+                  <div class="col-sm-offset-4 col-sm-8">
+                    <button type="submit" class="btn btn-primary">Add</button>
+                    <span class="help-block">* Add only the missing time slot(s).</span>
+                  </div>
+                </div>
+              </form>
+            </div>
           </div>
         </div>
         <div class="panel panel-default">

@@ -1,6 +1,7 @@
+from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.core.urlresolvers import reverse
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from django.template.response import TemplateResponse
 from django import forms
 from user.models import UserProfile
@@ -31,9 +32,15 @@ def staff_regular(request, uid=None):
     user_profile = UserProfile.get_by_id_default(uid, request.user)
     dow = DayOfWeek(_get_request_dow(request))
 
+    # handle regular offer add form. set data for instance.
+    command_form_offer_add = RegularSlotForm()
+    command_form_offer_add.fields['start_dow'].widget = forms.HiddenInput()
+    command_form_offer_add.fields['start_dow'].initial = dow.dow
+
     return TemplateResponse(request, template='slot/staff_regular.jinja2', context={
         'user_profile': user_profile,
         'dow': dow,
+        'command_form_offer_add': command_form_offer_add
     })
 
 
@@ -67,11 +74,38 @@ def offer_regular_add(request, uid):
     if request.method == 'POST':
         form = RegularSlotForm(request.POST)
         if form.is_valid():
-            OfferRegular.add(start_time=form.cleaned_data['start_time'], end_time=form.cleaned_data['end_time'],
-                             start_dow=form.cleaned_data['start_dow'], user=user_profile.user)
+            added_time = OfferRegular.add_interval(start_time=form.cleaned_data['start_time'],
+                                          end_time=form.cleaned_data['end_time'],
+                                          start_dow=form.cleaned_data['start_dow'], user=user_profile.user)
+            if len(added_time) == 0:
+                messages.warning(request, 'All specified slots are already added. No slot is added again.')
+            else:
+                messages.success(request, 'Added slot(s): %s' % ', '.join([str(HalfHourTime(t)) for t in added_time]))
+            return redirect(request.GET.get('next', request.META['HTTP_REFERER']))
 
     if request.method == 'GET':
         form = RegularSlotForm()
 
     form_url = reverse('slot:offer_regular_add', kwargs={'uid': uid})
+    return render(request, 'base_form.jinja2', {'form': form, 'form_url': form_url, 'uid': uid})
+
+
+@login_required
+def offer_regular_delete(request, uid):
+    # uid is the target uid, which different from request.user.pk who is the "action" user.
+    user_profile = UserProfile.get_by_id(uid)
+    assert user_profile.is_center_staff()
+
+    if request.method == 'POST':
+        form = RegularSlotForm(request.POST)
+        if form.is_valid():
+            OfferRegular.delete_interval(start_time=form.cleaned_data['start_time'],
+                                         end_time=form.cleaned_data['end_time'],
+                                         start_dow=form.cleaned_data['start_dow'], user=user_profile.user)
+            return redirect(request.GET.get('next', request.META['HTTP_REFERER']))
+
+    if request.method == 'GET':
+        form = RegularSlotForm()
+
+    form_url = reverse('slot:offer_regular_delete', kwargs={'uid': uid})
     return render(request, 'base_form.jinja2', {'form': form, 'form_url': form_url, 'uid': uid})

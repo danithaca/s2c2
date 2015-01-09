@@ -102,20 +102,20 @@ USE_TZ = True
 
 STATIC_URL = '/static/'
 
-# TEMPLATE_CONTEXT_PROCESSORS = (
-#     "django.contrib.auth.context_processors.auth",
-#     "django.core.context_processors.debug",
-#     "django.core.context_processors.i18n",
-#     "django.core.context_processors.media",
-#     "django.core.context_processors.static",
-#     "django.core.context_processors.tz",
-#     "django.contrib.messages.context_processors.messages",
-#
-#     # external
-#     'django.core.context_processors.request',
-#     'pinax_theme_bootstrap.context_processors.theme',
-#     'account.context_processors.account',
-# )
+TEMPLATE_CONTEXT_PROCESSORS = (
+    "django.contrib.auth.context_processors.auth",
+    "django.core.context_processors.debug",
+    "django.core.context_processors.i18n",
+    "django.core.context_processors.media",
+    "django.core.context_processors.static",
+    "django.core.context_processors.tz",
+    "django.contrib.messages.context_processors.messages",
+
+    # add 'request' in context, which can be accessed from within template.
+    'django.core.context_processors.request',
+    # 'pinax_theme_bootstrap.context_processors.theme',
+    # 'account.context_processors.account',
+)
 
 # not added from startproject. need to manually add this.
 TEMPLATE_DIRS = (

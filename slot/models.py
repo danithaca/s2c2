@@ -152,13 +152,22 @@ class OfferRegular(OfferInfo, RegularSlot):
     Real class for offer on the regular schedule
     """
     @staticmethod
-    def add(start_dow, user, start_time, end_time):
+    def add_interval(start_dow, user, start_time, end_time):
+        added_time = []
         for st in HalfHourTime.interval(start_time, end_time):
             h = HalfHourTime(st)
             if OfferRegular.objects.filter(start_dow=start_dow, user=user, start_time=h.start_time, end_time=h.end_time).exists():
                 continue
             m = OfferRegular(start_dow=start_dow, user=user, start_time=h.start_time, end_time=h.end_time)
             m.save()
+            added_time.append(h.start_time)
+        return added_time
+
+    @staticmethod
+    def delete_interval(start_dow, user, start_time, end_time):
+        for st in HalfHourTime.interval(start_time, end_time):
+            h = HalfHourTime(st)
+            OfferRegular.objects.filter(start_dow=start_dow, user=user, start_time=h.start_time, end_time=h.end_time).delete()
 
 
 class OfferDate(OfferInfo, DateSlot):
