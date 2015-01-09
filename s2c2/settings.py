@@ -40,7 +40,7 @@ INSTALLED_APPS = (
     'django.contrib.staticfiles',
 
     # should not use in production
-    'django_extensions',
+    # 'django_extensions',
 
     # external
     # 'pinax_theme_bootstrap',
@@ -52,6 +52,7 @@ INSTALLED_APPS = (
     'location',
     'user',
     'slot',
+    'log',
 )
 
 MIDDLEWARE_CLASSES = (
