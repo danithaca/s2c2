@@ -81,12 +81,12 @@ class UserProfile(object):
             return p
 
     @staticmethod
-    def get_by_id_default(pk, default_user_profile):
+    def get_by_id_default(pk, default_user):
         try:
-            u = UserProfile.get_by_id(pk)
+            u = User.objects.get(pk=pk)
         except User.DoesNotExist as e:
-            u = default_user_profile
-        return u
+            u = default_user
+        return UserProfile.get_by_id(u.pk)
 
     def has_profile(self):
         return self.profile is not None

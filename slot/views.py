@@ -5,9 +5,11 @@ from django.http import HttpResponseBadRequest
 from django.shortcuts import render, redirect
 from django.template.response import TemplateResponse
 from django import forms
-from log.models import log_offer_regular_update, Log
+from location.models import Location, Classroom
+from log.models import log_offer_regular_update, Log, log_need_regular_update
+from s2c2.utils import dummy
 from user.models import UserProfile, CenterStaff
-from .models import RegularSlot, DayOfWeek, HalfHourTime, OfferRegular
+from .models import RegularSlot, DayOfWeek, HalfHourTime, OfferRegular, NeedRegular
 from datetime import datetime, time
 
 
@@ -31,7 +33,7 @@ def staff_date(request, uid=None):
 
 @login_required
 def staff_regular(request, uid=None):
-    user_profile = UserProfile.get_by_id_default(uid, UserProfile(request.user))
+    user_profile = UserProfile.get_by_id_default(uid, request.user)
     dow = DayOfWeek(_get_request_dow(request))
 
     if not user_profile.is_center_staff():
@@ -144,3 +146,64 @@ def offer_regular_delete(request, uid):
 
     form_url = reverse('slot:offer_regular_delete', kwargs={'uid': uid})
     return render(request, 'base_form.jinja2', {'form': form, 'form_url': form_url, 'uid': uid})
+
+
+class NeedRegularSlotForm(RegularSlotForm):
+    howmany = forms.ChoiceField(choices=[(i, i) for i in range(1, 6)], label='How many')
+
+
+@login_required
+def classroom_date(request, pk):
+    return dummy(request)
+
+
+@login_required
+def classroom_regular(request, pk):
+    # lots of code copied from staff_regular()
+    try:
+        classroom = Classroom.objects.get(pk=pk)
+    except Classroom.DoesNotExist as e:
+        return HttpResponseBadRequest()
+    dow = DayOfWeek(_get_request_dow(request))
+
+    # handle regular need add form
+    command_form_need_add = NeedRegularSlotForm()
+    command_form_need_add.fields['start_dow'].widget = forms.HiddenInput()
+    command_form_need_add.fields['start_dow'].initial = dow.dow
+
+    return TemplateResponse(request, template='slot/classroom_regular.jinja2', context={
+        'classroom': classroom,
+        'dow': dow,
+        'command_form_need_add': command_form_need_add,
+        'slot_table_data': classroom.get_slot_table_regular(dow.dow)
+    })
+
+
+@login_required
+def need_regular_add(request, cid):
+
+    # we don't catch DoesNotExist exception.
+    classroom = Classroom.objects.get(pk=cid)
+
+    if request.method == 'POST':
+        form = NeedRegularSlotForm(request.POST)
+        if form.is_valid():
+            start_dow = form.cleaned_data['start_dow']
+            NeedRegular.add_interval(start_dow=start_dow, location=classroom,
+                                     start_time=form.cleaned_data['start_time'],
+                                     end_time=form.cleaned_data['end_time'],
+                                     howmany=int(form.cleaned_data['howmany']))
+            messages.success(request, 'Needs added.')
+            log_need_regular_update(request.user, classroom, start_dow, 'added slot(s)')
+            return redirect(request.GET.get('next', request.META['HTTP_REFERER']))
+
+    if request.method == 'GET':
+        form = NeedRegularSlotForm()
+
+    form_url = reverse('slot:need_regular_add', kwargs={'cid': cid})
+    return render(request, 'base_form.jinja2', {'form': form, 'form_url': form_url})
+
+
+@login_required
+def need_regular_delete(request, cid):
+    return dummy(request)

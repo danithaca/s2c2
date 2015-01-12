@@ -185,9 +185,6 @@ class OfferRegular(OfferInfo, RegularSlot):
             return False
 
 
-
-
-
 class OfferDate(OfferInfo, DateSlot):
     """
     Real class for offer on particular date.
@@ -199,7 +196,14 @@ class NeedRegular(NeedInfo, RegularSlot):
     """
     Real class for offer on particular date.
     """
-    pass
+    @staticmethod
+    def add_interval(start_dow, location, start_time, end_time, howmany=1):
+        """ Add needs regardless of whether the needs exists already """
+        for st in HalfHourTime.interval(start_time, end_time):
+            h = HalfHourTime(st)
+            for i in range(howmany):
+                m = NeedRegular(start_dow=start_dow, location=location, start_time=h.start_time, end_time=h.end_time)
+                m.save()
 
 
 class NeedDate(NeedInfo, DateSlot):

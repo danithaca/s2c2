@@ -14,7 +14,8 @@
     <a href="{% url 'slot:staff_regular' %}" title="Go to the regular calendar for today" class="btn btn-default btn-sm"><i class="fa fa-calendar"></i> Today</a>
     <a href="#" title="Switch to the regular schedule" class="btn btn-default btn-sm"><i class="fa fa-exchange"></i> Switch</a>
   </h2>
-  {% dow-pager dow %}
+  {% url 'slot:staff_regular' as dow_pager_url %}
+  {% dow-pager dow dow_pager_url %}
 
   <div class="row">
     <div class="col-sm-6">

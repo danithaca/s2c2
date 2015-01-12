@@ -10,10 +10,14 @@ NO_UPDATE_INTERVAL = timedelta(hours=2)
 class Log(models.Model):
     TYPE_OFFER_REGULAR_UPDATE = 1
     TYPE_OFFER_DATE_UPDATE = 2
+    TYPE_NEED_REGULAR_UPDATE = 3
+    TYPE_NEED_DATE_UPDATE = 4
 
     LOG_TYPE = (
         (TYPE_OFFER_REGULAR_UPDATE, 'Update: offer regular'),
         (TYPE_OFFER_DATE_UPDATE, 'Update: offer date'),
+        (TYPE_NEED_REGULAR_UPDATE, 'Update: need regular'),
+        (TYPE_NEED_DATE_UPDATE, 'Update: need date'),
     )
 
     creator = models.ForeignKey(User)
@@ -27,4 +31,9 @@ def log_offer_regular_update(creator, target_user, target_dow, message=None):
     # this gets called by views functions because we need to track the "creator".
     # fixme: add logic that update by interval instead of create new entry.
     entry = Log(creator=creator, type=Log.TYPE_OFFER_REGULAR_UPDATE, ref='%d,%d' % (target_user.pk, int(target_dow)), message=message)
+    entry.save()
+
+
+def log_need_regular_update(creator, location, target_dow, message=None):
+    entry = Log(creator=creator, type=Log.TYPE_NEED_REGULAR_UPDATE, ref='%d,%d' % (location.pk, int(target_dow)), message=message)
     entry.save()

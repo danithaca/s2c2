@@ -28,11 +28,11 @@ def link_a(a):
 
 
 @register.simple_tag(name='dow-pager')
-def slot_dow_pager(dow):
+def slot_dow_pager(dow, url):
     assert isinstance(dow, DayOfWeek), type(dow)
     # generate list of <a>
     list_a = [(d, link_a({
-        'href': reverse('slot:staff_regular') + '?dow=' + str(d),
+        'href': url + '?dow=' + str(d),
         'text': '<i class="fa fa-calendar-o"></i> %s' % DayOfWeek.get_name(d)
     })) for d in DayOfWeek.get_tuple()]
     list_li = ['<li>%s</li>' % a if d != dow.dow else '<li class="active">%s</li>' % a for d, a in list_a]

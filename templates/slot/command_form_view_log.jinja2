@@ -4,6 +4,7 @@
 {% if change_log_entries.exists %}
   <ul>
   {% for entry in change_log_entries %}
+    {# fixme: timestamp is GMT in sqlite, not local time. #}
     <li>Updated on {{ entry.updated }}</li>
   {% endfor %}
   </ul>
