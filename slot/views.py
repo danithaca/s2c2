@@ -2,14 +2,14 @@ from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.core.urlresolvers import reverse
 from django.http import HttpResponseBadRequest
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from django.template.response import TemplateResponse
 from django import forms
 from location.models import Location, Classroom
 from log.models import log_offer_regular_update, Log, log_need_regular_update
 from s2c2.utils import dummy
 from user.models import UserProfile, CenterStaff
-from .models import RegularSlot, DayOfWeek, HalfHourTime, OfferRegular, NeedRegular
+from .models import RegularSlot, DayOfWeek, HalfHourTime, OfferRegular, NeedRegular, MeetInfo
 from datetime import datetime, time
 
 
@@ -232,3 +232,39 @@ def need_regular_delete(request, cid):
 
     form_url = reverse('slot:need_regular_delete', kwargs={'cid': cid})
     return render(request, 'base_form.jinja2', {'form': form, 'form_url': form_url})
+
+
+@login_required
+def assign_date(request, need_id):
+    return dummy(request)
+
+
+@login_required
+def assign_regular(request, need_id):
+    need = get_object_or_404(NeedRegular, pk=need_id)
+    time_slot = HalfHourTime(need.start_time)
+    # make sure this is a half hour chunk.
+    assert time_slot.end_time == need.end_time
+
+    classroom = Classroom.objects.get(pk=need.location.pk)
+    main_meet = need.meetregular_set.filter(status=MeetInfo.MAIN).last()
+
+    staff_id_list = OfferRegular.get_staff_id_list(need.start_dow, need.start_time)
+    # fixme: add a) 'None' and 'current_staff'
+    choices = [(i, UserProfile.get_by_id(i).get_display_name()) for i in staff_id_list]
+
+    class AssignStaffForm(forms.Form):
+        staff = forms.ChoiceField(choices=choices, label='Assign available staff')
+
+    if request.method == 'POST':
+        form = AssignStaffForm(request.POST)
+    if request.method == 'GET':
+        form = AssignStaffForm()
+
+    return render(request, 'slot/assign_regular.jinja2', {
+        'need': need,
+        'time_slot': time_slot,
+        'classroom': classroom,
+        'main_meet': main_meet,
+        'form': form,
+    })

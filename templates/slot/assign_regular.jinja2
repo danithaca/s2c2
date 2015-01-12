@@ -1,0 +1,22 @@
+{% extends "base.jinja2" %}
+{% load staticfiles %}
+{% load bootstrap %}
+
+{% block title %}Assign Staff | S2C2{% endblock %}
+
+{% block page %}
+  <div class="page-header">
+    <h1>{% block page-header %}Assign Staff <small>{{ classroom.name }}, {{ time_slot }}</small>{% endblock %}</h1>
+  </div>
+  <div class="row">
+    <div class="col-sm-6 col-sm-offset-3">
+      <div class="alert alert-info">Time slot {{ time_slot }} is currently {% if main_meet %}set to {{ main_meet.offer.user.name }}{% else %}<strong>Empty</strong>{% endif %}</div>
+      <form class="form" method="post" action="{% url 'slot:assign_regular' need_id=need.pk %}">
+        {% csrf_token %}
+        {{ form|bootstrap }}
+        <button type="submit" class="btn btn-primary">Assign</button>
+      </form>
+    </div>
+  </div>
+
+{% endblock %}

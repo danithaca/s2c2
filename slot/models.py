@@ -93,6 +93,12 @@ class Slot(models.Model):
     start_time = models.TimeField()
     end_time = models.TimeField()
 
+    def get_start_time_display(self):
+        return HalfHourTime.display(self.start_time)
+
+    def get_end_time_display(self):
+        return HalfHourTime.display(self.end_time)
+
     class Meta():
         abstract = True
 
@@ -184,6 +190,18 @@ class OfferRegular(OfferInfo, RegularSlot):
         else:
             return False
 
+    @staticmethod
+    def get_staff_id_list(start_dow, start_time):
+        # fixme: need to support "center" relationship too.
+        return OfferRegular.objects\
+            .filter(start_dow=start_dow, start_time=start_time, end_time=HalfHourTime.next(start_time)) \
+            .exclude(meetregular__status=MeetInfo.MAIN)\
+            .values_list('user_id', flat=True).distinct()
+
+    def __str__(self):
+        self.get_start_dow_display()
+        return '%s: %s %s ~ %s' % (self.user.username, self.get_start_dow_display(), self.get_start_time_display(), self.get_end_time_display())
+
 
 class OfferDate(OfferInfo, DateSlot):
     """
@@ -205,6 +223,9 @@ class NeedRegular(NeedInfo, RegularSlot):
                 m = NeedRegular(start_dow=start_dow, location=location, start_time=h.start_time, end_time=h.end_time)
                 m.save()
 
+    def __str__(self):
+        return '%s: %s %s ~ %s' % (self.location.name, self.get_start_dow_display(), self.start_time, self.end_time)
+
 
 class NeedDate(NeedInfo, DateSlot):
     """
@@ -215,17 +236,20 @@ class NeedDate(NeedInfo, DateSlot):
 
 class MeetInfo(models.Model):
     INACTIVE = 0
-    ACTIVE = 1      # only 1 meet could be "active" that associate the same "offer" and "need".
+    MAIN = 1      # only 1 meet could be "active" that associate the same "offer" and "need".
     BACKUP = 20
     MEET_STATUS = (
         (INACTIVE, 'inactive'),
-        (ACTIVE, 'active'),
+        (MAIN, 'main'),
         (BACKUP, 'backup'),
     )
     status = models.PositiveSmallIntegerField(choices=MEET_STATUS, default=INACTIVE)
 
+    class Meta():
+        abstract = True
 
-class MeetRegular(RegularSlot):
+
+class MeetRegular(MeetInfo, RegularSlot):
     """
     Class that associate an offer with a need.
     Start/end time must match exactly. Or else need to break up big chunk into smaller chunks.
@@ -234,6 +258,6 @@ class MeetRegular(RegularSlot):
     need = models.ForeignKey(NeedRegular)
 
 
-class MeetDate(DateSlot):
+class MeetDate(MeetInfo, DateSlot):
     offer = models.ForeignKey(OfferDate)
     need = models.ForeignKey(NeedDate)
