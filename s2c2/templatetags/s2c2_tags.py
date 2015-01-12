@@ -16,7 +16,7 @@ def bootstrap_alert(message):
 
 @register.simple_tag(name='link-a')
 def link_a(a):
-    # todo: not properly encoded. require caller to make sure things are encoded before pass in.
+    # someday: not properly encoded. require caller to make sure things are encoded before pass in.
     assert isinstance(a, dict)
     legal_attr = ('href', 'class', 'title')
     if 'href' not in a:

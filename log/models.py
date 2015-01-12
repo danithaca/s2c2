@@ -24,5 +24,7 @@ class Log(models.Model):
 
 
 def log_offer_regular_update(creator, target_user, target_dow, message=None):
-    entry = Log(creator=creator, type=Log.TYPE_OFFER_DATE_UPDATE, ref='%d,%d' % (target_user.pk, target_dow), message=message)
+    # this gets called by views functions because we need to track the "creator".
+    # fixme: add logic that update by interval instead of create new entry.
+    entry = Log(creator=creator, type=Log.TYPE_OFFER_REGULAR_UPDATE, ref='%d,%d' % (target_user.pk, int(target_dow)), message=message)
     entry.save()

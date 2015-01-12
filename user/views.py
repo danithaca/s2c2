@@ -180,7 +180,7 @@ def login(request):
     response = auth_views.login(request, template_name='user/login.jinja2', authentication_form=AuthenticationForm)
     if isinstance(response, HttpResponseRedirect):
         messages.success(request, 'User %s logged in successfully.' % request.user.get_username())
-        # TODO: allow user set REMEMBER_ME later.
+        # someday: allow user set REMEMBER_ME later.
         request.session.set_expiry(REMEMBER_ME_EXPIRY)
     return response
 

@@ -1,5 +1,13 @@
 {% extends 'slot/command_form.jinja2' %}
 
 {% block command_form_content %}
-<div class="alert alert-warning">No update yet.</div>
+{% if change_log_entries.exists %}
+  <ul>
+  {% for entry in change_log_entries %}
+    <li>Updated on {{ entry.updated }}</li>
+  {% endfor %}
+  </ul>
+{% else %}
+  <div class="alert alert-warning">No update yet.</div>
+{% endif %}
 {% endblock %}

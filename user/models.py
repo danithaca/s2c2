@@ -81,12 +81,12 @@ class UserProfile(object):
             return p
 
     @staticmethod
-    def get_by_id_default(pk, default_user):
+    def get_by_id_default(pk, default_user_profile):
         try:
-            u = User.objects.get(pk=pk)
+            u = UserProfile.get_by_id(pk)
         except User.DoesNotExist as e:
-            u = default_user
-        return UserProfile.get_by_id(u.pk)
+            u = default_user_profile
+        return u
 
     def has_profile(self):
         return self.profile is not None
@@ -197,15 +197,15 @@ class GroupRole(object):
 
     @staticmethod
     def get_center_staff_role_id_set():
-        # TODO: might want to cache it.
-        # return set([GroupRole.get_by_name(n).pk for n in center_staff_role])
-        return set(Role.objects.filter(machine_name__in=('teacher', 'support', 'intern')).values_list('pk', flat=True))
+        # someday: make it cache or load in "class".
+        # however, when put as class property, django will complain with error. perhaps because Role.objects are not loaded yet.
+        center_staff_role_id_set = set(Role.objects.filter(machine_name__in=('teacher', 'support', 'intern')).values_list('pk', flat=True))
+        return center_staff_role_id_set
 
     @staticmethod
     def get_center_manager_role_id_set():
-        return set(Role.objects.filter(machine_name='manager').values_list('pk', flat=True))
-
-
+        center_manager_role_id_set = set(Role.objects.filter(machine_name='manager').values_list('pk', flat=True))
+        return center_manager_role_id_set
 
 
         # class Staff(Profile):

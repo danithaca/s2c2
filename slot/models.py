@@ -165,9 +165,27 @@ class OfferRegular(OfferInfo, RegularSlot):
 
     @staticmethod
     def delete_interval(start_dow, user, start_time, end_time):
+        deleted_time = []
         for st in HalfHourTime.interval(start_time, end_time):
             h = HalfHourTime(st)
-            OfferRegular.objects.filter(start_dow=start_dow, user=user, start_time=h.start_time, end_time=h.end_time).delete()
+            queryset = OfferRegular.objects.filter(start_dow=start_dow, user=user, start_time=h.start_time, end_time=h.end_time)
+            if not queryset.exists():
+                continue
+            queryset.delete()
+            deleted_time.append(h.start_time)
+        return deleted_time
+
+    @staticmethod
+    def delete_all(start_dow, user):
+        queryset = OfferRegular.objects.filter(start_dow=start_dow, user=user)
+        if queryset.exists():
+            queryset.delete()
+            return True
+        else:
+            return False
+
+
+
 
 
 class OfferDate(OfferInfo, DateSlot):
