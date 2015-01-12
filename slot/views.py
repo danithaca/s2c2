@@ -121,16 +121,7 @@ def offer_regular_delete(request, uid):
         form = RegularSlotForm(request.POST)
         if form.is_valid():
             start_dow = form.cleaned_data['start_dow']
-            if 'delete' in form.data:
-                deleted_time = OfferRegular.delete_interval(start_time=form.cleaned_data['start_time'],
-                                             end_time=form.cleaned_data['end_time'],
-                                             start_dow=start_dow, user=user_profile.user)
-                if len(deleted_time) == 0:
-                    messages.warning(request, 'No available time slot is in the specified time period to delete.')
-                else:
-                    messages.success(request, 'Deleted slot(s): %s' % ', '.join([str(HalfHourTime(t)) for t in deleted_time]))
-                    log_offer_regular_update(request.user, user_profile.user, start_dow, 'deleted slot(s)')
-            elif 'delete-all' in form.data:
+            if 'delete-all' in form.data:
                 deleted = OfferRegular.delete_all(start_dow, user_profile.user)
                 if not deleted:
                     messages.warning(request, 'Nothing to delete of the day.')
@@ -138,7 +129,15 @@ def offer_regular_delete(request, uid):
                     messages.success(request, 'Delete all day is executed.')
                     log_offer_regular_update(request.user, user_profile.user, start_dow, 'deleted all day')
             else:
-                messages.error(request, 'Unrecognized command request.')
+                # default 'submit' handler for all other submit button.
+                deleted_time = OfferRegular.delete_interval(start_time=form.cleaned_data['start_time'],
+                                                            end_time=form.cleaned_data['end_time'],
+                                                            start_dow=start_dow, user=user_profile.user)
+                if len(deleted_time) == 0:
+                    messages.warning(request, 'No available time slot is in the specified time period to delete.')
+                else:
+                    messages.success(request, 'Deleted slot(s): %s' % ', '.join([str(HalfHourTime(t)) for t in deleted_time]))
+                    log_offer_regular_update(request.user, user_profile.user, start_dow, 'deleted slot(s)')
             return redirect(request.GET.get('next', request.META['HTTP_REFERER']))
 
     if request.method == 'GET':
@@ -171,17 +170,25 @@ def classroom_regular(request, pk):
     command_form_need_add.fields['start_dow'].widget = forms.HiddenInput()
     command_form_need_add.fields['start_dow'].initial = dow.dow
 
+    # handle regular need delete form
+    command_form_need_delete = RegularSlotForm()
+    command_form_need_delete.fields['start_dow'].widget = forms.HiddenInput()
+    command_form_need_delete.fields['start_dow'].initial = dow.dow
+
+    log_entries = Log.objects.filter(type=Log.TYPE_NEED_REGULAR_UPDATE, ref='%d,%d' % (classroom.pk, dow.dow)).order_by('-updated')
+
     return TemplateResponse(request, template='slot/classroom_regular.jinja2', context={
         'classroom': classroom,
         'dow': dow,
         'command_form_need_add': command_form_need_add,
-        'slot_table_data': classroom.get_slot_table_regular(dow.dow)
+        'command_form_need_delete': command_form_need_delete,
+        'slot_table_data': classroom.get_slot_table_regular(dow.dow),
+        'change_log_entries': log_entries,
     })
 
 
 @login_required
 def need_regular_add(request, cid):
-
     # we don't catch DoesNotExist exception.
     classroom = Classroom.objects.get(pk=cid)
 
@@ -206,4 +213,22 @@ def need_regular_add(request, cid):
 
 @login_required
 def need_regular_delete(request, cid):
-    return dummy(request)
+    classroom = Classroom.objects.get(pk=cid)
+
+    if request.method == 'POST':
+        form = RegularSlotForm(request.POST)
+        if form.is_valid():
+            start_dow = form.cleaned_data['start_dow']
+            # fixme: not implemented yet.
+            if 'delete-all' in form.data:
+                pass
+            else:
+                # default handler. usually happens when 'delete-empty' is clicked.
+                pass
+            return redirect(request.GET.get('next', request.META['HTTP_REFERER']))
+
+    if request.method == 'GET':
+        form = RegularSlotForm()
+
+    form_url = reverse('slot:need_regular_delete', kwargs={'cid': cid})
+    return render(request, 'base_form.jinja2', {'form': form, 'form_url': form_url})

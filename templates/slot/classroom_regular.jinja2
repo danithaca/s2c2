@@ -30,7 +30,7 @@
             <th scope="row" class="text-center">{{ r1 }}</th>
             {% if r2.exists %}
               <td class="text-center"><ul class="list-inline">
-                {% for i in r2 %}<li class="text-muted">-Empty-</li>{% endfor %}
+                {% for i in r2 %}<li><a href="#" class="text-muted">-Empty-</a></li>{% endfor %}
               </ul></td>
             {% else %}
               <td></td>
@@ -45,7 +45,7 @@
       <div class="panel-group" id="command-list">
 {#        {% include "slot/command_form_view_classroom.jinja2" with panel_data_parent="command-list" command_form_id="command-form-classroom" command_form_title="View classroom needs" %}#}
         {% include "slot/command_form_add_need.jinja2" with panel_data_parent="command-list" command_form_id="command-form-need-add" command_form_title="Add classroom needs" %}
-{#        {% include "slot/command_form_delete_offer.jinja2" with panel_data_parent="command-list" command_form_id="command-form-offer-delete" command_form_title="Delete availability" %}#}
+        {% include "slot/command_form_delete_need.jinja2" with panel_data_parent="command-list" command_form_id="command-form-need-delete" command_form_title="Delete classroom needs" %}
         {% include "slot/command_form_view_log.jinja2" with panel_data_parent="command-list" command_form_id="command-form-view-log" command_form_title="View change log" command_form_collapse=True %}
       </div>
 
