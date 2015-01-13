@@ -95,7 +95,7 @@ USE_I18N = False    # True
 
 USE_L10N = False    # True
 
-USE_TZ = False      # True
+USE_TZ = True
 
 
 # Static files (CSS, JavaScript, Images)

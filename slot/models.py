@@ -1,29 +1,179 @@
 from itertools import product
 import warnings
+from django.core.exceptions import ValidationError
 from django.db import models
 from django.contrib.auth.models import User
 from location.models import Location
-import calendar
+import calendar, re
 from datetime import time, timedelta, datetime, date
 
 
-class Day(object):
-    # this is a combined field.
+class DayToken(object):
     # if it's a day-of-week, it'll be 1900-1-1 (which is a monday)
     # if it's a date, it'll be yyyymmdd
+    # token definition: 0~6 is regular weekday, 20100101~20301230 is specific date.
+    # someday: might consider 'date' subclass instead of proxy pattern?
+
     def __init__(self, value):
-        assert (0 <= value <= 6) or (100101 <= value <= 991230)
+        assert isinstance(value, date) and DayToken.check_date(value)
         self.value = value
+
+    def is_regular(self):
+        return date(1900, 1, 1) <= self.value <= date(1900, 1, 7)
+
+    def get_token(self):
+        if self.is_regular():
+            return str(self.value.weekday())
+        else:
+            return self.value.strftime('%Y%m%d')
+
+    @staticmethod
+    def check_date(value):
+        assert isinstance(value, date)
+        return date(1900, 1, 1) <= value <= date(1900, 1, 7) or date(2010, 1, 1) <= value <= date(2030, 1, 1)
+
+    @staticmethod
+    def from_token(token):
+        assert isinstance(token, str)
+        if re.fullmatch('([0-6])|(\d{8})', token) is not None:
+            if len(token) == 1:
+                return DayToken(date(1900, 1, int(token) + 1))
+            else:
+                value = datetime.strptime(token, '%Y%m%d').date()
+                if not DayToken.check_date(value):
+                    raise ValueError('Valid date between 2010-01-01 and 2030-12-31')
+                return DayToken(value)
+        else:
+            raise ValueError('Cannot identify DayToken: %s' % token)
+
+    def __eq__(self, other):
+        assert isinstance(other, DayToken)
+        return self.value == other.value
+
+
+class DayTokenField(models.DateField, metaclass=models.SubfieldBase):
+    description = 'Either a regular weekday between 1900-1-1 and 1900-1-7,' \
+                  ' or a specific date between 2010-1-1 and 2030-1-1.'
+
+    # no need to override __init__() or deconstruct(). we use the default on for DateField.
+
+    def to_python(self, value):
+        try:
+            if value is None:
+                return None
+            if isinstance(value, str):
+                # when value is a string, it's a token.
+                return DayToken.from_token(value)
+            elif isinstance(value, int):
+                # when value is int, make it a string and do the same.
+                return DayToken.from_token(str(value))
+            elif isinstance(value, date):
+                # when the value is date, go through the super one, and then return DayToken
+                _value = super(DayTokenField, self).to_python(value)
+                return DayToken(_value)
+            elif isinstance(value, DayToken):
+                # if it's just DayToken, don't change anything.
+                return value
+            else:
+                raise ValidationError('Cannot identify DayToken type: %s' % type(value))
+        except ValueError as e:
+            raise ValidationError(e)
+
+    def get_prep_value(self, value):
+        if value is None:
+            return None
+        assert isinstance(value, DayToken)
+        return value.value
+
+
+class TimeToken(object):
+    # someday: might consider "time" subclass instead of proxy
+    # currently only allow half hour time point.
+
+    tuple = tuple(sorted(time(hour=h, minute=m) for h, m in product(range(24), (0, 30))))
+    set = set(time(hour=h, minute=m) for h, m in product(range(24), (0, 30)))
+    map = {t: i for i, t in enumerate(tuple)}
+
+    def __init__(self, value):
+        assert isinstance(value, time) and TimeToken.check_time(value)
+        self.value = value
+
+    def get_token(self):
+        return self.value.strftime('%H%M')
+
+    @staticmethod
+    def from_token(token):
+        assert isinstance(token, str)
+        t = datetime.strptime(token, '%H%M').time()
+        if not TimeToken.check_time(t):
+            raise ValueError('Current a TimeToken instance has to be at half hour point.')
+        return TimeToken(t)
+
+    @staticmethod
+    def check_time(value):
+        assert isinstance(value, time)
+        return value in TimeToken.set
+
+    @staticmethod
+    def next(t):
+        assert TimeToken.check_time(t)
+        return TimeToken.tuple[(TimeToken.map[t] + 1) % len(TimeToken.tuple)]
+
+    @staticmethod
+    def prev(t):
+        assert TimeToken.check_time(t)
+        return TimeToken.tuple[(TimeToken.map[t] - 1)]
+
+    @staticmethod
+    def interval(start_time, end_time):
+        assert TimeToken.check_time(start_time) and TimeToken.check_time(end_time) and end_time > start_time
+        return TimeToken.tuple[TimeToken.map[start_time]:TimeToken.map[end_time]]
+
+    def __eq__(self, other):
+        assert isinstance(other, TimeToken)
+        return self.value == other.value
+
+
+class TimeTokenField(models.TimeField, metaclass=models.SubfieldBase):
+    description = 'A TimeField with fixed half hour point. Accept token input.'
+
+    def to_python(self, value):
+        try:
+            if value is None:
+                return None
+            if isinstance(value, str):
+                # when value is a string, it's a token.
+                return TimeToken.from_token(value)
+            elif isinstance(value, int):
+                # when value is int, make it a string and do the same.
+                return TimeToken.from_token('%04d' % value)
+            elif isinstance(value, time):
+                # when the value is time, go through the super one, and then return TimeToken
+                _value = super(TimeTokenField, self).to_python(value)
+                return TimeToken(_value)
+            elif isinstance(value, TimeToken):
+                # if it's just DayToken, don't change anything.
+                return value
+            else:
+                raise ValidationError('Cannot identify TimeToken type: %s' % type(value))
+        except ValueError as e:
+            raise ValidationError(e)
+
+    def get_prep_value(self, value):
+        if value is None:
+            return None
+        assert isinstance(value, TimeToken)
+        return value.value
 
 
 class Slot(models.Model):
     """
     Any class that has the start_time and end_time will be subclass of this.
     """
-    start_time = models.TimeField()
-    end_time = models.TimeField()
+    day = DayTokenField()
 
-    start_day = models.IntegerField()
+    start_time = TimeTokenField()
+    end_time = TimeTokenField()
 
     class Meta():
         abstract = True
