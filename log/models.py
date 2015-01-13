@@ -26,6 +26,9 @@ class Log(models.Model):
     message = models.TextField(blank=True, help_text='Addition human-readable message.')
     updated = models.DateTimeField(auto_now_add=True)
 
+    def __str__(self):
+        return '%s: %s (%s)' % (self.creator.username, self.ref, self.get_type_display())
+
 
 def log_offer_regular_update(creator, target_user, target_dow, message=None):
     # this gets called by views functions because we need to track the "creator".
