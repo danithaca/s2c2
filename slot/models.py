@@ -1,9 +1,58 @@
 from itertools import product
+import warnings
 from django.db import models
 from django.contrib.auth.models import User
 from location.models import Location
 import calendar
 from datetime import time, timedelta, datetime, date
+
+
+class Day(object):
+    # this is a combined field.
+    # if it's a day-of-week, it'll be 1900-1-1 (which is a monday)
+    # if it's a date, it'll be yyyymmdd
+    def __init__(self, value):
+        assert (0 <= value <= 6) or (100101 <= value <= 991230)
+        self.value = value
+
+
+class Slot(models.Model):
+    """
+    Any class that has the start_time and end_time will be subclass of this.
+    """
+    start_time = models.TimeField()
+    end_time = models.TimeField()
+
+    start_day = models.IntegerField()
+
+    class Meta():
+        abstract = True
+
+
+class OfferSlot(Slot):
+    user = models.ForeignKey(User)
+
+
+class NeedSlot(Slot):
+    location = models.ForeignKey(Location)
+
+
+class MeetSlot(Slot):
+    offer = models.ForeignKey(OfferSlot)
+    need = models.ForeignKey(NeedSlot)
+
+    INACTIVE = 0
+    MAIN = 1      # only 1 meet could be "active" that associate the same "offer" and "need".
+    BACKUP = 20
+    MEET_STATUS = (
+        (INACTIVE, 'inactive'),
+        (MAIN, 'main'),
+        (BACKUP, 'backup'),
+    )
+    status = models.PositiveSmallIntegerField(choices=MEET_STATUS, default=INACTIVE)
+
+
+# ---------------------- Below are old code.--------------------------------------------
 
 
 class DayOfWeek(object):
@@ -86,7 +135,7 @@ class HalfHourTime(object):
         return '%s ~ %s' % (HalfHourTime.display(self.start_time), HalfHourTime.display(self.end_time))
 
 
-class Slot(models.Model):
+class SlotOld(models.Model):
     """
     Any class that has the start_time and end_time will be subclass of this.
     """
@@ -103,7 +152,7 @@ class Slot(models.Model):
         abstract = True
 
 
-class RegularSlot(Slot):
+class RegularSlot(SlotOld):
     # todo: use python calendar.MONDAY, calendar.day_name[0] and calendar.iterweekdays() instead.
     MONDAY = 0
     TUESDAY = 1
@@ -131,7 +180,7 @@ class RegularSlot(Slot):
         abstract = True
 
 
-class DateSlot(Slot):
+class DateSlot(SlotOld):
     start_date = models.DateField()
     # end_date = models.DateField(blank=True, null=True)
 
@@ -156,7 +205,10 @@ class NeedInfo(models.Model):
 class OfferRegular(OfferInfo, RegularSlot):
     """
     Real class for offer on the regular schedule
+    :deprecated::
     """
+    warnings.warn("Deprecated in favor of OfferSlot", DeprecationWarning)
+
     @staticmethod
     def add_interval(start_dow, user, start_time, end_time):
         added_time = []

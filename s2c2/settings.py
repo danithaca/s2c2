@@ -89,13 +89,13 @@ DATABASES = {
 
 LANGUAGE_CODE = 'en-us'
 
-TIME_ZONE = 'UTC'
+TIME_ZONE = 'America/Detroit'      # 'UTC'
 
-USE_I18N = True
+USE_I18N = False    # True
 
-USE_L10N = True
+USE_L10N = False    # True
 
-USE_TZ = True
+USE_TZ = False      # True
 
 
 # Static files (CSS, JavaScript, Images)
