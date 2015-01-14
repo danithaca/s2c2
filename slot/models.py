@@ -316,6 +316,10 @@ class OfferSlot(Slot):
     def __str__(self):
         return '%s: %s %s ~ %s' % (self.user.username, self.day.get_token(), self.start_time.display(), self.end_time.display())
 
+    def get_availability(self):
+        # if there's a "main" Meet associated with
+        pass
+
 
 class NeedSlot(Slot):
     location = models.ForeignKey(Location)
@@ -329,7 +333,10 @@ class MeetSlot(Slot):
     need = models.ForeignKey(NeedSlot)
 
     INACTIVE = 0
-    MAIN = 1      # only 1 meet could be "active" that associate the same "offer" and "need".
+    # only 1 meet could be "active" that associate the same "offer" and "need".
+    # there's no db reinforcement, need to check in the code.
+    # someday: implement check to make sure there's only 1 "main" meet instance.
+    MAIN = 1
     BACKUP = 20
     MEET_STATUS = (
         (INACTIVE, 'inactive'),

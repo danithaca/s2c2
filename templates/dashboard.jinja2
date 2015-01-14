@@ -1,6 +1,7 @@
 {% extends "base_page.jinja2" %}
 {% load staticfiles %}
 {% load bootstrap %}
+{% load s2c2_tags %}
 
 {% block title %}Dashboard{% endblock %}
 
@@ -44,11 +45,11 @@
       <li><a href="#"><i class="fa fa-user"></i> Tori</a></li>
     </ul>
   {% elif user_profile.is_center_staff %}
-    <h2>Schedule by Date <small><a href="#"><i class="fa fa-calendar"></i></a></small></h2>
+    <h2>Schedule by Date</h2>
     <ul class="nav nav-pills">
-      <li><a href="#"><i class="fa fa-calendar-o"></i> Today - December 12 (Monday)</a></li>
-      <li><a href="#"><i class="fa fa-calendar-o"></i> December 13 (Tuesday)</a></li>
-      <li><a href="#"><i class="fa fa-calendar-o"></i> December 14 (Wednesday)</a></li>
+      {% for d in day.expand_week %}
+        <li><a href="{% url 'slot:staff' %}?day={{ d.get_token }}"><i class="fa fa-calendar-o"></i> {{ d.value|date:'N j (D)' }}</a></li>
+      {% endfor %}
     </ul>
     <h2>Regular Schedule Overview</h2>
     <table class="table table-hover table-stripped table-bordered">

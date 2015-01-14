@@ -5,6 +5,7 @@ from django.contrib.auth.forms import AuthenticationForm
 from django.template.response import TemplateResponse
 
 from location.models import Classroom
+from slot.models import DayToken
 from user.models import UserProfile
 
 
@@ -25,7 +26,10 @@ def dashboard(request, uid=None):
         u = request.user
 
     user_profile = UserProfile(u)
-    context = {'user_profile': user_profile}
+    context = {
+        'user_profile': user_profile,
+        'day': DayToken.today(),
+    }
 
     if user_profile.is_center_manager():
         context.update({'header_extra': 'Manager, NCCC'})
