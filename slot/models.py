@@ -264,6 +264,25 @@ class OfferSlot(Slot):
         else:
             return False
 
+    @staticmethod
+    def delete_existing(day, user, start_time):
+        assert isinstance(day, DayToken) and isinstance(user, User) and isinstance(start_time, TimeToken)
+        qs = OfferSlot.objects.filter(day=day, user=user, start_time=start_time, end_time=start_time.get_next())
+        if qs.exists():
+            qs.delete()
+            return True
+        else:
+            return False
+
+    @staticmethod
+    def delete_all(day, user):
+        qs = OfferSlot.objects.filter(day=day, user=user)
+        if qs.exists():
+            qs.delete()
+            return True
+        else:
+            return False
+
 
 class NeedSlot(Slot):
     location = models.ForeignKey(Location)

@@ -1,0 +1,16 @@
+{% extends 'slot/command_form.jinja2' %}
+{% load bootstrap %}
+
+{% block command_form_content %}
+  <form class="form-horizontal" role="form" method="post" action="{% url 'slot:offer_delete' uid=user_profile.pk %}">
+    {% csrf_token %}
+    {{ command_form_offer_delete|bootstrap_horizontal:'col-sm-4' }}
+    <div class="form-group">
+      <div class="col-sm-offset-4 col-sm-8">
+        <button type="submit" class="btn btn-primary" name="delete">Delete</button>
+        <button type="submit" class="btn btn-primary" name="delete-all">Delete All Day</button>
+        <span class="help-block">* Deleting availability cannot be undone and might invalidate existing classroom assignments.</span>
+      </div>
+    </div>
+  </form>
+{% endblock %}

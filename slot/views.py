@@ -7,7 +7,7 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.template.response import TemplateResponse
 from django import forms
 from location.models import Location, Classroom
-from log.models import log_offer_regular_update, Log, log_need_regular_update
+from log.models import Log, log_offer_update
 from s2c2.utils import dummy
 from user.models import UserProfile, CenterStaff
 from .models import RegularSlot, DayOfWeek, HalfHourTime, OfferRegular, NeedRegular, MeetInfo, DayToken, TimeToken, \
@@ -38,16 +38,22 @@ def staff(request, uid=None):
 
     slot_table_data = user_profile.get_slot_table(day)
 
-    # handle regular offer add form. set data for instance.
+    # handle offer add form. set date for instance.
     command_form_offer_add = OfferSlotForm()
     command_form_offer_add.fields['day'].widget = forms.HiddenInput()
     command_form_offer_add.fields['day'].initial = day.get_token()
+
+    # handle offer delete form. set date for instance.
+    command_form_offer_delete = OfferSlotForm()
+    command_form_offer_delete.fields['day'].widget = forms.HiddenInput()
+    command_form_offer_delete.fields['day'].initial = day.get_token()
 
     return render(request, 'slot/staff.jinja2', {
         'user_profile': user_profile,
         'day': day,
         'slot_table_data': slot_table_data,
         'command_form_offer_add': command_form_offer_add,
+        'command_form_offer_delete': command_form_offer_delete,
     })
 
 
@@ -115,10 +121,8 @@ class SlotForm(forms.Form):
         cleaned_data = super(SlotForm, self).clean()
         t1 = cleaned_data.get("start_time")
         t2 = cleaned_data.get("end_time")
-
-        if t1 is None or t2 is None or t1 >= t2:
+        if t1 is not None and t2 is not None and t1 >= t2:
             raise forms.ValidationError('End time must be greater than start time.')
-
         return cleaned_data
 
 
@@ -128,9 +132,12 @@ class OfferSlotForm(SlotForm):
     def clean(self):
         cleaned_data = super(OfferSlotForm, self).clean()
         try:
-            DayToken.from_token(cleaned_data.get('day'))
+            day = cleaned_data.get('day')
+            if day is not None:     # day is required, but will be validated by django after this call
+                DayToken.from_token(day)
         except ValueError as e:
             raise forms.ValidationError('Please input a valid day token.')
+        return cleaned_data
 
 
 # @login_required
@@ -185,7 +192,7 @@ def offer_add(request, uid):
                 messages.warning(request, 'All specified slots are already added. No slot is added again.')
             else:
                 messages.success(request, 'Added slot(s): %s' % ', '.join([t.display_slice() for t in added_time]))
-                #log_offer_regular_update(request.user, user_profile.user, day, 'added slot(s)')
+                log_offer_update(request.user, user_profile.user, day, 'added slot(s)')
             return redirect(request.GET.get('next', request.META['HTTP_REFERER']))
 
     if request.method == 'GET':
@@ -196,39 +203,81 @@ def offer_add(request, uid):
 
 
 @login_required
-def offer_regular_delete(request, uid):
+def offer_delete(request, uid):
     # uid is the target uid, which different from request.user.pk who is the "action" user.
     user_profile = UserProfile.get_by_id(uid)
     assert user_profile.is_center_staff()
 
     if request.method == 'POST':
-        form = RegularSlotForm(request.POST)
+        form = OfferSlotForm(request.POST)
         if form.is_valid():
-            start_dow = form.cleaned_data['start_dow']
+            deleted_time = []
+            day = DayToken.from_token(form.cleaned_data['day'])
+            start_time = form.cleaned_data['start_time']
+            end_time = form.cleaned_data['end_time']
+
             if 'delete-all' in form.data:
-                deleted = OfferRegular.delete_all(start_dow, user_profile.user)
+                deleted = OfferSlot.delete_all(day, user_profile.user)
                 if not deleted:
                     messages.warning(request, 'Nothing to delete of the day.')
                 else:
                     messages.success(request, 'Delete all day is executed.')
-                    log_offer_regular_update(request.user, user_profile.user, start_dow, 'deleted all day')
+                    log_offer_update(request.user, user_profile.user, day, 'deleted all day')
             else:
                 # default 'submit' handler for all other submit button.
-                deleted_time = OfferRegular.delete_interval(start_time=form.cleaned_data['start_time'],
-                                                            end_time=form.cleaned_data['end_time'],
-                                                            start_dow=start_dow, user=user_profile.user)
+                for t in TimeToken.interval(start_time, end_time):
+                    deleted = OfferSlot.delete_existing(day, user_profile.user, t)
+                    if deleted:
+                        deleted_time.append(t)
+
                 if len(deleted_time) == 0:
                     messages.warning(request, 'No available time slot is in the specified time period to delete.')
                 else:
-                    messages.success(request, 'Deleted slot(s): %s' % ', '.join([str(HalfHourTime(t)) for t in deleted_time]))
-                    log_offer_regular_update(request.user, user_profile.user, start_dow, 'deleted slot(s)')
+                    messages.success(request, 'Deleted slot(s): %s' % ', '.join([t.display_slice() for t in deleted_time]))
+                    log_offer_update(request.user, user_profile.user, day, 'deleted slot(s)')
             return redirect(request.GET.get('next', request.META['HTTP_REFERER']))
 
     if request.method == 'GET':
-        form = RegularSlotForm()
+        form = OfferSlotForm()
 
-    form_url = reverse('slot:offer_regular_delete', kwargs={'uid': uid})
-    return render(request, 'base_form.jinja2', {'form': form, 'form_url': form_url, 'uid': uid})
+    form_url = reverse('slot:offer_delete', kwargs={'uid': uid})
+    return render(request, 'base_form.jinja2', {'form': form, 'form_url': form_url})
+
+
+# @login_required
+# def offer_regular_delete(request, uid):
+#     # uid is the target uid, which different from request.user.pk who is the "action" user.
+#     user_profile = UserProfile.get_by_id(uid)
+#     assert user_profile.is_center_staff()
+#
+#     if request.method == 'POST':
+#         form = RegularSlotForm(request.POST)
+#         if form.is_valid():
+#             start_dow = form.cleaned_data['start_dow']
+#             if 'delete-all' in form.data:
+#                 deleted = OfferRegular.delete_all(start_dow, user_profile.user)
+#                 if not deleted:
+#                     messages.warning(request, 'Nothing to delete of the day.')
+#                 else:
+#                     messages.success(request, 'Delete all day is executed.')
+#                     log_offer_regular_update(request.user, user_profile.user, start_dow, 'deleted all day')
+#             else:
+#                 # default 'submit' handler for all other submit button.
+#                 deleted_time = OfferRegular.delete_interval(start_time=form.cleaned_data['start_time'],
+#                                                             end_time=form.cleaned_data['end_time'],
+#                                                             start_dow=start_dow, user=user_profile.user)
+#                 if len(deleted_time) == 0:
+#                     messages.warning(request, 'No available time slot is in the specified time period to delete.')
+#                 else:
+#                     messages.success(request, 'Deleted slot(s): %s' % ', '.join([str(HalfHourTime(t)) for t in deleted_time]))
+#                     log_offer_regular_update(request.user, user_profile.user, start_dow, 'deleted slot(s)')
+#             return redirect(request.GET.get('next', request.META['HTTP_REFERER']))
+#
+#     if request.method == 'GET':
+#         form = RegularSlotForm()
+#
+#     form_url = reverse('slot:offer_regular_delete', kwargs={'uid': uid})
+#     return render(request, 'base_form.jinja2', {'form': form, 'form_url': form_url, 'uid': uid})
 
 
 class NeedRegularSlotForm(RegularSlotForm):
