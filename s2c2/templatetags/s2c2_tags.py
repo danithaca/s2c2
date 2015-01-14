@@ -1,7 +1,7 @@
 from django import template
-from django.core.urlresolvers import reverse
 from django.utils.dateformat import format
-from slot.models import DayOfWeek, DayToken
+
+from slot.models import DayToken
 
 
 register = template.Library()
@@ -27,18 +27,6 @@ def link_a(a):
     if 'text' not in a:
         a['text'] = a['href']
     return '<a %s>%s</a>' % (tag_a_attr, a['text'])
-
-
-@register.simple_tag(name='dow-pager')
-def slot_dow_pager(dow, url):
-    assert isinstance(dow, DayOfWeek), type(dow)
-    # generate list of <a>
-    list_a = [(d, link_a({
-        'href': url + '?dow=' + str(d),
-        'text': '<i class="fa fa-calendar-o"></i> %s' % DayOfWeek.get_name(d)
-    })) for d in DayOfWeek.get_tuple()]
-    list_li = ['<li>%s</li>' % a if d != dow.dow else '<li class="active">%s</li>' % a for d, a in list_a]
-    return '<ul class="pagination">%s</ul>' % ''.join(list_li)
 
 
 @register.simple_tag(name='day-regular-pager')

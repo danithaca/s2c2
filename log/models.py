@@ -1,6 +1,8 @@
 from datetime import timedelta
+
 from django.db import models
 from django.contrib.auth.models import User
+
 
 
 # specifies when to create a new log entry or when to update instead.

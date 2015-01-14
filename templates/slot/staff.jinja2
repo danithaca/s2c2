@@ -40,10 +40,10 @@
     <div class="col-sm-6">
 
       <div class="panel-group" id="command-list">
-{#        {% include "slot/command_form_view_classroom.jinja2" with panel_data_parent="command-list" command_form_id="command-form-classroom" command_form_title="View classroom needs" %}#}
+        {% include "slot/includes/command_form_view_classroom.jinja2" with panel_data_parent="command-list" command_form_id="command-form-classroom" command_form_title="View classroom needs" %}
         {% include "slot/includes/command_form_add_offer.jinja2" with panel_data_parent="command-list" command_form_id="command-form-offer-add" command_form_title="Add availability" %}
         {% include "slot/includes/command_form_delete_offer.jinja2" with panel_data_parent="command-list" command_form_id="command-form-offer-delete" command_form_title="Delete availability" %}
-        {% include "slot/command_form_view_log.jinja2" with panel_data_parent="command-list" command_form_id="command-form-view-log" command_form_title="View change log" command_form_collapse=True %}
+        {% include "slot/includes/command_form_view_log.jinja2" with panel_data_parent="command-list" command_form_id="command-form-view-log" command_form_title="View change log" command_form_collapse=True %}
       </div>
 
     </div>

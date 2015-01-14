@@ -1,12 +1,10 @@
-from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
-from django.http import HttpResponse
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.forms import AuthenticationForm
 from django.template.response import TemplateResponse
-from location.models import Classroom
 
+from location.models import Classroom
 from user.models import UserProfile
 
 

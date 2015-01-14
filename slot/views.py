@@ -1,18 +1,18 @@
+from datetime import time
+
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.core.urlresolvers import reverse
-from django.http import HttpResponseBadRequest
 from django.views import defaults
 from django.shortcuts import render, redirect, get_object_or_404
 from django.template.response import TemplateResponse
 from django import forms
-from location.models import Location, Classroom
+
+from location.models import Classroom
 from log.models import Log, log_offer_update, log_need_update
 from s2c2.utils import dummy
-from user.models import UserProfile, CenterStaff
-from .models import RegularSlot, DayOfWeek, HalfHourTime, OfferRegular, NeedRegular, MeetInfo, DayToken, TimeToken, \
-    OfferSlot, NeedSlot, MeetSlot
-from datetime import datetime, time
+from user.models import UserProfile
+from .models import DayToken, TimeToken, OfferSlot, NeedSlot
 
 
 def _get_request_day(request):

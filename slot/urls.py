@@ -1,11 +1,13 @@
 from django.conf.urls import patterns, url
+
 import slot.views
+
 urlpatterns = patterns(
     '',
     # staff portal
     url(r'^staff(?:/(?P<uid>\d+))?/$', slot.views.day_staff, name='staff'),
 
-    # classroom portal
+    # classroom portal, classroom_id is required.
     url(r'^classroom/(?P<cid>\d+)/$', slot.views.day_classroom, name='classroom'),
 
     # assignment form

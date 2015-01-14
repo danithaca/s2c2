@@ -1,6 +1,7 @@
 from django.conf.urls import patterns, url
+
 import user.views
-from django.core.urlresolvers import reverse_lazy
+
 urlpatterns = patterns(
     '',
     url(r'^login/$', user.views.login, name='login'),

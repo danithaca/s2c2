@@ -1,18 +1,17 @@
 from django.contrib import auth, messages
-from django.contrib.auth import views as auth_views, user_logged_out, user_logged_in
+from django.contrib.auth import views as auth_views
 from django.contrib.auth.decorators import login_required
-from django.contrib.auth.forms import UserCreationForm, AuthenticationForm, PasswordChangeForm, PasswordResetForm
+from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
 from django.contrib.auth.models import User, Group
 from django.core.urlresolvers import reverse
-from django.dispatch import receiver
-from django.forms import ModelForm, RegexField, TextInput, CheckboxSelectMultiple, ChoiceField, Select
-from django.http import HttpResponseRedirect, HttpResponse
+from django.forms import ModelForm, RegexField, TextInput, CheckboxSelectMultiple, ChoiceField
+from django.http import HttpResponseRedirect
 from django.shortcuts import render, redirect
 from django.utils.translation import ugettext_lazy as _
-from django.views.defaults import server_error
-from django.views.generic import FormView, UpdateView
+from django.views.generic import FormView
 
 from user.models import Profile, UserProfile
+
 
 
 # keep session open for 3 days.
