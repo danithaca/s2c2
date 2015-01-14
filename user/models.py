@@ -127,14 +127,6 @@ class CenterStaff(UserProfile):
         super(CenterStaff, self).__init__(user)
         assert self.is_center_staff()
 
-    def get_slot_table_regular(self, dow):
-        """ This is to prepare data for the table in "staff_regular" view. """
-        data = []
-        for t in HalfHourTime.interval(time(hour=7), time(hour=19, minute=30)):
-            t_obj = HalfHourTime(t)
-            data.append((str(t_obj), OfferRegular.objects.filter(start_dow=dow, user=self.user, start_time=t_obj.start_time, end_time=t_obj.end_time).exists()))
-        return data
-
     def get_slot_table(self, day):
         """ This is to prepare data for the table in "staff" view. """
         data = []

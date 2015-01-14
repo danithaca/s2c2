@@ -7,7 +7,7 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.template.response import TemplateResponse
 from django import forms
 from location.models import Location, Classroom
-from log.models import Log, log_offer_update
+from log.models import Log, log_offer_update, log_need_update
 from s2c2.utils import dummy
 from user.models import UserProfile, CenterStaff
 from .models import RegularSlot, DayOfWeek, HalfHourTime, OfferRegular, NeedRegular, MeetInfo, DayToken, TimeToken, \
@@ -25,16 +25,20 @@ def _get_request_dow(request):
         return datetime.today().weekday()
 
 
+def _get_request_day(request):
+    try:
+        day = DayToken.from_token(request.GET.get('day', ''))
+    except ValueError as e:
+        day = DayToken.today()
+    return day
+
+
 @login_required
 def staff(request, uid=None):
     user_profile = UserProfile.get_by_id_default(uid, request.user)
     if not user_profile.is_center_staff():
         return defaults.bad_request(request)
-
-    try:
-        day = DayToken.from_token(request.GET['day'] if 'day' in request.GET else '')
-    except ValueError as e:
-        day = DayToken(datetime.today().date())
+    day = _get_request_day(request)
 
     slot_table_data = user_profile.get_slot_table(day)
 
@@ -58,36 +62,6 @@ def staff(request, uid=None):
         'command_form_offer_delete': command_form_offer_delete,
         'change_log_entries': log_entries,
     })
-
-
-# @login_required
-# def staff_regular(request, uid=None):
-#     user_profile = UserProfile.get_by_id_default(uid, request.user)
-#     dow = DayOfWeek(_get_request_dow(request))
-#
-#     if not user_profile.is_center_staff():
-#         return HttpResponseBadRequest()
-#
-#     # handle regular offer add form. set data for instance.
-#     command_form_offer_add = RegularSlotForm()
-#     command_form_offer_add.fields['start_dow'].widget = forms.HiddenInput()
-#     command_form_offer_add.fields['start_dow'].initial = dow.dow
-#
-#     # handle regular offer add form. set data for instance.
-#     command_form_offer_delete = RegularSlotForm()
-#     command_form_offer_delete.fields['start_dow'].widget = forms.HiddenInput()
-#     command_form_offer_delete.fields['start_dow'].initial = dow.dow
-#
-#     log_entries = Log.objects.filter(type=Log.TYPE_OFFER_REGULAR_UPDATE, ref='%d,%d' % (user_profile.pk, dow.dow)).order_by('-updated')
-#
-#     return TemplateResponse(request, template='slot/staff_regular.jinja2', context={
-#         'user_profile': user_profile,
-#         'dow': dow,
-#         'slot_table_data': user_profile.get_slot_table_regular(dow.dow),
-#         'command_form_offer_add': command_form_offer_add,
-#         'command_form_offer_delete': command_form_offer_delete,
-#         'change_log_entries': log_entries
-#     })
 
 
 class SlotOldForm(forms.Form):
@@ -141,33 +115,6 @@ class OfferSlotForm(SlotForm):
         except ValueError as e:
             raise forms.ValidationError('Please input a valid day token.')
         return cleaned_data
-
-
-# @login_required
-# def offer_regular_add(request, uid):
-#     # uid is the target uid, which different from request.user.pk who is the "action" user.
-#     user_profile = UserProfile.get_by_id(uid)
-#     assert user_profile.is_center_staff()
-#
-#     if request.method == 'POST':
-#         form = RegularSlotForm(request.POST)
-#         if form.is_valid():
-#             start_dow = form.cleaned_data['start_dow']
-#             added_time = OfferRegular.add_interval(start_time=form.cleaned_data['start_time'],
-#                                           end_time=form.cleaned_data['end_time'],
-#                                           start_dow=start_dow, user=user_profile.user)
-#             if len(added_time) == 0:
-#                 messages.warning(request, 'All specified slots are already added. No slot is added again.')
-#             else:
-#                 messages.success(request, 'Added slot(s): %s' % ', '.join([str(HalfHourTime(t)) for t in added_time]))
-#                 log_offer_regular_update(request.user, user_profile.user, start_dow, 'added slot(s)')
-#             return redirect(request.GET.get('next', request.META['HTTP_REFERER']))
-#
-#     if request.method == 'GET':
-#         form = RegularSlotForm()
-#
-#     form_url = reverse('slot:offer_regular_add', kwargs={'uid': uid})
-#     return render(request, 'base_form.jinja2', {'form': form, 'form_url': form_url, 'uid': uid})
 
 
 # TODO: add permission
@@ -247,80 +194,69 @@ def offer_delete(request, uid):
     return render(request, 'base_form.jinja2', {'form': form, 'form_url': form_url})
 
 
-# @login_required
-# def offer_regular_delete(request, uid):
-#     # uid is the target uid, which different from request.user.pk who is the "action" user.
-#     user_profile = UserProfile.get_by_id(uid)
-#     assert user_profile.is_center_staff()
-#
-#     if request.method == 'POST':
-#         form = RegularSlotForm(request.POST)
-#         if form.is_valid():
-#             start_dow = form.cleaned_data['start_dow']
-#             if 'delete-all' in form.data:
-#                 deleted = OfferRegular.delete_all(start_dow, user_profile.user)
-#                 if not deleted:
-#                     messages.warning(request, 'Nothing to delete of the day.')
-#                 else:
-#                     messages.success(request, 'Delete all day is executed.')
-#                     log_offer_regular_update(request.user, user_profile.user, start_dow, 'deleted all day')
-#             else:
-#                 # default 'submit' handler for all other submit button.
-#                 deleted_time = OfferRegular.delete_interval(start_time=form.cleaned_data['start_time'],
-#                                                             end_time=form.cleaned_data['end_time'],
-#                                                             start_dow=start_dow, user=user_profile.user)
-#                 if len(deleted_time) == 0:
-#                     messages.warning(request, 'No available time slot is in the specified time period to delete.')
-#                 else:
-#                     messages.success(request, 'Deleted slot(s): %s' % ', '.join([str(HalfHourTime(t)) for t in deleted_time]))
-#                     log_offer_regular_update(request.user, user_profile.user, start_dow, 'deleted slot(s)')
-#             return redirect(request.GET.get('next', request.META['HTTP_REFERER']))
-#
-#     if request.method == 'GET':
-#         form = RegularSlotForm()
-#
-#     form_url = reverse('slot:offer_regular_delete', kwargs={'uid': uid})
-#     return render(request, 'base_form.jinja2', {'form': form, 'form_url': form_url, 'uid': uid})
-
-
 class NeedRegularSlotForm(RegularSlotForm):
     howmany = forms.ChoiceField(choices=[(i, i) for i in range(1, 6)], label='How many')
 
 
 @login_required
-def classroom_date(request, pk):
-    return dummy(request)
+def classroom(request, pk):
+    # lots of code copied from staff()
+    classroom = get_object_or_404(Classroom, pk=pk)
+    day = _get_request_day(request)
 
-
-@login_required
-def classroom_regular(request, pk):
-    # lots of code copied from staff_regular()
-    try:
-        classroom = Classroom.objects.get(pk=pk)
-    except Classroom.DoesNotExist as e:
-        return HttpResponseBadRequest()
-    dow = DayOfWeek(_get_request_dow(request))
+    slot_table_data = classroom.get_slot_table(day)
 
     # handle regular need add form
-    command_form_need_add = NeedRegularSlotForm()
-    command_form_need_add.fields['start_dow'].widget = forms.HiddenInput()
-    command_form_need_add.fields['start_dow'].initial = dow.dow
+    # command_form_need_add = NeedRegularSlotForm()
+    # command_form_need_add.fields['start_dow'].widget = forms.HiddenInput()
+    # command_form_need_add.fields['start_dow'].initial = day
 
     # handle regular need delete form
-    command_form_need_delete = RegularSlotForm()
-    command_form_need_delete.fields['start_dow'].widget = forms.HiddenInput()
-    command_form_need_delete.fields['start_dow'].initial = dow.dow
+    # command_form_need_delete = RegularSlotForm()
+    # command_form_need_delete.fields['start_dow'].widget = forms.HiddenInput()
+    # command_form_need_delete.fields['start_dow'].initial = dow.dow
 
-    log_entries = Log.objects.filter(type=Log.TYPE_NEED_REGULAR_UPDATE, ref='%d,%d' % (classroom.pk, dow.dow)).order_by('-updated')
+    log_entries = Log.objects.filter(type=Log.TYPE_NEED_UPDATE, ref='%d,%s' % (classroom.pk, day.get_token())).order_by('-updated')
 
-    return TemplateResponse(request, template='slot/classroom_regular.jinja2', context={
+    return TemplateResponse(request, template='slot/classroom.jinja2', context={
         'classroom': classroom,
-        'dow': dow,
-        'command_form_need_add': command_form_need_add,
-        'command_form_need_delete': command_form_need_delete,
-        'slot_table_data': classroom.get_slot_table_regular(dow.dow),
-        'change_log_entries': log_entries,
-    })
+        'day': day,
+        # 'command_form_need_add': command_form_need_add,
+        # 'command_form_need_delete': command_form_need_delete,
+        'slot_table_data': slot_table_data,
+        # 'change_log_entries': log_entries,
+        })
+
+
+# @login_required
+# def classroom_regular(request, pk):
+#     # lots of code copied from staff_regular()
+#     try:
+#         classroom = Classroom.objects.get(pk=pk)
+#     except Classroom.DoesNotExist as e:
+#         return HttpResponseBadRequest()
+#     dow = DayOfWeek(_get_request_dow(request))
+#
+#     # handle regular need add form
+#     command_form_need_add = NeedRegularSlotForm()
+#     command_form_need_add.fields['start_dow'].widget = forms.HiddenInput()
+#     command_form_need_add.fields['start_dow'].initial = dow.dow
+#
+#     # handle regular need delete form
+#     command_form_need_delete = RegularSlotForm()
+#     command_form_need_delete.fields['start_dow'].widget = forms.HiddenInput()
+#     command_form_need_delete.fields['start_dow'].initial = dow.dow
+#
+#     log_entries = Log.objects.filter(type=Log.TYPE_NEED_REGULAR_UPDATE, ref='%d,%d' % (classroom.pk, dow.dow)).order_by('-updated')
+#
+#     return TemplateResponse(request, template='slot/classroom_regular.jinja2', context={
+#         'classroom': classroom,
+#         'dow': dow,
+#         'command_form_need_add': command_form_need_add,
+#         'command_form_need_delete': command_form_need_delete,
+#         'slot_table_data': classroom.get_slot_table_regular(dow.dow),
+#         'change_log_entries': log_entries,
+#     })
 
 
 @login_required
@@ -337,7 +273,7 @@ def need_regular_add(request, cid):
                                      end_time=form.cleaned_data['end_time'],
                                      howmany=int(form.cleaned_data['howmany']))
             messages.success(request, 'Needs added.')
-            log_need_regular_update(request.user, classroom, start_dow, 'added slot(s)')
+            log_need_update(request.user, classroom, start_dow, 'added slot(s)')
             return redirect(request.GET.get('next', request.META['HTTP_REFERER']))
 
     if request.method == 'GET':
@@ -368,11 +304,6 @@ def need_regular_delete(request, cid):
 
     form_url = reverse('slot:need_regular_delete', kwargs={'cid': cid})
     return render(request, 'base_form.jinja2', {'form': form, 'form_url': form_url})
-
-
-@login_required
-def assign_date(request, need_id):
-    return dummy(request)
 
 
 @login_required

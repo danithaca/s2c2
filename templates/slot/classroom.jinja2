@@ -1,0 +1,60 @@
+{% extends "base.jinja2" %}
+{% load bootstrap %}
+{% load s2c2_tags %}
+
+{% block title %}{% if day.is_regular %}Classroom Regular Schedule{% else %}Classroom Schedule{% endif %} | S2C2{% endblock %}
+
+{% block page %}
+  <div class="page-header">
+    <h1>Classroom {% if day.is_regular %}Template Schedule{% else %}Daily Schedule{% endif %} <small><i class="fa fa-university"></i> {{ classroom.name }}</small></h1>
+  </div>
+
+  <h2>
+    {% if day.is_regular %}Every {{ day.value|date:'l' }}{% else %}{{ day.value|date:'F j, l' }}{% endif %}
+    <a href="{% url 'slot:classroom' pk=classroom.pk %}?day={% if day.is_regular %}{{ day.date_of_weekday.get_token }}{% else %}{{ day.weekday_of_date.get_token }}{% endif %}" title="Switch between template and specific day's schedule." class="btn btn-default btn-sm"><i class="fa fa-exchange"></i> Switch</a>
+    <a href="{% url 'slot:classroom' pk=classroom.pk %}" title="Go to today's calendar" class="btn btn-default btn-sm"><i class="fa fa-calendar"></i> Today</a>
+  </h2>
+  {% url 'slot:classroom' pk=classroom.pk as pager_url %}
+  {% if day.is_regular %}
+    {% day-regular-pager day pager_url %}
+  {% else %}
+    {% day-date-pager day pager_url %}
+  {% endif %}
+
+  <div class="row">
+    <div class="col-sm-6">
+      <table class="table table-bordered table-hover table-striped table-condensed">
+        <thead><tr>
+          <th class="text-center">{% if day.is_regular %}{{ day.value|date:'l' }}{% else %}{{ day.value|date }}{% endif %}</th>
+          <th class="text-center">Needs and Assignment</th>
+        </tr></thead>
+        <tbody>
+        {% for r1, r2 in slot_table_data %}
+          <tr>
+            <th scope="row" class="text-center">{{ r1.0.value|time }} ~ {{ r1.1.value|time }}</th>
+            {% if r2.exists %}
+              <td class="text-center"><ul class="list-inline">
+                {% for need_obj in r2 %}<li><a href="{% url 'slot:assign_regular' need_id=need_obj.pk %}" class="text-muted">-Empty-</a></li>{% endfor %}
+              </ul></td>
+            {% else %}
+              <td></td>
+            {% endif %}
+          </tr>
+        {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    <div class="col-sm-6">
+
+      <div class="panel-group" id="command-list">
+{#        {% include "slot/command_form_view_classroom.jinja2" with panel_data_parent="command-list" command_form_id="command-form-classroom" command_form_title="View classroom needs" %}#}
+{#        {% include "slot/command_form_add_need.jinja2" with panel_data_parent="command-list" command_form_id="command-form-need-add" command_form_title="Add classroom needs" %}#}
+{#        {% include "slot/command_form_delete_need.jinja2" with panel_data_parent="command-list" command_form_id="command-form-need-delete" command_form_title="Delete classroom needs" %}#}
+{#        {% include "slot/command_form_assign_staff.jinja2" with panel_data_parent="command-list" command_form_id="command-form-staff" command_form_title="Assign staff" %}#}
+        {% include "slot/command_form_view_log.jinja2" with panel_data_parent="command-list" command_form_id="command-form-view-log" command_form_title="View change log" command_form_collapse=True %}
+      </div>
+
+    </div>
+  </div>
+{% endblock %}
+

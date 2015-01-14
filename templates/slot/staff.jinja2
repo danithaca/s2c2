@@ -6,7 +6,7 @@
 
 {% block page %}
   <div class="page-header">
-    <h1>{% if day.is_regular %}Template Schedule{% else %}Daily Schedule{% endif %} <small><i class="fa fa-user"></i> {{ user_profile.get_display_name }}</small></h1>
+    <h1>Staff {% if day.is_regular %}Template Schedule{% else %}Daily Schedule{% endif %} <small><i class="fa fa-user"></i> {{ user_profile.get_display_name }}</small></h1>
   </div>
 
   <h2>
