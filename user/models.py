@@ -28,7 +28,7 @@ from location.models import Center
 #
 #     def get_profile(self):
 #         return self.profile if hasattr(self, 'profile') else None
-from slot.models import HalfHourTime, OfferRegular
+from slot.models import HalfHourTime, OfferRegular, TimeToken, OfferSlot
 
 
 class Profile(models.Model):
@@ -133,6 +133,17 @@ class CenterStaff(UserProfile):
         for t in HalfHourTime.interval(time(hour=7), time(hour=19, minute=30)):
             t_obj = HalfHourTime(t)
             data.append((str(t_obj), OfferRegular.objects.filter(start_dow=dow, user=self.user, start_time=t_obj.start_time, end_time=t_obj.end_time).exists()))
+        return data
+
+    def get_slot_table(self, day):
+        """ This is to prepare data for the table in "staff" view. """
+        data = []
+        for start_time in TimeToken.interval(time(7), time(19, 30)):
+            end_time = start_time.get_next()
+            # start_time and end_time has to be wrapped inside of TimeToken in filter.
+            # TimeTokenField.to_python() is not called because objects.filter() doesn't create a new TimeTokenField() instance.
+            data.append(((start_time, end_time),
+                        OfferSlot.objects.filter(day=day, user=self.user, start_time=start_time, end_time=end_time).exists()))
         return data
 
 

@@ -1,3 +1,4 @@
+from functools import total_ordering
 from itertools import product
 import warnings
 from django.core.exceptions import ValidationError
@@ -13,6 +14,8 @@ class DayToken(object):
     # if it's a date, it'll be yyyymmdd
     # token definition: 0~6 is regular weekday, 20100101~20301230 is specific date.
     # someday: might consider 'date' subclass instead of proxy pattern?
+
+    weekday_tuple = tuple([date(1900, 1, i + 1) for i in range(7)])
 
     def __init__(self, value):
         assert isinstance(value, date) and DayToken.check_date(value)
@@ -50,6 +53,46 @@ class DayToken(object):
         assert isinstance(other, DayToken)
         return self.value == other.value
 
+    def display_weekday(self):
+        return calendar.day_name[self.value.weekday()]
+
+    def weekday(self):
+        return self.value.weekday()
+
+    def next_day(self):
+        if self.is_regular() and self.value == date(1900, 1, 7):
+            return DayToken(date(1900, 1, 1))
+        else:
+            return DayToken(self.value + timedelta(days=1))
+
+    def prev_day(self):
+        if self.is_regular() and self.value == date(1900, 1, 1):
+            return DayToken(date(1900, 1, 7))
+        else:
+            return DayToken(self.value - timedelta(days=1))
+
+    def next_week(self):
+        if self.is_regular():
+            return self
+        else:
+            return DayToken(self.value + timedelta(days=7))
+
+    def prev_week(self):
+        if self.is_regular():
+            return self
+        else:
+            return DayToken(self.value - timedelta(days=7))
+
+    def expand_week(self):
+        if self.is_regular():
+            return [DayToken(d) for d in DayToken.weekday_tuple]
+        else:
+            return [DayToken(self.value - timedelta(days=i)) for i in range(self.weekday(), 0, -1)] + [self, ]\
+                   + [DayToken(self.value + timedelta(days=i+1)) for i in range(6 - self.weekday())]
+
+    def __str__(self):
+        return str(self.value)
+
 
 class DayTokenField(models.DateField, metaclass=models.SubfieldBase):
     description = 'Either a regular weekday between 1900-1-1 and 1900-1-7,' \
@@ -86,13 +129,26 @@ class DayTokenField(models.DateField, metaclass=models.SubfieldBase):
         return value.value
 
 
+@total_ordering
 class TimeToken(object):
-    # someday: might consider "time" subclass instead of proxy
+    # we use the proxy pattern instead of sub-class to avoid weird things.
     # currently only allow half hour time point.
 
-    tuple = tuple(sorted(time(hour=h, minute=m) for h, m in product(range(24), (0, 30))))
-    set = set(time(hour=h, minute=m) for h, m in product(range(24), (0, 30)))
-    map = {t: i for i, t in enumerate(tuple)}
+    @staticmethod
+    def _to_index(t):
+        return t.hour * 2 + t.minute // 30
+
+    @staticmethod
+    def _from_index(i):
+        return time(i // 2, (i % 2) * 30)
+
+    @staticmethod
+    def _next(t):
+        return TimeToken._from_index((TimeToken._to_index(t) + 1) % 48)
+
+    @staticmethod
+    def _prev(t):
+        return TimeToken._from_index((TimeToken._to_index(t) + 47) % 48)
 
     def __init__(self, value):
         assert isinstance(value, time) and TimeToken.check_time(value)
@@ -111,27 +167,43 @@ class TimeToken(object):
 
     @staticmethod
     def check_time(value):
-        assert isinstance(value, time)
-        return value in TimeToken.set
+        return isinstance(value, time) and value.minute in (0, 30) and value.second == 0 and value.microsecond == 0
 
-    @staticmethod
-    def next(t):
-        assert TimeToken.check_time(t)
-        return TimeToken.tuple[(TimeToken.map[t] + 1) % len(TimeToken.tuple)]
+    def get_next(self):
+        return TimeToken(TimeToken._next(self.value))
 
-    @staticmethod
-    def prev(t):
-        assert TimeToken.check_time(t)
-        return TimeToken.tuple[(TimeToken.map[t] - 1)]
+    def get_prev(self):
+        return TimeToken(TimeToken._prev(self.value))
 
     @staticmethod
     def interval(start_time, end_time):
-        assert TimeToken.check_time(start_time) and TimeToken.check_time(end_time) and end_time > start_time
-        return TimeToken.tuple[TimeToken.map[start_time]:TimeToken.map[end_time]]
+        """ Interval is end-exclusive [start_time, end_time) """
+        if isinstance(start_time, time): start_time = TimeToken(start_time)
+        if isinstance(end_time, time): end_time = TimeToken(end_time)
+        assert isinstance(start_time, TimeToken) and isinstance(end_time, TimeToken) and end_time > start_time
+        return [TimeToken(TimeToken._from_index(i)) for i in range(TimeToken._to_index(start_time.value), TimeToken._to_index(end_time))]
+
+    @staticmethod
+    def get_choices(start_time, end_time):
+        return [(t.get_token(), t.display()) for t in TimeToken.interval(start_time, end_time)]
+
+    def display(self):
+        return self.value.strftime('%I:%M%p')
+
+    def display_slice(self):
+        return '%s ~ %s' % (self.display(), self.get_next().display())
 
     def __eq__(self, other):
         assert isinstance(other, TimeToken)
         return self.value == other.value
+
+    def __lt__(self, other):
+        assert isinstance(other, TimeToken)
+        return self.value < other.value
+
+    # this makes the class proxy
+    def __getattr__(self, attrib):
+        return getattr(self.value, attrib)
 
 
 class TimeTokenField(models.TimeField, metaclass=models.SubfieldBase):
@@ -181,6 +253,16 @@ class Slot(models.Model):
 
 class OfferSlot(Slot):
     user = models.ForeignKey(User)
+
+    @staticmethod
+    def add_missing(day, user, start_time):
+        assert isinstance(day, DayToken) and isinstance(user, User) and isinstance(start_time, TimeToken)
+        if not OfferSlot.objects.filter(day=day, user=user, start_time=start_time, end_time=start_time.get_next()).exists():
+            m = OfferSlot(day=day, user=user, start_time=start_time, end_time=start_time.get_next())
+            m.save()
+            return True
+        else:
+            return False
 
 
 class NeedSlot(Slot):

@@ -130,3 +130,5 @@ STATICFILES_DIRS = (
 LOGIN_REDIRECT_URL = '/'
 LOGIN_URL = reverse_lazy('user:login')
 LOGOUT_URL = reverse_lazy('user:logout')
+
+TIME_FORMAT = 'h:iA'

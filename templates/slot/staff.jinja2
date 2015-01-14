@@ -1,57 +1,50 @@
 {% extends "base.jinja2" %}
-{% block title %}Calendar{% endblock %}
+{% load bootstrap %}
+{% load s2c2_tags %}
+
+{% block title %}{% if day.is_regular %}Staff Regular Schedule{% else %}Staff Schedule{% endif %} | S2C2{% endblock %}
 
 {% block page %}
   <div class="page-header">
-    <h1>Tracy <small>Staff, NCCC</small></h1>
-    <h2><a href="#" title="Pick a date">Today (Monday, December 12)</a><small><a href="#" title="Switch to the regular schedule" style="margin-left: 40px;"><i class="fa fa-exchange"></i></a></small></h2>
+    <h1>{{ user_profile.get_display_name }} <small>{% if day.is_regular %}regular week schedule{% else %}schedule for the day{% endif %}</small></h1>
   </div>
+
+  <h2>
+    {% if day.is_regular %}{{ day.value|date:'l' }} Template{% else %}{{ day.value|date:'F j, l' }}{% endif %}
+    <a href="{% url 'slot:staff' uid=user_profile.pk %}" title="Go to today's calendar" class="btn btn-default btn-sm"><i class="fa fa-calendar"></i> Today</a>
+    <a href="#" title="Switch between template and specific day's schedule." class="btn btn-default btn-sm"><i class="fa fa-exchange"></i> Switch</a>
+  </h2>
+  {% url 'slot:staff' uid=user_profile.pk as pager_url %}
+  {% if day.is_regular %}
+    {% day-regular-pager day pager_url %}
+  {% else %}
+    {% day-date-pager day pager_url %}
+  {% endif %}
 
   <div class="row">
     <div class="col-sm-6">
-      <table class="table table-bordered table-hover table-striped">
+      <table class="table table-bordered table-hover table-striped table-condensed">
         <thead><tr>
-          <th></th>
-          <th>Availability and Assignment</th>
+          <th class="text-center">{% if day.is_regular %}{{ day.value|date:'l' }}{% else %}{{ day.value|date }}{% endif %}</th>
+          <th class="text-center">Availability and Assignment</th>
         </tr></thead>
         <tbody>
-        <tr><th scope="row">7:00am~7:30am</th><td class="text-muted">Available</td></tr>
-        <tr><th scope="row">7:00am~7:30am</th><td class="text-muted">Available</td></tr>
-        <tr><th scope="row">7:00am~7:30am</th><td>Sleeping Bears</td></tr>
-        <tr><th scope="row">7:00am~7:30am</th><td>Sleeping Bears</td></tr>
-        <tr><th scope="row">7:00am~7:30am</th><td>Sleeping Bears</td></tr>
-        <tr><th scope="row">7:00am~7:30am</th><td>Sleeping Bears</td></tr>
-        <tr><th scope="row">7:00am~7:30am</th><td>Sleeping Bears</td></tr>
+        {% for r1, r2 in slot_table_data %}
+          <tr>
+            <th scope="row" class="text-center">{{ r1.0.value|time }} ~ {{ r1.1.value|time }}</th>
+            {% if r2 %}<td class="text-muted text-center">Available</td>{% else %}<td></td>{% endif %}
+          </tr>
+        {% endfor %}
         </tbody>
       </table>
     </div>
     <div class="col-sm-6">
 
       <div class="panel-group" id="command-list">
-        <div class="panel panel-default">
-          <div class="panel-heading">
-            <h4 class="panel-title"><a data-toggle="collapse" data-parent="#command-list" href="#command-form-classroom">View classroom needs</a></h4>
-          </div>
-          <div id="command-form-classroom" class="panel-collapse collapse in">
-            <div class="panel-body">N/A</div>
-          </div>
-        </div>
-        <div class="panel panel-default">
-          <div class="panel-heading">
-            <h4 class="panel-title"><a class="collapsed" data-toggle="collapse" data-parent="#command-list" href="#command-form-offer-add">Add availability</a></h4>
-          </div>
-          <div id="command-form-offer-add" class="panel-collapse collapse">
-            <div class="panel-body">N/A</div>
-          </div>
-        </div>
-        <div class="panel panel-default">
-          <div class="panel-heading">
-            <h4 class="panel-title"><a class="collapsed" data-toggle="collapse" data-parent="#command-list" href="#command-form-offer-delete">Delete availability</a></h4>
-          </div>
-          <div id="command-form-offer-delete" class="panel-collapse collapse">
-            <div class="panel-body">N/A</div>
-          </div>
-        </div>
+{#        {% include "slot/command_form_view_classroom.jinja2" with panel_data_parent="command-list" command_form_id="command-form-classroom" command_form_title="View classroom needs" %}#}
+        {% include "slot/includes/command_form_add_offer.jinja2" with panel_data_parent="command-list" command_form_id="command-form-offer-add" command_form_title="Add availability" %}
+{#        {% include "slot/command_form_delete_offer.jinja2" with panel_data_parent="command-list" command_form_id="command-form-offer-delete" command_form_title="Delete availability" %}#}
+        {% include "slot/command_form_view_log.jinja2" with panel_data_parent="command-list" command_form_id="command-form-view-log" command_form_title="View change log" command_form_collapse=True %}
       </div>
 
     </div>

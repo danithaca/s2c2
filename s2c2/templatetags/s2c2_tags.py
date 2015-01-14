@@ -1,6 +1,8 @@
 from django import template
 from django.core.urlresolvers import reverse
-from slot.models import DayOfWeek
+from django.utils.dateformat import format
+from slot.models import DayOfWeek, DayToken
+
 
 register = template.Library()
 
@@ -36,4 +38,31 @@ def slot_dow_pager(dow, url):
         'text': '<i class="fa fa-calendar-o"></i> %s' % DayOfWeek.get_name(d)
     })) for d in DayOfWeek.get_tuple()]
     list_li = ['<li>%s</li>' % a if d != dow.dow else '<li class="active">%s</li>' % a for d, a in list_a]
+    return '<ul class="pagination">%s</ul>' % ''.join(list_li)
+
+
+@register.simple_tag(name='day-regular-pager')
+def slot_day_regular_pager(day, url):
+    assert isinstance(day, DayToken)
+    list_a = [(dt, link_a({
+        'href': url + '?day=' + dt.get_token(),
+        'text': '<i class="fa fa-calendar-o"></i> %s' % dt.display_weekday()
+    })) for dt in (DayToken(d) for d in DayToken.weekday_tuple)]
+    list_li = ['<li>%s</li>' % a if dt != day else '<li class="active">%s</li>' % a for dt, a in list_a]
+    return '<ul class="pagination">%s</ul>' % ''.join(list_li)
+
+
+@register.simple_tag(name='day-date-pager')
+def slot_day_token_date_pager(day, url):
+    assert isinstance(day, DayToken)
+    list_data = [(day.prev_week(), '<i class="fa fa-fast-backward"></i>'), (day.prev_day(), '<i class="fa fa-step-backward"></i>')]
+    list_data += [(dt, format(dt.value, 'M j (D)')) for dt in day.expand_week()]
+    list_data += [(day.next_day(), '<i class="fa fa-step-forward"></i>'), (day.next_week(), '<i class="fa fa-fast-forward"></i>')]
+
+    list_a = [(dt, link_a({
+        'href': url + '?day=' + dt.get_token(),
+        'text': text
+    })) for dt, text in list_data]
+
+    list_li = ['<li>%s</li>' % a if dt != day else '<li class="active">%s</li>' % a for dt, a in list_a]
     return '<ul class="pagination">%s</ul>' % ''.join(list_li)
