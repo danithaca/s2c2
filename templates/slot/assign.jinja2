@@ -6,15 +6,25 @@
 
 {% block page %}
   <div class="page-header">
-    <h1>{% block page-header %}Assign Staff <small>{{ classroom.name }}, {{ time_slot }}</small>{% endblock %}</h1>
+    <h1>
+      {% block page-header %}Assign Staff
+      <small><i class="fa fa-university"></i> {{ classroom.name }}
+        | <i class="fa fa-calendar-o"></i> {% if day.is_regular %}{{ day.value|date:'l' }} Template{% else %}{{ day.value|date:'M j (D)' }}{% endif %}
+      </small>{% endblock %}
+    </h1>
   </div>
   <div class="row">
     <div class="col-sm-6 col-sm-offset-3">
-      <div class="alert alert-info">Time slot {{ time_slot }} is currently {% if main_meet %}set to {{ main_meet.offer.user.name }}{% else %}<strong>Empty</strong>{% endif %}</div>
-      <form class="form" method="post" action="{% url 'slot:assign_regular' need_id=need.pk %}">
+      <div class="well">{{ time_slot.display_slice }} is {% if existing_offer %}assigned to: <strong>{{ existing_offer_user_name }}</strong>{% else %}<strong>-Empty-</strong>{% endif %}</div>
+      <form class="form" method="post" action="{% url 'slot:assign' need_id=need.pk %}">
         {% csrf_token %}
-        {{ form|bootstrap }}
-        <button type="submit" class="btn btn-primary">Assign</button>
+        {% if form %}
+          {{ form|bootstrap }}
+        {% else %}
+          <div class="alert alert-warning">There is no available staff to assign to this time slot.</div>
+        {% endif %}
+        <button type="submit" class="btn btn-primary {% if not form %}disabled{% endif %}" name="assign">Assign</button>
+        <button type="submit" class="btn btn-primary {% if not existing_offer %}disabled{% endif %}" name="remove">Remove</button>
       </form>
     </div>
   </div>

@@ -12,7 +12,7 @@ from location.models import Classroom
 from log.models import Log, log_offer_update, log_need_update
 from s2c2.utils import dummy
 from user.models import UserProfile
-from .models import DayToken, TimeToken, OfferSlot, NeedSlot
+from .models import DayToken, TimeToken, OfferSlot, NeedSlot, Meet
 
 
 def _get_request_day(request):
@@ -249,30 +249,58 @@ def need_delete(request, cid):
 
 @login_required
 def assign(request, need_id):
-    return dummy(request)
-    # need = get_object_or_404(NeedSlot, pk=need_id)
-    # # make sure start_time and end_time is right.
-    # assert need.start_time.get_next() == need.end_time
-    #
-    # classroom = Classroom.objects.get(pk=need.location.pk)
-    # main_meet = need.meetslot_set.filter(status=MeetSlot.MAIN).last()
-    #
-    # staff_id_list = OfferRegular.get_staff_id_list(need.start_dow, need.start_time)
-    # # fixme: add a) 'None' and 'current_staff'
-    # choices = [(i, UserProfile.get_by_id(i).get_display_name()) for i in staff_id_list]
-    #
-    # class AssignStaffForm(forms.Form):
-    #     staff = forms.ChoiceField(choices=choices, label='Assign available staff')
-    #
-    # if request.method == 'POST':
-    #     form = AssignStaffForm(request.POST)
-    # if request.method == 'GET':
-    #     form = AssignStaffForm()
-    #
-    # return render(request, 'slot/assign.jinja2', {
-    #     'need': need,
-    #     'time_slot': time_slot,
-    #     'classroom': classroom,
-    #     'main_meet': main_meet,
-    #     'form': form,
-    # })
+    class AssignStaffForm(forms.Form):
+        offer = forms.IntegerField(label='Assign available staff', widget=forms.Select, help_text='Every staff displayed here is available at the time slot.')
+
+    need = get_object_or_404(NeedSlot, pk=need_id)
+    # make sure start_time and end_time is right.
+    assert need.start_time.get_next() == need.end_time
+
+    # 'need' already has 'location', but we are only interested in 'classroom' for now.
+    classroom = Classroom.objects.get(pk=need.location.pk)
+
+    # try to load existing offer, or none is found.
+    try:
+        existing_meet = need.meet
+        existing_offer = existing_meet.offer
+        existing_offer_user_name = UserProfile(existing_offer.user).get_display_name()
+    except Meet.DoesNotExist as e:
+        existing_offer = None
+        existing_offer_user_name = None
+
+    context = {
+        'need': need,
+        'day': need.day,
+        'time_slot': need.start_time,
+        'classroom': classroom,
+        'existing_offer': existing_offer,
+        'existing_offer_user_name': existing_offer_user_name,
+    }
+
+    if request.method == 'POST':
+        form = AssignStaffForm(request.POST)
+        if 'remove' in form.data:
+            # todo: double check the logic. might need to have the 'meet' info in form as a hidden value.
+            existing_meet.delete()
+            messages.success(request, 'Successfully removed assignment.')
+            return redirect('slot:classroom', cid=classroom.pk)
+
+        if form.is_valid():
+            offer = OfferSlot.objects.get(pk=form.cleaned_data['offer'])
+            meet = Meet(offer=offer, need=need)
+            meet.save()
+            messages.success(request, 'Staff assigned successfully.')
+            return redirect('slot:classroom', cid=classroom.pk)
+
+    elif request.method == 'GET':
+        form = AssignStaffForm()
+    else:
+        assert False
+
+    available_offers = OfferSlot.get_available_offer(need.day, need.start_time)
+    choices = [('', '- Select -')]
+    choices.extend([(o.pk, UserProfile(o.user).get_display_name()) for o in available_offers])
+    form.fields['offer'].widget.choices = choices
+
+    context['form'] = form if len(choices) > 1 else None
+    return render(request, 'slot/assign.jinja2', context)

@@ -306,19 +306,19 @@ class OfferSlot(Slot):
             return False
 
     @staticmethod
-    def get_staff_id_list(start_dow, start_time):
-        # fixme: need to support "center" relationship too.
-        return OfferSlot.objects \
-            .filter(start_dow=start_dow, start_time=start_time, end_time=HalfHourTime.next(start_time)) \
-            .exclude(meetregular__status=MeetSlot.MAIN) \
-            .values_list('user_id', flat=True).distinct()
+    def get_available_offer(day, start_time):
+        return [o for o in OfferSlot.objects.filter(day=day, start_time=start_time, end_time=start_time.get_next()).exclude(meet__isnull=False)]
+
+    # @staticmethod
+    # def get_staff_id_list(start_dow, start_time):
+    #     # fixme: need to support "center" relationship too.
+    #     return OfferSlot.objects \
+    #         .filter(start_dow=start_dow, start_time=start_time, end_time=HalfHourTime.next(start_time)) \
+    #         .exclude(meetregular__status=MeetSlot.MAIN) \
+    #         .values_list('user_id', flat=True).distinct()
 
     def __str__(self):
         return '%s: %s %s ~ %s' % (self.user.username, self.day.get_token(), self.start_time.display(), self.end_time.display())
-
-    def get_availability(self):
-        # if there's a "main" Meet associated with
-        pass
 
 
 class NeedSlot(Slot):
@@ -328,20 +328,31 @@ class NeedSlot(Slot):
         return '%s: %s %s ~ %s' % (self.location.name, self.day.get_token(), self.start_time.display(), self.end_time.display())
 
 
-class MeetSlot(Slot):
-    offer = models.ForeignKey(OfferSlot)
-    need = models.ForeignKey(NeedSlot)
+# class MeetSlot(Slot):
+#     offer = models.ForeignKey(OfferSlot)
+#     need = models.ForeignKey(NeedSlot)
+#
+#     # only 1 meet could be "active" that associate the same "offer" and "need".
+#     # there's no db reinforcement, need to check in the code.
+#
+#     INACTIVE = 0
+#     MAIN = 1
+#     BACKUP = 20
+#     MEET_STATUS = (
+#         (INACTIVE, 'inactive'),
+#         (MAIN, 'main'),
+#         (BACKUP, 'backup'),
+#     )
+#     status = models.PositiveSmallIntegerField(choices=MEET_STATUS, default=INACTIVE)
 
-    INACTIVE = 0
-    # only 1 meet could be "active" that associate the same "offer" and "need".
-    # there's no db reinforcement, need to check in the code.
-    # someday: implement check to make sure there's only 1 "main" meet instance.
-    MAIN = 1
-    BACKUP = 20
-    MEET_STATUS = (
-        (INACTIVE, 'inactive'),
-        (MAIN, 'main'),
-        (BACKUP, 'backup'),
-    )
-    status = models.PositiveSmallIntegerField(choices=MEET_STATUS, default=INACTIVE)
+
+# we are making Meet to be one-one relationship to offer/need, and not extends from Slot.
+# if there's going to be more complex workflow state, might create a new model instead of using Meet.
+class Meet(models.Model):
+    offer = models.OneToOneField(OfferSlot, primary_key=True)
+    need = models.OneToOneField(NeedSlot, primary_key=True)
+
+    def __str__(self):
+        assert self.need.day == self.offer.day and self.need.start_time == self.offer.start_time and self.need.end_time == self.offer.end_time
+        return '%s (%s): %s - %s' % (self.need.day.get_token(), self.need.start_time.display_slice(), self.need.location.name, self.offer.user.username)
 

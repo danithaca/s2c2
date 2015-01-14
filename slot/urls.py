@@ -10,7 +10,7 @@ urlpatterns = patterns(
     # classroom portal, classroom_id is required.
     url(r'^classroom/(?P<cid>\d+)/$', slot.views.day_classroom, name='classroom'),
 
-    # assignment form
+    # assign available offer to particular need
     url(r'^assign/(?P<need_id>\d+)/$', slot.views.assign, name='assign'),
 
     # handle offer (mostly for restful)
