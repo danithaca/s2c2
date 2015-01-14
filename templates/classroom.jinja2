@@ -24,11 +24,11 @@
 <table class="table table-hover table-stripped table-bordered">
   <thead><tr>
     <th></th>
-    <th><a href="{% url 'slot:classroom' pk=classroom.pk%}?dow=0">Monday</a></th>
-    <th><a href="{% url 'slot:classroom' pk=classroom.pk%}?dow=1">Tuesday</a></th>
-    <th><a href="{% url 'slot:classroom' pk=classroom.pk%}?dow=2">Wednesday</a></th>
-    <th><a href="{% url 'slot:classroom' pk=classroom.pk%}?dow=3">Thursday</a></th>
-    <th><a href="{% url 'slot:classroom' pk=classroom.pk%}?dow=4">Friday</a></th>
+    <th><a href="{% url 'slot:classroom' cid=classroom.pk%}?dow=0">Monday</a></th>
+    <th><a href="{% url 'slot:classroom' cid=classroom.pk%}?dow=1">Tuesday</a></th>
+    <th><a href="{% url 'slot:classroom' cid=classroom.pk%}?dow=2">Wednesday</a></th>
+    <th><a href="{% url 'slot:classroom' cid=classroom.pk%}?dow=3">Thursday</a></th>
+    <th><a href="{% url 'slot:classroom' cid=classroom.pk%}?dow=4">Friday</a></th>
   </tr></thead>
   <tbody>
   <tr><th scope="row">9:00am~9:30am</th><td class="text-muted">Empty</td><td>Tracy | Charlene | Stacia</td><td></td><td></td><td></td></tr>

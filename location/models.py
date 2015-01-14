@@ -39,17 +39,6 @@ class Center(Location):
 class Classroom(Location):
     center = models.ForeignKey(Center)
 
-    def get_slot_table_regular(self, day):
-        """ This is to prepare data for the table in "classroom_regular" view. """
-        # to avoid cylic module import
-        from slot.models import HalfHourTime, NeedRegular
-        data = []
-        for t in HalfHourTime.interval(time(hour=7), time(hour=19, minute=30)):
-            t_obj = HalfHourTime(t)
-            data.append((str(t_obj),
-                         NeedRegular.objects.filter(start_dow=day, location=self, start_time=t_obj.start_time, end_time=t_obj.end_time)))
-        return data
-
     def get_slot_table(self, day):
         """ This is to prepare data for the table in "classroom" view. """
         # to avoid cyclic module import
