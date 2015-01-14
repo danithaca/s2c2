@@ -2,6 +2,7 @@ from django import template
 from django.utils.dateformat import format
 
 from slot.models import DayToken
+from user.models import UserProfile
 
 
 register = template.Library()
@@ -14,6 +15,12 @@ def bootstrap_alert(message):
         return 'alert-%s' % sub
     except Exception:
         return ''
+
+
+@register.filter
+def display_name(user):
+    user_profile = UserProfile(user)
+    return user_profile.get_display_name()
 
 
 @register.simple_tag(name='link-a')

@@ -111,7 +111,7 @@ class CenterStaff(UserProfile):
             # start_time and end_time has to be wrapped inside of TimeToken in filter.
             # TimeTokenField.to_python() is not called because objects.filter() doesn't create a new TimeTokenField() instance.
             data.append(((start_time, end_time),
-                        OfferSlot.objects.filter(day=day, user=self.user, start_time=start_time, end_time=end_time).exists()))
+                        OfferSlot.objects.filter(day=day, user=self.user, start_time=start_time, end_time=end_time)))
         return data
 
 

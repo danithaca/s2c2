@@ -33,7 +33,13 @@
             <th scope="row" class="text-center">{{ r1.0.value|time }} ~ {{ r1.1.value|time }}</th>
             {% if r2.exists %}
               <td class="text-center"><ul class="list-inline">
-                {% for need_obj in r2 %}<li><a href="{% url 'slot:assign' need_id=need_obj.pk %}" class="text-muted">-Empty-</a></li>{% endfor %}
+                {% for need_obj in r2 %}<li>
+                {% if need_obj.meet %}
+                  <a href="{% url 'slot:assign' need_id=need_obj.pk %}">{{ need_obj.meet.offer.user|display_name }}</a>
+                {% else %}
+                  <a href="{% url 'slot:assign' need_id=need_obj.pk %}" class="text-muted">-Empty-</a>
+                {% endif %}
+                </li>{% endfor %}
               </ul></td>
             {% else %}
               <td></td>

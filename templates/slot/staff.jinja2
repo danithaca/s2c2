@@ -31,7 +31,19 @@
         {% for r1, r2 in slot_table_data %}
           <tr>
             <th scope="row" class="text-center">{{ r1.0.value|time }} ~ {{ r1.1.value|time }}</th>
-            {% if r2 %}<td class="text-muted text-center">Available</td>{% else %}<td></td>{% endif %}
+            {% if r2.exists %}
+              <td class="text-center"><ul class="list-inline">
+                {% for offer in r2 %}{# there should be only one availability should be only one #}
+                  {% if offer.meet %}
+                    <li><a href="{% url 'slot:classroom' cid=offer.meet.need.location.pk %}">{{ offer.meet.need.location.name }}</a></li>
+                  {% else %}
+                    <li class="text-muted">-Available-</li>
+                  {% endif %}
+                {% endfor %}
+              </ul></td>
+            {% else %}
+              <td></td>
+            {% endif %}
           </tr>
         {% endfor %}
         </tbody>
