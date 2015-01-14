@@ -6,13 +6,13 @@
 
 {% block page %}
   <div class="page-header">
-    <h1>{{ user_profile.get_display_name }} <small>{% if day.is_regular %}regular week schedule{% else %}schedule for the day{% endif %}</small></h1>
+    <h1>{% if day.is_regular %}Template Schedule{% else %}Daily Schedule{% endif %} <small><i class="fa fa-user"></i> {{ user_profile.get_display_name }}</small></h1>
   </div>
 
   <h2>
-    {% if day.is_regular %}{{ day.value|date:'l' }} Template{% else %}{{ day.value|date:'F j, l' }}{% endif %}
+    {% if day.is_regular %}Every {{ day.value|date:'l' }}{% else %}{{ day.value|date:'F j, l' }}{% endif %}
+    <a href="{% url 'slot:staff' uid=user_profile.pk %}?day={% if day.is_regular %}{{ day.date_of_weekday.get_token }}{% else %}{{ day.weekday_of_date.get_token }}{% endif %}" title="Switch between template and specific day's schedule." class="btn btn-default btn-sm"><i class="fa fa-exchange"></i> Switch</a>
     <a href="{% url 'slot:staff' uid=user_profile.pk %}" title="Go to today's calendar" class="btn btn-default btn-sm"><i class="fa fa-calendar"></i> Today</a>
-    <a href="#" title="Switch between template and specific day's schedule." class="btn btn-default btn-sm"><i class="fa fa-exchange"></i> Switch</a>
   </h2>
   {% url 'slot:staff' uid=user_profile.pk as pager_url %}
   {% if day.is_regular %}

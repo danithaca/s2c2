@@ -49,6 +49,10 @@ class DayToken(object):
         else:
             raise ValueError('Cannot identify DayToken: %s' % token)
 
+    @staticmethod
+    def today():
+        return DayToken(datetime.today().date())
+
     def __eq__(self, other):
         assert isinstance(other, DayToken)
         return self.value == other.value
@@ -92,6 +96,16 @@ class DayToken(object):
 
     def __str__(self):
         return str(self.value)
+
+    def date_of_weekday(self):
+        assert self.is_regular()
+        this_week = DayToken.today().expand_week()
+        return this_week[self.weekday()]
+
+    def weekday_of_date(self):
+        assert not self.is_regular()
+        return DayToken(DayToken.weekday_tuple[self.weekday()])
+
 
 
 class DayTokenField(models.DateField, metaclass=models.SubfieldBase):

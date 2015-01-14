@@ -1,0 +1,14 @@
+{% extends 'slot/command_form.jinja2' %}
+
+{% block command_form_content %}
+{% if change_log_entries.exists %}
+  <ul>
+  {% for entry in change_log_entries %}
+    {# fixme: timestamp is GMT in sqlite, not local time. #}
+    <li>Updated on {{ entry.updated }}</li>
+  {% endfor %}
+  </ul>
+{% else %}
+  <div class="alert alert-warning">No update yet.</div>
+{% endif %}
+{% endblock %}

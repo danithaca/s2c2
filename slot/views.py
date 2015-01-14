@@ -48,12 +48,15 @@ def staff(request, uid=None):
     command_form_offer_delete.fields['day'].widget = forms.HiddenInput()
     command_form_offer_delete.fields['day'].initial = day.get_token()
 
+    log_entries = Log.objects.filter(type=Log.TYPE_OFFER_UPDATE, ref='%d,%s' % (user_profile.pk, day.get_token())).order_by('-updated')
+
     return render(request, 'slot/staff.jinja2', {
         'user_profile': user_profile,
         'day': day,
         'slot_table_data': slot_table_data,
         'command_form_offer_add': command_form_offer_add,
         'command_form_offer_delete': command_form_offer_delete,
+        'change_log_entries': log_entries,
     })
 
 
