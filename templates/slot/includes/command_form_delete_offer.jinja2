@@ -9,8 +9,11 @@
       <div class="col-sm-offset-4 col-sm-8">
         <button type="submit" class="btn btn-primary" name="delete">Delete</button>
         <button type="submit" class="btn btn-primary" name="delete-all">Delete All Day</button>
-        <span class="help-block">* Deleting availability cannot be undone and might invalidate existing classroom assignments.</span>
       </div>
     </div>
+    <ul class="help-block">
+      <li>Affected classroom assignments will be delete too.</li>
+      <li>Delete cannot be undone.</li>
+    </ul>
   </form>
 {% endblock %}

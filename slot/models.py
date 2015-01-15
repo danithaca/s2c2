@@ -343,6 +343,23 @@ class OfferSlot(Slot):
     def __str__(self):
         return '%s: %s %s ~ %s' % (self.user.username, self.day.get_token(), self.start_time.display(), self.end_time.display())
 
+    @staticmethod
+    def copy(user, target_day):
+        """ copy template from day.weekday to the day for the user. """
+        assert not target_day.is_regular()
+        template_day = target_day.weekday_of_date()
+
+        template_data = {s.start_time: s for s in OfferSlot.objects.filter(user=user, day=template_day)}
+        target_data = {s.start_time: s for s in OfferSlot.objects.filter(user=user, day=target_day)}
+
+        # add
+        for t in set(template_data.keys()).difference(set(target_data.keys())):
+            OfferSlot.objects.create(user=user, day=target_day, start_time=t, end_time=t.get_next())
+
+        # delete
+        for t in set(target_data.keys()).difference(set(template_data.keys())):
+            target_data[t].delete()
+
 
 class NeedSlot(Slot):
     location = models.ForeignKey(Location)

@@ -16,6 +16,7 @@ urlpatterns = patterns(
     # handle offer (mostly for restful)
     url(r'^staff/(?P<uid>\d+)/offer/add/$', slot.views.offer_add, name='offer_add'),
     url(r'^staff/(?P<uid>\d+)/offer/delete/$', slot.views.offer_delete, name='offer_delete'),
+    url(r'^staff/(?P<uid>\d+)/copy/$', slot.views.staff_copy, name='staff_copy'),
 
     # handle need (mostly for restful)
     url(r'^classroom/(?P<cid>\d+)/need/add/$', slot.views.need_add, name='need_add'),

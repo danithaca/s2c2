@@ -43,6 +43,11 @@ def day_staff(request, uid=None):
     command_form_offer_delete.fields['day'].widget = forms.HiddenInput()
     command_form_offer_delete.fields['day'].initial = day.get_token()
 
+    # copy form
+    command_form_copy = DayForm()
+    command_form_copy.fields['day'].widget = forms.HiddenInput()
+    command_form_copy.fields['day'].initial = day.get_token()
+
     log_entries = Log.objects.filter(type=Log.OFFER_UPDATE, ref='%d,%s' % (user_profile.pk, day.get_token())).order_by('-updated')
 
     return render(request, 'slot/staff.jinja2', {
@@ -52,8 +57,26 @@ def day_staff(request, uid=None):
         'unmet_table_data': unmet_table_data,
         'command_form_offer_add': command_form_offer_add,
         'command_form_offer_delete': command_form_offer_delete,
+        'command_form_copy': command_form_copy,
         'change_log_entries': log_entries,
     })
+
+
+class DayForm(forms.Form):
+    day = forms.CharField(label='Day', required=True)
+
+    def clean(self):
+        cleaned_data = super(DayForm, self).clean()
+        day = cleaned_data.get('day')
+        if day is not None:     # day is required, but will be validated by django after this call
+            try:
+                DayToken.from_token(day)
+            except ValueError as e:
+                raise forms.ValidationError('Please input a valid day token.')
+            return cleaned_data
+
+    def get_data(self):
+        return DayToken.from_token(self.cleaned_data['day'])
 
 
 class SlotForm(forms.Form):
@@ -318,3 +341,24 @@ def assign(request, need_id):
 
     context['form'] = form if len(choices) > 1 else None
     return render(request, 'slot/assign.jinja2', context)
+
+
+@login_required
+def staff_copy(request, uid):
+    staff = UserProfile.get_by_id(uid)
+    assert staff.is_center_staff()
+
+    if request.method == 'POST':
+        form = DayForm(request.POST)
+        if form.is_valid():
+            day = form.get_data()
+            OfferSlot.copy(staff.user, day)
+            messages.success(request, 'Copy template executed.')
+            # log_need_update(request.user, classroom, day, 'deleted slot(s)')
+            return redirect(request.GET.get('next', request.META['HTTP_REFERER']))
+
+    if request.method == 'GET':
+        form = DayForm()
+
+    form_url = reverse('slot:staff_copy', kwargs={'uid': uid})
+    return render(request, 'base_form.jinja2', {'form': form, 'form_url': form_url})
