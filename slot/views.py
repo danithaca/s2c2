@@ -328,14 +328,14 @@ def assign(request, need_id):
             # todo: double check the logic. might need to have the 'meet' info in form as a hidden value.
             existing_meet.delete()
             messages.success(request, 'Successfully removed assignment.')
-            return redirect('slot:classroom', cid=classroom.pk)
+            return redirect(reverse('slot:classroom', kwargs={'cid': classroom.pk}) + '?day=' + existing_meet.offer.day.get_token())
 
         if form.is_valid():
             offer = OfferSlot.objects.get(pk=form.cleaned_data['offer'])
             meet = Meet(offer=offer, need=need)
             meet.save()
             messages.success(request, 'Staff assigned successfully.')
-            return redirect('slot:classroom', cid=classroom.pk)
+            return redirect(reverse('slot:classroom', kwargs={'cid': classroom.pk}) + '?day=' + offer.day.get_token())
 
     elif request.method == 'GET':
         form = AssignStaffForm()
