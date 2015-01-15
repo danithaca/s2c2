@@ -12,14 +12,14 @@
 
 {% block page-summary %}
   <table class="table table-condensed table-hover">
-    <tr><th scope="row">Phone</th><td>555-555-5555 (main), 000-000-0000 (backup)</td></tr>
-    <tr><th scope="row">Email</th><td>abc@umich.edu</td></tr>
+    <tr><th scope="row">Phone</th><td>{{ user_profile.phone_main|default:'N/A' }} <span class="text-muted">main</span> | {{ user_profile.phone_backup|default:'N/A' }} <span class="text-muted">backup</span></td></tr>
+    <tr><th scope="row">Email</th><td>{{ user_profile.email }}</td></tr>
     {% if user_profile.is_center_staff %}
       <tr><th scope="row">Work hours</th><td>40 hours per regular week; 42.5 hours this week</td></tr>
-      <tr><th scope="row">Classrooms </th><td><a href="#"><i class="fa fa-university"></i> Sleeping Bears</a> | <a href="#"><i class="fa fa-university"></i> Sleeping Bears</a></td></tr>
+      <tr><th scope="row">Classrooms </th><td><a href="#"><i class="fa fa-university"></i> Robins</a> | <a href="#"><i class="fa fa-university"></i> Sleeping Bears</a></td></tr>
       <tr><th scope="row">Managers </th><td><a href="#"><i class="fa fa-user"></i> Kelly</a> | <a href="#"><i class="fa fa-user"></i> Julia</a></td></tr>
     {% endif %}
-    <tr><th scope="row">Personal Note</th><td>Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.</td></tr>
+    <tr><th scope="row">Personal Note</th><td>{{ user_profile.note }}</td></tr>
   </table>
 {% endblock %}
 
@@ -55,16 +55,31 @@
     <table class="table table-hover table-stripped table-bordered">
       <thead><tr>
         <th></th>
-        <th><a href="{% url 'slot:staff' %}?day=0">Monday</a></th>
-        <th><a href="{% url 'slot:staff' %}?day=1">Tuesday</a></th>
-        <th><a href="{% url 'slot:staff' %}?day=2">Wednesday</a></th>
-        <th><a href="{% url 'slot:staff' %}?day=3">Thursday</a></th>
-        <th><a href="{% url 'slot:staff' %}?day=4">Friday</a></th>
+        {% for d in regular_week_table_data.header %}
+          <th class="text-center"><a href="{% url 'slot:staff' %}?day={{ d.get_token }}">{{ d.value|date:'l' }}</a></th>
+        {% endfor %}
       </tr></thead>
       <tbody>
-      <tr><th scope="row">9:00am~9:30am</th><td class="text-muted">Available</td><td>Sleeping Bears</td><td>Robbins</td><td>Robbins</td><td>Sleeping Bears</td></tr>
-      <tr><th scope="row">9:30am~10:00am</th><td class="text-muted">Available</td><td></td><td></td><td>Robbins</td><td>Sleeping Bears</td></tr>
-      <tr><th scope="row">10:00am~10:30am</th><td class="text-muted">Available</td><td>Sleeping Bears</td><td>Robbins</td><td>Robbins</td><td>Sleeping Bears</td></tr>
+      {% for row_header, row_data in regular_week_table_data.rows %}
+        <tr>
+          <th scope="row" class="text-center">{{ row_header.display_slice }}</th>
+          {% for cell in row_data%}
+          {% if cell %}
+            <td class="text-center"><ul class="list-inline">
+              {% for offer in cell %}{# there should be only one availability #}
+                {% if offer.meet %}
+                  <li><a href="{% url 'slot:classroom' cid=offer.meet.need.location.pk %}?day={{ offer.meet.need.day.get_token }}">{% classroom-icon %} {{ offer.meet.need.location.name }}</a></li>
+                {% else %}
+                  <li class="text-muted">-Available-</li>
+                {% endif %}
+              {% endfor %}
+            </ul></td>
+          {% else %}
+            <td></td>
+          {% endif %}
+          {% endfor %}
+        </tr>
+      {% endfor %}
       </tbody>
     </table>
     <button class="btn btn-primary">Print regular schedule</button>

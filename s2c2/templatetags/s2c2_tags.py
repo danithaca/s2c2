@@ -23,6 +23,11 @@ def display_name(user):
     return user_profile.get_display_name()
 
 
+@register.simple_tag(name='classroom-icon')
+def s2c2_classroom_icon():
+    return '<i class="fa fa-university"></i>'
+
+
 @register.simple_tag(name='link-a')
 def link_a(a):
     # someday: not properly encoded. require caller to make sure things are encoded before pass in.

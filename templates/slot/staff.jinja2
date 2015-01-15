@@ -35,7 +35,7 @@
               <td class="text-center"><ul class="list-inline">
                 {% for offer in r2 %}{# there should be only one availability should be only one #}
                   {% if offer.meet %}
-                    <li><a href="{% url 'slot:classroom' cid=offer.meet.need.location.pk %}">{{ offer.meet.need.location.name }}</a></li>
+                    <li><a href="{% url 'slot:classroom' cid=offer.meet.need.location.pk %}?day={{ day.get_token }}">{% classroom-icon %} {{ offer.meet.need.location.name }}</a></li>
                   {% else %}
                     <li class="text-muted">-Available-</li>
                   {% endif %}

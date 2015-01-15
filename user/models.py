@@ -1,3 +1,4 @@
+from collections import defaultdict
 from datetime import time
 
 from django.db import models
@@ -113,6 +114,55 @@ class CenterStaff(UserProfile):
             data.append(((start_time, end_time),
                         OfferSlot.objects.filter(day=day, user=self.user, start_time=start_time, end_time=end_time)))
         return data
+
+    def get_regular_week_table(self):
+        from slot.models import DayToken, TimeToken, OfferSlot
+        weekday = DayToken.get_weekday_list(True)
+        time_per_day = TimeToken.interval(time(7, 30), time(19))
+
+        # this is to overcome django template behavior.
+        # class TableCellWrapper:
+        #     def __init__(self):
+        #         self.data = defaultdict(lambda: defaultdict(list))
+        #
+        #     def add(self, day, start_time, offer):
+        #         self.data[day][start_time].append(offer)
+        #
+        #     def get(self, day, start_time):
+        #         return self.data[day][start_time]
+        #
+        # data = TableCellWrapper()
+        # for offer in OfferSlot.objects.filter(day__in=weekday, user=self.user):
+        #     data.add(offer.day, offer.start_time, offer)
+
+        data = defaultdict(lambda: defaultdict(list))
+        for offer in OfferSlot.objects.filter(day__in=weekday, user=self.user):
+            data[offer.day][offer.start_time].append(offer)
+
+        rows = []
+        for t in time_per_day:
+            row = []
+            for d in weekday:
+                row.append(data[d][t])  # append either [] of [offer...] to row.
+            rows.append([t, row])
+
+        return {'header': weekday,  'rows_header': time_per_day, 'rows': rows}
+
+    def get_unmet_offer_by_day(self, day):
+        """ Return a list of offers from the user on the day. """
+        from slot.models import OfferSlot
+        return OfferSlot.objects.filter(user=self.user, day=day, meet__isnull=True).order_by('start_time')
+
+    def get_unmet_table(self, day):
+        """ return the table data to display classroom needs based on the user's availability. """
+        from location.models import Classroom
+        from slot.models import NeedSlot
+        table = []
+        for unmet_offer in self.get_unmet_offer_by_day(day):
+            first_col = unmet_offer.start_time
+            second_col = [Classroom.objects.get(pk=pk) for pk in NeedSlot.get_unmet_slot_owner_id(day, unmet_offer.start_time)]
+            table.append((first_col, second_col))
+        return table
 
 
 class Role(models.Model):

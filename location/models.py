@@ -52,3 +52,7 @@ class Classroom(Location):
             data.append(((start_time, end_time),
                          NeedSlot.objects.filter(day=day, location=self, start_time=start_time, end_time=end_time)))
         return data
+
+    def get_unmet_need_by_day(self, day):
+        from slot.models import NeedSlot
+        return NeedSlot.objects.filter(location=self, day=day, meet__isnull=True).order_by('start_time')

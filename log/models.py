@@ -4,27 +4,28 @@ from django.db import models
 from django.contrib.auth.models import User
 
 
-
 # specifies when to create a new log entry or when to update instead.
 NO_UPDATE_INTERVAL = timedelta(hours=2)
 
 
 class Log(models.Model):
-    TYPE_OFFER_REGULAR_UPDATE = 1   # obsolete
-    TYPE_OFFER_DATE_UPDATE = 2      # obsolete
-    TYPE_NEED_REGULAR_UPDATE = 3    # obsolete
-    TYPE_NEED_DATE_UPDATE = 4       # obsolete
+    OFFER_REGULAR_UPDATE = 1   # obsolete
+    OFFER_DATE_UPDATE = 2      # obsolete
+    NEED_REGULAR_UPDATE = 3    # obsolete
+    NEED_DATE_UPDATE = 4       # obsolete
 
-    TYPE_OFFER_UPDATE = 5
-    TYPE_NEED_UPDATE = 6
+    OFFER_UPDATE = 5
+    NEED_UPDATE = 6
+    MEET_UPDATE = 7
 
     LOG_TYPE = (
         # (TYPE_OFFER_REGULAR_UPDATE, 'Update: offer regular'),
         # (TYPE_OFFER_DATE_UPDATE, 'Update: offer date'),
         # (TYPE_NEED_REGULAR_UPDATE, 'Update: need regular'),
         # (TYPE_NEED_DATE_UPDATE, 'Update: need date'),
-        (TYPE_OFFER_UPDATE, 'offer update'),
-        (TYPE_NEED_UPDATE, 'need update'),
+        (OFFER_UPDATE, 'offer update'),
+        (NEED_UPDATE, 'need update'),
+        (MEET_UPDATE, 'meet updated'),
     )
 
     creator = models.ForeignKey(User)
@@ -40,10 +41,10 @@ class Log(models.Model):
 def log_offer_update(creator, target_user, day, message=None):
     # this gets called by views functions because we need to track the "creator".
     # fixme: add logic that update by interval instead of create new entry.
-    entry = Log(creator=creator, type=Log.TYPE_OFFER_UPDATE, ref='%d,%d' % (target_user.pk, int(day.get_token())), message=message)
+    entry = Log(creator=creator, type=Log.OFFER_UPDATE, ref='%d,%d' % (target_user.pk, int(day.get_token())), message=message)
     entry.save()
 
 
 def log_need_update(creator, location, day, message=None):
-    entry = Log(creator=creator, type=Log.TYPE_NEED_UPDATE, ref='%d,%d' % (location.pk, int(day.get_token())), message=message)
+    entry = Log(creator=creator, type=Log.NEED_UPDATE, ref='%d,%d' % (location.pk, int(day.get_token())), message=message)
     entry.save()

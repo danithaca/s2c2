@@ -6,7 +6,7 @@ from django.template.response import TemplateResponse
 
 from location.models import Classroom
 from slot.models import DayToken
-from user.models import UserProfile
+from user.models import UserProfile, CenterStaff
 
 
 def home(request):
@@ -20,12 +20,7 @@ def home(request):
 
 @login_required
 def dashboard(request, uid=None):
-    try:
-        u = User.objects.get(pk=uid)
-    except User.DoesNotExist as e:
-        u = request.user
-
-    user_profile = UserProfile(u)
+    user_profile = UserProfile.get_by_id_default(uid, request.user)
     context = {
         'user_profile': user_profile,
         'day': DayToken.today(),
@@ -34,6 +29,7 @@ def dashboard(request, uid=None):
     if user_profile.is_center_manager():
         context.update({'header_extra': 'Manager, NCCC'})
     elif user_profile.is_center_staff():
+        context['regular_week_table_data'] = user_profile.get_regular_week_table()
         context.update({'header_extra': 'Staff, NCCC'})
     else:
         context.update({'header_extra': ''})

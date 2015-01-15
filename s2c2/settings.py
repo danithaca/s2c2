@@ -9,7 +9,7 @@ https://docs.djangoproject.com/en/1.7/ref/settings/
 """
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
-import os
+import os, logging
 
 from django.core.urlresolvers import reverse_lazy
 
@@ -134,3 +134,8 @@ LOGIN_URL = reverse_lazy('user:login')
 LOGOUT_URL = reverse_lazy('user:logout')
 
 TIME_FORMAT = 'h:iA'
+
+try:
+    from .settings_local import *
+except ImportError:
+    logging.warning('Local settings not found.')

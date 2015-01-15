@@ -31,6 +31,7 @@ def day_staff(request, uid=None):
     day = _get_request_day(request)
 
     slot_table_data = user_profile.get_slot_table(day)
+    unmet_table_data = user_profile.get_unmet_table(day)
 
     # handle offer add form. set date for instance.
     command_form_offer_add = SlotForm()
@@ -42,12 +43,13 @@ def day_staff(request, uid=None):
     command_form_offer_delete.fields['day'].widget = forms.HiddenInput()
     command_form_offer_delete.fields['day'].initial = day.get_token()
 
-    log_entries = Log.objects.filter(type=Log.TYPE_OFFER_UPDATE, ref='%d,%s' % (user_profile.pk, day.get_token())).order_by('-updated')
+    log_entries = Log.objects.filter(type=Log.OFFER_UPDATE, ref='%d,%s' % (user_profile.pk, day.get_token())).order_by('-updated')
 
     return render(request, 'slot/staff.jinja2', {
         'user_profile': user_profile,
         'day': day,
         'slot_table_data': slot_table_data,
+        'unmet_table_data': unmet_table_data,
         'command_form_offer_add': command_form_offer_add,
         'command_form_offer_delete': command_form_offer_delete,
         'change_log_entries': log_entries,
@@ -188,7 +190,7 @@ def day_classroom(request, cid):
     command_form_need_delete.fields['day'].widget = forms.HiddenInput()
     command_form_need_delete.fields['day'].initial = day.get_token()
 
-    log_entries = Log.objects.filter(type=Log.TYPE_NEED_UPDATE, ref='%d,%s' % (classroom.pk, day.get_token())).order_by('-updated')
+    log_entries = Log.objects.filter(type=Log.NEED_UPDATE, ref='%d,%s' % (classroom.pk, day.get_token())).order_by('-updated')
 
     return TemplateResponse(request, template='slot/classroom.jinja2', context={
         'classroom': classroom,
@@ -231,13 +233,25 @@ def need_delete(request, cid):
     if request.method == 'POST':
         form = SlotForm(request.POST)
         if form.is_valid():
+            deleted_time = []
             day, start_time, end_time = form.get_cleaned_data()
-            # fixme: not implemented yet.
-            if 'delete-all' in form.data:
-                pass
+
+            for t in TimeToken.interval(start_time, end_time):
+                if 'delete-all' in form.data:
+                    # delete 'meet' as well.
+                    deleted = NeedSlot.delete_cascade(classroom, day, t)
+                else:
+                    # delete only empty needs
+                    deleted = NeedSlot.delete_empty(classroom, day, t)
+                if deleted:
+                    deleted_time.append(t)
+
+            if len(deleted_time) == 0:
+                messages.warning(request, 'No available time slot is in the specified time period to delete.')
             else:
-                # default handler. usually happens when 'delete-empty' is clicked.
-                pass
+                messages.success(request, 'Deleted slot(s): %s' % ', '.join([t.display_slice() for t in deleted_time]))
+                log_need_update(request.user, classroom, day, 'deleted slot(s)')
+
             return redirect(request.GET.get('next', request.META['HTTP_REFERER']))
 
     if request.method == 'GET':

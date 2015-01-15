@@ -1,3 +1,4 @@
+from abc import ABCMeta, abstractstaticmethod, abstractmethod
 from functools import total_ordering
 import calendar
 import re
@@ -102,6 +103,9 @@ class DayToken(object):
     def __str__(self):
         return str(self.value)
 
+    def __hash__(self):
+        return self.value.__hash__()
+
     def date_of_weekday(self):
         assert self.is_regular()
         this_week = DayToken.today().expand_week()
@@ -110,6 +114,14 @@ class DayToken(object):
     def weekday_of_date(self):
         assert not self.is_regular()
         return DayToken(DayToken.weekday_tuple[self.weekday()])
+
+    @staticmethod
+    def get_weekday_list(working_day_only=False):
+        result = [DayToken(d) for d in DayToken.weekday_tuple]
+        if working_day_only:
+            return result[0:5]
+        else:
+            return result
 
 
 class DayTokenField(models.DateField, metaclass=models.SubfieldBase):
@@ -224,7 +236,10 @@ class TimeToken(object):
         return self.value < other.value
 
     def __str__(self):
-        return str(self.value)
+        return self.value.__str__()
+
+    def __hash__(self):
+        return self.value.__hash__()
 
     # this makes the class proxy
     # def __getattr__(self, attrib):
@@ -272,6 +287,10 @@ class Slot(models.Model):
     class Meta():
         abstract = True
 
+    @staticmethod
+    @abstractmethod
+    def get_unmet_slot_owner_id(day, star): pass
+
 
 class OfferSlot(Slot):
     user = models.ForeignKey(User)
@@ -309,6 +328,10 @@ class OfferSlot(Slot):
     def get_available_offer(day, start_time):
         return [o for o in OfferSlot.objects.filter(day=day, start_time=start_time, end_time=start_time.get_next()).exclude(meet__isnull=False)]
 
+    @staticmethod
+    def get_unmet_slot_owner_id(day, start_time):
+        return OfferSlot.objects.filter(day=day, start_time=start_time, end_time=start_time.get_next(), meet__isnull=True).values_list('user_id', flat=True).distinct()
+
     # @staticmethod
     # def get_staff_id_list(start_dow, start_time):
     #     # fixme: need to support "center" relationship too.
@@ -326,6 +349,28 @@ class NeedSlot(Slot):
 
     def __str__(self):
         return '%s: %s %s ~ %s' % (self.location.name, self.day.get_token(), self.start_time.display(), self.end_time.display())
+
+    @staticmethod
+    def delete_empty(location, day, start_time):
+        qs = NeedSlot.objects.filter(location=location, day=day, start_time=start_time, end_time=start_time.get_next()).exclude(meet__isnull=False)
+        if qs.exists():
+            qs.delete()
+            return True
+        else:
+            return False
+
+    @staticmethod
+    def delete_cascade(location, day, start_time):
+        qs = NeedSlot.objects.filter(location=location, day=day, start_time=start_time, end_time=start_time.get_next())
+        if qs.exists():
+            qs.delete()
+            return True
+        else:
+            return False
+
+    @staticmethod
+    def get_unmet_slot_owner_id(day, start_time):
+        return NeedSlot.objects.filter(day=day, start_time=start_time, end_time=start_time.get_next(), meet__isnull=True).values_list('location_id', flat=True).distinct()
 
 
 # class MeetSlot(Slot):
