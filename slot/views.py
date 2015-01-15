@@ -213,6 +213,11 @@ def day_classroom(request, cid):
     command_form_need_delete.fields['day'].widget = forms.HiddenInput()
     command_form_need_delete.fields['day'].initial = day.get_token()
 
+    # copy form
+    command_form_copy = DayForm()
+    command_form_copy.fields['day'].widget = forms.HiddenInput()
+    command_form_copy.fields['day'].initial = day.get_token()
+
     log_entries = Log.objects.filter(type=Log.NEED_UPDATE, ref='%d,%s' % (classroom.pk, day.get_token())).order_by('-updated')
 
     return TemplateResponse(request, template='slot/classroom.jinja2', context={
@@ -220,6 +225,7 @@ def day_classroom(request, cid):
         'day': day,
         'command_form_need_add': command_form_need_add,
         'command_form_need_delete': command_form_need_delete,
+        'command_form_copy': command_form_copy,
         'slot_table_data': slot_table_data,
         'change_log_entries': log_entries,
     })
@@ -361,4 +367,26 @@ def staff_copy(request, uid):
         form = DayForm()
 
     form_url = reverse('slot:staff_copy', kwargs={'uid': uid})
+    return render(request, 'base_form.jinja2', {'form': form, 'form_url': form_url})
+
+
+@login_required
+def classroom_copy(request, cid):
+    classroom = get_object_or_404(Classroom, pk=cid)
+
+    if request.method == 'POST':
+        form = DayForm(request.POST)
+        if form.is_valid():
+            day = form.get_data()
+            assert not day.is_regular()
+            NeedSlot.copy(classroom, day)
+            Meet.copy_by_location(classroom, day)
+            messages.success(request, 'Copy template executed.')
+            # log_need_update(request.user, classroom, day, 'deleted slot(s)')
+            return redirect(request.GET.get('next', request.META['HTTP_REFERER']))
+
+    if request.method == 'GET':
+        form = DayForm()
+
+    form_url = reverse('slot:classroom_copy', kwargs={'cid': cid})
     return render(request, 'base_form.jinja2', {'form': form, 'form_url': form_url})

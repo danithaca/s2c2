@@ -21,6 +21,7 @@ urlpatterns = patterns(
     # handle need (mostly for restful)
     url(r'^classroom/(?P<cid>\d+)/need/add/$', slot.views.need_add, name='need_add'),
     url(r'^classroom/(?P<cid>\d+)/need/delete/$', slot.views.need_delete, name='need_delete'),
+    url(r'^classroom/(?P<cid>\d+)/copy/$', slot.views.classroom_copy, name='classroom_copy'),
 )
 
 

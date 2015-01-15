@@ -389,6 +389,29 @@ class NeedSlot(Slot):
     def get_unmet_slot_owner_id(day, start_time):
         return NeedSlot.objects.filter(day=day, start_time=start_time, end_time=start_time.get_next(), meet__isnull=True).values_list('location_id', flat=True).distinct()
 
+    @staticmethod
+    def copy(location, target_day):
+        """ copy template from day.weekday to the day for the location. """
+        assert not target_day.is_regular()
+        template_day = target_day.weekday_of_date()
+
+        # someday: this is not optimal by deleting everything first and add.
+        # should keep existing matches and add/delete only when necessary.
+        NeedSlot.objects.filter(location=location, day=target_day).delete()
+        to_save = [NeedSlot(location=location, day=target_day, start_time=s.start_time, end_time=s.end_time)
+                   for s in NeedSlot.objects.filter(location=location, day=template_day)]
+        NeedSlot.objects.bulk_create(to_save)
+
+    @staticmethod
+    def get_or_create_unmet_need(location, day, start_time, end_time):
+        qs = NeedSlot.objects.filter(location=location, day=day, start_time=start_time, end_time=end_time, meet__isnull=True)
+        if not qs.exists():
+            n = NeedSlot(location=location, day=day, start_time=start_time, end_time=end_time)
+            n.save()
+            return n
+        else:
+            return qs.first()
+
 
 # class MeetSlot(Slot):
 #     offer = models.ForeignKey(OfferSlot)
@@ -418,3 +441,21 @@ class Meet(models.Model):
         assert self.need.day == self.offer.day and self.need.start_time == self.offer.start_time and self.need.end_time == self.offer.end_time
         return '%s (%s): %s - %s' % (self.need.day.get_token(), self.need.start_time.display_slice(), self.need.location.name, self.offer.user.username)
 
+    @staticmethod
+    def copy_by_location(location, target_day):
+        """ copy template from day.weekday to the day for the location. """
+        assert not target_day.is_regular()
+        template_day = target_day.weekday_of_date()
+
+        # this doesn't work which throws: "Can only delete one table at a time."
+        # Meet.objects.filter(need__location=location, need__day=target_day).delete()
+
+        # someday: this is not optimal by deleting everything first and add.
+        to_delete = Meet.objects.filter(need__location=location, need__day=target_day)
+        for m in to_delete:
+            m.delete()
+
+        for m in Meet.objects.filter(need__location=location, need__day=template_day):
+            offer, created = OfferSlot.objects.get_or_create(user=m.offer.user, day=target_day, start_time=m.offer.start_time, end_time=m.offer.end_time, meet__isnull=True)
+            need = NeedSlot.get_or_create_unmet_need(location=m.need.location, day=target_day, start_time=m.need.start_time, end_time=m.need.end_time)
+            Meet.objects.create(offer=offer, need=need)
