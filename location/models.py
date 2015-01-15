@@ -53,6 +53,14 @@ class Classroom(Location):
                          NeedSlot.objects.filter(day=day, location=self, start_time=start_time, end_time=end_time)))
         return data
 
-    def get_unmet_need_by_day(self, day):
-        from slot.models import NeedSlot
-        return NeedSlot.objects.filter(location=self, day=day, meet__isnull=True).order_by('start_time')
+    def get_unmet_table(self, day):
+        """ return the table data to display staff availability based on classroom needs. """
+        from user.models import UserProfile
+        from slot.models import OfferSlot, NeedSlot, TimeToken
+        table = []
+        for t in NeedSlot.objects.filter(location=self, day=day, meet__isnull=True).values_list('start_time', flat=True).distinct().order_by('start_time'):
+            start_time = TimeToken(t)
+            first_col = start_time
+            second_col = [UserProfile.get_by_id(pk=pk) for pk in OfferSlot.get_unmet_slot_owner_id(day, start_time)]
+            table.append((first_col, second_col))
+        return table

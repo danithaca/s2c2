@@ -202,8 +202,9 @@ def day_classroom(request, cid):
     day = _get_request_day(request)
 
     slot_table_data = classroom.get_slot_table(day)
+    unmet_table_data = classroom.get_unmet_table(day)
 
-    # handle regular need add form
+# handle regular need add form
     command_form_need_add = NeedSlotForm()
     command_form_need_add.fields['day'].widget = forms.HiddenInput()
     command_form_need_add.fields['day'].initial = day.get_token()
@@ -227,6 +228,7 @@ def day_classroom(request, cid):
         'command_form_need_delete': command_form_need_delete,
         'command_form_copy': command_form_copy,
         'slot_table_data': slot_table_data,
+        'unmet_table_data': unmet_table_data,
         'change_log_entries': log_entries,
     })
 
