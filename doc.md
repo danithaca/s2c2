@@ -6,6 +6,12 @@ Timezone concerns
 
 Each user/location is associated with one and only one "area". The area has timezone information.
 
+DayToken/TimeToken do *NOT* care about timezone. They are assumed to be exchangible to textual "tokens", and always agrees with the user's local time. They don't change when Daylight Saving Time changes.
+
+Any DateTimeField needs to care about timezone. They save the exact time something happends.
+
+We use America/Detroit as the default timezone for the backend. In MVP, we don't need to care.
+
 
 Locations, Classrooms, Centers, Areas, Staff, Managers
 ------------------------------------------------------

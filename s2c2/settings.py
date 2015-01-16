@@ -45,6 +45,8 @@ INSTALLED_APPS = (
     # 'django_extensions',
 
     # external
+    'localflavor',
+    'pytz',
     # 'pinax_theme_bootstrap',
     'bootstrapform', # from django-bootstrap-form
     # 'account',

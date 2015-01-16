@@ -3,5 +3,16 @@ from django.contrib import admin
 from location import models
 
 
-admin.site.register(models.Center)
-admin.site.register(models.Classroom)
+@admin.register(models.Area)
+class AreaAdmin(admin.ModelAdmin):
+    list_display = ('name', 'state', )
+
+
+@admin.register(models.Center)
+class CenterAdmin(admin.ModelAdmin):
+    list_display = ('name', 'address', 'area')
+
+
+@admin.register(models.Classroom)
+class ClassroomAdmin(admin.ModelAdmin):
+    list_display = ('name', 'center')

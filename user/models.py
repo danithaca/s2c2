@@ -5,7 +5,7 @@ import warnings
 from django.db import models
 from django.contrib.auth.models import User, Group
 
-from location.models import Center
+from location.models import Center, Area
 
 
 class Profile(models.Model):
@@ -28,6 +28,9 @@ class Profile(models.Model):
     verified = models.NullBooleanField()
     note = models.TextField(blank=True, null=True)
     picture = models.ImageField(upload_to='picture', blank=True, null=True)
+
+    # currently we use the default Area for all new users. but we should remove default later.
+    area = models.ForeignKey(Area, default=1)
 
     def __str__(self):
         return self.user.get_full_name()
