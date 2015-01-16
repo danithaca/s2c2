@@ -37,6 +37,31 @@ class Log(models.Model):
     def __str__(self):
         return '%s: %s (%s)' % (self.creator.username, self.ref, self.get_type_display())
 
+    def show(self):
+        # TODO: show log messaged based on type.
+        if self.type == Log.OFFER_UPDATE:
+            return ''
+
+
+class Notification(models.Model):
+    sender = models.ForeignKey(User, null=True, blank=True, related_name='notification_sender')
+    receiver = models.ForeignKey(User, related_name='notification_receiver')
+    # this is required, which means every notification would have a log, not vice versa.
+    log = models.ForeignKey(Log)
+    done = models.BooleanField(default=False)       # mark whether the receiver has viewed it or not.
+
+    LEVEL_HIGH = 10
+    LEVEL_NORMAL = 20
+    LEVEL_LOW = 30
+    LEVELS = (
+        (LEVEL_HIGH, 'high'),
+        (LEVEL_NORMAL, 'normal'),
+        (LEVEL_LOW, 'low'),
+    )
+    level = models.SmallIntegerField(choices=LEVELS, help_text='priority level of the notification.')
+
+    created = models.DateTimeField(auto_now_add=True)
+
 
 def log_offer_update(creator, target_user, day, message=None):
     # this gets called by views functions because we need to track the "creator".

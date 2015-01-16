@@ -3,8 +3,10 @@ from django.contrib.auth.models import User
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.forms import AuthenticationForm
 from django.template.response import TemplateResponse
+from django.views.generic import ListView
 
 from location.models import Classroom
+from log.models import Notification
 from slot.models import DayToken
 from user.models import UserProfile, CenterStaff
 
@@ -43,3 +45,17 @@ def classroom(request, pk):
     return TemplateResponse(request, template='classroom.jinja2', context={
         'classroom': cr
     })
+
+
+@login_required
+def notification(request):
+    class NotificationView(ListView):
+        template_name = 'notification.jinja2'
+        context_object_name = 'latest_notification'
+        # see http://stackoverflow.com/questions/11494483/django-class-based-view-how-do-i-pass-additional-parameters-to-the-as-view-meth
+        user = None
+
+        def get_queryset(self):
+            return Notification.objects.filter(receiver=self.user)
+
+    return NotificationView.as_view(user=request.user)(request)

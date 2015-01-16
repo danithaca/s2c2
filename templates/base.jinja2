@@ -54,7 +54,7 @@
         <li><a href="{% url 'user:signup' %}"><i class="fa fa-edit"></i> Signup</a></li>
         {% else %}
         <li><a href="{% url 'dashboard' %}"><i class="fa fa-home"></i> Dashboard</a></li>
-        <li><a href="#"><i class="fa fa-wifi"></i> Notifications <span class="badge">{{ notification_count|default:'0' }}</span></a></li>
+        <li><a href="{% url 'notification' %}"><i class="fa fa-wifi"></i> Notifications <span class="badge">{{ notification_count|default:'0' }}</span></a></li>
         <li class="dropdown user-admin">
           <a class="dropdown-toggle" data-toggle="dropdown" href="#" role="button"><i class="fa fa-user"></i> {{ user.username }} <span class="caret"></span></a>
           <ul class="dropdown-menu" role="menu">

@@ -1,5 +1,6 @@
 from django import template
 from django.utils.dateformat import format
+from log.models import Notification, Log
 
 from slot.models import DayToken
 from user.models import UserProfile
@@ -17,15 +18,20 @@ def bootstrap_alert(message):
         return ''
 
 
-@register.filter
-def display_name(user):
-    user_profile = UserProfile(user)
-    return user_profile.get_display_name()
+# @register.filter
+# def display_name(user):
+#     user_profile = UserProfile(user)
+#     return user_profile.get_display_name()
 
 
 @register.simple_tag(name='classroom-icon')
 def s2c2_classroom_icon():
     return '<i class="fa fa-university"></i>'
+
+
+@register.filter
+def nice_name(user):
+    return user.get_full_name() or user.username
 
 
 @register.simple_tag(name='link-a')
@@ -66,3 +72,10 @@ def slot_day_token_date_pager(day, url):
 
     list_li = ['<li>%s</li>' % a if dt != day else '<li class="active">%s</li>' % a for dt, a in list_a]
     return '<ul class="pagination">%s</ul>' % ''.join(list_li)
+
+
+@register.filter
+def show_notification_message(notification):
+    assert isinstance(notification, Notification)
+    if notification.log.type == Log.OFFER_UPDATE:
+        return 'Offer updated.'

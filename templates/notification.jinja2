@@ -1,0 +1,17 @@
+{% extends "base_page.jinja2" %}
+{% load staticfiles %}
+{% load bootstrap %}
+{% load s2c2_tags %}
+
+{% block title %}Notifications | S2C2{% endblock %}
+
+{% block page-header %}{{ user|nice_name }} - Notifications <small></small>{% endblock %}
+
+{% block page-content %}
+{% for notification in latest_notification %}
+  <blockquote>
+    <p>{{ notification|show_notification_message }}</p>
+    <footer>from {% if notification.sender %}{{ notifcation.sender|nice_name }}{% else %}<em>system</em>{% endif %} on {{ notification.created|time }}</footer>
+  </blockquote>
+{% endfor %}
+{% endblock %}

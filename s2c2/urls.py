@@ -11,6 +11,7 @@ urlpatterns = patterns(
     # url(r'^account/', include('account.urls')),
     url(r'^dashboard(?:/(P<uid>\d+))?/$', s2c2.views.dashboard, name='dashboard'),
     url(r'^classroom/(?P<pk>\d+)/$', s2c2.views.classroom, name='classroom'),
+    url(r'^notification/$', s2c2.views.notification, name='notification'),
     url(r'^user/', include('user.urls', namespace='user')),
     url(r'^slot/', include('slot.urls', namespace='slot')),
     url(r'^admin/', include(admin.site.urls)),

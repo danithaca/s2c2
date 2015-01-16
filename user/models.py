@@ -1,5 +1,6 @@
 from collections import defaultdict
 from datetime import time
+import warnings
 
 from django.db import models
 from django.contrib.auth.models import User, Group
@@ -86,6 +87,7 @@ class UserProfile(object):
             return False
 
     def get_display_name(self, short=False):
+        warnings.warn('Deprecated in favor of filter "nice_name"', DeprecationWarning)
         name = self.user.get_full_name() if not short else self.user.get_short_name()
         if len(name) == 0:
             name = self.user.get_username()
