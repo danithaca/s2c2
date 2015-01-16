@@ -1,9 +1,12 @@
+import warnings
 from django import template
+from django.contrib.auth.models import User
 from django.utils.dateformat import format
 from log.models import Notification, Log
 
 from slot.models import DayToken
 from user.models import UserProfile
+from location.models import Classroom, Center, Location
 
 
 register = template.Library()
@@ -24,13 +27,37 @@ def bootstrap_alert(message):
 #     return user_profile.get_display_name()
 
 
+@register.filter(name='name')
+def s2c2_name(obj):
+    """ This is the magic "filter" function that display things nicely in Template """
+    #options = set(option_token.split(','))
+    if isinstance(obj, User):
+        return obj.get_full_name() or obj.username
+    elif isinstance(obj, Location):
+        return obj.name
+
+
+@register.simple_tag(name='icon')
+def s2c2_icon(obj):
+    if isinstance(obj, User) or obj == 'user':
+        return '<i class="fa fa-user"></i>'
+    elif isinstance(obj, Classroom) or obj == 'classroom':
+        return '<i class="fa fa-paw"></i>'
+    elif isinstance(obj, Center) or obj == 'center':
+        return '<i class="fa fa-university"></i>'
+    else:
+        return ''
+
+
 @register.simple_tag(name='classroom-icon')
 def s2c2_classroom_icon():
+    warnings.warn('Deprecated in favor or s2c2_icon', DeprecationWarning)
     return '<i class="fa fa-paw"></i>'
 
 
 @register.filter
 def nice_name(user):
+    warnings.warn('Deprecated in favor or s2c2_name', DeprecationWarning)
     return user.get_full_name() or user.username
 
 

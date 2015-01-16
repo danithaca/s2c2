@@ -32,7 +32,7 @@ class Profile(models.Model):
     area = models.ForeignKey(Area, default=1)
 
     def __str__(self):
-        return self.user.get_full_name()
+        return self.user.get_full_name() or self.user.username
 
     # @staticmethod
     # def get_profile(user):

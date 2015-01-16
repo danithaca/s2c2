@@ -5,7 +5,7 @@ from django.contrib.auth.forms import AuthenticationForm
 from django.template.response import TemplateResponse
 from django.views.generic import ListView
 
-from location.models import Classroom
+from location.models import Classroom, Center
 from log.models import Notification
 from slot.models import DayToken
 from user.models import UserProfile, CenterStaff
@@ -59,3 +59,11 @@ def notification(request):
             return Notification.objects.filter(receiver=self.user)
 
     return NotificationView.as_view(user=request.user)(request)
+
+
+@login_required
+def center(request, pk):
+    center = get_object_or_404(Center, pk=pk)
+    return render(request, 'center.jinja2', {
+        'center': center,
+    })
