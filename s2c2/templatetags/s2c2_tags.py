@@ -39,6 +39,9 @@ def s2c2_name(obj):
 
 @register.simple_tag(name='icon')
 def s2c2_icon(obj):
+    if obj == 'unverified':
+        # return '<i class="fa fa-ban"></i>'
+        return '<span class="label label-danger"><i class="fa fa-ban"></i> unverified</span>'
     if isinstance(obj, User) or obj == 'user':
         return '<i class="fa fa-user"></i>'
     elif isinstance(obj, Classroom) or obj == 'classroom':

@@ -181,6 +181,10 @@ class Role(models.Model):
 
 
 class GroupRole(object):
+    all_valid_roles = ('manager', 'teacher', 'support', 'intern')
+    center_staff_roles = ('teacher', 'support', 'intern')
+    center_manager_roles = ('manager', )
+
     def __init__(self, group):
         assert group is not None and isinstance(group, Group)
         self.group = group

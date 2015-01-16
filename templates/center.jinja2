@@ -8,7 +8,32 @@
 {% block page-header %}{% icon center %} {{ center|name }} <small>Children's Center</small>{% endblock %}
 
 {% block page-summary %}
+  <table class="table table-condensed table-hover">
+    <tr><th scope="row">Address</th><td>{{ center.address }}</td></tr>
+    <tr><th scope="row">Area</th><td>{{ center.area }}</td></tr>
+    <tr><th scope="row">Manager{{ managers|pluralize }}</th><td>
+      <ul class="list-inline">
+        {% for manager in managers %}
+          <li><a href="{% url 'dashboard' %}">{% icon manager %} {{ manager|name }} {% if not manager.profile.verified %}{% icon 'unverified' %}{% endif %}</a></li>
+        {% endfor %}
+      </ul>
+    </td></tr>
+  </table>
 {% endblock %}
 
 {% block page-content %}
+  <h2>Classroom</h2>
+  <ul class="nav nav-pills">
+  {% for classroom in classrooms %}
+    <li><a href="{% url 'classroom' pk=classroom.pk %}">{% icon classroom %} {{ classroom|name }}</a></li>
+  {% endfor %}
+  </ul>
+  {% for header, staff_list in sections %}
+    <h2>{{ header }}</h2>
+    <ul class="nav nav-pills">
+      {% for staff in staff_list %}
+        <li><a href="{% url 'dashboard' %}">{% icon staff %} {{ staff|name }} {% if not staff.profile.verified %}{% icon 'unverified' %}{% endif %}</a></li>
+      {% endfor %}
+    </ul>
+  {% endfor %}
 {% endblock %}

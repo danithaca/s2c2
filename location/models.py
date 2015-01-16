@@ -1,3 +1,4 @@
+from collections import OrderedDict
 from datetime import time
 
 from django.db import models
@@ -50,6 +51,21 @@ class Location(models.Model):
 
 class Center(Location):
     area = models.ForeignKey(Area)
+
+    # def get_associates_data(self):
+    #     from user.models import GroupRole
+    #     manager_group = GroupRole.get_by_name('manager')
+    #     teacher_group = GroupRole.get_by_name('teacher')
+    #     support_group = GroupRole.get_by_name('support')
+    #     intern_group = GroupRole.get_by_name('intern')
+    #
+    #     return OrderedDict((
+    #         ('Classroom', Classroom.objects.filter(center=self)),
+    #         (manager_group.name, User.objects.filter(profile__centers=self, groups=manager_group.group, is_active=True)),
+    #         (teacher_group.name, User.objects.filter(profile__centers=self, groups=teacher_group.group, is_active=True)),
+    #         (support_group.name, User.objects.filter(profile__centers=self, groups=support_group.group, is_active=True)),
+    #         (intern_group.name, User.objects.filter(profile__centers=self, groups=intern_group.group, is_active=True)),
+    #     ))
 
 
 class Classroom(Location):

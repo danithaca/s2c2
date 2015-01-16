@@ -8,7 +8,7 @@ from django.views.generic import ListView
 from location.models import Classroom, Center
 from log.models import Notification
 from slot.models import DayToken
-from user.models import UserProfile, CenterStaff
+from user.models import UserProfile, CenterStaff, GroupRole
 
 
 def home(request):
@@ -64,6 +64,20 @@ def notification(request):
 @login_required
 def center(request, pk):
     center = get_object_or_404(Center, pk=pk)
+    manager_group = GroupRole.get_by_name('manager')
+    teacher_group = GroupRole.get_by_name('teacher')
+    support_group = GroupRole.get_by_name('support')
+    intern_group = GroupRole.get_by_name('intern')
+
+    sections = (
+        (teacher_group.name, User.objects.filter(profile__centers=center, groups=teacher_group.group, is_active=True)),
+        (support_group.name, User.objects.filter(profile__centers=center, groups=support_group.group, is_active=True)),
+        (intern_group.name, User.objects.filter(profile__centers=center, groups=intern_group.group, is_active=True)),
+    )
+
     return render(request, 'center.jinja2', {
         'center': center,
+        'classrooms': Classroom.objects.filter(center=center),
+        'managers': User.objects.filter(profile__centers=center, groups=manager_group.group, is_active=True),
+        'sections': sections
     })
