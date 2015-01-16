@@ -240,17 +240,17 @@ def edit(request):
     class ProfileForm(ModelForm):
         required_css_class = 'required'
 
-        _phone_field_options = {
-            'regex': r'^\d\d\d-\d\d\d-\d\d\d\d$',
-            'error_messages': {'invalid': _('Please type in your phone number such as 734-555-5555.')}
-        }
-
-        phone_main = RegexField(
-            label=_('Phone number'),
-            help_text=_('10 digits phone number to contact you, e.g. 734-555-5555.'),
-            widget=TextInput(attrs={'placeholder': '555-555-5555'}),
-            **_phone_field_options
-        )
+        # _phone_field_options = {
+        #     'regex': r'^\d\d\d-\d\d\d-\d\d\d\d$',
+        #     'error_messages': {'invalid': _('Please type in your phone number such as 734-555-5555.')}
+        # }
+        #
+        # phone_main = RegexField(
+        #     label=_('Phone number'),
+        #     help_text=_('10 digits phone number to contact you, e.g. 734-555-5555.'),
+        #     widget=TextInput(attrs={'placeholder': '555-555-5555'}),
+        #     **_phone_field_options
+        # )
 
         role = ChoiceField(label='My role', required=True,
                            choices=[('', '- Select -')] + [(g.pk, g.name) for g in Group.objects.all() if g.role.type_center is True])

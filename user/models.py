@@ -4,6 +4,7 @@ import warnings
 
 from django.db import models
 from django.contrib.auth.models import User, Group
+from localflavor.us.models import PhoneNumberField
 
 from location.models import Center, Area
 
@@ -16,12 +17,10 @@ class Profile(models.Model):
     """
     user = models.OneToOneField(User, primary_key=True)
     address = models.CharField(max_length=200, blank=True)
-    # giver = models.BooleanField(default=False)
-    # taker = models.BooleanField(default=False)
-    # phone_main = PhoneNumberField(max_length=20)
-    # phone_backup = PhoneNumberField(max_length=20, blank=True)
-    phone_main = models.CharField(max_length=12)
-    phone_backup = models.CharField(max_length=12, blank=True)
+    # phone_main = models.CharField(max_length=12)
+    # phone_backup = models.CharField(max_length=12, blank=True)
+    phone_main = PhoneNumberField()
+    phone_backup = PhoneNumberField(blank=True)
 
     # for center related stuff.
     centers = models.ManyToManyField(Center, limit_choices_to={'status': True})

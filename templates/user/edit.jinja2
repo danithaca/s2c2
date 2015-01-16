@@ -3,6 +3,18 @@
 
 {% block title %}Edit profile{% endblock %}
 
+{% block extra_header %}{% verbatim %}
+  <script src="http://firstopinion.github.io/formatter.js/javascripts/formatter.min.js" type="text/javascript"></script>
+  <script type="text/javascript">
+    $(document).ready(function() {
+     new Formatter(document.getElementById('id_phone_main'), {
+       'pattern': "{{999}}-{{999}}-{{9999}}",
+       'persistent': true,
+     });
+    });
+  </script>
+{% endverbatim %}{% endblock %}
+
 {% block content %}
   <!--div class="alert alert-info" role="alert">Please signup below. You have to use the invitation code.</div-->
   <div class="panel panel-default">
