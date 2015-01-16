@@ -26,7 +26,7 @@ def bootstrap_alert(message):
 
 @register.simple_tag(name='classroom-icon')
 def s2c2_classroom_icon():
-    return '<i class="fa fa-university"></i>'
+    return '<i class="fa fa-paw"></i>'
 
 
 @register.filter
@@ -77,5 +77,6 @@ def slot_day_token_date_pager(day, url):
 @register.filter
 def show_notification_message(notification):
     assert isinstance(notification, Notification)
+    # todo: add nicer display
     if notification.log.type == Log.OFFER_UPDATE:
         return 'Offer updated.'

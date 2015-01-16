@@ -8,7 +8,7 @@
   <div class="page-header">
     <h1>
       {% block page-header %}Assign Staff
-      <small><i class="fa fa-university"></i> {{ classroom.name }}
+      <small><i class="fa fa-paw"></i> {{ classroom.name }}
         | <i class="fa fa-calendar-o"></i> {% if day.is_regular %}{{ day.value|date:'l' }} Template{% else %}{{ day.value|date:'M j (D)' }}{% endif %}
       </small>{% endblock %}
     </h1>

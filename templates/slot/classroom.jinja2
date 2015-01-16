@@ -6,7 +6,7 @@
 
 {% block page %}
   <div class="page-header">
-    <h1><i class="fa fa-university"></i> {{ classroom.name }} - {% if day.is_regular %}Template Schedule{% else %}Daily Schedule{% endif %}</h1>
+    <h1><i class="fa fa-paw"></i> {{ classroom.name }} - {% if day.is_regular %}Template Schedule{% else %}Daily Schedule{% endif %}</h1>
   </div>
 
   <h2>{% if day.is_regular %}Every {{ day.value|date:'l' }}{% else %}{{ day.value|date:'F j, l' }}{% endif %}<small>

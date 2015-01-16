@@ -27,6 +27,7 @@ class Profile(models.Model):
     centers = models.ManyToManyField(Center, limit_choices_to={'status': True})
     verified = models.NullBooleanField()
     note = models.TextField(blank=True, null=True)
+    picture = models.ImageField(upload_to='picture', blank=True, null=True)
 
     def __str__(self):
         return self.user.get_full_name()

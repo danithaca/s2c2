@@ -257,6 +257,7 @@ def edit(request):
 
         class Meta:
             model = Profile
+            # todo: show "picture" and process it.
             fields = ('phone_main', 'address', 'centers', 'role', 'note')
             widgets = {
                 'centers': CheckboxSelectMultiple()
