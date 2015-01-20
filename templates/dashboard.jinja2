@@ -8,7 +8,7 @@
 {% block page-header %}{{ user_profile.get_display_name|default:'N/A' }} <small>{{ header_extra }}</small>{% endblock %}
 
 {# This has to be empty if it's really empty in order to apply css :empty selector to hide display. #}
-{% block page-error-message %}{% if not user_profile.is_verified %}The account {{ user.username|default:'N/A' }} is not verified.{% endif %}{% endblock %}
+{% block page-error-message %}{% if not user_profile.is_verified %}The account {{ user_profile.username|default:'N/A' }} is not verified.{% endif %}{% endblock %}
 
 {% block page-summary %}
   <table class="table table-condensed table-hover">

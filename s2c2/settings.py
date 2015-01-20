@@ -120,6 +120,9 @@ TEMPLATE_CONTEXT_PROCESSORS = (
     'django.core.context_processors.request',
     # 'pinax_theme_bootstrap.context_processors.theme',
     # 'account.context_processors.account',
+
+    # add 'user_profile' to request
+    'user.context_processors.current_user_profile',
 )
 
 # not added from startproject. need to manually add this.

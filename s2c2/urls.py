@@ -9,7 +9,7 @@ urlpatterns = patterns(
     '',
     url(r'^$', s2c2.views.home, name='home'),
     # url(r'^account/', include('account.urls')),
-    url(r'^dashboard(?:/(P<uid>\d+))?/$', s2c2.views.dashboard, name='dashboard'),
+    url(r'^dashboard(?:/(?P<uid>\d+))?/$', s2c2.views.dashboard, name='dashboard'),
     url(r'^classroom/(?P<pk>\d+)/$', s2c2.views.classroom, name='classroom'),
     url(r'^center/(?P<pk>\d+)/$', s2c2.views.center, name='center'),
     url(r'^notification/$', s2c2.views.notification, name='notification'),
