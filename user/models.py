@@ -110,7 +110,7 @@ class UserProfile(object):
         :return: True if they belong to the same center, or false.
         """
         if isinstance(target, UserProfile):
-            return self.get_groups_id_set().intersection(target.get_groups_id_set())
+            return not self.get_centers_id_set().isdisjoint(target.get_centers_id_set())
         elif isinstance(target, User):
             return self.is_same_center(UserProfile(target))
         elif isinstance(target, Center):

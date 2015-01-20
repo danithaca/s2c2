@@ -25,9 +25,11 @@ def home(request):
 def dashboard(request, uid=None):
     user_profile = UserProfile.get_by_id_default(uid, request.user)
 
+    b = user_profile.is_same_center(request.user)
+
     # check permission:
     # we only allow view different user's profile if the viewing user is verified and belongs to the same center as the viewed user.
-    if user_profile.user != request.user and not (user_profile.is_same_center(request.user) and UserProfile(request.user).is_verified()):
+    if user_profile.user != request.user and (not UserProfile(request.user).is_verified() or not user_profile.is_same_center(request.user)):
         return defaults.permission_denied(request)
 
     context = {
@@ -62,7 +64,7 @@ def classroom_home(request, pk):
 
 @login_required
 def notification(request):
-    
+
     class NotificationView(ListView):
         template_name = 'notification.jinja2'
         context_object_name = 'latest_notification'
