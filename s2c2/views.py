@@ -4,6 +4,7 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.forms import AuthenticationForm
 from django.template.response import TemplateResponse
 from django.views.generic import ListView
+from django.views import defaults
 
 from location.models import Classroom, Center
 from log.models import Notification
@@ -23,6 +24,12 @@ def home(request):
 @login_required
 def dashboard(request, uid=None):
     user_profile = UserProfile.get_by_id_default(uid, request.user)
+
+    # check permission:
+    # we only allow view different user's profile if the viewing user is verified and belongs to the same center as the viewed user.
+    if user_profile.user != request.user and not (user_profile.is_same_center(request.user) and UserProfile(request.user).is_verified()):
+        return defaults.permission_denied(request)
+
     context = {
         'user_profile': user_profile,
         'day': DayToken.today(),
@@ -40,8 +47,14 @@ def dashboard(request, uid=None):
 
 
 @login_required
-def classroom(request, pk):
+def classroom_home(request, pk):
     cr = get_object_or_404(Classroom, pk=pk)
+
+    # check permission:
+    # only viewable by people from the same center. doesn't need "verified".
+    if not UserProfile(request.user).is_same_center(cr):
+        return defaults.permission_denied(request)
+
     return TemplateResponse(request, template='classroom.jinja2', context={
         'classroom': cr
     })
@@ -49,6 +62,7 @@ def classroom(request, pk):
 
 @login_required
 def notification(request):
+    
     class NotificationView(ListView):
         template_name = 'notification.jinja2'
         context_object_name = 'latest_notification'
@@ -62,8 +76,14 @@ def notification(request):
 
 
 @login_required
-def center(request, pk):
+def center_home(request, pk):
     center = get_object_or_404(Center, pk=pk)
+
+    # check permission:
+    # only viewable by people from the same center. doesn't need "verified".
+    if not UserProfile(request.user).is_same_center(center):
+        return defaults.permission_denied(request)
+
     manager_group = GroupRole.get_by_name('manager')
     teacher_group = GroupRole.get_by_name('teacher')
     support_group = GroupRole.get_by_name('support')

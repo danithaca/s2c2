@@ -10,6 +10,7 @@ from django import forms
 
 from location.models import Classroom
 from log.models import Log, log_offer_update, log_need_update
+from s2c2.decorators import user_is_verified, user_is_center_manager
 from s2c2.utils import dummy
 from user.models import UserProfile
 from .models import DayToken, TimeToken, OfferSlot, NeedSlot, Meet
@@ -29,6 +30,11 @@ def day_staff(request, uid=None):
     if not user_profile.is_center_staff():
         return defaults.bad_request(request)
     day = _get_request_day(request)
+
+    # check permission:
+    # we only allow view different user's profile if the viewing user is verified and belongs to the same center as the viewed user.
+    if user_profile.user != request.user and not (user_profile.is_same_center(request.user) and UserProfile(request.user).is_verified()):
+        return defaults.permission_denied(request)
 
     slot_table_data = user_profile.get_slot_table(day)
     unmet_table_data = user_profile.get_unmet_table(day)
@@ -201,6 +207,11 @@ def day_classroom(request, cid):
     classroom = get_object_or_404(Classroom, pk=cid)
     day = _get_request_day(request)
 
+    # check permission:
+    # only viewable by people from the same center. doesn't need "verified".
+    if not UserProfile(request.user).is_same_center(classroom):
+        return defaults.permission_denied(request)
+
     slot_table_data = classroom.get_slot_table(day)
     unmet_table_data = classroom.get_unmet_table(day)
 
@@ -292,6 +303,8 @@ def need_delete(request, cid):
     return render(request, 'base_form.jinja2', {'form': form, 'form_url': form_url})
 
 
+# @user_is_center_manager
+# @user_is_verified
 @login_required
 def assign(request, need_id):
     class AssignStaffForm(forms.Form):
@@ -303,6 +316,11 @@ def assign(request, need_id):
 
     # 'need' already has 'location', but we are only interested in 'classroom' for now.
     classroom = Classroom.objects.get(pk=need.location.pk)
+
+    # check permission:
+    # only viewable by people from the same center.
+    if not UserProfile(request.user).is_same_center(classroom):
+        return defaults.permission_denied(request)
 
     # try to load existing offer, or none is found.
     try:

@@ -9,13 +9,25 @@ from django.http import HttpResponseRedirect
 from django.shortcuts import render, redirect
 from django.utils.translation import ugettext_lazy as _
 from django.views.generic import FormView
+from django.views.generic.detail import SingleObjectMixin
 
 from user.models import Profile, UserProfile
 
 
-
 # keep session open for 3 days.
 REMEMBER_ME_EXPIRY = 60 * 60 * 24 * 3
+
+
+class DefaultUserMixin(SingleObjectMixin):
+    model = User
+    pk_url_kwarg = 'uid'
+
+    def get_object(self, queryset=None):
+        try:
+            super(DefaultUserMixin, self).get_object(queryset)
+        except AttributeError as e:
+            # using this in Views will have the request object in self.
+            return self.request.user
 
 
 def signup(request):

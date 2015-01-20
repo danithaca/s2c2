@@ -1,0 +1,13 @@
+{% extends "base.jinja2" %}
+{% load staticfiles %}
+{% load bootstrap %}
+
+{% block page %}
+  <h1>403 Forbidden</h1>
+  <p>You are seeing this page because you are not authorized to view the requested page or perform the requested action.</p>
+  <p>Common reasons:</p>
+  <ul>
+    <li>Your account is not verified by a center manager.</li>
+    <li>You do not belong to the same center as the target you are trying to view.</li>
+  </ul>
+{% endblock %}

@@ -6,7 +6,7 @@
   <script type="text/javascript">
     $(document).ready(function() {
       // this will copy the same links to user admin sidebar.
-      $('nav.navbar li.user-admin ul li>a').clone().addClass('list-group-item').appendTo('div.user-admin-sidebar')
+      $('nav.navbar li.user-admin ul li>a').clone().addClass('list-group-item').appendTo('div.user-admin-sidebar');
 
       // for edit page only. use phone formatter
       new Formatter(document.getElementById('id_phone_main'), {

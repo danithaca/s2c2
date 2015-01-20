@@ -6,7 +6,7 @@ from django.db import models
 from django.contrib.auth.models import User, Group
 from localflavor.us.models import PhoneNumberField
 
-from location.models import Center, Area
+from location.models import Center, Area, Classroom
 
 
 class Profile(models.Model):
@@ -77,6 +77,9 @@ class UserProfile(object):
     def get_groups_id_set(self):
         return set(self.user.groups.values_list('pk', flat=True))
 
+    def get_centers_id_set(self):
+        return set(self.profile.centers.values_list('pk', flat=True))
+
     def is_center_manager(self):
         if not GroupRole.get_center_manager_role_id_set().isdisjoint(self.get_groups_id_set()):
             return True
@@ -100,6 +103,22 @@ class UserProfile(object):
         if self.has_profile() and hasattr(self.profile, attrib):
             return getattr(self.profile, attrib)
         return getattr(self.user, attrib)
+
+    def is_same_center(self, target):
+        """
+        :param target: The target, could be another user or a classroom or a center
+        :return: True if they belong to the same center, or false.
+        """
+        if isinstance(target, UserProfile):
+            return self.get_groups_id_set().intersection(target.get_groups_id_set())
+        elif isinstance(target, User):
+            return self.is_same_center(UserProfile(target))
+        elif isinstance(target, Center):
+            return target.id in self.get_centers_id_set()
+        elif isinstance(target, Classroom):
+            return target.center.id in self.get_centers_id_set()
+        else:
+            assert False
 
 
 class CenterStaff(UserProfile):

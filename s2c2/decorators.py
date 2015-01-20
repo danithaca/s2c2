@@ -54,3 +54,13 @@ def user_is_verified(view_func):
         # this is the end of _wrapped_view()
 
     return _wrapped_view
+
+
+def user_is_center_manager(view_func):
+    @wraps(view_func)
+    def _wrapped_view(request, *args, **kwargs):
+        if UserProfile(request.user).is_center_manager():
+            return view_func(request, *args, **kwargs)
+        messages.error(request, 'This operation is only valid for center managers.')
+        return redirect('dashboard')
+    return _wrapped_view
