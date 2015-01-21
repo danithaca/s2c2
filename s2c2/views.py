@@ -63,6 +63,7 @@ def classroom_home(request, pk):
         'day': day,
         'classroom_staff': classroom_staff,
         'week_table_data': week_table_data,
+        'week_unmet_need_warning': classroom.exists_unmet_need(day),
     })
 
 

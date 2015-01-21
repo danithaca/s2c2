@@ -119,3 +119,8 @@ class Classroom(Location):
         from slot.models import Meet
         qs = User.objects.filter(offerslot__meet__need__location=self).annotate(num_slot=models.Count('offerslot')).order_by('-num_slot')
         return [s for s in qs]
+
+    def exists_unmet_need(self, day):
+        from slot.models import NeedSlot
+        weekday = day.expand_week()
+        return NeedSlot.objects.filter(day__in=weekday, location=self, meet__isnull=True).exists()
