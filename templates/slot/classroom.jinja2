@@ -42,7 +42,7 @@
               <td class="text-center"><ul class="list-inline">
                 {% for need_obj in r2 %}<li>
                 {% if need_obj.meet %}
-                  <a href="{% url 'slot:assign' need_id=need_obj.pk %}">{{ need_obj.meet.offer.user|name }}</a>
+                  <a href="{% url 'slot:assign' need_id=need_obj.pk %}">{% icon 'user' %} {{ need_obj.meet.offer.user|name }}</a>
                 {% else %}
                   <a href="{% url 'slot:assign' need_id=need_obj.pk %}" class="text-muted">-Empty-</a>
                 {% endif %}

@@ -1,4 +1,5 @@
 {% extends 'slot/command_form.jinja2' %}
+{% load s2c2_tags %}
 
 {% block command_form_content %}
   <table class="table table-bordered table-hover table-striped table-condensed">
@@ -13,7 +14,7 @@
         {% if second_row %}
           <td class="text-center"><ul class="list-inline">
             {% for classroom in second_row %}{# there should be only one availability should be only one #}
-              <li><a href="{% url 'slot:classroom' cid=classroom.pk %}?day={{ day.get_token }}">{{ classroom.name }}</a></li>
+              <li><a href="{% url 'slot:classroom' cid=classroom.pk %}?day={{ day.get_token }}">{% icon classroom %} {{ classroom.name }}</a></li>
             {% endfor %}
           </ul></td>
         {% else %}
