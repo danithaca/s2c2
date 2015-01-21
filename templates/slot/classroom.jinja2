@@ -9,16 +9,23 @@
     <h1><i class="fa fa-paw"></i> {{ classroom.name }} - {% if day.is_regular %}Template Schedule{% else %}Daily Schedule{% endif %}</h1>
   </div>
 
-  <h2>{% if day.is_regular %}Every {{ day.value|date:'l' }}{% else %}{{ day.value|date:'F j, l' }}{% endif %}<small>
-    <a href="{% url 'slot:classroom' cid=classroom.pk %}?day={% if day.is_regular %}{{ day.date_of_weekday.get_token }}{% else %}{{ day.weekday_of_date.get_token }}{% endif %}" title="Switch between template and specific day's schedule." class="btn btn-default btn-sm"><i class="fa fa-exchange"></i> Switch</a>
-    <a href="{% url 'slot:classroom' cid=classroom.pk %}" title="Go to today's calendar" class="btn btn-default btn-sm"><i class="fa fa-calendar"></i> Today</a>
-  </small></h2>
-  {% url 'slot:classroom' cid=classroom.pk as pager_url %}
-  {% if day.is_regular %}
-    {% day-regular-pager day pager_url %}
-  {% else %}
-    {% day-date-pager day pager_url %}
-  {% endif %}
+  <div class="row">
+    <div class="col-sm-6"><h2>{% if day.is_regular %}Every {{ day.value|date:'l' }}{% else %}{{ day.value|date:'F j, l' }}{% endif %}</h2></div>
+    <div class="col-sm-6"><ul class="nav-week pagination pull-right">
+      <li{% if day.is_regular %} class="disabled"{% endif %}><a href="?day={{ day.prev_week.get_token }}"><i class="fa fa-fast-backward"></i></a></li>
+      <li><a href="."><i class="fa fa-calendar"></i> Today</a></li>
+      <li><a href="?day={{ day.switch.get_token }}"><i class="fa fa-exchange"></i> Switch</a></li>
+      <li{% if day.is_regular %} class="disabled"{% endif %}><a href="?day={{ day.next_week.get_token }}"><i class="fa fa-fast-forward"></i></a></li>
+    </ul></div>
+  </div>
+  <div class="text-center">
+    {% url 'slot:classroom' cid=classroom.pk as pager_url %}
+    {% if day.is_regular %}
+      {% day-regular-pager day pager_url %}
+    {% else %}
+      {% day-date-pager day pager_url %}
+    {% endif %}
+  </div>
 
   <div class="row">
     <div class="col-sm-6">
@@ -35,7 +42,7 @@
               <td class="text-center"><ul class="list-inline">
                 {% for need_obj in r2 %}<li>
                 {% if need_obj.meet %}
-                  <a href="{% url 'slot:assign' need_id=need_obj.pk %}">{{ need_obj.meet.offer.user|display_name }}</a>
+                  <a href="{% url 'slot:assign' need_id=need_obj.pk %}">{{ need_obj.meet.offer.user|name }}</a>
                 {% else %}
                   <a href="{% url 'slot:assign' need_id=need_obj.pk %}" class="text-muted">-Empty-</a>
                 {% endif %}

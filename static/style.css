@@ -17,3 +17,10 @@ body {
 #page-summary:empty { display: none; }
 
 #page-error-message:empty { display: none; }
+
+/********************************* special settings for print **********************************/
+
+@media print {
+  div.page-footer { display: none; }
+  a[href]:after { content: ""; }
+}

@@ -91,13 +91,14 @@ def slot_day_regular_pager(day, url):
 @register.simple_tag(name='day-date-pager')
 def slot_day_token_date_pager(day, url):
     assert isinstance(day, DayToken)
-    list_data = [(day.prev_week(), '<i class="fa fa-fast-backward"></i>'), (day.prev_day(), '<i class="fa fa-step-backward"></i>')]
-    list_data += [(dt, format(dt.value, 'M j (D)')) for dt in day.expand_week()]
-    list_data += [(day.next_day(), '<i class="fa fa-step-forward"></i>'), (day.next_week(), '<i class="fa fa-fast-forward"></i>')]
+    list_data = []
+    # list_data = [(day.prev_week(), '<i class="fa fa-fast-backward"></i>'), (day.prev_day(), '<i class="fa fa-step-backward"></i>')]
+    list_data += [(dt, format(dt.value, 'M j, D')) for dt in day.expand_week()]
+    # list_data += [(day.next_day(), '<i class="fa fa-step-forward"></i>'), (day.next_week(), '<i class="fa fa-fast-forward"></i>')]
 
     list_a = [(dt, link_a({
         'href': url + '?day=' + dt.get_token(),
-        'text': text
+        'text': '<i class="fa fa-calendar-o"></i> %s' % text
     })) for dt, text in list_data]
 
     list_li = ['<li>%s</li>' % a if dt != day else '<li class="active">%s</li>' % a for dt, a in list_a]

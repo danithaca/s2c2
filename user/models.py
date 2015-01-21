@@ -146,6 +146,7 @@ class CenterStaff(UserProfile):
         return data
 
     def get_regular_week_table(self):
+        warnings.warn('Obsolete', DeprecationWarning)
         from slot.models import DayToken, TimeToken, OfferSlot
         weekday = DayToken.get_weekday_list(True)
         time_per_day = TimeToken.interval(time(7, 30), time(19))
@@ -164,6 +165,25 @@ class CenterStaff(UserProfile):
         # data = TableCellWrapper()
         # for offer in OfferSlot.objects.filter(day__in=weekday, user=self.user):
         #     data.add(offer.day, offer.start_time, offer)
+
+        data = defaultdict(lambda: defaultdict(list))
+        for offer in OfferSlot.objects.filter(day__in=weekday, user=self.user):
+            data[offer.day][offer.start_time].append(offer)
+
+        rows = []
+        for t in time_per_day:
+            row = []
+            for d in weekday:
+                row.append(data[d][t])  # append either [] of [offer...] to row.
+            rows.append([t, row])
+
+        return {'header': weekday,  'rows_header': time_per_day, 'rows': rows}
+
+    # this is to get data for the dashboard
+    def get_week_table(self, day):
+        from slot.models import DayToken, TimeToken, OfferSlot
+        weekday = day.expand_week()[:5]    # only take workdays
+        time_per_day = TimeToken.interval(time(7, 30), time(19))
 
         data = defaultdict(lambda: defaultdict(list))
         for offer in OfferSlot.objects.filter(day__in=weekday, user=self.user):

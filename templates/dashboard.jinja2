@@ -36,22 +36,24 @@
 {% block page-content %}
   {% if user_profile.is_verified and user_profile.is_center_manager %}
   {% elif user_profile.is_center_staff %}
-    <h2>Schedule by Date</h2>
-    <ul class="nav nav-pills">
-      {% for d in day.expand_week %}
-        <li><a href="{% url 'slot:staff' %}?day={{ d.get_token }}"><i class="fa fa-calendar-o"></i> {{ d.value|date:'N j (D)' }}</a></li>
-      {% endfor %}
-    </ul>
-    <h2>Regular Schedule Overview</h2>
+    <div class="row">
+      <div class="col-sm-6"><h2>Weekly Schedule</h2></div>
+      <div class="col-sm-6"><ul class="nav-week pagination pull-right">
+        <li{% if day.is_regular %} class="disabled"{% endif %}><a href="?day={{ day.prev_week.get_token }}"><i class="fa fa-fast-backward"></i></a></li>
+        <li><a href="."><i class="fa fa-calendar"></i> This Week</a></li>
+        <li><a href="?day={{ day.switch.get_token }}"><i class="fa fa-exchange"></i> Switch</a></li>
+        <li{% if day.is_regular %} class="disabled"{% endif %}><a href="?day={{ day.next_week.get_token }}"><i class="fa fa-fast-forward"></i></a></li>
+      </ul></div>
+    </div>
     <table class="table table-hover table-stripped table-bordered">
       <thead><tr>
         <th></th>
-        {% for d in regular_week_table_data.header %}
-          <th class="text-center"><a href="{% url 'slot:staff' %}?day={{ d.get_token }}">{{ d.value|date:'l' }}</a></th>
+        {% for d in week_table_data.header %}
+          <th class="text-center"><a href="{% url 'slot:staff' %}?day={{ d.get_token }}">{% if d.is_regular %}{{ d.value|date:'l' }}{% else %}{{ d.value|date:'D, N d' }}{% endif %}</a></th>
         {% endfor %}
       </tr></thead>
       <tbody>
-      {% for row_header, row_data in regular_week_table_data.rows %}
+      {% for row_header, row_data in week_table_data.rows %}
         <tr>
           <th scope="row" class="text-center">{{ row_header.display_slice }}</th>
           {% for cell in row_data%}
@@ -73,7 +75,6 @@
       {% endfor %}
       </tbody>
     </table>
-    <button class="btn btn-primary">Print regular schedule</button>
   {% else %}
   {% endif %}
 {% endblock %}

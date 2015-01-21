@@ -10,18 +10,9 @@ from django import forms
 
 from location.models import Classroom
 from log.models import Log, log_offer_update, log_need_update
-from s2c2.decorators import user_is_verified, user_is_center_manager
-from s2c2.utils import dummy
+from s2c2.utils import get_request_day
 from user.models import UserProfile
 from .models import DayToken, TimeToken, OfferSlot, NeedSlot, Meet
-
-
-def _get_request_day(request):
-    try:
-        day = DayToken.from_token(request.GET.get('day', ''))
-    except ValueError as e:
-        day = DayToken.today()
-    return day
 
 
 @login_required
@@ -29,7 +20,7 @@ def day_staff(request, uid=None):
     user_profile = UserProfile.get_by_id_default(uid, request.user)
     if not user_profile.is_center_staff():
         return defaults.bad_request(request)
-    day = _get_request_day(request)
+    day = get_request_day(request)
 
     # check permission:
     # we only allow view different user's profile if the viewing user is verified and belongs to the same center as the viewed user.
@@ -205,7 +196,7 @@ def offer_delete(request, uid):
 def day_classroom(request, cid):
     # lots of code copied from staff()
     classroom = get_object_or_404(Classroom, pk=cid)
-    day = _get_request_day(request)
+    day = get_request_day(request)
 
     # check permission:
     # only viewable by people from the same center. doesn't need "verified".

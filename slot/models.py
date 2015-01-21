@@ -93,6 +93,12 @@ class DayToken(object):
         else:
             return DayToken(self.value - timedelta(days=7))
 
+    def switch(self):
+        if self.is_regular():
+            return self.date_of_weekday()
+        else:
+            return self.weekday_of_date()
+
     def expand_week(self):
         if self.is_regular():
             return [DayToken(d) for d in DayToken.weekday_tuple]

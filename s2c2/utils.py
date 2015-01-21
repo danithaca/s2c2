@@ -5,6 +5,7 @@ from s2c2.decorators import user_is_verified
 
 
 # @user_is_verified
+from slot.models import DayToken
 from user.models import UserProfile
 
 
@@ -33,3 +34,11 @@ def get_class(class_name):
     else:
         # assuming the class is already in scope
         return getattr(sys.modules['__main__'], class_name)
+
+
+def get_request_day(request):
+    try:
+        day = DayToken.from_token(request.GET.get('day', ''))
+    except ValueError as e:
+        day = DayToken.today()
+    return day

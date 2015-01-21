@@ -8,6 +8,7 @@ from django.views import defaults
 
 from location.models import Classroom, Center
 from log.models import Notification
+from s2c2.utils import get_request_day
 from slot.models import DayToken
 from user.models import UserProfile, CenterStaff, GroupRole
 
@@ -30,17 +31,16 @@ def dashboard(request, uid=None):
     if user_profile.user != request.user and (not UserProfile(request.user).is_verified() or not user_profile.is_same_center(request.user)):
         return defaults.permission_denied(request)
 
+    day = get_request_day(request)
+
     context = {
         'user_profile': user_profile,
-        'day': DayToken.today(),
+        'day': day,
     }
 
-    if user_profile.is_center_manager():
-        context.update({'header_extra': 'Manager, NCCC'})
-    elif user_profile.is_center_staff():
+    if user_profile.is_center_staff():
         context['regular_week_table_data'] = user_profile.get_regular_week_table()
-    else:
-        context.update({'header_extra': ''})
+        context['week_table_data'] = user_profile.get_week_table(day)
 
     return TemplateResponse(request, template='dashboard.jinja2', context=context)
 
