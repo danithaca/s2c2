@@ -78,7 +78,10 @@ class UserProfile(object):
         return set(self.user.groups.values_list('pk', flat=True))
 
     def get_centers_id_set(self):
-        return set(self.profile.centers.values_list('pk', flat=True))
+        if self.has_profile():
+            return set(self.profile.centers.values_list('pk', flat=True))
+        else:
+            return set([])
 
     def is_center_manager(self):
         if not GroupRole.get_center_manager_role_id_set().isdisjoint(self.get_groups_id_set()):
@@ -119,6 +122,9 @@ class UserProfile(object):
             return target.center.id in self.get_centers_id_set()
         else:
             assert False
+
+    def display_role(self):
+        return ','.join(self.user.groups.values_list('name', flat=True))
 
 
 class CenterStaff(UserProfile):

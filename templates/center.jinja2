@@ -12,11 +12,15 @@
     <tr><th scope="row">Address</th><td>{{ center.address }}</td></tr>
     <tr><th scope="row">Area</th><td>{{ center.area }}</td></tr>
     <tr><th scope="row">Manager{{ managers|pluralize }}</th><td>
+      {% if managers %}
       <ul class="list-inline">
         {% for manager in managers %}
-          <li><a href="{% url 'dashboard' %}">{% icon manager %} {{ manager|name }} {% if not manager.profile.verified %}{% icon 'unverified' %}{% endif %}</a></li>
+          <li><a href="{% url 'dashboard' uid=manager.id %}">{% icon manager %} {{ manager|name }} {% if not manager.profile.verified %}{% icon 'unverified' %}{% endif %}</a></li>
         {% endfor %}
       </ul>
+      {% else %}
+        <span class="text-muted">-None-</span>
+      {% endif %}
     </td></tr>
   </table>
 {% endblock %}
@@ -29,7 +33,7 @@
   {% endfor %}
   </ul>
   {% for header, staff_list in sections %}
-    <h2>{{ header }}</h2>
+    <h2>{{ header|title }}</h2>
     <ul class="nav nav-pills">
       {% for staff in staff_list %}
         <li><a href="{% url 'dashboard' uid=staff.id %}">{% icon staff %} {{ staff|name }} {% if not staff.profile.verified %}{% icon 'unverified' %}{% endif %}</a></li>

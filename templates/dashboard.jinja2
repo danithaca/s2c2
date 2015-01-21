@@ -5,45 +5,36 @@
 
 {% block title %}Dashboard{% endblock %}
 
-{% block page-header %}{{ user_profile.get_display_name|default:'N/A' }} <small>{{ header_extra }}</small>{% endblock %}
+{% block page-header %}
+  {% icon user_profile %} {{ user_profile|name }}
+  <small>{{ user_profile.display_role|title }}{% if not user_profile.is_verified %} {% icon 'unverified' %}{% endif %}</small>
+{% endblock %}
 
 {# This has to be empty if it's really empty in order to apply css :empty selector to hide display. #}
-{% block page-error-message %}{% if not user_profile.is_verified %}The account {{ user_profile.username|default:'N/A' }} is not verified.{% endif %}{% endblock %}
+{#{% block page-error-message %}{% if not user_profile.is_verified %}The account {{ user.username|default:'N/A' }} is not verified.{% endif %}{% endblock %}#}
 
 {% block page-summary %}
   <table class="table table-condensed table-hover">
-    <tr><th scope="row">Phone</th><td>{{ user_profile.phone_main|default:'N/A' }} <span class="text-muted">main</span> | {{ user_profile.phone_backup|default:'N/A' }} <span class="text-muted">backup</span></td></tr>
-    <tr><th scope="row">Email</th><td>{{ user_profile.email }}</td></tr>
-    {% if user_profile.is_center_staff %}
-      <tr><th scope="row">Work hours</th><td>40 hours per regular week; 42.5 hours this week</td></tr>
-      <tr><th scope="row">Classrooms </th><td><a href="#"><i class="fa fa-paw"></i> Robins</a> | <a href="#"><i class="fa fa-paw"></i> Sleeping Bears</a></td></tr>
-      <tr><th scope="row">Managers </th><td><a href="#"><i class="fa fa-user"></i> Kelly</a> | <a href="#"><i class="fa fa-user"></i> Julia</a></td></tr>
-    {% endif %}
-    <tr><th scope="row">Personal Note</th><td>{{ user_profile.note }}</td></tr>
+    <tr><th scope="row">Center{{ user_profile.centers.all|pluralize }}</th><td><ul class="list-inline">
+      {% for center in user_profile.centers.all %}
+        <li><a href="{% url 'center' pk=center.pk %}">{% icon center %} {{ center|name }}</a></li>
+      {% empty %}
+        <li class="text-muted">-None-</li>
+      {% endfor %}
+    </ul></td></tr>
+    <tr><th scope="row">Phone</th><td><ul class="list-inline">
+      <li>{% if user_profile.phone_main %}<i class="fa fa-phone"></i> {{ user_profile.phone_main }}{% else %}<span class="text-muted">-None-</span>{% endif %}</li>
+      {% if user_profile.phone_backup %}<li><i class="fa fa-phone"></i> {{ user_profile.phone_backup }}</li>{% endif %}
+    </ul></td></tr>
+    <tr><th scope="row">Email</th><td><ul class="list-inline">
+      <li><i class="fa fa-envelope"></i> {{ user_profile.email }}</li>
+    </ul></td></tr>
+    <tr><th scope="row">Personal Note</th><td{% if not user_profile.note %} class="text-muted"{% endif %}>{{ user_profile.note|default:'-None-' }}</td></tr>
   </table>
 {% endblock %}
 
 {% block page-content %}
   {% if user_profile.is_verified and user_profile.is_center_manager %}
-    <h2>Classrooms</h2>
-    <ul class="nav nav-pills">
-      <li><a href="#"><i class="fa fa-paw"></i> Petoskey Stones</a></li>
-      <li><a href="#"><i class="fa fa-paw"></i> Sleeping Bears</a></li>
-      <li><a href="#"><i class="fa fa-paw"></i> Cottontails</a></li>
-      <li><a href="#"><i class="fa fa-paw"></i> Jacks</a></li>
-      <li><a href="#"><i class="fa fa-paw"></i> Robins</a></li>
-    </ul>
-    <h2>Staff</h2>
-    <ul class="nav nav-pills">
-      <li><a href="#"><i class="fa fa-user"></i> Asana</a></li>
-      <li><a href="#"><i class="fa fa-user"></i> Alyssa</a></li>
-      <li><a href="#"><i class="fa fa-user"></i> Dani</a></li>
-      <li><a href="#"><i class="fa fa-user"></i> Kat</a></li>
-      <li><a href="#"><i class="fa fa-user"></i> Max</a></li>
-      <li><a href="#"><i class="fa fa-user"></i> Queayna</a></li>
-      <li><a href="#"><i class="fa fa-user"></i> Sophie</a></li>
-      <li><a href="#"><i class="fa fa-user"></i> Tori</a></li>
-    </ul>
   {% elif user_profile.is_center_staff %}
     <h2>Schedule by Date</h2>
     <ul class="nav nav-pills">
@@ -84,6 +75,5 @@
     </table>
     <button class="btn btn-primary">Print regular schedule</button>
   {% else %}
-    <div class="alert alert-danger">Nothing to show here because you don't have a proper role assigned, or your role is <em>manager</em> but is not verified.</div>
   {% endif %}
 {% endblock %}

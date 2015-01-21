@@ -31,7 +31,7 @@ def bootstrap_alert(message):
 def s2c2_name(obj):
     """ This is the magic "filter" function that display things nicely in Template """
     #options = set(option_token.split(','))
-    if isinstance(obj, User):
+    if isinstance(obj, User) or isinstance(obj, UserProfile):
         return obj.get_full_name() or obj.username
     elif isinstance(obj, Location):
         return obj.name
@@ -41,8 +41,8 @@ def s2c2_name(obj):
 def s2c2_icon(obj):
     if obj == 'unverified':
         # return '<i class="fa fa-ban"></i>'
-        return '<span class="label label-danger"><i class="fa fa-ban"></i> unverified</span>'
-    if isinstance(obj, User) or obj == 'user':
+        return '<span class="label label-danger" title="Please wait for your account to be verified."><i class="fa fa-ban"></i> unverified</span>'
+    if isinstance(obj, User) or isinstance(obj, UserProfile) or obj == 'user':
         return '<i class="fa fa-user"></i>'
     elif isinstance(obj, Classroom) or obj == 'classroom':
         return '<i class="fa fa-paw"></i>'

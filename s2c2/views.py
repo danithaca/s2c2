@@ -25,8 +25,6 @@ def home(request):
 def dashboard(request, uid=None):
     user_profile = UserProfile.get_by_id_default(uid, request.user)
 
-    b = user_profile.is_same_center(request.user)
-
     # check permission:
     # we only allow view different user's profile if the viewing user is verified and belongs to the same center as the viewed user.
     if user_profile.user != request.user and (not UserProfile(request.user).is_verified() or not user_profile.is_same_center(request.user)):
@@ -41,7 +39,6 @@ def dashboard(request, uid=None):
         context.update({'header_extra': 'Manager, NCCC'})
     elif user_profile.is_center_staff():
         context['regular_week_table_data'] = user_profile.get_regular_week_table()
-        context.update({'header_extra': 'Staff, NCCC'})
     else:
         context.update({'header_extra': ''})
 
