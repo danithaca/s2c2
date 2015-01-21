@@ -26,18 +26,51 @@
 {% endblock %}
 
 {% block page-content %}
-  <h2>Classroom</h2>
-  <ul class="nav nav-pills">
-  {% for classroom in classrooms %}
-    <li><a href="{% url 'classroom' pk=classroom.pk %}">{% icon classroom %} {{ classroom|name }}</a></li>
-  {% endfor %}
-  </ul>
-  {% for header, staff_list in sections %}
-    <h2>{{ header|title }}</h2>
+  <nav><ul class="nav nav-tabs">
+    <li{% ifequal tab 'directory' %} class="active"{% endifequal %}><a href="{% url 'center_directory' pk=center.pk %}">Directory</a></li>
+    <li{% ifequal tab 'list-classroom' %} class="active"{% endifequal %}><a href="{% url 'center_list_classroom' pk=center.pk %}">List of Classrooms</a></li>
+    <li{% ifequal tab 'list-staff' %} class="active"{% endifequal %}><a href="{% url 'center_list_staff' pk=center.pk %}">List of Staff</a></li>
+  </ul></nav>
+
+  {% if tab == 'directory' %}
+
+    <h2>Classroom</h2>
     <ul class="nav nav-pills">
-      {% for staff in staff_list %}
-        <li><a href="{% url 'dashboard' uid=staff.id %}">{% icon staff %} {{ staff|name }} {% if not staff.profile.verified %}{% icon 'unverified' %}{% endif %}</a></li>
-      {% endfor %}
+    {% for classroom in classrooms %}
+      <li><a href="{% url 'classroom' pk=classroom.pk %}">{% icon classroom %} {{ classroom|name }}</a></li>
+    {% endfor %}
     </ul>
-  {% endfor %}
+    {% for header, staff_list in sections %}
+      <h2>{{ header|title }}</h2>
+      <ul class="nav nav-pills">
+        {% for staff in staff_list %}
+          <li><a href="{% url 'dashboard' uid=staff.id %}">{% icon staff %} {{ staff|name }} {% if not staff.profile.verified %}{% icon 'unverified' %}{% endif %}</a></li>
+        {% endfor %}
+      </ul>
+    {% endfor %}
+
+  {% elif tab == 'list-classroom' %}
+
+  {% elif tab == 'list-staff' %}
+    <table class="table table-hover table-stripped table-bordered">
+      <caption>List of Staff</caption>
+      <thead><tr>
+        <th>Name</th>
+        <th>Phone</th>
+        <th>Role</th>
+        <th>Note</th>
+      </tr></thead>
+      <tbody>
+      {% for staff in list_staff %}
+        <tr>
+        <td>{% icon staff %} <a href="{% url 'dashboard' uid=staff.pk %}">{{ staff|name }}</a>{% if not staff.is_verified %} {% icon 'unverified' %}{% endif %}</td>
+        <td>{{ staff.phone_main }}</td>
+        <td>{{ staff.display_role|title }}</td>
+        <td>{{ staff.note|truncatechars:50 }}</td>
+        </tr>
+      {% endfor %}
+      </tbody>
+    </table>
+  {% endif %}
+
 {% endblock %}

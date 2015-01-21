@@ -35,11 +35,6 @@
 
 {% block page-content %}
 {% if user_profile.user == user and user_profile.is_verified and user_profile.is_center_manager %}
-  <ul class="nav nav-tabs">
-    <li role="presentation" class="active"><a href="#">Home</a></li>
-    <li role="presentation"><a href="#">Profile</a></li>
-    <li role="presentation"><a href="#">Messages</a></li>
-  </ul>
 {% elif user_profile.is_center_staff %}
   <div class="row">
     <div class="col-sm-6"><h2>Weekly Schedule</h2></div>

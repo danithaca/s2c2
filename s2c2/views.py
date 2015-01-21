@@ -8,7 +8,7 @@ from django.views import defaults
 
 from location.models import Classroom, Center
 from log.models import Notification
-from s2c2.utils import get_request_day
+from s2c2.utils import get_request_day, dummy
 from slot.models import DayToken
 from user.models import UserProfile, CenterStaff, GroupRole
 
@@ -83,7 +83,7 @@ def notification(request):
 
 
 @login_required
-def center_home(request, pk):
+def center_home(request, pk, tab='directory'):
     center = get_object_or_404(Center, pk=pk)
 
     # check permission:
@@ -91,20 +91,39 @@ def center_home(request, pk):
     if not UserProfile(request.user).is_same_center(center):
         return defaults.permission_denied(request)
 
-    manager_group = GroupRole.get_by_name('manager')
+    context = {'center': center, 'tab': tab, }
+    list_classroom = Classroom.objects.filter(center=center)
+
     teacher_group = GroupRole.get_by_name('teacher')
     support_group = GroupRole.get_by_name('support')
     intern_group = GroupRole.get_by_name('intern')
 
-    sections = (
-        (teacher_group.name, User.objects.filter(profile__centers=center, groups=teacher_group.group, is_active=True)),
-        (support_group.name, User.objects.filter(profile__centers=center, groups=support_group.group, is_active=True)),
-        (intern_group.name, User.objects.filter(profile__centers=center, groups=intern_group.group, is_active=True)),
-    )
+    # handle directory tab
+    if tab == 'directory':
 
-    return render(request, 'center.jinja2', {
-        'center': center,
-        'classrooms': Classroom.objects.filter(center=center),
-        'managers': User.objects.filter(profile__centers=center, groups=manager_group.group, is_active=True),
-        'sections': sections
-    })
+        manager_group = GroupRole.get_by_name('manager')
+
+        sections = (
+            (teacher_group.name, User.objects.filter(profile__centers=center, groups=teacher_group.group, is_active=True)),
+            (support_group.name, User.objects.filter(profile__centers=center, groups=support_group.group, is_active=True)),
+            (intern_group.name, User.objects.filter(profile__centers=center, groups=intern_group.group, is_active=True)),
+        )
+
+        managers = User.objects.filter(profile__centers=center, groups=manager_group.group, is_active=True)
+
+        context.update({'classrooms': list_classroom,
+                        'managers': managers, 'sections': sections})
+
+    # handle list of classroom tab
+    elif tab == 'list-classroom':
+        pass
+
+    # handle list of staff tab.
+    elif tab == 'list-staff':
+        list_staff = [CenterStaff(u) for u in User.objects.filter(profile__centers=center, groups__in=[teacher_group.group, support_group.group, intern_group.group], is_active=True)]
+        context['list_staff'] = list_staff
+
+    else:
+        assert False
+
+    return render(request, 'center.jinja2', context)

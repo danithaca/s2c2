@@ -124,7 +124,7 @@ class UserProfile(object):
             assert False
 
     def display_role(self):
-        return ','.join(self.user.groups.values_list('name', flat=True))
+        return ', '.join(self.user.groups.values_list('name', flat=True))
 
 
 class CenterStaff(UserProfile):
