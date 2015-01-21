@@ -95,3 +95,8 @@ class Classroom(Location):
             second_col = [UserProfile.get_by_id(pk=pk) for pk in OfferSlot.get_unmet_slot_owner_id(day, start_time)]
             table.append((first_col, second_col))
         return table
+
+    def get_staff(self):
+        from slot.models import Meet
+        qs = User.objects.filter(offerslot__meet__need__location=self).annotate(num_slot=models.Count('offerslot')).order_by('-num_slot')
+        return [s for s in qs]

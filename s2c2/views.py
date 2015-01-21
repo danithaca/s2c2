@@ -47,15 +47,20 @@ def dashboard(request, uid=None):
 
 @login_required
 def classroom_home(request, pk):
-    cr = get_object_or_404(Classroom, pk=pk)
+    classroom = get_object_or_404(Classroom, pk=pk)
+    day = get_request_day(request)
 
     # check permission:
     # only viewable by people from the same center. doesn't need "verified".
-    if not UserProfile(request.user).is_same_center(cr):
+    if not UserProfile(request.user).is_same_center(classroom):
         return defaults.permission_denied(request)
 
+    classroom_staff = classroom.get_staff()
+
     return TemplateResponse(request, template='classroom.jinja2', context={
-        'classroom': cr
+        'classroom': classroom,
+        'day': day,
+        'classroom_staff': classroom_staff
     })
 
 

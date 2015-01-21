@@ -15,7 +15,7 @@
       {% if managers %}
       <ul class="list-inline">
         {% for manager in managers %}
-          <li><a href="{% url 'dashboard' uid=manager.id %}">{% icon manager %} {{ manager|name }} {% if not manager.profile.verified %}{% icon 'unverified' %}{% endif %}</a></li>
+          <li><a href="{% url 'dashboard' uid=manager.id %}">{% icon manager %} {{ manager|name }}</a> {% if not manager.profile.verified %}{% icon 'unverified' %}{% endif %}</li>
         {% endfor %}
       </ul>
       {% else %}
