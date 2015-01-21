@@ -6,7 +6,7 @@
 
 {% block page %}
   <div class="page-header">
-    <h1><i class="fa fa-user"></i> {{ user_profile.get_display_name }} - {% if day.is_regular %}Template Schedule{% else %}Daily Schedule{% endif %}</h1>
+    <h1>{% if day.is_regular %}Staff Template Schedule{% else %}Staff Daily Schedule{% endif %} <small>{% icon user_profile %} <a href="{% url 'dashboard' uid=user_profile.pk %}">{{ user_profile|name }}</a></small></h1>
   </div>
 
   <div class="row">

@@ -39,8 +39,8 @@ def dashboard(request, uid=None):
     }
 
     if user_profile.is_center_staff():
-        context['regular_week_table_data'] = user_profile.get_regular_week_table()
         context['week_table_data'] = user_profile.get_week_table(day)
+        context['week_hours'] = user_profile.get_week_hours(day)
 
     return TemplateResponse(request, template='dashboard.jinja2', context=context)
 

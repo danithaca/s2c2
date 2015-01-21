@@ -6,7 +6,7 @@
 
 {% block page %}
   <div class="page-header">
-    <h1><i class="fa fa-paw"></i> {{ classroom.name }} - {% if day.is_regular %}Template Schedule{% else %}Daily Schedule{% endif %}</h1>
+    <h1>{% if day.is_regular %}Classroom Template Schedule{% else %}Classroom Daily Schedule{% endif %} <small>{% icon classroom %} <a href="{% url 'classroom' pk=classroom.pk %}">{{ classroom.name }}</a></small></h1>
   </div>
 
   <div class="row">

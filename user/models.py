@@ -4,8 +4,8 @@ import warnings
 
 from django.db import models
 from django.contrib.auth.models import User, Group
+from django.core.exceptions import ObjectDoesNotExist
 from localflavor.us.models import PhoneNumberField
-
 from location.models import Center, Area, Classroom
 
 
@@ -145,40 +145,6 @@ class CenterStaff(UserProfile):
                         OfferSlot.objects.filter(day=day, user=self.user, start_time=start_time, end_time=end_time)))
         return data
 
-    def get_regular_week_table(self):
-        warnings.warn('Obsolete', DeprecationWarning)
-        from slot.models import DayToken, TimeToken, OfferSlot
-        weekday = DayToken.get_weekday_list(True)
-        time_per_day = TimeToken.interval(time(7, 30), time(19))
-
-        # this is to overcome django template behavior.
-        # class TableCellWrapper:
-        #     def __init__(self):
-        #         self.data = defaultdict(lambda: defaultdict(list))
-        #
-        #     def add(self, day, start_time, offer):
-        #         self.data[day][start_time].append(offer)
-        #
-        #     def get(self, day, start_time):
-        #         return self.data[day][start_time]
-        #
-        # data = TableCellWrapper()
-        # for offer in OfferSlot.objects.filter(day__in=weekday, user=self.user):
-        #     data.add(offer.day, offer.start_time, offer)
-
-        data = defaultdict(lambda: defaultdict(list))
-        for offer in OfferSlot.objects.filter(day__in=weekday, user=self.user):
-            data[offer.day][offer.start_time].append(offer)
-
-        rows = []
-        for t in time_per_day:
-            row = []
-            for d in weekday:
-                row.append(data[d][t])  # append either [] of [offer...] to row.
-            rows.append([t, row])
-
-        return {'header': weekday,  'rows_header': time_per_day, 'rows': rows}
-
     # this is to get data for the dashboard
     def get_week_table(self, day):
         from slot.models import DayToken, TimeToken, OfferSlot
@@ -213,6 +179,19 @@ class CenterStaff(UserProfile):
             second_col = [Classroom.objects.get(pk=pk) for pk in NeedSlot.get_unmet_slot_owner_id(day, unmet_offer.start_time)]
             table.append((first_col, second_col))
         return table
+
+    def get_week_hours(self, day):
+        from slot.models import TimeToken, OfferSlot
+        count = [0, 0, 0]
+        weekday = day.expand_week()
+        for offer in OfferSlot.objects.filter(day__in=weekday, user=self.user):
+            count[0] += 1
+            try:
+                m = offer.meet
+                count[1] += 1
+            except ObjectDoesNotExist:
+                count[2] += 1
+        return tuple([str(TimeToken.convert_slot_count_to_hours(i)) for i in count])
 
 
 class Role(models.Model):

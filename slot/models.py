@@ -186,6 +186,10 @@ class TimeToken(object):
     def _prev(t):
         return TimeToken._from_index((TimeToken._to_index(t) + 47) % 48)
 
+    @staticmethod
+    def convert_slot_count_to_hours(count):
+        return count / 2
+
     def __init__(self, value):
         assert isinstance(value, time) and TimeToken.check_time(value)
         self.value = value
