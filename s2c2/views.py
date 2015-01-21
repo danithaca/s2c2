@@ -94,29 +94,28 @@ def center_home(request, pk, tab='directory'):
     context = {'center': center, 'tab': tab, }
     list_classroom = Classroom.objects.filter(center=center)
 
+    manager_group = GroupRole.get_by_name('manager')
     teacher_group = GroupRole.get_by_name('teacher')
     support_group = GroupRole.get_by_name('support')
     intern_group = GroupRole.get_by_name('intern')
+    managers = User.objects.filter(profile__centers=center, groups=manager_group.group, is_active=True)
+    context['managers'] = managers
 
     # handle directory tab
     if tab == 'directory':
-
-        manager_group = GroupRole.get_by_name('manager')
 
         sections = (
             (teacher_group.name, User.objects.filter(profile__centers=center, groups=teacher_group.group, is_active=True)),
             (support_group.name, User.objects.filter(profile__centers=center, groups=support_group.group, is_active=True)),
             (intern_group.name, User.objects.filter(profile__centers=center, groups=intern_group.group, is_active=True)),
         )
-
-        managers = User.objects.filter(profile__centers=center, groups=manager_group.group, is_active=True)
-
-        context.update({'classrooms': list_classroom,
-                        'managers': managers, 'sections': sections})
+        context.update({'classrooms': list_classroom, 'sections': sections})
 
     # handle list of classroom tab
     elif tab == 'list-classroom':
-        pass
+        context['list_classroom'] = list_classroom
+        day = get_request_day(request)
+        context['day'] = day
 
     # handle list of staff tab.
     elif tab == 'list-staff':

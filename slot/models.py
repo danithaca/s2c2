@@ -1,6 +1,7 @@
 from abc import ABCMeta, abstractstaticmethod, abstractmethod
 from functools import total_ordering
 import calendar
+from itertools import groupby
 import re
 from datetime import time, timedelta, datetime, date
 
@@ -283,6 +284,27 @@ class TimeTokenField(models.TimeField, metaclass=models.SubfieldBase):
             return None
         assert isinstance(value, TimeToken)
         return value.value
+
+
+class TimeSlot(object):
+    def __init__(self, start, end):
+        self.start = start
+        self.end = end
+
+    def display(self):
+        ftime = '%I:%M%p'
+        return '%s ~ %s' % (self.start.strftime(ftime), self.end.strftime(ftime))
+
+    @staticmethod
+    def combine(list_timetoken):
+        assert len(list_timetoken) > 0
+        combined = []
+        list_index = [TimeToken._to_index(t.value) for t in list_timetoken]
+        sorted(list_index)
+        for k, g in groupby(enumerate(list_index), lambda x: x[1] - x[0]):
+            l = list(g)
+            combined.append(TimeSlot(TimeToken._from_index(l[0][1]), TimeToken._from_index((l[-1][1] + 1) % 48)))
+        return combined
 
 
 class Slot(models.Model):

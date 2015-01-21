@@ -115,9 +115,17 @@ class Classroom(Location):
             table.append((first_col, second_col))
         return table
 
-    def get_staff(self):
+    def get_unmet_need_time(self, day):
+        from slot.models import NeedSlot, TimeToken
+        l = [TimeToken(t) for t in NeedSlot.objects.filter(location=self, day=day, meet__isnull=True).values_list('start_time', flat=True).distinct().order_by('start_time')]
+        return l
+
+    def get_staff(self, day=None):
         from slot.models import Meet
-        qs = User.objects.filter(offerslot__meet__need__location=self).annotate(num_slot=models.Count('offerslot')).order_by('-num_slot')
+        if day is None:
+            qs = User.objects.filter(offerslot__meet__need__location=self).annotate(num_slot=models.Count('offerslot')).order_by('-num_slot')
+        else:
+            qs = User.objects.filter(offerslot__meet__need__location=self, offerslot__day=day).annotate(num_slot=models.Count('offerslot')).order_by('-num_slot')
         return [s for s in qs]
 
     def exists_unmet_need(self, day):

@@ -1,9 +1,10 @@
 import warnings
+
 from django import template
 from django.contrib.auth.models import User
 from django.utils.dateformat import format
-from log.models import Notification, Log
 
+from log.models import Notification, Log
 from slot.models import DayToken
 from user.models import UserProfile
 from location.models import Classroom, Center, Location
@@ -75,6 +76,23 @@ def link_a(a):
     if 'text' not in a:
         a['text'] = a['href']
     return '<a %s>%s</a>' % (tag_a_attr, a['text'])
+
+
+@register.simple_tag(name='list-ul')
+def list_ul(ul_class, items, none_label='-Empty-', empty_label='-None-'):
+    if len(items) > 0:
+        processed = []
+        for i in items:
+            if i is not None:
+                s = '<li>%s</li>' % i
+            else:
+                s = '<li class="text-muted">%s</li>' % none_label
+            processed.append(s)
+        l = ''.join(processed)
+    else:
+        l = '<li class="text-muted">%s</li>' % empty_label
+
+    return '<ul class="%s">%s</ul>' % (ul_class, l)
 
 
 @register.simple_tag(name='day-regular-pager')

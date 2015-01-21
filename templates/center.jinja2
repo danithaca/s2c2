@@ -2,6 +2,7 @@
 {% load staticfiles %}
 {% load bootstrap %}
 {% load s2c2_tags %}
+{% load s2c2_center %}
 
 {% block title %}Center | S2C2{% endblock %}
 
@@ -28,8 +29,8 @@
 {% block page-content %}
   <nav><ul class="nav nav-tabs">
     <li{% ifequal tab 'directory' %} class="active"{% endifequal %}><a href="{% url 'center_directory' pk=center.pk %}">Directory</a></li>
-    <li{% ifequal tab 'list-classroom' %} class="active"{% endifequal %}><a href="{% url 'center_list_classroom' pk=center.pk %}">List of Classrooms</a></li>
-    <li{% ifequal tab 'list-staff' %} class="active"{% endifequal %}><a href="{% url 'center_list_staff' pk=center.pk %}">List of Staff</a></li>
+    <li{% ifequal tab 'list-classroom' %} class="active"{% endifequal %}><a href="{% url 'center_list_classroom' pk=center.pk %}">Classroom Details</a></li>
+    <li{% ifequal tab 'list-staff' %} class="active"{% endifequal %}><a href="{% url 'center_list_staff' pk=center.pk %}">Staff Details</a></li>
   </ul></nav>
 
   {% if tab == 'directory' %}
@@ -50,7 +51,40 @@
     {% endfor %}
 
   {% elif tab == 'list-classroom' %}
+    <div class="row">
+      <div class="col-sm-6"><h2>{% if day.is_regular %}Every {{ day.value|date:'l' }}{% else %}{{ day.value|date:'F j, l' }}{% endif %}</h2></div>
+      <div class="col-sm-6"><ul class="nav-week pagination pull-right">
+        <li{% if day.is_regular %} class="disabled"{% endif %}><a href="?day={{ day.prev_week.get_token }}"><i class="fa fa-fast-backward"></i></a></li>
+        <li><a href="."><i class="fa fa-calendar"></i> Today</a></li>
+        <li><a href="?day={{ day.switch.get_token }}"><i class="fa fa-exchange"></i> Switch</a></li>
+        <li{% if day.is_regular %} class="disabled"{% endif %}><a href="?day={{ day.next_week.get_token }}"><i class="fa fa-fast-forward"></i></a></li>
+      </ul></div>
+    </div>
+    <div class="text-center">
+      {% url 'center_list_classroom' pk=center.pk as pager_url %}
+      {% if day.is_regular %}
+        {% day-regular-pager day pager_url %}
+      {% else %}
+        {% day-date-pager day pager_url %}
+      {% endif %}
+    </div>
 
+    <table class="table table-hover table-stripped table-bordered">
+      <thead><tr>
+        <th>Name</th>
+        <th>Staff</th>
+        <th>Unmet Need</th>
+      </tr></thead>
+      <tbody>
+      {% for classroom in list_classroom %}
+        <tr>
+          <td>{% icon classroom %} <a href="{% url 'classroom' pk=classroom.pk %}">{{ classroom|name }}</a></td>
+          <td>{% classroom-day-staff classroom day %}</td>
+          <td>{% classroom-day-unmet-need classroom day %}</td>
+        </tr>
+      {% endfor %}
+      </tbody>
+    </table>
   {% elif tab == 'list-staff' %}
     <table class="table table-hover table-stripped table-bordered">
       <caption>List of Staff</caption>
