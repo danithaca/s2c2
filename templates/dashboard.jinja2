@@ -69,7 +69,7 @@
             <td class="text-center"><ul class="list-inline">
               {% for offer in cell %}{# there should be only one availability #}
                 {% if offer.meet %}
-                  <li><a href="{% url 'slot:classroom' cid=offer.meet.need.location.pk %}?day={{ offer.meet.need.day.get_token }}">{% classroom-icon %} {{ offer.meet.need.location.name }}</a></li>
+                  <li><a href="{% url 'classroom' pk=offer.meet.need.location.pk %}?day={{ offer.meet.need.day.get_token }}">{% classroom-icon %} {{ offer.meet.need.location.name }}</a></li>
                 {% else %}
                   <li class="text-muted">-Available-</li>
                 {% endif %}

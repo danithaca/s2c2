@@ -1,4 +1,4 @@
-from collections import OrderedDict
+from collections import OrderedDict, defaultdict
 from datetime import time
 
 from django.db import models
@@ -83,6 +83,25 @@ class Classroom(Location):
             data.append(((start_time, end_time),
                          NeedSlot.objects.filter(day=day, location=self, start_time=start_time, end_time=end_time)))
         return data
+
+    # this is to get data for the dashboard
+    def get_week_table(self, day):
+        from slot.models import TimeToken, NeedSlot
+        weekday = day.expand_week()[:5]    # only take workdays
+        time_per_day = TimeToken.interval(time(7, 30), time(19))
+
+        data = defaultdict(lambda: defaultdict(list))
+        for need in NeedSlot.objects.filter(day__in=weekday, location=self):
+            data[need.day][need.start_time].append(need)
+
+        rows = []
+        for t in time_per_day:
+            row = []
+            for d in weekday:
+                row.append(data[d][t])  # append either [] of [need...] to row.
+            rows.append([t, row])
+
+        return {'header': weekday,  'rows_header': time_per_day, 'rows': rows}
 
     def get_unmet_table(self, day):
         """ return the table data to display staff availability based on classroom needs. """

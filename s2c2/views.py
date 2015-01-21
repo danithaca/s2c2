@@ -56,11 +56,13 @@ def classroom_home(request, pk):
         return defaults.permission_denied(request)
 
     classroom_staff = classroom.get_staff()
+    week_table_data = classroom.get_week_table(day)
 
     return TemplateResponse(request, template='classroom.jinja2', context={
         'classroom': classroom,
         'day': day,
-        'classroom_staff': classroom_staff
+        'classroom_staff': classroom_staff,
+        'week_table_data': week_table_data,
     })
 
 

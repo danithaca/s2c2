@@ -40,16 +40,31 @@
   <table class="table table-hover table-stripped table-bordered">
     <thead><tr>
       <th></th>
-      <th><a href="{% url 'slot:classroom' cid=classroom.pk%}?dow=0">Monday</a></th>
-      <th><a href="{% url 'slot:classroom' cid=classroom.pk%}?dow=1">Tuesday</a></th>
-      <th><a href="{% url 'slot:classroom' cid=classroom.pk%}?dow=2">Wednesday</a></th>
-      <th><a href="{% url 'slot:classroom' cid=classroom.pk%}?dow=3">Thursday</a></th>
-      <th><a href="{% url 'slot:classroom' cid=classroom.pk%}?dow=4">Friday</a></th>
+      {% for d in week_table_data.header %}
+        <th class="text-center"><a href="{% url 'slot:classroom' cid=classroom.pk %}?day={{ d.get_token }}">{% if d.is_regular %}{{ d.value|date:'l' }}{% else %}{{ d.value|date:'D, N d' }}{% endif %}</a></th>
+      {% endfor %}
     </tr></thead>
     <tbody>
-    <tr><th scope="row">9:00am~9:30am</th><td class="text-muted">Empty</td><td>Tracy | Charlene | Stacia</td><td></td><td></td><td></td></tr>
-    <tr><th scope="row">9:30am~10:00am</th><td class="text-muted">Empty</td><td></td><td></td><td>Tracy | Charlene | Stacia</td><td></td></tr>
-    <tr><th scope="row">10:00am~10:30am</th><td class="text-muted">Empty</td><td></td><td>Tracy | Charlene | Stacia</td><td></td><td>Tracy | Charlene | Stacia</td></tr>
+    {% for row_header, row_data in week_table_data.rows %}
+      <tr>
+        <th scope="row" class="text-center">{{ row_header.display_slice }}</th>
+        {% for cell in row_data%}
+          {% if cell %}
+            <td class="text-center"><ul class="list-inline">
+              {% for need in cell %}{# there should be only one availability #}
+                {% if need.meet %}
+                  <li><a href="{% url 'dashboard' uid=need.meet.offer.user.pk %}?day={{ need.meet.offer.day.get_token }}">{% icon 'user' %} {{ need.meet.offer.user|name }}</a></li>
+                {% else %}
+                  <li class="text-muted">-Empty-</li>
+                {% endif %}
+              {% endfor %}
+            </ul></td>
+          {% else %}
+            <td></td>
+          {% endif %}
+        {% endfor %}
+      </tr>
+    {% endfor %}
     </tbody>
   </table>
 {% endblock %}
