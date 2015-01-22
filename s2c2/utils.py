@@ -1,12 +1,11 @@
 import sys
+
 from django.http import HttpResponse
-from django.contrib.auth.models import User
-from s2c2.decorators import user_is_verified
+
 
 
 # @user_is_verified
 from slot.models import DayToken
-from user.models import UserProfile
 
 
 def dummy(request, message='Please override.'):

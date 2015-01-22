@@ -5,14 +5,14 @@
 
 {% block content %}
 <div class="panel panel-default">
-  <div class="panel-heading">Signup</div>
+  <div class="panel-heading">Sign up</div>
   <div class="panel-body">
     <form class="form-horizontal" role="form" method="post" action="{% url 'user:signup' %}">
       {% csrf_token %}
       {{ form|bootstrap_horizontal:'col-sm-4' }}
       <div class="form-group">
         <div class="col-sm-offset-4 col-sm-8">
-          <button type="submit" class="btn btn-primary">Signup</button>
+          <button type="submit" class="btn btn-primary">Sign up</button>
         </div>
       </div>
     </form>

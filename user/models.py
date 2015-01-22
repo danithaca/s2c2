@@ -19,11 +19,12 @@ class Profile(models.Model):
     address = models.CharField(max_length=200, blank=True)
     # phone_main = models.CharField(max_length=12)
     # phone_backup = models.CharField(max_length=12, blank=True)
-    phone_main = PhoneNumberField()
+    phone_main = PhoneNumberField(blank=True)
     phone_backup = PhoneNumberField(blank=True)
 
     # for center related stuff.
-    centers = models.ManyToManyField(Center, limit_choices_to={'status': True})
+    # fixme: should limit to centers in the same area as the user.
+    centers = models.ManyToManyField(Center, limit_choices_to={'status': True}, blank=True)
     verified = models.NullBooleanField()
     note = models.TextField(blank=True, null=True)
     picture = models.ImageField(upload_to='picture', blank=True, null=True)
@@ -106,6 +107,12 @@ class UserProfile(object):
         if self.has_profile() and hasattr(self.profile, attrib):
             return getattr(self.profile, attrib)
         return getattr(self.user, attrib)
+
+    def __eq__(self, other):
+        if isinstance(other, UserProfile):
+            return self.user == other.user
+        else:
+            return self.user.__eq__(other)
 
     def is_same_center(self, target):
         """

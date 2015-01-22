@@ -6,6 +6,7 @@ from django.contrib.auth.models import User, Group
 from django.core.urlresolvers import reverse
 from django.forms import ModelForm, RegexField, TextInput, CheckboxSelectMultiple, ChoiceField, Form, \
     MultipleChoiceField
+from django import forms
 from django.http import HttpResponseRedirect
 from django.shortcuts import render, redirect
 from django.utils.translation import ugettext_lazy as _
@@ -13,6 +14,7 @@ from django.views.generic import FormView
 from django.views.generic.detail import SingleObjectMixin
 from s2c2.decorators import user_is_center_manager, user_is_verified
 from s2c2.utils import dummy
+from s2c2.widgets import InlineCheckboxSelectMultiple
 
 from user.models import Profile, UserProfile
 
@@ -50,6 +52,7 @@ def signup_simple(request):
 
         def __init__(self, *args, **kwargs):
             super(SimpleSignupForm, self).__init__(*args, **kwargs)
+            # email is required to reset password, etc.
             self.fields['email'].required = True
 
         class Meta:
@@ -69,7 +72,7 @@ def signup_simple(request):
                 # requires authentication() first.
                 au = auth.authenticate(username=form.cleaned_data['username'], password=form.cleaned_data['password1'])
                 auth.login(request, au)
-                messages.success(request, 'Signup successful. Please edit your profile.')
+                messages.success(request, 'Sign up successful. Please edit your profile to get verification from the center\'s managers.')
 
             # this calls the default FormView::form_valid()
             return super(SignupView, self).form_valid(form)
@@ -193,7 +196,7 @@ def login(request):
     # extra_context={'next': '/'} is not needed since we have settings.LOGIN_REDIRECT_URL
     response = auth_views.login(request, template_name='user/login.jinja2', authentication_form=AuthenticationForm)
     if isinstance(response, HttpResponseRedirect):
-        messages.success(request, 'User %s logged in successfully.' % request.user.get_username())
+        # messages.success(request, 'User %s logged in successfully.' % request.user.get_username())
         # someday: allow user set REMEMBER_ME later.
         request.session.set_expiry(REMEMBER_ME_EXPIRY)
     return response
@@ -245,12 +248,15 @@ def edit(request):
         def __init__(self, *args, **kwargs):
             super(UserEditForm, self).__init__(*args, **kwargs)
             self.fields['email'].required = True
-            self.fields['first_name'].required = True
-            self.fields['last_name'].required = True
+            # self.fields['first_name'].required = True
+            # self.fields['last_name'].required = True
 
         class Meta:
             model = User
-            fields = ('first_name', 'last_name', 'email')
+            fields = ('email', 'first_name', 'last_name')
+            labels = {
+                'email': 'Email',
+            }
 
     class ProfileForm(ModelForm):
         required_css_class = 'required'
@@ -267,16 +273,28 @@ def edit(request):
         #     **_phone_field_options
         # )
 
-        role = ChoiceField(label='My role', required=True,
+        role = ChoiceField(label='My role', required=False,
                            choices=[('', '- Select -')] + [(g.pk, g.name) for g in Group.objects.all() if g.role.type_center is True])
 
         class Meta:
             model = Profile
             # todo: show "picture" and process it.
-            fields = ('phone_main', 'address', 'centers', 'role', 'note')
+            fields = ('phone_main', 'phone_backup', 'address', 'centers', 'role', 'note')
             widgets = {
-                'centers': CheckboxSelectMultiple()
+                'centers': InlineCheckboxSelectMultiple
                 # 'centers': Select()
+            }
+            help_texts = {
+                'centers': 'Select the children\'s center(s) your are affiliated with.',
+                'phone_main': 'The main phone number to contact you.',
+                'phone_backup': 'Optional backup phone number.',
+                'address': 'Your address may be needed for verification process.',
+            }
+            labels = {
+                'centers': 'Center Affiliation',
+                'phone_main': 'Primary phone',
+                'phone_backup': 'Backup phone',
+                'note': 'Personal note',
             }
 
     user_profile = UserProfile(request.user)

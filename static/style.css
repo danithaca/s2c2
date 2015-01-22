@@ -18,6 +18,8 @@ body {
 
 #page-error-message:empty { display: none; }
 
+.multiple-checkbox ul.list-inline li label { font-weight: normal; }
+
 /********************************* special settings for print **********************************/
 
 @media print {
