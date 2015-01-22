@@ -12,7 +12,7 @@ def dummy(request, message='Please override.'):
     # p = request.user_profile
     # message = 'User name: %s' % p.get_full_name()
     return HttpResponse(message)
-    # return render(request, 'snippet/command_form.jinja2')
+    # return render(request, 'snippet/command_form.html')
 
 
 def get_class(class_name):

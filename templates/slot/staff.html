@@ -1,0 +1,74 @@
+{% extends "base.html" %}
+{% load bootstrap %}
+{% load s2c2_tags %}
+
+{% block title %}{% if day.is_regular %}Staff Regular Schedule{% else %}Staff Schedule{% endif %} | S2C2{% endblock %}
+
+{% block page %}
+  <div class="page-header">
+    <h1>{% if day.is_regular %}Staff Template Schedule{% else %}Staff Daily Schedule{% endif %} <small>{% icon user_profile %} <a href="{% url 'dashboard' uid=user_profile.pk %}">{{ user_profile|name }}</a></small></h1>
+  </div>
+
+  <div class="row">
+    <div class="col-sm-6"><h2>{% if day.is_regular %}Every {{ day.value|date:'l' }}{% else %}{{ day.value|date:'F j, l' }}{% endif %}</h2></div>
+    <div class="col-sm-6"><ul class="nav-week pagination pull-right">
+      <li{% if day.is_regular %} class="disabled"{% endif %}><a href="?day={{ day.prev_week.get_token }}"><i class="fa fa-fast-backward"></i></a></li>
+      <li><a href="."><i class="fa fa-calendar"></i> Today</a></li>
+      <li><a href="?day={{ day.switch.get_token }}"><i class="fa fa-exchange"></i> Switch</a></li>
+      <li{% if day.is_regular %} class="disabled"{% endif %}><a href="?day={{ day.next_week.get_token }}"><i class="fa fa-fast-forward"></i></a></li>
+    </ul></div>
+  </div>
+  <div class="text-center">
+    {% url 'slot:staff' uid=user_profile.pk as pager_url %}
+    {% if day.is_regular %}
+      {% day-regular-pager day pager_url %}
+    {% else %}
+      {% day-date-pager day pager_url %}
+    {% endif %}
+  </div>
+
+  <div class="row">
+    <div class="col-sm-6">
+      <table class="table table-bordered table-hover table-striped table-condensed">
+        <thead><tr>
+          <th class="text-center">{% if day.is_regular %}{{ day.value|date:'l' }}{% else %}{{ day.value|date }}{% endif %}</th>
+          <th class="text-center">Availability and Assignment</th>
+        </tr></thead>
+        <tbody>
+        {% for r1, r2 in slot_table_data %}
+          <tr>
+            <th scope="row" class="text-center">{{ r1.0.value|time }} ~ {{ r1.1.value|time }}</th>
+            {% if r2.exists %}
+              <td class="text-center"><ul class="list-inline">
+                {% for offer in r2 %}{# there should be only one availability should be only one #}
+                  {% if offer.meet %}
+                    <li><a href="{% url 'slot:classroom' cid=offer.meet.need.location.pk %}?day={{ day.get_token }}">{% icon 'classroom' %} {{ offer.meet.need.location.name }}</a></li>
+                  {% else %}
+                    <li class="text-muted">-Available-</li>
+                  {% endif %}
+                {% endfor %}
+              </ul></td>
+            {% else %}
+              <td></td>
+            {% endif %}
+          </tr>
+        {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    <div class="col-sm-6">
+
+      <div class="panel-group" id="command-list">
+        {% include "slot/includes/command_form_view_classroom.html" with panel_data_parent="command-list" command_form_id="command-form-classroom" command_form_title="View classroom needs" %}
+        {% include "slot/includes/command_form_add_offer.html" with panel_data_parent="command-list" command_form_id="command-form-offer-add" command_form_title="Add availability" %}
+        {% include "slot/includes/command_form_delete_offer.html" with panel_data_parent="command-list" command_form_id="command-form-offer-delete" command_form_title="Delete availability" %}
+        {% if not day.is_regular %}
+          {% include "slot/includes/command_form_copy_staff.html" with panel_data_parent="command-list" command_form_id="command-form-copy" command_form_title="Copy from template" %}
+        {% endif %}
+        {% include "slot/includes/command_form_view_log.html" with panel_data_parent="command-list" command_form_id="command-form-view-log" command_form_title="View change log" command_form_collapse=True %}
+      </div>
+
+    </div>
+  </div>
+{% endblock %}
+

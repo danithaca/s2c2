@@ -1,0 +1,14 @@
+{% extends 'slot/command_form.html' %}
+{% load bootstrap %}
+
+{% block command_form_content %}
+  <form class="form-horizontal" role="form" method="post" action="{% url 'slot:need_add' cid=classroom.pk %}">
+    {% csrf_token %}
+    {{ command_form_need_add|bootstrap_horizontal:'col-sm-4' }}
+    <div class="form-group">
+      <div class="col-sm-offset-4 col-sm-8">
+        <button type="submit" class="btn btn-primary">Add</button>
+      </div>
+    </div>
+  </form>
+{% endblock %}

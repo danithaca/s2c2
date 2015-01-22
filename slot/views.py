@@ -47,7 +47,7 @@ def day_staff(request, uid=None):
 
     log_entries = Log.objects.filter(type=Log.OFFER_UPDATE, ref='%d,%s' % (user_profile.pk, day.get_token())).order_by('-updated')
 
-    return render(request, 'slot/staff.jinja2', {
+    return render(request, 'slot/staff.html', {
         'user_profile': user_profile,
         'day': day,
         'slot_table_data': slot_table_data,
@@ -147,7 +147,7 @@ def offer_add(request, uid):
         form = SlotForm()
 
     form_url = reverse('slot:offer_add', kwargs={'uid': uid})
-    return render(request, 'base_form.jinja2', {'form': form, 'form_url': form_url})
+    return render(request, 'base_form.html', {'form': form, 'form_url': form_url})
 
 
 @login_required
@@ -189,7 +189,7 @@ def offer_delete(request, uid):
         form = SlotForm()
 
     form_url = reverse('slot:offer_delete', kwargs={'uid': uid})
-    return render(request, 'base_form.jinja2', {'form': form, 'form_url': form_url})
+    return render(request, 'base_form.html', {'form': form, 'form_url': form_url})
 
 
 @login_required
@@ -223,7 +223,7 @@ def day_classroom(request, cid):
 
     log_entries = Log.objects.filter(type=Log.NEED_UPDATE, ref='%d,%s' % (classroom.pk, day.get_token())).order_by('-updated')
 
-    return TemplateResponse(request, template='slot/classroom.jinja2', context={
+    return TemplateResponse(request, template='slot/classroom.html', context={
         'classroom': classroom,
         'day': day,
         'command_form_need_add': command_form_need_add,
@@ -256,7 +256,7 @@ def need_add(request, cid):
         form = NeedSlotForm()
 
     form_url = reverse('slot:need_add', kwargs={'cid': cid})
-    return render(request, 'base_form.jinja2', {'form': form, 'form_url': form_url})
+    return render(request, 'base_form.html', {'form': form, 'form_url': form_url})
 
 
 @login_required
@@ -291,7 +291,7 @@ def need_delete(request, cid):
         form = SlotForm()
 
     form_url = reverse('slot:need_delete', kwargs={'cid': cid})
-    return render(request, 'base_form.jinja2', {'form': form, 'form_url': form_url})
+    return render(request, 'base_form.html', {'form': form, 'form_url': form_url})
 
 
 # @user_is_center_manager
@@ -357,7 +357,7 @@ def assign(request, need_id):
     form.fields['offer'].widget.choices = choices
 
     context['form'] = form if len(choices) > 1 else None
-    return render(request, 'slot/assign.jinja2', context)
+    return render(request, 'slot/assign.html', context)
 
 
 @login_required
@@ -378,7 +378,7 @@ def staff_copy(request, uid):
         form = DayForm()
 
     form_url = reverse('slot:staff_copy', kwargs={'uid': uid})
-    return render(request, 'base_form.jinja2', {'form': form, 'form_url': form_url})
+    return render(request, 'base_form.html', {'form': form, 'form_url': form_url})
 
 
 @login_required
@@ -400,4 +400,4 @@ def classroom_copy(request, cid):
         form = DayForm()
 
     form_url = reverse('slot:classroom_copy', kwargs={'cid': cid})
-    return render(request, 'base_form.jinja2', {'form': form, 'form_url': form_url})
+    return render(request, 'base_form.html', {'form': form, 'form_url': form_url})

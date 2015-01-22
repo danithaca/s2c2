@@ -60,7 +60,7 @@ def signup_simple(request):
             fields = ('invitation_code', "username", 'password1', 'password2', 'email')
 
     class SignupView(FormView):
-        template_name = 'user/signup_simple.jinja2'
+        template_name = 'user/signup_simple.html'
         form_class = SimpleSignupForm
         success_url = reverse('user:edit')
 
@@ -136,7 +136,7 @@ def signup_simple(request):
 #     else:
 #         form_user = UserForm()
 #         form_staff = ProfileForm()
-#     return render(request, 'user/signup_full.jinja2', {'form_user': form_user, 'form_staff': form_staff})
+#     return render(request, 'user/signup_full.html', {'form_user': form_user, 'form_staff': form_staff})
 
 
 # def signup(request):
@@ -179,7 +179,7 @@ def signup_simple(request):
 #             }
 #
 #     class SignupView(FormView):
-#         template_name = 'user/signup.jinja2'
+#         template_name = 'user/signup.html'
 #         form_class = CenterStaffFrom
 #         success_url = '/'
 #
@@ -194,7 +194,7 @@ def signup_simple(request):
 
 def login(request):
     # extra_context={'next': '/'} is not needed since we have settings.LOGIN_REDIRECT_URL
-    response = auth_views.login(request, template_name='user/login.jinja2', authentication_form=AuthenticationForm)
+    response = auth_views.login(request, template_name='user/login.html', authentication_form=AuthenticationForm)
     if isinstance(response, HttpResponseRedirect):
         # messages.success(request, 'User %s logged in successfully.' % request.user.get_username())
         # someday: allow user set REMEMBER_ME later.
@@ -211,7 +211,7 @@ def login(request):
 @login_required
 def logout(request):
     username = request.user.get_username() if request.user.is_authenticated() else None
-    response = auth_views.logout(request, template_name='user/logout.jinja2', next_page='/')
+    response = auth_views.logout(request, template_name='user/logout.html', next_page='/')
     if username is not None and request.user.is_anonymous():
         messages.success(request, 'User %s logged out successfully.' % username)
     return response
@@ -233,7 +233,7 @@ def logout(request):
 #     class EditView(UpdateView):
 #         model = FullUser
 #         fields = ('first_name', 'last_name', 'email', 'phone_main', 'address', 'centers')
-#         template_name = 'user/edit.jinja2'
+#         template_name = 'user/edit.html'
 #         success_url = '/'
 #
 #     edit_user = request.user
@@ -322,17 +322,17 @@ def edit(request):
         form_user = UserEditForm(instance=user_profile.user)
         form_profile = ProfileForm(instance=user_profile.profile)
 
-    return render(request, 'user/edit.jinja2', {'form_user': form_user, 'form_profile': form_profile})
+    return render(request, 'user/edit.html', {'form_user': form_user, 'form_profile': form_profile})
 
 
 def password_reset(request):
     redirect_url = '/'
     try:
         response = auth_views.password_reset(request,
-            template_name='user/password_reset.jinja2',
+            template_name='user/password_reset.html',
             post_reset_redirect=redirect_url,
-            email_template_name='user/email/password_reset_email.jinja2',
-            subject_template_name='user/email/password_reset_subject.jinja2'
+            email_template_name='user/email/password_reset_email.html',
+            subject_template_name='user/email/password_reset_subject.html'
         )
         # note: auth.views.password_reset() doesn't tell you if the email exists or not for security reasons.
         if isinstance(response, HttpResponseRedirect):
@@ -346,7 +346,7 @@ def password_reset(request):
 
 def password_reset_confirm(request, uidb64, token):
     response = auth_views.password_reset_confirm(request,  uidb64=uidb64, token=token,
-        template_name='user/password_reset_confirm.jinja2', post_reset_redirect=reverse('login'))
+        template_name='user/password_reset_confirm.html', post_reset_redirect=reverse('login'))
     if isinstance(response, HttpResponseRedirect):
         messages.success(request, 'Password reset successfully. Please login using your new password.')
     return response
@@ -356,7 +356,7 @@ def password_reset_confirm(request, uidb64, token):
 def password_change(request):
     redirect_url = '/'
     response = auth_views.password_change(request,
-        template_name='user/password_change.jinja2',
+        template_name='user/password_change.html',
         post_change_redirect=redirect_url)
     if isinstance(response, HttpResponseRedirect):
         messages.success(request, 'Your password has changed successfully.')
@@ -376,7 +376,7 @@ def verify(request, *args, **kwargs):
         users = MultipleChoiceField(label='Users to verify', choices=[(u.pk, u.get_full_name() or u.username) for u in unverified])
 
     class VerifyView(FormView):
-        template_name = 'base_form.jinja2'
+        template_name = 'base_form.html'
         form_class = VerifyForm
         # success_url = reverse('user:verify')
         success_url = request.META['HTTP_REFERER'] if 'HTTP_REFERER' in request.META else reverse('user:verify')

@@ -16,9 +16,9 @@ from user.models import UserProfile, CenterStaff, GroupRole
 
 def home(request):
     # username = request.user.get_username() if request.user.is_authenticated() else str(request.user)
-    # return render(request, 'home.jinja2', {'username': username})
+    # return render(request, 'home.html', {'username': username})
     if request.user.is_anonymous():
-        return render(request, 'home.jinja2', {'form': AuthenticationForm()})
+        return render(request, 'home.html', {'form': AuthenticationForm()})
     else:
         return redirect('dashboard')
 
@@ -54,7 +54,7 @@ def dashboard(request, uid=None):
             users = forms.IntegerField(widget=forms.HiddenInput, initial=user_profile.pk)
         context['verify_form'] = VerifyForm()
 
-    return TemplateResponse(request, template='dashboard.jinja2', context=context)
+    return TemplateResponse(request, template='dashboard.html', context=context)
 
 
 @login_required
@@ -70,7 +70,7 @@ def classroom_home(request, pk):
     classroom_staff = classroom.get_staff()
     week_table_data = classroom.get_week_table(day)
 
-    return TemplateResponse(request, template='classroom.jinja2', context={
+    return TemplateResponse(request, template='classroom.html', context={
         'classroom': classroom,
         'day': day,
         'classroom_staff': classroom_staff,
@@ -83,7 +83,7 @@ def classroom_home(request, pk):
 def notification(request):
 
     class NotificationView(ListView):
-        template_name = 'notification.jinja2'
+        template_name = 'notification.html'
         context_object_name = 'latest_notification'
         # see http://stackoverflow.com/questions/11494483/django-class-based-view-how-do-i-pass-additional-parameters-to-the-as-view-meth
         user = None
@@ -137,4 +137,4 @@ def center_home(request, pk, tab='directory'):
     else:
         assert False
 
-    return render(request, 'center.jinja2', context)
+    return render(request, 'center.html', context)

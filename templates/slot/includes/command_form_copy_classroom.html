@@ -1,0 +1,18 @@
+{% extends 'slot/command_form.html' %}
+{% load bootstrap %}
+
+{% block command_form_content %}
+  <form class="form-horizontal" role="form" method="post" action="{% url 'slot:classroom_copy' cid=classroom.pk %}">
+    {% csrf_token %}
+    {{ command_form_copy|bootstrap_horizontal:'col-sm-4' }}
+    <div class="form-group">
+      <div class="col-sm-12">
+        <button type="submit" class="btn btn-primary">Copy</button>
+      </div>
+    </div>
+    <ul class="help-block">
+      <li>The target day's schedule will be deleted before copying from template.</li>
+      <li>Staff assignment will be copied regardless of whether or not the staff is available.</li>
+    </ul>
+  </form>
+{% endblock %}

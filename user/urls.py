@@ -13,12 +13,12 @@ urlpatterns = patterns(
     url(r'^verify/$', user.views.verify, name='verify'),
 
     # url(r'^password/change/$', 'django.contrib.auth.views.password_change', {
-    #     'template_name': 'user/password_change.jinja2',
+    #     'template_name': 'user/password_change.html',
     #     'post_change_redirect': '/'
     # }, name='password_change'),
 
     # url(r'^password/reset/$', 'django.contrib.auth.views.password_reset', {
-    #     'template_name': 'user/password_reset.jinja2',
+    #     'template_name': 'user/password_reset.html',
     #     'post_reset_redirect': reverse_lazy('user:login')
     # }, name='password_reset'),
 
