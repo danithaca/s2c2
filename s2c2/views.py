@@ -5,6 +5,7 @@ from django.contrib.auth.forms import AuthenticationForm
 from django.template.response import TemplateResponse
 from django.views.generic import ListView
 from django.views import defaults
+from django import forms
 
 from location.models import Classroom, Center
 from log.models import Notification
@@ -25,10 +26,11 @@ def home(request):
 @login_required
 def dashboard(request, uid=None):
     user_profile = UserProfile.get_by_id_default(uid, request.user)
+    current_user_profile = UserProfile(request.user)
 
     # check permission:
     # we only allow view different user's profile if the viewing user is verified and belongs to the same center as the viewed user.
-    if user_profile.user != request.user and (not UserProfile(request.user).is_verified() or not user_profile.is_same_center(request.user)):
+    if user_profile != current_user_profile and (not current_user_profile.is_verified() or not user_profile.is_same_center(current_user_profile)):
         return defaults.permission_denied(request)
 
     day = get_request_day(request)
@@ -41,6 +43,16 @@ def dashboard(request, uid=None):
     if user_profile.is_center_staff():
         context['week_table_data'] = user_profile.get_week_table(day)
         context['week_hours'] = user_profile.get_week_hours(day)
+
+    if user_profile != current_user_profile and current_user_profile.is_center_manager() \
+            and current_user_profile.is_verified() and not user_profile.is_verified() \
+            and current_user_profile.is_same_center(user_profile):
+        # then we allow verify form
+        # this form is similar to user:verify()::VerifyForm, but we use IntegerField instead.
+        # note that user:verify()::VerifyForm will validate the data using MultipleChoicesField.
+        class VerifyForm(forms.Form):
+            users = forms.IntegerField(widget=forms.HiddenInput, initial=user_profile.pk)
+        context['verify_form'] = VerifyForm()
 
     return TemplateResponse(request, template='dashboard.jinja2', context=context)
 

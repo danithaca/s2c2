@@ -362,15 +362,8 @@ class OfferSlot(Slot):
 
     @staticmethod
     def get_unmet_slot_owner_id(day, start_time):
+        # fixme: need to filter by center
         return OfferSlot.objects.filter(day=day, start_time=start_time, end_time=start_time.get_next(), meet__isnull=True).values_list('user_id', flat=True).distinct()
-
-    # @staticmethod
-    # def get_staff_id_list(start_dow, start_time):
-    #     # fixme: need to support "center" relationship too.
-    #     return OfferSlot.objects \
-    #         .filter(start_dow=start_dow, start_time=start_time, end_time=HalfHourTime.next(start_time)) \
-    #         .exclude(meetregular__status=MeetSlot.MAIN) \
-    #         .values_list('user_id', flat=True).distinct()
 
     def __str__(self):
         return '%s: %s %s ~ %s' % (self.user.username, self.day.get_token(), self.start_time.display(), self.end_time.display())
@@ -419,6 +412,7 @@ class NeedSlot(Slot):
 
     @staticmethod
     def get_unmet_slot_owner_id(day, start_time):
+        # fixme: need to filter by center
         return NeedSlot.objects.filter(day=day, start_time=start_time, end_time=start_time.get_next(), meet__isnull=True).values_list('location_id', flat=True).distinct()
 
     @staticmethod

@@ -4,6 +4,7 @@ from django.contrib.auth.admin import UserAdmin, GroupAdmin
 from django.contrib.auth.models import User, Group
 
 from user import models
+from user.models import UserProfile
 
 
 class UserProfileAdmin(UserAdmin):
@@ -24,7 +25,12 @@ class UserProfileAdmin(UserAdmin):
         else:
             return '- None -'
 
-    list_display = ('username', 'email', 'full_name', 'roles', 'is_active', 'is_staff')
+    def verified(self, user):
+        u = UserProfile(user)
+        return u.is_verified()
+    verified.boolean = True
+
+    list_display = ('username', 'email', 'full_name', 'roles', 'verified', 'is_active', 'is_staff')
 
     class MissingProfileFilter(SimpleListFilter):
         title = 'missing profile'

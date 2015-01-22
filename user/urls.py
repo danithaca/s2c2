@@ -10,6 +10,7 @@ urlpatterns = patterns(
     # url(r'^signup_simple/$', user.views.signup_simple, name='signup_simple'),
     url(r'^edit/$', user.views.edit, name='edit'),
 
+    url(r'^verify/$', user.views.verify, name='verify'),
 
     # url(r'^password/change/$', 'django.contrib.auth.views.password_change', {
     #     'template_name': 'user/password_change.jinja2',

@@ -4,12 +4,15 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
 from django.contrib.auth.models import User, Group
 from django.core.urlresolvers import reverse
-from django.forms import ModelForm, RegexField, TextInput, CheckboxSelectMultiple, ChoiceField
+from django.forms import ModelForm, RegexField, TextInput, CheckboxSelectMultiple, ChoiceField, Form, \
+    MultipleChoiceField
 from django.http import HttpResponseRedirect
 from django.shortcuts import render, redirect
 from django.utils.translation import ugettext_lazy as _
 from django.views.generic import FormView
 from django.views.generic.detail import SingleObjectMixin
+from s2c2.decorators import user_is_center_manager, user_is_verified
+from s2c2.utils import dummy
 
 from user.models import Profile, UserProfile
 
@@ -340,3 +343,36 @@ def password_change(request):
     if isinstance(response, HttpResponseRedirect):
         messages.success(request, 'Your password has changed successfully.')
     return response
+
+
+@user_is_verified
+@user_is_center_manager
+@login_required
+def verify(request, *args, **kwargs):
+    unverified = User.objects.filter(profile__verified__isnull=True, profile__centers__in=request.user.profile.centers.all())
+
+    # VerifyForm is created at both GET and POST. there's no guarantee that "choices" are the same in between
+    # Therefore, POST might complain "invalid" form if choices from "GET" is not in choices from "POST".
+    # A solution is to use
+    class VerifyForm(Form):
+        users = MultipleChoiceField(label='Users to verify', choices=[(u.pk, u.get_full_name() or u.username) for u in unverified])
+
+    class VerifyView(FormView):
+        template_name = 'base_form.jinja2'
+        form_class = VerifyForm
+        # success_url = reverse('user:verify')
+        success_url = request.META['HTTP_REFERER'] if 'HTTP_REFERER' in request.META else reverse('user:verify')
+
+        def form_valid(self, form):
+            verified_list = []
+            for uid in form.cleaned_data['users']:
+                p = UserProfile.get_by_id(uid)
+                # we only process the case when the user has a profile, which is assumed true because of center affiliation
+                if not p.is_verified() and p.has_profile():
+                    p.profile.verified = True
+                    p.profile.save()
+                    verified_list.append(p)
+            messages.success(request, 'Successfully verified: %s' % ', '.join([p.get_full_name() or p.username for p in verified_list]))
+            return super(VerifyView, self).form_valid(form)
+
+    return VerifyView.as_view()(request, *args, **kwargs)
