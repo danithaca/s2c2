@@ -28,7 +28,6 @@
   <div class="row">
     <div class="col-sm-6">
       <div class="panel panel-default">
-        <div class="panel-heading"><strong>Basic</strong></div>
         <div class="panel-body">
           <div class="row">
             <div class="col-sm-4"><img src="{% user_picture_url user_profile %}" class="img-circle img-responsive"></div>
@@ -57,9 +56,8 @@
     </div>
     <div class="col-sm-6">
       <div class="panel panel-default">
-        <div class="panel-heading"><strong>Personal Note</strong></div>
         <div class="panel-body">
-          <span{% if not user_profile.note %} class="text-muted"{% endif %}>{{ user_profile.note|default:'-None-' }}</span>
+          <strong>Personal note: </strong><span{% if not user_profile.note %} class="text-muted"{% endif %}>{{ user_profile.note|default:'-None-' }}</span>
         </div>
       </div>
     </div>
