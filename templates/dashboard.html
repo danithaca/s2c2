@@ -40,6 +40,7 @@
     <tr><th scope="row">Email</th><td><ul class="list-inline">
       <li><i class="fa fa-envelope"></i> {{ user_profile.email }}</li>
     </ul></td></tr>
+    {% if user_profile.address %}<tr><th scope="row">Address</th><td><ul class="list-inline"><li>{{ user_profile.address }}</li></ul></td></tr>{% endif %}
     <tr><th scope="row">Personal Note</th><td{% if not user_profile.note %} class="text-muted"{% endif %}>{{ user_profile.note|default:'-None-' }}</td></tr>
   </table>
 {% endblock %}

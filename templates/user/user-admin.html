@@ -1,20 +1,13 @@
 {% extends "base.html" %}
 {% load s2c2_tags %}
 
-{% block extra_header %}{% verbatim %}
-  <script src="http://firstopinion.github.io/formatter.js/javascripts/formatter.min.js" type="text/javascript"></script>
-  <script type="text/javascript">
-    $(document).ready(function() {
-      // this will copy the same links to user admin sidebar.
-      $('nav.navbar li.user-admin ul li>a').clone().addClass('list-group-item').appendTo('div.user-admin-sidebar');
-
-      // for edit page only. use phone formatter
-      new Formatter(document.getElementById('id_phone_main'), {
-        'pattern': "{{999}}-{{999}}-{{9999}}",
-        'persistent': true,
-      });
-    });
-  </script>
+{% block extra_header %}{% block more_header %}{% endblock %}{% verbatim %}
+<script type="text/javascript">
+  $(document).ready(function() {
+    // this will copy the same links to user admin sidebar.
+    $('nav.navbar li.user-admin ul li>a').clone().addClass('list-group-item').appendTo('div.user-admin-sidebar');
+  });
+</script>
 {% endverbatim %}{% endblock %}
 
 {% block page %}

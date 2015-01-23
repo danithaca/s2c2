@@ -14,9 +14,9 @@ from django.views.generic import FormView
 from django.views.generic.detail import SingleObjectMixin
 from s2c2.decorators import user_is_center_manager, user_is_verified
 from s2c2.utils import dummy
-from s2c2.widgets import InlineCheckboxSelectMultiple
+from s2c2.widgets import InlineCheckboxSelectMultiple, USPhoneNumberWidget
 
-from user.models import Profile, UserProfile
+from user.models import Profile, UserProfile, GroupRole
 
 
 # keep session open for 3 days.
@@ -242,6 +242,10 @@ def logout(request):
 
 @login_required
 def edit(request):
+    user_profile = UserProfile(request.user)
+    gr = user_profile.get_center_role()
+    role_initial_id = gr.group.pk if gr is not None else 0
+
     class UserEditForm(ModelForm):
         required_css_class = 'required'
 
@@ -273,21 +277,24 @@ def edit(request):
         #     **_phone_field_options
         # )
 
-        role = ChoiceField(label='My role', required=False,
-                           choices=[('', '- Select -')] + [(g.pk, g.name) for g in Group.objects.all() if g.role.type_center is True])
+        role = forms.TypedChoiceField(label='Employment role', required=False, coerce=int, empty_value=0,
+                                      choices=GroupRole.get_center_roles_choices(), initial=role_initial_id,
+                                      help_text='Please select your role with the center. Changing role needs verification from the managers.')
 
         class Meta:
             model = Profile
             # todo: show "picture" and process it.
             fields = ('phone_main', 'phone_backup', 'address', 'centers', 'role', 'note')
             widgets = {
-                'centers': InlineCheckboxSelectMultiple
+                'centers': InlineCheckboxSelectMultiple,
+                'phone_main': USPhoneNumberWidget,
+                'phone_backup': USPhoneNumberWidget,
                 # 'centers': Select()
             }
             help_texts = {
                 'centers': 'Select the children\'s center(s) your are affiliated with.',
-                'phone_main': 'The main phone number to contact you.',
-                'phone_backup': 'Optional backup phone number.',
+                'phone_main': 'The main phone number to contact you. E.g. 734-123-1234.',
+                'phone_backup': 'Optional backup phone number. E.g. 734-123-1234.',
                 'address': 'Your address may be needed for verification process.',
             }
             labels = {
@@ -296,8 +303,6 @@ def edit(request):
                 'phone_backup': 'Backup phone',
                 'note': 'Personal note',
             }
-
-    user_profile = UserProfile(request.user)
 
     if request.method == 'POST':
         form_user = UserEditForm(request.POST, instance=user_profile.user)
@@ -308,9 +313,26 @@ def edit(request):
                 form_user.save()
 
             if form_profile.has_changed():
+                # handle role changes.
+                role_new_id = form_profile.cleaned_data['role']
+                if role_new_id != role_initial_id:
+                    # first, remove original group.
+                    try:
+                        Group.objects.get(pk=role_initial_id).user_set.remove(user_profile.user)
+                    except Group.DoesNotExist:
+                        pass
+                    # add new group if needed
+                    try:
+                        Group.objects.get(pk=role_new_id).user_set.add(user_profile.user)
+                    except Group.DoesNotExist:
+                        pass
+                    # changing role requires verification again.
+                    form_profile.instance.verified = None
+
                 if not user_profile.has_profile():
                     # assign the correct user instance to create a new Profile instance.
                     form_profile.instance.user = user_profile.user
+
                 form_profile.save()
 
             if form_user.has_changed() or form_profile.has_changed():
@@ -322,7 +344,7 @@ def edit(request):
         form_user = UserEditForm(instance=user_profile.user)
         form_profile = ProfileForm(instance=user_profile.profile)
 
-    return render(request, 'user/edit.html', {'form_user': form_user, 'form_profile': form_profile})
+    return render(request, 'user/edit.html', {'user_profile': user_profile, 'form_user': form_user, 'form_profile': form_profile})
 
 
 def password_reset(request):

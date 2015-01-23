@@ -133,6 +133,12 @@ class UserProfile(object):
     def display_role(self):
         return ', '.join(self.user.groups.values_list('name', flat=True))
 
+    def get_center_role(self):
+        # use this instead of "user.groups" because we want to do ordering and filtering.
+        # ordering is automatically by 'id' using last(). the last 'id' is the most recent role assignment.
+        g = Group.objects.filter(user=self.user, role__type_center=True).last()
+        return GroupRole(g) if g is not None else None
+
 
 class CenterStaff(UserProfile):
     """ Provide additional functions if the user is a center staff. """
@@ -248,4 +254,8 @@ class GroupRole(object):
     def get_center_manager_role_id_set():
         center_manager_role_id_set = set(Role.objects.filter(machine_name='manager').values_list('pk', flat=True))
         return center_manager_role_id_set
+
+    @staticmethod
+    def get_center_roles_choices():
+        return [(0, '- Select -')] + [(g.pk, g.name) for g in Group.objects.filter(role__type_center=True).order_by('id')]
 

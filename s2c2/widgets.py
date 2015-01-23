@@ -1,4 +1,4 @@
-from django.forms import CheckboxSelectMultiple
+from django.forms import CheckboxSelectMultiple, widgets
 from django.forms.widgets import ChoiceFieldRenderer, CheckboxFieldRenderer
 from django.utils.encoding import force_text
 from django.utils.html import format_html
@@ -40,3 +40,19 @@ class InlineCheckboxFieldRenderer(CheckboxFieldRenderer):
 
 class InlineCheckboxSelectMultiple(CheckboxSelectMultiple):
     renderer = InlineCheckboxFieldRenderer
+
+
+class USPhoneNumberWidget(widgets.TextInput):
+
+    def __init__(self, attrs=None):
+        if attrs is not None:
+            if 'class' in attrs and len(attrs['class']) > 0:
+                attrs['class'] += ' phone-number'
+            else:
+                attrs['class'] = 'phone-number'
+        else:
+            attrs = {'class': 'phone-number'}
+        super(USPhoneNumberWidget, self).__init__(attrs)
+
+    class Media:
+        js = (r'http://firstopinion.github.io/formatter.js/javascripts/formatter.min.js', 'phone_number_widget.js')
