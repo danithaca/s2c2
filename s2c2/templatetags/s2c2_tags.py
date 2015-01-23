@@ -3,6 +3,8 @@ import warnings
 from django import template
 from django.contrib.auth.models import User
 from django.utils.dateformat import format
+from image_cropping.templatetags.cropping import cropped_thumbnail
+from django.templatetags.static import static
 
 from log.models import Notification, Log
 from slot.models import DayToken
@@ -129,3 +131,12 @@ def show_notification_message(notification):
     # todo: add nicer display
     if notification.log.type == Log.OFFER_UPDATE:
         return 'Offer updated.'
+
+
+@register.simple_tag(takes_context=True)
+def user_picture_url(context, user_profile, **kwargs):
+    assert isinstance(user_profile, UserProfile)
+    if user_profile.has_picture():
+        return cropped_thumbnail(context, user_profile.profile, 'picture_cropping', **kwargs)
+    else:
+        return static('user_200x200.png')

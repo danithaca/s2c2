@@ -10,7 +10,7 @@ from django import forms
 from django.http import HttpResponseRedirect
 from django.shortcuts import render, redirect
 from django.utils.translation import ugettext_lazy as _
-from django.views.generic import FormView
+from django.views.generic import FormView, UpdateView
 from django.views.generic.detail import SingleObjectMixin
 from s2c2.decorators import user_is_center_manager, user_is_verified
 from s2c2.utils import dummy
@@ -284,7 +284,7 @@ def edit(request):
         class Meta:
             model = Profile
             # todo: show "picture" and process it.
-            fields = ('phone_main', 'phone_backup', 'address', 'centers', 'role', 'note', 'picture_original', 'picture_cropping')
+            fields = ('phone_main', 'phone_backup', 'address', 'centers', 'role', 'note')
             widgets = {
                 'centers': InlineCheckboxSelectMultiple,
                 'phone_main': USPhoneNumberWidget,
@@ -296,15 +296,15 @@ def edit(request):
                 'phone_main': 'The main phone number to contact you. E.g. 734-123-1234.',
                 'phone_backup': 'Optional backup phone number. E.g. 734-123-1234.',
                 'address': 'Your address may be needed for verification process.',
-                'picture_original': 'Upload your picture. After uploading, please choose which part of the picture to show in "Preview" below.',
+                # 'picture_original': 'Upload your picture. After uploading, please choose which part of the picture to show in "Preview" below.',
             }
             labels = {
                 'centers': 'Center Affiliation',
                 'phone_main': 'Primary phone',
                 'phone_backup': 'Backup phone',
                 'note': 'Personal note',
-                'picture_original': 'Picture upload',
-                'picture_cropping': 'Picture preview'
+                # 'picture_original': 'Picture upload',
+                # 'picture_cropping': 'Picture preview'
             }
 
     if request.method == 'POST':
@@ -419,3 +419,36 @@ def verify(request, *args, **kwargs):
             return super(VerifyView, self).form_valid(form)
 
     return VerifyView.as_view()(request, *args, **kwargs)
+
+
+@login_required
+def picture(request):
+    user_profile = UserProfile(request.user)
+
+    class PictureForm(ModelForm):
+        class Meta:
+            model = Profile
+            fields = ('picture_original', 'picture_cropping')
+            help_texts = {
+                'picture_original': 'Upload your picture. After uploading, please choose which part of the picture to show in "Preview" below.',
+            }
+            labels = {
+                'picture_original': 'Picture upload',
+                'picture_cropping': 'Picture preview'
+            }
+
+    if request.method == 'POST':
+        form = PictureForm(request.POST, request.FILES, instance=user_profile.profile)
+        if form.is_valid():
+            if form.has_changed():
+                if not user_profile.has_profile():
+                    form_profile.instance.user = user_profile.user
+                form.save()
+                messages.success(request, 'Picture updated.')
+            else:
+                messages.warning(request, 'Nothing has updated.')
+            return redirect('user:picture')
+    else:
+        form = PictureForm(instance=user_profile.profile)
+
+    return render(request, 'user/picture.html', {'user_profile': user_profile, 'form': form})
