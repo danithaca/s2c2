@@ -25,25 +25,45 @@
 {#{% block page-error-message %}{% if not user_profile.is_verified %}The account {{ user.username|default:'N/A' }} is not verified.{% endif %}{% endblock %}#}
 
 {% block page-summary %}
-  <img src="{% user_picture_url user_profile %}" class="img-circle">
-  <table class="table table-condensed table-hover">
-    <tr><th scope="row">Center{{ user_profile.centers.all|pluralize }}</th><td><ul class="list-inline">
-      {% for center in user_profile.centers.all %}
-        <li><a href="{% url 'center' pk=center.pk %}">{% icon center %} {{ center|name }}</a></li>
-      {% empty %}
-        <li class="text-muted">-None-</li>
-      {% endfor %}
-    </ul></td></tr>
-    <tr><th scope="row">Phone</th><td><ul class="list-inline">
-      <li>{% if user_profile.phone_main %}<i class="fa fa-phone"></i> {{ user_profile.phone_main }}{% else %}<span class="text-muted">-None-</span>{% endif %}</li>
-      {% if user_profile.phone_backup %}<li><i class="fa fa-phone"></i> {{ user_profile.phone_backup }}</li>{% endif %}
-    </ul></td></tr>
-    <tr><th scope="row">Email</th><td><ul class="list-inline">
-      <li><i class="fa fa-envelope"></i> {{ user_profile.email }}</li>
-    </ul></td></tr>
-    {% if user_profile.address %}<tr><th scope="row">Address</th><td><ul class="list-inline"><li>{{ user_profile.address }}</li></ul></td></tr>{% endif %}
-    <tr><th scope="row">Personal Note</th><td{% if not user_profile.note %} class="text-muted"{% endif %}>{{ user_profile.note|default:'-None-' }}</td></tr>
-  </table>
+  <div class="row">
+    <div class="col-sm-6">
+      <div class="panel panel-default">
+        <div class="panel-heading"><strong>Basic</strong></div>
+        <div class="panel-body">
+          <div class="row">
+            <div class="col-sm-4"><img src="{% user_picture_url user_profile %}" class="img-circle img-responsive"></div>
+            <div class="col-sm-8">
+              <table class="table table-condensed">
+                <tr><th scope="row">Center{{ user_profile.centers.all|pluralize }}</th><td><ul class="list-inline">
+                  {% for center in user_profile.centers.all %}
+                    <li><a href="{% url 'center' pk=center.pk %}">{% icon center %} {{ center|name }}</a></li>
+                  {% empty %}
+                    <li class="text-muted">-None-</li>
+                  {% endfor %}
+                </ul></td></tr>
+                <tr><th scope="row">Phone</th><td><ul class="list-inline">
+                  <li>{% if user_profile.phone_main %}<i class="fa fa-phone"></i> {{ user_profile.phone_main }}{% else %}<span class="text-muted">-None-</span>{% endif %}</li>
+                  {% if user_profile.phone_backup %}<li><i class="fa fa-phone"></i> {{ user_profile.phone_backup }}</li>{% endif %}
+                </ul></td></tr>
+                <tr><th scope="row">Email</th><td><ul class="list-inline">
+                  <li><i class="fa fa-envelope"></i> {{ user_profile.email }}</li>
+                </ul></td></tr>
+                {% if user_profile.address %}<tr><th scope="row">Address</th><td><ul class="list-inline"><li>{{ user_profile.address }}</li></ul></td></tr>{% endif %}
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="col-sm-6">
+      <div class="panel panel-default">
+        <div class="panel-heading"><strong>Personal Note</strong></div>
+        <div class="panel-body">
+          <span{% if not user_profile.note %} class="text-muted"{% endif %}>{{ user_profile.note|default:'-None-' }}</span>
+        </div>
+      </div>
+    </div>
+  </div>
 {% endblock %}
 
 {% block page-content %}
