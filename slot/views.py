@@ -2,6 +2,7 @@ from datetime import time
 
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
+from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse
 from django.views import defaults
 from django.shortcuts import render, redirect, get_object_or_404
@@ -12,7 +13,7 @@ from location.models import Classroom
 from log.models import Log, log_offer_update, log_need_update
 from s2c2.utils import get_request_day
 from user.models import UserProfile
-from .models import DayToken, TimeToken, OfferSlot, NeedSlot, Meet
+from .models import DayToken, TimeToken, OfferSlot, NeedSlot, Meet, TimeSlot
 
 
 @login_required
@@ -139,7 +140,7 @@ def offer_add(request, uid):
             if len(added_time) == 0:
                 messages.warning(request, 'All specified slots are already added. No slot is added again.')
             else:
-                messages.success(request, 'Added slot(s): %s' % ', '.join([t.display_slice() for t in added_time]))
+                messages.success(request, 'Added slot(s): %s' % ', '.join([t.display() for t in TimeSlot.combine(added_time)]))
                 log_offer_update(request.user, user_profile.user, day, 'added slot(s)')
             return redirect(request.GET.get('next', request.META['HTTP_REFERER']))
 
@@ -181,7 +182,7 @@ def offer_delete(request, uid):
                 if len(deleted_time) == 0:
                     messages.warning(request, 'No available time slot is in the specified time period to delete.')
                 else:
-                    messages.success(request, 'Deleted slot(s): %s' % ', '.join([t.display_slice() for t in deleted_time]))
+                    messages.success(request, 'Deleted slot(s): %s' % ', '.join([t.display() for t in TimeSlot.combine(deleted_time)]))
                     log_offer_update(request.user, user_profile.user, day, 'deleted slot(s)')
             return redirect(request.GET.get('next', request.META['HTTP_REFERER']))
 
@@ -206,7 +207,7 @@ def day_classroom(request, cid):
     slot_table_data = classroom.get_slot_table(day)
     unmet_table_data = classroom.get_unmet_table(day)
 
-# handle regular need add form
+    # handle regular need add form
     command_form_need_add = NeedSlotForm()
     command_form_need_add.fields['day'].widget = forms.HiddenInput()
     command_form_need_add.fields['day'].initial = day.get_token()
@@ -221,6 +222,10 @@ def day_classroom(request, cid):
     command_form_copy.fields['day'].widget = forms.HiddenInput()
     command_form_copy.fields['day'].initial = day.get_token()
 
+    # assign form
+    command_form_assign = AssignForm(classroom, day)
+    # command_form_assign.fields['day'].widget = forms.HiddenInput()
+
     log_entries = Log.objects.filter(type=Log.NEED_UPDATE, ref='%d,%s' % (classroom.pk, day.get_token())).order_by('-updated')
 
     return TemplateResponse(request, template='slot/classroom.html', context={
@@ -229,6 +234,7 @@ def day_classroom(request, cid):
         'command_form_need_add': command_form_need_add,
         'command_form_need_delete': command_form_need_delete,
         'command_form_copy': command_form_copy,
+        'command_form_assign': command_form_assign,
         'slot_table_data': slot_table_data,
         'unmet_table_data': unmet_table_data,
         'change_log_entries': log_entries,
@@ -282,7 +288,7 @@ def need_delete(request, cid):
             if len(deleted_time) == 0:
                 messages.warning(request, 'No available time slot is in the specified time period to delete.')
             else:
-                messages.success(request, 'Deleted slot(s): %s' % ', '.join([t.display_slice() for t in deleted_time]))
+                messages.success(request, 'Deleted slot(s): %s' % ', '.join([t.display() for t in TimeSlot.combine(deleted_time)]))
                 log_need_update(request.user, classroom, day, 'deleted slot(s)')
 
             return redirect(request.GET.get('next', request.META['HTTP_REFERER']))
@@ -400,4 +406,53 @@ def classroom_copy(request, cid):
         form = DayForm()
 
     form_url = reverse('slot:classroom_copy', kwargs={'cid': cid})
+    return render(request, 'base_form.html', {'form': form, 'form_url': form_url})
+
+
+class AssignForm(SlotForm):
+    staff = forms.TypedChoiceField(choices=(), label='Available staff', coerce=int, required=True)
+
+    def __init__(self, classroom, day, *args, **kwargs):
+        super(AssignForm, self).__init__(*args, **kwargs)
+        unmet_need_time = classroom.get_unmet_need_time(day)
+        # find all staff in the center who are available at the time when the classroom has unmet need.
+        list_staff = User.objects.filter(profile__centers=classroom.center, profile__verified=True, offerslot__day=day,
+                            offerslot__start_time__in=unmet_need_time, offerslot__meet__isnull=True).distinct()
+        self.fields['staff'].choices = [('', '- Select -')] + [(u.pk, u.get_full_name() or u.username) for u in list_staff]
+        self.fields['day'].widget = forms.HiddenInput()
+        self.fields['day'].initial = day.get_token()
+
+
+@login_required
+def classroom_assign(request, cid):
+    classroom = get_object_or_404(Classroom, pk=cid)
+    day = get_request_day(request)
+
+    if request.method == 'POST':
+        form = AssignForm(classroom, day, request.POST)
+        if form.is_valid():
+            form_day, start_time, end_time = form.get_cleaned_data()
+            assert form_day == day
+            assigned_list = []
+
+            target_user_profile = UserProfile.get_by_id(form.cleaned_data['staff'])
+            # start assigning
+            for t in TimeToken.interval(start_time, end_time):
+                offer = OfferSlot.objects.filter(user=target_user_profile.user, day=day, start_time=t, end_time=t.get_next(), meet__isnull=True).first()
+                need = NeedSlot.objects.filter(location=classroom, day=day, start_time=t, end_time=t.get_next(), meet__isnull=True).first()
+                if offer is not None and need is not None:
+                    meet = Meet(offer=offer, need=need)
+                    meet.save()
+                    assigned_list.append(t)
+
+            if len(assigned_list) > 0:
+                messages.success(request, 'Assigned slot(s): %s' % TimeSlot.display_combined(assigned_list))
+            else:
+                messages.warning(request, 'No assignment made due to mismatch between staff availability and classroom needs in the specified time period.')
+            return redirect(request.GET.get('next', request.META['HTTP_REFERER']))
+
+    if request.method == 'GET':
+        form = AssignForm(classroom, day)
+
+    form_url = request.META['HTTP_REFERER'] if 'HTTP_REFERER' in request.META else reverse('slot:classroom_assign', kwargs={'cid': cid})
     return render(request, 'base_form.html', {'form': form, 'form_url': form_url})

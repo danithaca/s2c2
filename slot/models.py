@@ -306,6 +306,10 @@ class TimeSlot(object):
             combined.append(TimeSlot(TimeToken._from_index(l[0][1]), TimeToken._from_index((l[-1][1] + 1) % 48)))
         return combined
 
+    @staticmethod
+    def display_combined(list_timetoken):
+        return ', '.join([t.display() for t in TimeSlot.combine(list_timetoken)])
+
 
 class Slot(models.Model):
     """
