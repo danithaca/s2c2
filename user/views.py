@@ -284,7 +284,7 @@ def edit(request):
         class Meta:
             model = Profile
             # todo: show "picture" and process it.
-            fields = ('phone_main', 'phone_backup', 'address', 'centers', 'role', 'note')
+            fields = ('phone_main', 'phone_backup', 'address', 'centers', 'role', 'note', 'picture_original', 'picture_cropping')
             widgets = {
                 'centers': InlineCheckboxSelectMultiple,
                 'phone_main': USPhoneNumberWidget,
@@ -296,17 +296,20 @@ def edit(request):
                 'phone_main': 'The main phone number to contact you. E.g. 734-123-1234.',
                 'phone_backup': 'Optional backup phone number. E.g. 734-123-1234.',
                 'address': 'Your address may be needed for verification process.',
+                'picture_original': 'Upload your picture. After uploading, please choose which part of the picture to show in "Preview" below.',
             }
             labels = {
                 'centers': 'Center Affiliation',
                 'phone_main': 'Primary phone',
                 'phone_backup': 'Backup phone',
                 'note': 'Personal note',
+                'picture_original': 'Picture upload',
+                'picture_cropping': 'Picture preview'
             }
 
     if request.method == 'POST':
         form_user = UserEditForm(request.POST, instance=user_profile.user)
-        form_profile = ProfileForm(request.POST, instance=user_profile.profile)
+        form_profile = ProfileForm(request.POST, request.FILES, instance=user_profile.profile)
 
         if form_user.is_valid() and form_profile.is_valid():
             if form_user.has_changed():

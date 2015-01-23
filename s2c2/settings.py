@@ -44,12 +44,13 @@ INSTALLED_APPS = (
     # should not use in production
     # 'django_extensions',
 
-    # external
     'localflavor',
     'pytz',
     # 'pinax_theme_bootstrap',
     'bootstrapform', # from django-bootstrap-form
     # 'account',
+    'easy_thumbnails',
+    'image_cropping',
 
     # customized
     's2c2',
@@ -136,7 +137,8 @@ STATICFILES_DIRS = (
 )
 
 # production site should use another folder not in git.
-MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+# MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+MEDIA_ROOT = '/tmp/'
 MEDIA_URL = '/media/'
 
 LOGIN_REDIRECT_URL = '/'
@@ -170,6 +172,16 @@ LOGGING = {
             'level': 'ERROR',
             },
     }
+
+# for thumbnail processing.
+from easy_thumbnails.conf import Settings as thumbnail_settings
+THUMBNAIL_PROCESSORS = ('image_cropping.thumbnail_processors.crop_corners',) + thumbnail_settings.THUMBNAIL_PROCESSORS
+
+# IMAGE_CROPPING_JQUERY_URL = 'https://code.jquery.com/jquery-2.1.3.min.js'
+IMAGE_CROPPING_THUMB_SIZE = (400, 400)
+IMAGE_CROPPING_SIZE_WARNING = True
+
+# load local settings override.
 
 try:
     from .settings_local import *

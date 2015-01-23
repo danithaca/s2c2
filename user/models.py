@@ -5,6 +5,7 @@ import warnings
 from django.db import models
 from django.contrib.auth.models import User, Group
 from django.core.exceptions import ObjectDoesNotExist
+from image_cropping import ImageCropField, ImageRatioField
 from localflavor.us.models import PhoneNumberField
 from location.models import Center, Area, Classroom
 
@@ -27,7 +28,9 @@ class Profile(models.Model):
     centers = models.ManyToManyField(Center, limit_choices_to={'status': True}, blank=True)
     verified = models.NullBooleanField()
     note = models.TextField(blank=True, null=True)
-    picture = models.ImageField(upload_to='picture', blank=True, null=True)
+    # picture = models.ImageField(upload_to='picture', blank=True, null=True)
+    picture_original = ImageCropField(upload_to='picture', blank=True, null=True)
+    picture_cropping = ImageRatioField('picture_original', '200x200')
 
     # currently we use the default Area for all new users. but we should remove default later.
     area = models.ForeignKey(Area, default=1)
@@ -138,6 +141,9 @@ class UserProfile(object):
         # ordering is automatically by 'id' using last(). the last 'id' is the most recent role assignment.
         g = Group.objects.filter(user=self.user, role__type_center=True).last()
         return GroupRole(g) if g is not None else None
+
+    def has_picture(self):
+        return self.has_profile() and self.profile.picture_original and self.profile.picture_cropping
 
 
 class CenterStaff(UserProfile):

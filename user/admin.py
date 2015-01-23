@@ -2,13 +2,14 @@ from django.contrib import admin
 from django.contrib.admin import SimpleListFilter
 from django.contrib.auth.admin import UserAdmin, GroupAdmin
 from django.contrib.auth.models import User, Group
+from image_cropping import ImageCroppingMixin
 
 from user import models
 from user.models import UserProfile
 
 
 class UserProfileAdmin(UserAdmin):
-    class ProfileInline(admin.StackedInline):
+    class ProfileInline(ImageCroppingMixin, admin.StackedInline):
         model = models.Profile
         can_delete = False
         verbose_name_plural = 'profile'

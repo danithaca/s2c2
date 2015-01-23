@@ -1,6 +1,7 @@
 {% extends "base_page.html" %}
 {% load staticfiles %}
 {% load bootstrap %}
+{% load cropping %}
 {% load s2c2_tags %}
 
 {% block title %}Dashboard{% endblock %}
@@ -25,6 +26,7 @@
 {#{% block page-error-message %}{% if not user_profile.is_verified %}The account {{ user.username|default:'N/A' }} is not verified.{% endif %}{% endblock %}#}
 
 {% block page-summary %}
+  {% if user_profile.has_picture %}<img src="{% cropped_thumbnail user_profile.profile "picture_cropping" %}" class="img-circle">{% endif %}
   <table class="table table-condensed table-hover">
     <tr><th scope="row">Center{{ user_profile.centers.all|pluralize }}</th><td><ul class="list-inline">
       {% for center in user_profile.centers.all %}
