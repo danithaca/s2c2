@@ -14,6 +14,7 @@ from log.models import Log, log_offer_update, log_need_update
 from s2c2.utils import get_request_day
 from user.models import UserProfile
 from .models import DayToken, TimeToken, OfferSlot, NeedSlot, Meet, TimeSlot
+from s2c2.decorators import *
 
 
 @login_required
@@ -200,7 +201,7 @@ def day_classroom(request, cid):
     day = get_request_day(request)
 
     # check permission:
-    # only viewable by people from the same center. doesn't need "verified".
+    # only viewable by people from the same center. doesn't need "verified" or manager
     if not UserProfile(request.user).is_same_center(classroom):
         return defaults.permission_denied(request)
 
@@ -300,8 +301,7 @@ def need_delete(request, cid):
     return render(request, 'base_form.html', {'form': form, 'form_url': form_url})
 
 
-# @user_is_center_manager
-# @user_is_verified
+@user_is_verified
 @login_required
 def assign(request, need_id):
     class AssignStaffForm(forms.Form):

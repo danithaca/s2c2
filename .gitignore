@@ -1,5 +1,8 @@
 s2c2/settings_local.py
 
+# IDE related
+*.tmproj
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]

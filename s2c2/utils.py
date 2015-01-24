@@ -1,13 +1,11 @@
 import sys
-
 from django.http import HttpResponse
-
-
-
-# @user_is_verified
 from slot.models import DayToken
+from s2c2.decorators import *
 
 
+@check_user_against_first_arg(lambda x, y: y is None or x.username == y, lambda args, kwargs: kwargs.get('message', None))
+@user_is_verified
 def dummy(request, message='Please override.'):
     # p = request.user_profile
     # message = 'User name: %s' % p.get_full_name()

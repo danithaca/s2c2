@@ -3,64 +3,49 @@ from django.contrib import messages
 from django.contrib.auth.decorators import user_passes_test
 from django.shortcuts import redirect
 from django.utils.decorators import available_attrs
+from django.views import defaults
 from user.models import UserProfile
 
 
-# this version uses user_passes_test(), which redirect to LOGIN_URL, which is not desirable
-# def user_is_verified(function=None):
-#     def test_user_verified(user):
-#         user_profile = UserProfile(user)
-#         return user_profile.is_verified()
-#
-#     actual_decorator = user_passes_test(
-#         test_user_verified,
-#     )
-#     if function:
-#         return actual_decorator(function)
-#     return actual_decorator
-
-
-# def user_is_verified(function):
-#     """ A decorator that redirects to "user:edit" if not verified and show a warning message."""
-#     def decorator(view_func):
-#
-#         @wraps(view_func, assigned=available_attrs(view_func))
-#         def _wrapped_view(request, *args, **kwargs):
-#             # test verification here.
-#             if UserProfile(request.user).is_verified():
-#                 return view_func(request, *args, **kwargs)
-#             # if user is not verified, redirect to 'user:edit'.
-#             messages.error(request, 'This operation requires your user account to be verified. Please fill in necessary information about yourself and ask your manager to verify your account.')
-#             return redirect('user:edit')
-#             # this is the end of _wrapped_view()
-#
-#         # return @wraps(_wrapped_view()) from decorator()
-#         return _wrapped_view
-#
-#     # return decorator() as the real decorator.
-#     return decorator(function)
-
-
 def user_is_verified(view_func):
-
     @wraps(view_func)
     def _wrapped_view(request, *args, **kwargs):
         # test verification here.
-        if UserProfile(request.user).is_verified():
-            return view_func(request, *args, **kwargs)
-        # if user is not verified, redirect to 'user:edit'.
-        messages.error(request, 'This operation requires your user account to be verified. Please fill in necessary information about yourself and ask your manager to verify your account.')
-        return redirect('user:edit')
-        # this is the end of _wrapped_view()
-
+        if not UserProfile(request.user).is_verified():
+            # messages.error(request, 'The operation requires your user account to be verified.')
+            return defaults.permission_denied(request)
+        return view_func(request, *args, **kwargs)
     return _wrapped_view
 
 
 def user_is_center_manager(view_func):
     @wraps(view_func)
     def _wrapped_view(request, *args, **kwargs):
-        if UserProfile(request.user).is_center_manager():
-            return view_func(request, *args, **kwargs)
-        messages.error(request, 'This operation is only valid for center managers.')
-        return redirect('dashboard')
+        if not UserProfile(request.user).is_center_manager():
+            # messages.error(request, 'The operation is only valid for center managers.')
+            return defaults.permission_denied(request)
+        return view_func(request, *args, **kwargs)      
     return _wrapped_view
+    
+    
+# if the first_arg is positional, get_func==lambda x: x[0][0]
+# if it's kwargs, get_func=lambda x: x[1]['arg']
+def check_user_against_first_arg(check_func, get_func):
+    def _wrapper_outer(view_func):
+        @wraps(view_func)
+        def _wrapper_inner(request, *args, **kwargs):
+            if not check_func(request.user, get_func(args, kwargs)):
+                return defaults.permission_denied(request)
+            return view_func(request, *args, **kwargs)
+        return _wrapper_inner
+    return _wrapper_outer
+    
+    
+# def user_is_same_center(convert_target_func):
+#     @wraps(view_func)
+#     def _wrapped_view(request, first_arg, *args, **kwargs):
+#         if UserProfile(request.user).is_same_center(convert_target_func(first_arg))
+#             return view_func(request, *args, **kwargs)
+#         messages.error(request, 'This operation is only valid for center managers.')
+#         return redirect('dashboard')
+#     return _wrapped_view

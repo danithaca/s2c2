@@ -24,7 +24,8 @@ urlpatterns = patterns(
     url(r'^user/', include('user.urls', namespace='user')),
     url(r'^slot/', include('slot.urls', namespace='slot')),
     url(r'^admin/', include(admin.site.urls)),
-    url(r'^dummy/$', utils.dummy, name='dummy')
+    url(r'^dummy/$', utils.dummy, name='dummy'),
+    url(r'^dummy/(?P<message>.+)/$', utils.dummy, name='dummy_extra'),
 
     # note: the following thing about static is only valid in dev.
 ) + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
