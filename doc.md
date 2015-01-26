@@ -32,3 +32,45 @@ In settings_local.py:
     * New database settings
     * DEBUG=FALSE, ALLOWED_HOST=...
     * (new SECRET_KEY)
+
+
+WSGI Settings
+-------------
+
+In http.conf:
+
+    LoadModule wsgi_module modules/mod_wsgi.so
+    WSGIPythonHome /opt/python34
+    WSGISocketPrefix run/wsgi
+
+In VirtualHost:
+
+    <VirtualHost *:80>
+            ServerName s2c2.knowsun.com
+            ServerAdmin knowsun@localhost
+
+            WSGIScriptAlias / /home/knowsun/s2c2-prod/s2c2/wsgi.py
+            WSGIDaemonProcess s2c2.knowsun.com python-path=/home/knowsun/s2c2-prod:/opt/python34/lib/python3.4/site-packages
+            WSGIProcessGroup s2c2.knowsun.com
+
+            <Directory /home/knowsun/s2c2-prod/s2c2>
+                    <Files wsgi.py>
+                            Order allow,deny
+                            Allow from all
+                    </Files>
+            </Directory>
+
+            # note: need trailing slash
+            Alias /static/ /home/knowsun/s2c2-prod/assets/static/
+            <Directory /home/knowsun/s2c2-prod/assets/static>
+                    Order allow,deny
+                    Allow from all
+            </Directory>
+
+            Alias /media/ /home/knowsun/s2c2-prod/assets/media/
+            <Directory /home/knowsun/s2c2-prod/assets/media>
+                    Order allow,deny
+                    Allow from all
+            </Directory>
+
+    </VirtualHost>

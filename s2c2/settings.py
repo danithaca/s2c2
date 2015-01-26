@@ -97,13 +97,15 @@ DATABASES = {
 
 LANGUAGE_CODE = 'en-us'
 
-# TIME_ZONE = 'America/Detroit'      # 'UTC'
-TIME_ZONE = 'UTC'
+# this only applies to rendering whit USE_TZ is True.
+TIME_ZONE = 'America/Detroit'
+# TIME_ZONE = 'UTC'
 
 USE_I18N = False    # True
 
 USE_L10N = False    # True
 
+# This makes django save datetime in UTC.
 USE_TZ = True
 
 
