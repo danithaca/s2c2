@@ -464,8 +464,14 @@ class NeedSlot(Slot):
 # we are making Meet to be one-one relationship to offer/need, and not extends from Slot.
 # if there's going to be more complex workflow state, might create a new model instead of using Meet.
 class Meet(models.Model):
-    offer = models.OneToOneField(OfferSlot, primary_key=True)
-    need = models.OneToOneField(NeedSlot, primary_key=True)
+    # multi-column primary key is not supported. use unique_key instead.
+    # offer = models.OneToOneField(OfferSlot, primary_key=True)
+    # need = models.OneToOneField(NeedSlot, primary_key=True)
+    offer = models.OneToOneField(OfferSlot)
+    need = models.OneToOneField(NeedSlot)
+
+    class Meta:
+        unique_together = ('offer', 'need')
 
     def __str__(self):
         assert self.need.day == self.offer.day and self.need.start_time == self.offer.start_time and self.need.end_time == self.offer.end_time
