@@ -10,7 +10,7 @@ class AreaAdmin(admin.ModelAdmin):
 
 @admin.register(models.Center)
 class CenterAdmin(admin.ModelAdmin):
-    list_display = ('name', 'address', 'area')
+    list_display = ('name', 'address', 'area', 'status')
 
 
 @admin.register(models.Classroom)
