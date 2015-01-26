@@ -362,7 +362,7 @@ class OfferSlot(Slot):
 
     @staticmethod
     def get_available_offer(day, start_time):
-        return [o for o in OfferSlot.objects.filter(day=day, start_time=start_time, end_time=start_time.get_next()).exclude(meet__isnull=False)]
+        return [o for o in OfferSlot.objects.filter(day=day, start_time=start_time, end_time=start_time.get_next(), meet__isnull=True, user__profile__verified=True)]
 
     @staticmethod
     def get_unmet_slot_owner_id(day, start_time):

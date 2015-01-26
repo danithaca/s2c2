@@ -111,7 +111,8 @@ class Classroom(Location):
         for t in NeedSlot.objects.filter(location=self, day=day, meet__isnull=True).values_list('start_time', flat=True).distinct().order_by('start_time'):
             start_time = TimeToken(t)
             first_col = start_time
-            second_col = [UserProfile.get_by_id(pk=pk) for pk in OfferSlot.get_unmet_slot_owner_id(day, start_time)]
+            user_id_list = OfferSlot.objects.filter(day=day, start_time=start_time, end_time=start_time.get_next(), meet__isnull=True, user__profile__verified=True, user__profile__centers=self.center).values_list('user_id', flat=True).distinct()
+            second_col = [UserProfile.get_by_id(pk=pk) for pk in user_id_list]
             table.append((first_col, second_col))
         return table
 

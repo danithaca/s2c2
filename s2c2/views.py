@@ -68,7 +68,7 @@ def dashboard(request, uid=None):
 @login_required
 @user_check_against_arg(
     lambda view_user_profile, classroom: view_user_profile.is_same_center(classroom),
-    lambda args, kwargs: get_object_or_404(Classroom, pk=kwargs.get('cid')),
+    lambda args, kwargs: get_object_or_404(Classroom, pk=kwargs.get('pk')),
     lambda u: UserProfile(u)
 )
 def classroom_home(request, pk):
