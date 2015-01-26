@@ -17,17 +17,22 @@ from .models import DayToken, TimeToken, OfferSlot, NeedSlot, Meet, TimeSlot
 from s2c2.decorators import *
 
 
+# required permission: logged user, verified users from same center or myself
+# we only allow view different user's profile if the viewing user is verified and belongs to the same center as the viewed user.
 @login_required
+@user_check_against_arg(
+    lambda view_user, target_user: target_user is None or view_user == target_user or (UserProfile(view_user).is_verified() and (UserProfile(view_user).is_same_center(target_user))),
+    lambda args, kwargs: get_object_or_404(User, pk=kwargs['uid']) if 'uid' in kwargs else None
+)
 def day_staff(request, uid=None):
     user_profile = UserProfile.get_by_id_default(uid, request.user)
     if not user_profile.is_center_staff():
         return defaults.bad_request(request)
     day = get_request_day(request)
 
-    # check permission:
-    # we only allow view different user's profile if the viewing user is verified and belongs to the same center as the viewed user.
-    if user_profile.user != request.user and not (user_profile.is_same_center(request.user) and UserProfile(request.user).is_verified()):
-        return defaults.permission_denied(request)
+    # check permission: (use decorator instead)
+    # if user_profile.user != request.user and not (user_profile.is_same_center(request.user) and UserProfile(request.user).is_verified()):
+    #     return defaults.permission_denied(request)
 
     slot_table_data = user_profile.get_slot_table(day)
     unmet_table_data = user_profile.get_unmet_table(day)
@@ -117,8 +122,13 @@ class NeedSlotForm(SlotForm):
         return day, start_time, end_time, int(self.cleaned_data['howmany'])
 
 
-# TODO: add permission
+# permission: myself (as a staff), or verified center manager from the same center.
 @login_required
+@user_check_against_arg(
+    lambda view_user_profile, target_user: view_user_profile.user == target_user or view_user_profile.is_verified() and view_user_profile.is_center_manager() and view_user_profile.is_same_center(target_user),
+    lambda args, kwargs: get_object_or_404(User, pk=kwargs.get('uid')),
+    lambda u: UserProfile(u)
+)
 def offer_add(request, uid):
     # uid is the target uid, which different from request.user.pk who is the "action" user.
     user_profile = UserProfile.get_by_id(uid)
@@ -152,7 +162,12 @@ def offer_add(request, uid):
     return render(request, 'base_form.html', {'form': form, 'form_url': form_url})
 
 
+# permission: myself only.
 @login_required
+@user_check_against_arg(
+    lambda view_user, target_user: view_user == target_user,
+    lambda args, kwargs: get_object_or_404(User, pk=kwargs.get('uid')),
+)
 def offer_delete(request, uid):
     # uid is the target uid, which different from request.user.pk who is the "action" user.
     user_profile = UserProfile.get_by_id(uid)
@@ -194,7 +209,15 @@ def offer_delete(request, uid):
     return render(request, 'base_form.html', {'form': form, 'form_url': form_url})
 
 
+# check permission:
+# only viewable by people from the same center. doesn't need "verified" or manager
+# permission: myself (as a staff), or verified center manager from the same center.
 @login_required
+@user_check_against_arg(
+    lambda view_user_profile, classroom: view_user_profile.is_same_center(classroom),
+    lambda args, kwargs: get_object_or_404(Classroom, pk=kwargs.get('cid')),
+    lambda u: UserProfile(u)
+)
 def day_classroom(request, cid):
     # lots of code copied from staff()
     classroom = get_object_or_404(Classroom, pk=cid)
@@ -202,8 +225,8 @@ def day_classroom(request, cid):
 
     # check permission:
     # only viewable by people from the same center. doesn't need "verified" or manager
-    if not UserProfile(request.user).is_same_center(classroom):
-        return defaults.permission_denied(request)
+    # if not UserProfile(request.user).is_same_center(classroom):
+    #     return defaults.permission_denied(request)
 
     slot_table_data = classroom.get_slot_table(day)
     unmet_table_data = classroom.get_unmet_table(day)
@@ -242,7 +265,10 @@ def day_classroom(request, cid):
     })
 
 
-@login_required
+# permission: only verified center manager.
+@login_required     # check login first, which will be executed first.
+@user_is_verified
+@user_is_center_manager
 def need_add(request, cid):
     # we don't catch DoesNotExist exception.
     classroom = Classroom.objects.get(pk=cid)
@@ -266,7 +292,10 @@ def need_add(request, cid):
     return render(request, 'base_form.html', {'form': form, 'form_url': form_url})
 
 
+# permission: only verified center manager.
 @login_required
+@user_is_verified
+@user_is_center_manager
 def need_delete(request, cid):
     classroom = Classroom.objects.get(pk=cid)
 
@@ -301,8 +330,9 @@ def need_delete(request, cid):
     return render(request, 'base_form.html', {'form': form, 'form_url': form_url})
 
 
-@user_is_verified
 @login_required
+@user_is_verified
+@user_is_center_manager
 def assign(request, need_id):
     class AssignStaffForm(forms.Form):
         offer = forms.IntegerField(label='Assign available staff', widget=forms.Select, help_text='Every staff displayed here is available at the time slot.')
@@ -366,7 +396,13 @@ def assign(request, need_id):
     return render(request, 'slot/assign.html', context)
 
 
+# permission: either myself of verified center manager.
 @login_required
+@user_check_against_arg(
+    lambda view_user_profile, target_user: view_user_profile.user == target_user or view_user_profile.is_verified() and view_user_profile.is_center_manager() and view_user_profile.is_same_center(target_user),
+    lambda args, kwargs: get_object_or_404(User, pk=kwargs.get('uid')),
+    lambda u: UserProfile(u)
+)
 def staff_copy(request, uid):
     staff = UserProfile.get_by_id(uid)
     assert staff.is_center_staff()
@@ -388,6 +424,8 @@ def staff_copy(request, uid):
 
 
 @login_required
+@user_is_verified
+@user_is_center_manager
 def classroom_copy(request, cid):
     classroom = get_object_or_404(Classroom, pk=cid)
 
@@ -424,6 +462,8 @@ class AssignForm(SlotForm):
 
 
 @login_required
+@user_is_verified
+@user_is_center_manager
 def classroom_assign(request, cid):
     classroom = get_object_or_404(Classroom, pk=cid)
     day = get_request_day(request)

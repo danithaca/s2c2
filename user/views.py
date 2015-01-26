@@ -388,9 +388,9 @@ def password_change(request):
     return response
 
 
+@login_required
 @user_is_verified
 @user_is_center_manager
-@login_required
 def verify(request, *args, **kwargs):
     unverified = User.objects.filter(profile__verified__isnull=True, profile__centers__in=request.user.profile.centers.all())
 
@@ -442,7 +442,7 @@ def picture(request):
         if form.is_valid():
             if form.has_changed():
                 if not user_profile.has_profile():
-                    form_profile.instance.user = user_profile.user
+                    form.instance.user = user_profile.user
                 form.save()
                 messages.success(request, 'Picture updated.')
             else:

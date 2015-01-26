@@ -30,11 +30,12 @@ def user_is_center_manager(view_func):
     
 # if the first_arg is positional, get_func==lambda x: x[0][0]
 # if it's kwargs, get_func=lambda x: x[1]['arg']
-def check_user_against_first_arg(check_func, get_func):
+def user_check_against_arg(check_func, get_func, request_user_func=lambda u: u):
+    """ check_func returns True means test passed. Return False to redirect to 403. """
     def _wrapper_outer(view_func):
         @wraps(view_func)
         def _wrapper_inner(request, *args, **kwargs):
-            if not check_func(request.user, get_func(args, kwargs)):
+            if not check_func(request_user_func(request.user), get_func(args, kwargs)):
                 return defaults.permission_denied(request)
             return view_func(request, *args, **kwargs)
         return _wrapper_inner

@@ -9,6 +9,7 @@ from django import forms
 
 from location.models import Classroom, Center
 from log.models import Notification
+from s2c2.decorators import user_check_against_arg
 from s2c2.utils import get_request_day, dummy
 from slot.models import DayToken
 from user.models import UserProfile, CenterStaff, GroupRole
@@ -23,7 +24,13 @@ def home(request):
         return redirect('dashboard')
 
 
+# permission: myself or verified user from same center.
 @login_required
+@user_check_against_arg(
+    lambda view_user_profile, target_user: target_user is None or view_user_profile.user == target_user or view_user_profile.is_verified() and view_user_profile.is_same_center(target_user),
+    lambda args, kwargs: get_object_or_404(User, pk=kwargs['uid']) if 'uid' in kwargs and kwargs['uid'] is not None else None,
+    lambda u: UserProfile(u)
+)
 def dashboard(request, uid=None):
     user_profile = UserProfile.get_by_id_default(uid, request.user)
     current_user_profile = UserProfile(request.user)
@@ -57,7 +64,13 @@ def dashboard(request, uid=None):
     return TemplateResponse(request, template='dashboard.html', context=context)
 
 
+# permission: same center, no need for verified.
 @login_required
+@user_check_against_arg(
+    lambda view_user_profile, classroom: view_user_profile.is_same_center(classroom),
+    lambda args, kwargs: get_object_or_404(Classroom, pk=kwargs.get('cid')),
+    lambda u: UserProfile(u)
+)
 def classroom_home(request, pk):
     classroom = get_object_or_404(Classroom, pk=pk)
     day = get_request_day(request)
@@ -94,17 +107,32 @@ def notification(request):
     return NotificationView.as_view(user=request.user)(request)
 
 
+# permission: same center, no need for verified (for all tab)
+# for 'list-staff' tab, only available for verified managers.
 @login_required
+@user_check_against_arg(
+    lambda view_user_profile, center: view_user_profile.is_same_center(center),
+    lambda args, kwargs: get_object_or_404(Center, pk=kwargs.get('pk')),
+    lambda u: UserProfile(u)
+)
+@user_check_against_arg(
+    lambda view_user_profile, tab: tab != 'list-staff' or view_user_profile.is_verified() and view_user_profile.is_center_manager(),
+    lambda args, kwargs: kwargs.get('tab', 'directory'),
+    lambda u: UserProfile(u)
+)
 def center_home(request, pk, tab='directory'):
     center = get_object_or_404(Center, pk=pk)
 
     # check permission:
     # only viewable by people from the same center. doesn't need "verified".
-    if not UserProfile(request.user).is_same_center(center):
-        return defaults.permission_denied(request)
+    # if not UserProfile(request.user).is_same_center(center):
+    #     return defaults.permission_denied(request)
 
     context = {'center': center, 'tab': tab, }
     list_classroom = Classroom.objects.filter(center=center)
+
+    if not UserProfile(request.user).is_center_manager():
+        context['disable_list_staff_tab'] = True
 
     manager_group = GroupRole.get_by_name('manager')
     teacher_group = GroupRole.get_by_name('teacher')

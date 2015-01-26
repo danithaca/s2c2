@@ -30,7 +30,7 @@
   <nav><ul class="nav nav-tabs">
     <li{% ifequal tab 'directory' %} class="active"{% endifequal %}><a href="{% url 'center_directory' pk=center.pk %}">Directory</a></li>
     <li{% ifequal tab 'list-classroom' %} class="active"{% endifequal %}><a href="{% url 'center_list_classroom' pk=center.pk %}">Classroom Details</a></li>
-    <li{% ifequal tab 'list-staff' %} class="active"{% endifequal %}><a href="{% url 'center_list_staff' pk=center.pk %}">Staff Details</a></li>
+    <li{% ifequal tab 'list-staff' %} class="active"{% endifequal %}{% if disable_list_staff_tab %} class="disabled"{% endif %}><a href="{% url 'center_list_staff' pk=center.pk %}">Staff Details (Manager Only)</a></li>
   </ul></nav>
 
   {% if tab == 'directory' %}
