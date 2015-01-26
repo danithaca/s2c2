@@ -22,3 +22,13 @@ Classrooms belong to a single center.
 Managers/Staff belong to one or multiple centers.
 Managers have access to all classrooms of the centers they belong to.
 Staff are shown in classrooms of all centers.
+
+
+Production deployment
+---------------------
+
+In settings_local.py:
+
+    * New database settings
+    * DEBUG=FALSE, ALLOWED_HOST=...
+    * (new SECRET_KEY)
