@@ -17,7 +17,7 @@ from django.core.urlresolvers import reverse_lazy
 BASE_DIR = os.path.dirname(os.path.dirname(__file__))
 
 # content in this directory is not tracked in git.
-BASE_DIR_ASSETS = os.path.join(BASE_DIR, 'assets'),
+BASE_DIR_ASSETS = os.path.join(BASE_DIR, 'assets')
 
 
 # Quick-start development settings - unsuitable for production
@@ -111,7 +111,7 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/1.7/howto/static-files/
 
 STATIC_URL = '/static/'
-STATIC_ROOT = os.path.join(BASE_DIR_ASSETS, 'static'),
+STATIC_ROOT = os.path.join(BASE_DIR_ASSETS, 'static')
 
 TEMPLATE_CONTEXT_PROCESSORS = (
     "django.contrib.auth.context_processors.auth",
