@@ -9,15 +9,15 @@ import slot.models
 class Migration(migrations.Migration):
 
     dependencies = [
-        migrations.swappable_dependency(settings.AUTH_USER_MODEL),
         ('location', '0001_initial'),
+        migrations.swappable_dependency(settings.AUTH_USER_MODEL),
     ]
 
     operations = [
         migrations.CreateModel(
             name='NeedSlot',
             fields=[
-                ('id', models.AutoField(serialize=False, verbose_name='ID', primary_key=True, auto_created=True)),
+                ('id', models.AutoField(primary_key=True, auto_created=True, serialize=False, verbose_name='ID')),
                 ('day', slot.models.DayTokenField()),
                 ('start_time', slot.models.TimeTokenField()),
                 ('end_time', slot.models.TimeTokenField()),
@@ -31,7 +31,7 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='OfferSlot',
             fields=[
-                ('id', models.AutoField(serialize=False, verbose_name='ID', primary_key=True, auto_created=True)),
+                ('id', models.AutoField(primary_key=True, auto_created=True, serialize=False, verbose_name='ID')),
                 ('day', slot.models.DayTokenField()),
                 ('start_time', slot.models.TimeTokenField()),
                 ('end_time', slot.models.TimeTokenField()),
@@ -45,9 +45,8 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='Meet',
             fields=[
-                ('id', models.AutoField(serialize=False, verbose_name='ID', primary_key=True, auto_created=True)),
-                ('need', models.OneToOneField(to='slot.NeedSlot')),
-                ('offer', models.OneToOneField(to='slot.OfferSlot')),
+                ('need', models.OneToOneField(primary_key=True, to='slot.NeedSlot')),
+                ('offer', models.OneToOneField(primary_key=True, to='slot.OfferSlot')),
             ],
             options={
             },
