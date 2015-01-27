@@ -4,13 +4,15 @@ from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse
+from django.db.models import Q
+from django.db import connection
 from django.views import defaults
 from django.shortcuts import render, redirect, get_object_or_404
 from django.template.response import TemplateResponse
 from django import forms
 
 from location.models import Classroom
-from log.models import Log, log_offer_update, log_need_update
+from log.models import Log
 from s2c2.utils import get_request_day
 from user.models import UserProfile
 from .models import DayToken, TimeToken, OfferSlot, NeedSlot, Meet, TimeSlot
@@ -52,7 +54,9 @@ def day_staff(request, uid=None):
     command_form_copy.fields['day'].widget = forms.HiddenInput()
     command_form_copy.fields['day'].initial = day.get_token()
 
-    log_entries = Log.objects.filter(type__in=(Log.OFFER_UPDATE, Log.TEMPLATE_OP_STAFF), ref='%d,%s' % (user_profile.pk, day.get_token())).order_by('-updated')
+    db_regex = (r'^%d,[0-9]+,%s,[0-9]+$' if connection.vendor == 'mysql' else r'^%d,[0-9]+,%s,[0-9]+$') % (user_profile.pk, day.get_token())
+    q = Q(ref='%d,%s' % (user_profile.pk, day.get_token())) | Q(ref__regex=db_regex)
+    log_entries = Log.objects.filter(q, type__in=(Log.OFFER_UPDATE, Log.TEMPLATE_OP_STAFF, Log.MEET_UPDATE, Log.MEET_CASCADE_DELETE_NEED)).order_by('-updated')[:20]
 
     return render(request, 'slot/staff.html', {
         'user_profile': user_profile,
@@ -182,26 +186,41 @@ def offer_delete(request, uid):
             start_time = form.cleaned_data['start_time']
             end_time = form.cleaned_data['end_time']
 
-            if 'delete-all' in form.data:
-                deleted = OfferSlot.delete_all(day, user_profile.user)
-                if not deleted:
-                    messages.warning(request, 'Nothing to delete of the day.')
-                else:
-                    messages.success(request, 'Delete all day is executed.')
-                    Log.create(Log.OFFER_UPDATE, request.user, (user_profile.user, day), 'deleted all day')
-            else:
-                # default 'submit' handler for all other submit button.
-                for t in TimeToken.interval(start_time, end_time):
-                    deleted = OfferSlot.delete_existing(day, user_profile.user, t)
-                    if deleted:
-                        deleted_time.append(t)
+            # if 'delete-all' in form.data:
+            #     # deleted = OfferSlot.delete_all(day, user_profile.user)
+            #     qs = OfferSlot.objects.filter(user=user, day=day)
+            #     if qs.exists():
+            #         qs.delete()
+            #         messages.warning(request, 'Nothing to delete of the day.')
+            #     else:
+            #         messages.success(request, 'Delete all day is executed.')
+            #         Log.create(Log.OFFER_UPDATE, request.user, (user_profile.user, day), 'deleted all day')
 
-                if len(deleted_time) == 0:
-                    messages.warning(request, 'No available time slot is in the specified time period to delete.')
-                else:
-                    deleted_time_display = ', '.join([t.display() for t in TimeSlot.combine(deleted_time)])
-                    messages.success(request, 'Deleted slot(s): %s' % deleted_time_display)
-                    Log.create(Log.OFFER_UPDATE, request.user, (user_profile.user, day), 'deleted %s' % deleted_time_display)
+            # default 'submit' handler for all other submit button.
+            for t in TimeToken.interval(start_time, end_time):
+                # deleted = OfferSlot.delete_existing(day, user_profile.user, t)
+                # if deleted:
+                #     deleted_time.append(t)
+                qs = OfferSlot.objects.filter(day=day, user=user_profile.user, start_time=t, end_time=t.get_next())
+                if qs.exists():
+                    # there should be one single offer in this queryset.
+                    for offer in qs:
+                        try:
+                            meet = offer.meet
+                            Log.create(Log.MEET_CASCADE_DELETE_OFFER, request.user, (user_profile.user, meet.need.location, day, t))
+                            meet.delete()
+                        except Meet.DoesNotExist:
+                            pass
+                        offer.delete()
+                    deleted_time.append(t)
+
+            if len(deleted_time) == 0:
+                messages.warning(request, 'No available time slot is in the specified time period to delete.')
+            else:
+                deleted_time_display = ', '.join([t.display() for t in TimeSlot.combine(deleted_time)])
+                messages.success(request, 'Deleted slot(s): %s' % deleted_time_display)
+                Log.create(Log.OFFER_UPDATE, request.user, (user_profile.user, day), 'deleted %s' % deleted_time_display)
+
             return redirect(request.GET.get('next', request.META['HTTP_REFERER']))
 
     if request.method == 'GET':
@@ -252,7 +271,8 @@ def day_classroom(request, cid):
     command_form_assign = AssignForm(classroom, day)
     # command_form_assign.fields['day'].widget = forms.HiddenInput()
 
-    log_entries = Log.objects.filter(type__in=(Log.NEED_UPDATE, Log.TEMPLATE_OP_CLASSROOM), ref='%d,%s' % (classroom.pk, day.get_token())).order_by('-updated')
+    q = Q(ref='%d,%s' % (classroom.pk, day.get_token())) | Q(ref__contains=',%d,%s,' % (classroom.pk, day.get_token()))
+    log_entries = Log.objects.filter(q, type__in=(Log.NEED_UPDATE, Log.TEMPLATE_OP_CLASSROOM, Log.MEET_UPDATE, Log.MEET_CASCADE_DELETE_OFFER)).order_by('-updated')[:20]
 
     return TemplateResponse(request, template='slot/classroom.html', context={
         'classroom': classroom,
@@ -309,12 +329,27 @@ def need_delete(request, cid):
             day, start_time, end_time = form.get_cleaned_data()
 
             for t in TimeToken.interval(start_time, end_time):
+                deleted = False
+                # always delete empty needs
+                qs = NeedSlot.objects.filter(location=classroom, day=day, start_time=t, end_time=t.get_next(), meet__isnull=True)
+                if qs.exists():
+                    qs.delete()
+                    deleted = True
+
                 if 'delete-all' in form.data:
                     # delete 'meet' as well.
-                    deleted = NeedSlot.delete_cascade(classroom, day, t)
-                else:
-                    # delete only empty needs
-                    deleted = NeedSlot.delete_empty(classroom, day, t)
+                    nqs = NeedSlot.objects.filter(location=classroom, day=day, start_time=t, end_time=t.get_next())
+                    if nqs.exists():
+                        for need in nqs:
+                            try:
+                                meet = need.meet
+                                Log.create(Log.MEET_CASCADE_DELETE_NEED, request.user, (meet.offer.user, need.location, need.day, need.start_time))
+                                meet.delete()
+                            except Meet.DoesNotExist:
+                                pass
+                            need.delete()
+                        deleted = True
+
                 if deleted:
                     deleted_time.append(t)
 

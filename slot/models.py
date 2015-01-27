@@ -4,6 +4,7 @@ import calendar
 from itertools import groupby
 import re
 from datetime import time, timedelta, datetime, date
+import warnings
 
 from django.core.exceptions import ValidationError
 from django.db import models
@@ -346,6 +347,7 @@ class OfferSlot(Slot):
 
     @staticmethod
     def delete_existing(day, user, start_time):
+        warnings.warn('Will remove soon.', DeprecationWarning)
         assert isinstance(day, DayToken) and isinstance(user, User) and isinstance(start_time, TimeToken)
         qs = OfferSlot.objects.filter(day=day, user=user, start_time=start_time, end_time=start_time.get_next())
         if qs.exists():
@@ -356,6 +358,7 @@ class OfferSlot(Slot):
 
     @staticmethod
     def delete_all(day, user):
+        warnings.warn('Will remove soon.', DeprecationWarning)
         qs = OfferSlot.objects.filter(day=day, user=user)
         if qs.exists():
             qs.delete()
@@ -401,6 +404,7 @@ class NeedSlot(Slot):
 
     @staticmethod
     def delete_empty(location, day, start_time):
+        warnings.warn('Will remove soon.', DeprecationWarning)
         qs = NeedSlot.objects.filter(location=location, day=day, start_time=start_time, end_time=start_time.get_next()).exclude(meet__isnull=False)
         if qs.exists():
             qs.delete()
@@ -410,6 +414,7 @@ class NeedSlot(Slot):
 
     @staticmethod
     def delete_cascade(location, day, start_time):
+        warnings.warn('Will remove soon.', DeprecationWarning)
         qs = NeedSlot.objects.filter(location=location, day=day, start_time=start_time, end_time=start_time.get_next())
         if qs.exists():
             qs.delete()
