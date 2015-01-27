@@ -151,8 +151,9 @@ def offer_add(request, uid):
             if len(added_time) == 0:
                 messages.warning(request, 'All specified slots are already added. No slot is added again.')
             else:
-                messages.success(request, 'Added slot(s): %s' % ', '.join([t.display() for t in TimeSlot.combine(added_time)]))
-                log_offer_update(request.user, user_profile.user, day, 'added slot(s)')
+                added_time_display = ', '.join([t.display() for t in TimeSlot.combine(added_time)])
+                messages.success(request, 'Added slot(s): %s' % added_time_display)
+                Log.create(Log.OFFER_UPDATE, request.user, (user_profile.user, day), 'added %s' % added_time_display)
             return redirect(request.GET.get('next', request.META['HTTP_REFERER']))
 
     if request.method == 'GET':
@@ -187,7 +188,7 @@ def offer_delete(request, uid):
                     messages.warning(request, 'Nothing to delete of the day.')
                 else:
                     messages.success(request, 'Delete all day is executed.')
-                    log_offer_update(request.user, user_profile.user, day, 'deleted all day')
+                    Log.create(Log.OFFER_UPDATE, request.user, (user_profile.user, day), 'deleted all day')
             else:
                 # default 'submit' handler for all other submit button.
                 for t in TimeToken.interval(start_time, end_time):
@@ -198,8 +199,9 @@ def offer_delete(request, uid):
                 if len(deleted_time) == 0:
                     messages.warning(request, 'No available time slot is in the specified time period to delete.')
                 else:
-                    messages.success(request, 'Deleted slot(s): %s' % ', '.join([t.display() for t in TimeSlot.combine(deleted_time)]))
-                    log_offer_update(request.user, user_profile.user, day, 'deleted slot(s)')
+                    deleted_time_display = ', '.join([t.display() for t in TimeSlot.combine(deleted_time)])
+                    messages.success(request, 'Deleted slot(s): %s' % deleted_time_display)
+                    Log.create(Log.OFFER_UPDATE, request.user, (user_profile.user, day), 'deleted %s' % deleted_time_display)
             return redirect(request.GET.get('next', request.META['HTTP_REFERER']))
 
     if request.method == 'GET':
@@ -281,8 +283,9 @@ def need_add(request, cid):
                 for i in range(howmany):
                     m = NeedSlot(location=classroom, day=day, start_time=t, end_time=t.get_next())
                     m.save()
+
             messages.success(request, 'Needs added.')
-            log_need_update(request.user, classroom, day, 'added slot(s)')
+            Log.create(Log.NEED_UPDATE, request.user, (classroom, day), 'added %s' % TimeSlot(start_time.value, end_time.value).display())
             return redirect(request.GET.get('next', request.META['HTTP_REFERER']))
 
     if request.method == 'GET':
@@ -318,8 +321,9 @@ def need_delete(request, cid):
             if len(deleted_time) == 0:
                 messages.warning(request, 'No available time slot is in the specified time period to delete.')
             else:
-                messages.success(request, 'Deleted slot(s): %s' % ', '.join([t.display() for t in TimeSlot.combine(deleted_time)]))
-                log_need_update(request.user, classroom, day, 'deleted slot(s)')
+                deleted_message = ', '.join([t.display() for t in TimeSlot.combine(deleted_time)])
+                messages.success(request, 'Deleted slot(s): %s' % deleted_message)
+                Log.create(Log.NEED_UPDATE, request.user, (classroom, day), 'deleted %s' % deleted_message)
 
             return redirect(request.GET.get('next', request.META['HTTP_REFERER']))
 
@@ -370,6 +374,7 @@ def assign(request, need_id):
     if request.method == 'POST':
         form = AssignStaffForm(request.POST)
         if 'remove' in form.data:
+            Log.create(Log.MEET_UPDATE, request.user, (existing_meet.offer.user, existing_meet.need.location, need.day, need.start_time), 'removed')
             # todo: double check the logic. might need to have the 'meet' info in form as a hidden value.
             existing_meet.delete()
             messages.success(request, 'Successfully removed assignment.')
@@ -380,6 +385,7 @@ def assign(request, need_id):
             meet = Meet(offer=offer, need=need)
             meet.save()
             messages.success(request, 'Staff assigned successfully.')
+            Log.create(Log.MEET_UPDATE, request.user, (offer.user, need.location, need.day, need.start_time), 'assigned')
             return redirect(reverse('slot:classroom', kwargs={'cid': classroom.pk}) + '?day=' + offer.day.get_token())
 
     elif request.method == 'GET':
@@ -413,7 +419,7 @@ def staff_copy(request, uid):
             day = form.get_data()
             OfferSlot.copy(staff.user, day)
             messages.success(request, 'Copy template executed.')
-            # log_need_update(request.user, classroom, day, 'deleted slot(s)')
+            Log.create(Log.TEMPLATE_OP_STAFF, (staff.user, day))
             return redirect(request.GET.get('next', request.META['HTTP_REFERER']))
 
     if request.method == 'GET':
@@ -437,6 +443,7 @@ def classroom_copy(request, cid):
             NeedSlot.copy(classroom, day)
             Meet.copy_by_location(classroom, day)
             messages.success(request, 'Copy template executed.')
+            Log.create(Log.TEMPLATE_OP_CLASSROOM, (classroom, day))
             # log_need_update(request.user, classroom, day, 'deleted slot(s)')
             return redirect(request.GET.get('next', request.META['HTTP_REFERER']))
 
@@ -484,6 +491,7 @@ def classroom_assign(request, cid):
                     meet = Meet(offer=offer, need=need)
                     meet.save()
                     assigned_list.append(t)
+                    Log.create(Log.MEET_UPDATE, request.user, (offer.user, need.location, day, t), 'assigned in batch')
 
             if len(assigned_list) > 0:
                 messages.success(request, 'Assigned slot(s): %s' % TimeSlot.display_combined(assigned_list))

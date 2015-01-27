@@ -33,21 +33,21 @@
             <div class="col-sm-4"><img src="{% user_picture_url user_profile %}" class="img-circle img-responsive"></div>
             <div class="col-sm-8">
               <table class="table table-condensed">
-                <tr><th scope="row">Center{{ user_profile.centers.all|pluralize }}</th><td><ul class="list-inline">
+                <tr><th scope="row">Center{{ user_profile.centers.all|pluralize }}</th><td><ul class="list-unstyled">
                   {% for center in user_profile.centers.all %}
                     <li><a href="{% url 'center' pk=center.pk %}">{% icon center %} {{ center|name }}</a></li>
                   {% empty %}
                     <li class="text-muted">-None-</li>
                   {% endfor %}
                 </ul></td></tr>
-                <tr><th scope="row">Phone</th><td><ul class="list-inline">
+                <tr><th scope="row">Phone</th><td><ul class="list-unstyled">
                   <li>{% if user_profile.phone_main %}<i class="fa fa-phone"></i> {{ user_profile.phone_main }}{% else %}<span class="text-muted">-None-</span>{% endif %}</li>
                   {% if user_profile.phone_backup %}<li><i class="fa fa-phone"></i> {{ user_profile.phone_backup }}</li>{% endif %}
                 </ul></td></tr>
-                <tr><th scope="row">Email</th><td><ul class="list-inline">
+                <tr><th scope="row">Email</th><td><ul class="list-unstyled">
                   <li><i class="fa fa-envelope"></i> {{ user_profile.email }}</li>
                 </ul></td></tr>
-                {% if user_profile.address %}<tr><th scope="row">Address</th><td><ul class="list-inline"><li>{{ user_profile.address }}</li></ul></td></tr>{% endif %}
+                {% if user_profile.address %}<tr><th scope="row">Address</th><td><ul class="list-unstyled"><li>{{ user_profile.address }}</li></ul></td></tr>{% endif %}
               </table>
             </div>
           </div>

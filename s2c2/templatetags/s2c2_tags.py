@@ -1,10 +1,11 @@
-import warnings
+import warnings, datetime
 
 from django import template
 from django.contrib.auth.models import User
 from django.utils.dateformat import format
 from image_cropping.templatetags.cropping import cropped_thumbnail
 from django.templatetags.static import static
+from django.utils import timezone, formats
 
 from log.models import Notification, Log
 from slot.models import DayToken

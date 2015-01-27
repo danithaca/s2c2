@@ -1,11 +1,11 @@
 {% extends 'slot/command_form.html' %}
+{% load s2c2_tags %}
 
 {% block command_form_content %}
 {% if change_log_entries.exists %}
   <ul>
   {% for entry in change_log_entries %}
-    {# fixme: timestamp is GMT in sqlite, not local time. #}
-    <li>Updated on {{ entry.updated }}</li>
+    <li><span class="label label-default">{% if entry.is_today %}{{ entry.updated|time }}{% else %}{{ entry.updated|date }}{% endif %} by {{ entry.creator|name }}</span> {{ entry.display }}</li>
   {% endfor %}
   </ul>
 {% else %}

@@ -53,6 +53,8 @@ In VirtualHost:
             WSGIDaemonProcess s2c2.knowsun.com python-path=/home/knowsun/s2c2-prod:/opt/python34/lib/python3.4/site-packages
             WSGIProcessGroup s2c2.knowsun.com
 
+            Alias /favicon.ico /home/knowsun/s2c2-prod/assets/static
+
             <Directory /home/knowsun/s2c2-prod/s2c2>
                     <Files wsgi.py>
                             Order allow,deny
