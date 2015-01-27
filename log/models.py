@@ -58,14 +58,19 @@ class Log(models.Model):
         return '%s: %s (%s)' % (self.creator.username, self.ref, self.get_type_display())
 
     def display(self):
+        # from slot.models import DayToken
+        message = self.message
         # if self.type == Log.OFFER_UPDATE:
         #     return 'updated availability (%s)' % self.message
         # elif self.type == Log.NEED_UPDATE:
         #     return 'updated needs: %s' % self.message
-        return self.message
+        if self.type in (Log.TEMPLATE_OP_STAFF, Log.TEMPLATE_OP_CLASSROOM):
+            # day = DayToken.from_token(self.ref.split(',')[1])
+            message = 'copied from template'
+        return message
 
     @staticmethod
-    def create(t, creator, data, message=None, force=False):
+    def create(t, creator, data, message='', force=False):
         from slot.models import DayToken, TimeToken
         ref = None
         if t in (Log.OFFER_UPDATE, Log.NEED_UPDATE):

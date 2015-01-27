@@ -52,7 +52,7 @@ def day_staff(request, uid=None):
     command_form_copy.fields['day'].widget = forms.HiddenInput()
     command_form_copy.fields['day'].initial = day.get_token()
 
-    log_entries = Log.objects.filter(type=Log.OFFER_UPDATE, ref='%d,%s' % (user_profile.pk, day.get_token())).order_by('-updated')
+    log_entries = Log.objects.filter(type__in=(Log.OFFER_UPDATE, Log.TEMPLATE_OP_STAFF), ref='%d,%s' % (user_profile.pk, day.get_token())).order_by('-updated')
 
     return render(request, 'slot/staff.html', {
         'user_profile': user_profile,
@@ -252,7 +252,7 @@ def day_classroom(request, cid):
     command_form_assign = AssignForm(classroom, day)
     # command_form_assign.fields['day'].widget = forms.HiddenInput()
 
-    log_entries = Log.objects.filter(type=Log.NEED_UPDATE, ref='%d,%s' % (classroom.pk, day.get_token())).order_by('-updated')
+    log_entries = Log.objects.filter(type__in=(Log.NEED_UPDATE, Log.TEMPLATE_OP_CLASSROOM), ref='%d,%s' % (classroom.pk, day.get_token())).order_by('-updated')
 
     return TemplateResponse(request, template='slot/classroom.html', context={
         'classroom': classroom,
@@ -419,7 +419,7 @@ def staff_copy(request, uid):
             day = form.get_data()
             OfferSlot.copy(staff.user, day)
             messages.success(request, 'Copy template executed.')
-            Log.create(Log.TEMPLATE_OP_STAFF, (staff.user, day))
+            Log.create(Log.TEMPLATE_OP_STAFF, request.user, (staff.user, day))
             return redirect(request.GET.get('next', request.META['HTTP_REFERER']))
 
     if request.method == 'GET':
@@ -443,7 +443,7 @@ def classroom_copy(request, cid):
             NeedSlot.copy(classroom, day)
             Meet.copy_by_location(classroom, day)
             messages.success(request, 'Copy template executed.')
-            Log.create(Log.TEMPLATE_OP_CLASSROOM, (classroom, day))
+            Log.create(Log.TEMPLATE_OP_CLASSROOM, request.user, (classroom, day))
             # log_need_update(request.user, classroom, day, 'deleted slot(s)')
             return redirect(request.GET.get('next', request.META['HTTP_REFERER']))
 
