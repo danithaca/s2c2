@@ -131,6 +131,9 @@ TEMPLATE_CONTEXT_PROCESSORS = (
 
     # add 'user_profile' to request
     'user.context_processors.current_user_profile',
+
+    # add notification count
+    'log.context_processors.notification_count',
 )
 
 # not added from startproject. need to manually add this.

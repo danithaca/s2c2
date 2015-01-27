@@ -67,6 +67,9 @@ class Center(Location):
     #         (intern_group.name, User.objects.filter(profile__centers=self, groups=intern_group.group, is_active=True)),
     #     ))
 
+    def get_managers(self):
+        return User.objects.filter(profile__centers=self, groups__role__machine_name='manager', is_active=True)
+
 
 class Classroom(Location):
     center = models.ForeignKey(Center)
