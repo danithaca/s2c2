@@ -342,7 +342,7 @@ def edit(request):
                 messages.success(request, 'Profile updated.')
             else:
                 messages.warning(request, 'Nothing has updated.')
-            return redirect('user:edit')
+            return redirect('dashboard')
     else:
         form_user = UserEditForm(instance=user_profile.user)
         form_profile = ProfileForm(instance=user_profile.profile)

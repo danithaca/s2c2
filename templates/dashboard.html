@@ -30,7 +30,10 @@
       <div class="panel panel-default">
         <div class="panel-body">
           <div class="row">
-            <div class="col-sm-4"><img src="{% user_picture_url user_profile %}" class="img-circle img-responsive"></div>
+            <div class="col-sm-4"><div class="text-center">
+              <img src="{% user_picture_url user_profile %}" class="img-circle img-responsive">
+              {% if not user_profile.has_picture and user == user_profile.user %}<a href="{% url 'user:picture' %}" class="btn btn-default">Edit picture</a>{% endif %}
+            </div></div>
             <div class="col-sm-8">
               <table class="table table-condensed">
                 <tr><th scope="row">Center{{ user_profile.centers.all|pluralize }}</th><td><ul class="list-inline">
