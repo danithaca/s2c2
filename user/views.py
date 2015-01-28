@@ -19,8 +19,8 @@ from s2c2.widgets import InlineCheckboxSelectMultiple, USPhoneNumberWidget
 from user.models import Profile, UserProfile, GroupRole
 
 
-# keep session open for 3 days.
-REMEMBER_ME_EXPIRY = 60 * 60 * 24 * 3
+# keep session open for 12 hours.
+REMEMBER_ME_EXPIRY = 60 * 60 * 12
 
 
 class DefaultUserMixin(SingleObjectMixin):
