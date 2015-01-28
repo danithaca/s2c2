@@ -1,5 +1,6 @@
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
+from django.db.models import Q
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.forms import AuthenticationForm
 from django.template.response import TemplateResponse
@@ -10,7 +11,7 @@ from django import forms
 from location.models import Classroom, Center
 from log.models import Notification
 from s2c2.decorators import user_check_against_arg
-from s2c2.utils import get_request_day, dummy
+from s2c2.utils import get_request_day, dummy, get_now
 from slot.models import DayToken
 from user.models import UserProfile, CenterStaff, GroupRole
 
@@ -102,7 +103,8 @@ def notification(request):
         user = None
 
         def get_queryset(self):
-            return Notification.objects.filter(receiver=self.user)
+            q = Q(done=False) | Q(created__day=get_now().day)
+            return Notification.objects.filter(q, receiver=self.user).order_by('-created')
 
     return NotificationView.as_view(user=request.user)(request)
 

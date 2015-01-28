@@ -2,6 +2,7 @@ import sys
 from django.http import HttpResponse
 from slot.models import DayToken
 from s2c2.decorators import *
+from django.utils import timezone
 
 
 @user_check_against_arg(lambda x, y: y is None or x.username == y, lambda args, kwargs: kwargs.get('message', None))
@@ -39,3 +40,7 @@ def get_request_day(request):
     except ValueError as e:
         day = DayToken.today()
     return day
+
+
+def get_now():
+    return timezone.now()

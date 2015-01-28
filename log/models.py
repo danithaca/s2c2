@@ -147,6 +147,9 @@ class Notification(models.Model):
     def my_unread_count(receiver):
         return Notification.objects.filter(receiver=receiver, done=False).count()
 
+    def is_today(self):
+        return timezone.now().date() == self.created.date()
+
 
 @receiver(post_save, sender=Log)
 def log_to_notification(sender, **kwargs):
