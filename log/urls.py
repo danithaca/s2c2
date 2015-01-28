@@ -1,9 +1,10 @@
 from django.conf.urls import patterns, url
-
-import log.views
+from django.contrib.auth.decorators import login_required
+from log import views
 
 urlpatterns = patterns(
     '',
     # staff portal
-    url(r'^notification/$', log.views.notification, name='notification'),
+    url(r'^notification/$', views.notification, name='notification'),
+    url(r'^mark_read/$', views.MarkRead.as_view(), name='mark_read'),
 )

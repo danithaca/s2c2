@@ -7,6 +7,17 @@
 
 {% block page-header %}Notifications <small>{% icon user %} {{ user|name }}</small>{% endblock %}
 
+{% block page-header-extra %}{% if form and notification_count %}
+  <form class="form" method="post" action="{% url 'log:mark_read' %}">
+    {% csrf_token %}
+    {{ form }}
+    <div class="form-group alert alert-warning">
+      <button type="submit" class="btn btn-primary">Mark Read</button>
+      <span class="text-muted">Click the button to mark all unread notification as read. Read notifications past today will not show here.</span>
+    </div>
+  </form>
+{% endif %}{% endblock %}
+
 {% block page-content %}
 {% for notification in latest_notification %}
   <blockquote>
