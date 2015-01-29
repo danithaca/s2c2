@@ -21,7 +21,11 @@
 {% block page-content %}
 {% for notification in latest_notification %}
   <blockquote>
-    <p>{% if not notification.done %}<span class="label label-danger">new</span> {% endif %}{{ notification.log.display }}</p>
+    <p>{% if not notification.done %}<span class="label label-danger">new</span> {% endif %}{{ notification.display }}
+      {% if notification.log.get_links %}
+        {% for link in notification.log.get_links %}<a href="{{ link.href }}"><i class="fa fa-link"></i></a> {% endfor %}
+      {% endif %}
+    </p>
     <footer>from {% if notification.sender %}<a href="{% url 'dashboard' uid=notification.sender.id %}">{% icon 'user' %} {{ notification.sender|name }}</a>{% else %}<em>system</em>{% endif %}
       on {% if notification.is_today %}{{ notification.created|time }}{% else %}{{ notification.created|date }}{% endif %}</footer>
   </blockquote>

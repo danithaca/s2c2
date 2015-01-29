@@ -54,7 +54,7 @@
         <li><a href="{% url 'user:signup' %}"><i class="fa fa-edit"></i> Signup</a></li>
         {% else %}
         <li><a href="{% url 'dashboard' %}"><i class="fa fa-home"></i> Dashboard</a></li>
-        <li class="disabled"><a href="{% url 'log:notification' %}"><i class="fa fa-wifi"></i> Notifications <span class="badge">{{ notification_count|default:'0' }}</span></a></li>
+        <li><a href="{% url 'log:notification' %}"><i class="fa fa-wifi"></i> Notifications <span class="badge">{{ notification_count|default:'0' }}</span></a></li>
         {% with center_count=user.profile.centers.count %}
           {% if center_count == 1 %}
             {% with center=user.profile.centers.first %}

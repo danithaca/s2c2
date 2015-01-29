@@ -1,5 +1,7 @@
+from abc import ABCMeta
 from datetime import timedelta
 import warnings
+from django.core.urlresolvers import reverse
 
 from django.db import models
 from django.contrib.auth.models import User
@@ -8,6 +10,7 @@ from django.contrib.auth.models import User
 # specifies when to create a new log entry or when to update instead.
 from django.db.models.signals import post_save
 from django.dispatch import receiver
+from django.utils.text import capfirst
 from location.models import Location, Classroom
 from user.models import UserProfile
 from django.utils import timezone
@@ -45,11 +48,16 @@ class Log(models.Model):
         # (TYPE_OFFER_DATE_UPDATE, 'Update: offer date'),
         # (TYPE_NEED_REGULAR_UPDATE, 'Update: need regular'),
         # (TYPE_NEED_DATE_UPDATE, 'Update: need date'),
-        (OFFER_UPDATE, 'offer update'),
-        (NEED_UPDATE, 'need update'),
-        (MEET_UPDATE, 'meet update'),
-        (MEET_CASCADE_DELETE_OFFER, 'meet cascade delete offer'),
-        (MEET_CASCADE_DELETE_NEED, 'meet cascade delete need'),
+        (OFFER_UPDATE, 'staff availability update'),
+        (NEED_UPDATE, 'classroom need update'),
+        (MEET_UPDATE, 'assignment update'),
+        (MEET_CASCADE_DELETE_OFFER, 'assignment canceled due to staff availability change'),
+        (MEET_CASCADE_DELETE_NEED, 'assignment canceled due to classroom need change'),
+        (TEMPLATE_OP_STAFF, 'staff template operation'),
+        (TEMPLATE_OP_STAFF, 'classroom template operation'),
+        (SIGNUP, 'user signup'),
+        (COMMENT, 'user comment'),
+        (VERIFY, 'user verification'),
     )
 
     creator = models.ForeignKey(User)
@@ -61,6 +69,7 @@ class Log(models.Model):
     def __str__(self):
         return '%s: %s (%s)' % (self.creator.username, self.ref, self.get_type_display())
 
+    # someday: might want to migrate to LogObject.
     def display(self):
         from slot.models import DayToken, TimeToken
         message = self.message
@@ -113,6 +122,47 @@ class Log(models.Model):
     def is_today(self):
         return timezone.now().date() == self.updated.date()
 
+    def get_links(self):
+        """
+        :return: list of link data to be imported to link_a
+        """
+        ref_list = self.ref.split(',')
+        links = []
+        if self.type in (Log.OFFER_UPDATE, Log.TEMPLATE_OP_STAFF):
+            try:
+                u = User.objects.get(pk=ref_list[0])
+                links.append({'text': 'view availability', 'href': '%s?day=%s' % (reverse('slot:staff', kwargs={'uid': u.pk}), ref_list[1])})
+            except User.DoesNotExist:
+                pass
+
+        elif self.type in (Log.NEED_UPDATE, Log.TEMPLATE_OP_CLASSROOM):
+            try:
+                classroom = Classroom.objects.get(pk=ref_list[0])
+                links.append({'text': 'view availability', 'href': '%s?day=%s' % (reverse('slot:classroom', kwargs={'cid': classroom.pk}), ref_list[1])})
+            except User.DoesNotExist:
+                pass
+
+        elif self.type in (Log.MEET_UPDATE, Log.MEET_CASCADE_DELETE_OFFER, Log.MEET_CASCADE_DELETE_NEED):
+            staff_id, classroom_id, d, t = self.ref.split(',')
+            try:
+                u = User.objects.get(pk=ref_list[0])
+                links.append({'text': 'view availability', 'href': '%s?day=%s' % (reverse('slot:staff', kwargs={'uid': u.pk}), staff_id)})
+                classroom = Classroom.objects.get(pk=ref_list[0])
+                links.append({'text': 'view availability', 'href': '%s?day=%s' % (reverse('slot:classroom', kwargs={'cid': classroom.pk}), classroom_id)})
+            except (User.DoesNotExist, Classroom.DoesNotExist):
+                pass
+
+        return links
+
+
+# this is the proxy class to Log. for different not implemented yet.
+class LogObject(metaclass=ABCMeta):
+    def __init__(self, log):
+        self.log = log
+
+    def to_notification(self):
+        pass
+
 
 class Notification(models.Model):
     sender = models.ForeignKey(User, null=True, blank=True, related_name='notification_sender')
@@ -149,6 +199,11 @@ class Notification(models.Model):
 
     def is_today(self):
         return timezone.now().date() == self.created.date()
+
+    def display(self):
+        prefix = capfirst(self.log.get_type_display())
+        message = self.log.display()
+        return '%s - %s' % (prefix, message)
 
 
 @receiver(post_save, sender=Log)
