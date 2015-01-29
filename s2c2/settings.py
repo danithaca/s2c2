@@ -9,7 +9,8 @@ https://docs.djangoproject.com/en/1.7/ref/settings/
 """
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
-import os, logging
+import os
+import logging
 
 from django.core.urlresolvers import reverse_lazy
 
@@ -192,6 +193,6 @@ IMAGE_CROPPING_SIZE_WARNING = True
 # load local settings override.
 
 try:
-    from .settings_local import *
+    from s2c2.settings_local import *
 except ImportError:
     logging.warning('Local settings not found.')
