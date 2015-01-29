@@ -12,6 +12,7 @@ from django.shortcuts import render, redirect
 from django.utils.translation import ugettext_lazy as _
 from django.views.generic import FormView, UpdateView
 from django.views.generic.detail import SingleObjectMixin
+from log.models import Log
 from s2c2.decorators import user_is_center_manager, user_is_verified
 from s2c2.utils import dummy
 from s2c2.widgets import InlineCheckboxSelectMultiple, USPhoneNumberWidget
@@ -67,6 +68,8 @@ def signup_simple(request):
         def form_valid(self, form):
             # this calls SignupForm::UserCreationForm::save()
             form.save()
+            u = form.instance
+            Log.create(Log.SIGNUP, u, [u])
 
             if not request.user.is_authenticated():
                 # requires authentication() first.
@@ -310,6 +313,7 @@ def edit(request):
     if request.method == 'POST':
         form_user = UserEditForm(request.POST, instance=user_profile.user)
         form_profile = ProfileForm(request.POST, request.FILES, instance=user_profile.profile)
+        center_changed = False
 
         if form_user.is_valid() and form_profile.is_valid():
             if form_user.has_changed():
@@ -331,12 +335,22 @@ def edit(request):
                         pass
                     # changing role requires verification again.
                     form_profile.instance.verified = None
+                    Log.create(Log.SIGNUP, user_profile.user, [user_profile.user], 'role change')
+
+                # handle centers change.
+                if user_profile.get_centers_id_set() != set([c.pk for c in form_profile.cleaned_data['centers']]):
+                    # changing role requires verification again.
+                    form_profile.instance.verified = None
+                    center_changed = True
 
                 if not user_profile.has_profile():
                     # assign the correct user instance to create a new Profile instance.
                     form_profile.instance.user = user_profile.user
 
                 form_profile.save()
+                # log this only after profile is saved so that managers from the new center will get notified.
+                if center_changed:
+                    Log.create(Log.SIGNUP, user_profile.user, [user_profile.user], 'center change')
 
             if form_user.has_changed() or form_profile.has_changed():
                 messages.success(request, 'Profile updated.')
@@ -415,6 +429,7 @@ def verify(request, *args, **kwargs):
                     p.profile.verified = True
                     p.profile.save()
                     verified_list.append(p)
+                    Log.create(Log.VERIFY, request.user, [p.user])
             messages.success(request, 'Successfully verified: %s' % ', '.join([p.get_full_name() or p.username for p in verified_list]))
             return super(VerifyView, self).form_valid(form)
 

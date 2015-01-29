@@ -11,7 +11,7 @@ from django.contrib.auth.models import User
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 from django.utils.text import capfirst
-from location.models import Location, Classroom
+from location.models import Location, Classroom, Center
 from user.models import UserProfile
 from django.utils import timezone
 
@@ -77,23 +77,36 @@ class Log(models.Model):
         #     return 'updated availability (%s)' % self.message
         # elif self.type == Log.NEED_UPDATE:
         #     return 'updated needs: %s' % self.message
-        if self.type in (Log.TEMPLATE_OP_STAFF, Log.TEMPLATE_OP_CLASSROOM):
-            # day = DayToken.from_token(self.ref.split(',')[1])
-            message = 'copied from template'
-        elif self.type == Log.MEET_UPDATE:
-            staff_id, classroom_id, d, t = self.ref.split(',')
-            t = TimeToken.from_token(t)
-            message = 'assignment updated (%s): %s' % (t.display(), message)
-        elif self.type == Log.MEET_CASCADE_DELETE_OFFER:
-            staff_id, classroom_id, d, t = self.ref.split(',')
-            staff = UserProfile.get_by_id(staff_id)
-            t = TimeToken.from_token(t)
-            message = 'assignment updated due to staff availability change: %s on %s' % (staff.get_display_name(), t.display())
-        elif self.type == Log.MEET_CASCADE_DELETE_NEED:
-            staff_id, classroom_id, d, t = self.ref.split(',')
-            classroom = Classroom.get_by_id(classroom_id)
-            t = TimeToken.from_token(t)
-            message = 'assignment updated due to classroom needs change: %s on %s' % (classroom.name, t.display())
+        try:
+            if self.type in (Log.TEMPLATE_OP_STAFF, Log.TEMPLATE_OP_CLASSROOM):
+                # day = DayToken.from_token(self.ref.split(',')[1])
+                message = 'copied from template'
+            elif self.type == Log.MEET_UPDATE:
+                staff_id, classroom_id, d, t = self.ref.split(',')
+                t = TimeToken.from_token(t)
+                message = 'assignment updated (%s): %s' % (t.display(), message)
+            elif self.type == Log.MEET_CASCADE_DELETE_OFFER:
+                staff_id, classroom_id, d, t = self.ref.split(',')
+                staff = UserProfile.get_by_id(staff_id)
+                t = TimeToken.from_token(t)
+                message = 'assignment updated due to staff availability change: %s on %s' % (staff.get_display_name(), t.display())
+            elif self.type == Log.MEET_CASCADE_DELETE_NEED:
+                staff_id, classroom_id, d, t = self.ref.split(',')
+                classroom = Classroom.get_by_id(classroom_id)
+                t = TimeToken.from_token(t)
+                message = 'assignment updated due to classroom needs change: %s on %s' % (classroom.name, t.display())
+            elif self.type == Log.SIGNUP:
+                staff = UserProfile.get_by_id(self.ref)
+                if not message:
+                    message = '"%s" signed up' % staff.get_display_name()
+                else:
+                    message = '"%s" %s' % (staff.get_display_name(), message)
+            elif self.type == Log.VERIFY:
+                staff = UserProfile.get_by_id(self.ref)
+                message = '"%s" verified' % staff.get_display_name()
+        except (User.DoesNotExist, Location.DoesNotExist):
+            message = '%s (entity invalid)' % message
+
         return message
 
     @staticmethod
@@ -114,6 +127,10 @@ class Log(models.Model):
             assert isinstance(target, User) or isinstance(target, Location)
             assert isinstance(day, DayToken) and not day.is_regular()
             ref = '%d,%s' % (target.pk, day.get_token())
+        elif t in (Log.SIGNUP, Log.VERIFY):
+            u = data[0]
+            assert len(data) == 1 and isinstance(u, User)
+            ref = str(u.pk)
 
         # todo: create or update based on time elapse.
         entry = Log(creator=creator, type=t, ref=ref, message=message)
@@ -128,29 +145,28 @@ class Log(models.Model):
         """
         ref_list = self.ref.split(',')
         links = []
-        if self.type in (Log.OFFER_UPDATE, Log.TEMPLATE_OP_STAFF):
-            try:
+        try:
+            if self.type in (Log.OFFER_UPDATE, Log.TEMPLATE_OP_STAFF):
                 u = User.objects.get(pk=ref_list[0])
                 links.append({'text': 'view availability', 'href': '%s?day=%s' % (reverse('slot:staff', kwargs={'uid': u.pk}), ref_list[1])})
-            except User.DoesNotExist:
-                pass
 
-        elif self.type in (Log.NEED_UPDATE, Log.TEMPLATE_OP_CLASSROOM):
-            try:
+            elif self.type in (Log.NEED_UPDATE, Log.TEMPLATE_OP_CLASSROOM):
                 classroom = Classroom.objects.get(pk=ref_list[0])
                 links.append({'text': 'view availability', 'href': '%s?day=%s' % (reverse('slot:classroom', kwargs={'cid': classroom.pk}), ref_list[1])})
-            except User.DoesNotExist:
-                pass
 
-        elif self.type in (Log.MEET_UPDATE, Log.MEET_CASCADE_DELETE_OFFER, Log.MEET_CASCADE_DELETE_NEED):
-            staff_id, classroom_id, d, t = self.ref.split(',')
-            try:
+            elif self.type in (Log.MEET_UPDATE, Log.MEET_CASCADE_DELETE_OFFER, Log.MEET_CASCADE_DELETE_NEED):
+                staff_id, classroom_id, d, t = self.ref.split(',')
                 u = User.objects.get(pk=ref_list[0])
                 links.append({'text': 'view availability', 'href': '%s?day=%s' % (reverse('slot:staff', kwargs={'uid': u.pk}), staff_id)})
                 classroom = Classroom.objects.get(pk=ref_list[0])
                 links.append({'text': 'view availability', 'href': '%s?day=%s' % (reverse('slot:classroom', kwargs={'cid': classroom.pk}), classroom_id)})
-            except (User.DoesNotExist, Classroom.DoesNotExist):
-                pass
+
+            elif self.type in (Log.SIGNUP, Log.VERIFY):
+                staff = User.objects.get(pk=self.ref)
+                links.append({'text': 'view availability', 'href': '%s' % (reverse('dashboard', kwargs={'uid': staff.pk}))})
+
+        except (User.DoesNotExist, Location.DoesNotExist):
+            pass
 
         return links
 
@@ -210,34 +226,41 @@ class Notification(models.Model):
 def log_to_notification(sender, **kwargs):
     log = kwargs['instance']
 
-    # create notification if "offer" is not updated by me.
-    if log.type in (Log.OFFER_UPDATE, Log.TEMPLATE_OP_STAFF):
-        target_id = int(log.ref.split(',')[0])
-        if log.creator is not None and log.creator.pk != target_id:
-            try:
+    try:
+        # create notification if "offer" is not updated by me.
+        if log.type in (Log.OFFER_UPDATE, Log.TEMPLATE_OP_STAFF):
+            target_id = int(log.ref.split(',')[0])
+            if log.creator is not None and log.creator.pk != target_id:
                 u = User.objects.get(pk=target_id)
                 Notification.create(log, log.creator, u, Notification.LEVEL_NORMAL)
-            except User.DoesNotExist:
-                pass
 
-    # notify staff who are affected due to assignment change from the classrooms.
-    elif log.type in (Log.MEET_UPDATE, Log.MEET_CASCADE_DELETE_NEED):
-        target_id = int(log.ref.split(',')[0])
-        try:
+        # notify staff who are affected due to assignment change from the classrooms.
+        elif log.type in (Log.MEET_UPDATE, Log.MEET_CASCADE_DELETE_NEED):
+            target_id = int(log.ref.split(',')[0])
             u = User.objects.get(pk=target_id)
             Notification.create(log, log.creator, u, Notification.LEVEL_NORMAL)
-        except User.DoesNotExist:
-            pass
 
-    # notify all center managers if assignment change due to staff availability problems.
-    elif log.type == Log.MEET_CASCADE_DELETE_OFFER:
-        # someday: might want to check if it is the center managers who changed the offer. if so, no need to send notifications.
-        target_id, location_id, day_token, time_token = log.ref.split(',')
-        try:
+        # notify all center managers if assignment change due to staff availability problems.
+        elif log.type == Log.MEET_CASCADE_DELETE_OFFER:
+            # someday: might want to check if it is the center managers who changed the offer. if so, no need to send notifications.
+            target_id, location_id, day_token, time_token = log.ref.split(',')
             target_user = User.objects.get(pk=target_id)
             classroom = Classroom.objects.get(pk=location_id)
             center = classroom.center
             for manager in center.get_managers():
                 Notification.create(log, log.creator, manager, Notification.LEVEL_HIGH)
-        except (User.DoesNotExist, Classroom.DoesNotExist):
-            pass
+
+        elif log.type == Log.SIGNUP:
+            target_user = UserProfile.get_by_id(log.ref)
+            if target_user.has_profile() and target_user.profile.centers.exists():
+                for center in target_user.profile.centers.all():
+                    for manager in center.get_managers():
+                        # usually target_user.user == log.creator, but not necessarily
+                        Notification.create(log, target_user.user, manager, Notification.LEVEL_NORMAL)
+
+        elif log.type == Log.VERIFY:
+            target_user = UserProfile.get_by_id(log.ref)
+            Notification.create(log, log.creator, target_user.user, Notification.LEVEL_HIGH)
+
+    except (User.DoesNotExist, Location.DoesNotExist, Classroom.DoesNotExist, Center.DoesNotExist):
+        pass
