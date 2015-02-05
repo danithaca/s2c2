@@ -31,6 +31,7 @@
     <div class="col-sm-6"><h2>Weekly Schedule</h2></div>
     <div class="col-sm-6"><ul class="nav-week pagination pull-right">
       <li{% if day.is_regular %} class="disabled"{% endif %}><a href="?day={{ day.prev_week.get_token }}"><i class="fa fa-fast-backward"></i></a></li>
+      <li><a href="{% url 'slot:classroom' cid=classroom.pk %}"><i class="fa fa-calendar-o"></i> Today</a></li>
       <li><a href="."><i class="fa fa-calendar"></i> This Week</a></li>
       <li><a href="?day={{ day.switch.get_token }}"><i class="fa fa-exchange"></i> Switch</a></li>
       <li{% if day.is_regular %} class="disabled"{% endif %}><a href="?day={{ day.next_week.get_token }}"><i class="fa fa-fast-forward"></i></a></li>
