@@ -55,6 +55,7 @@ INSTALLED_APPS = (
     # 'account',
     'easy_thumbnails',
     'image_cropping',
+    'django_ajax',
 
     # customized
     's2c2',

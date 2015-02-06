@@ -3,6 +3,27 @@
 {% load bootstrap %}
 {% load s2c2_tags %}
 
+{% block extra_header %}
+<script type="text/javascript">
+  $(document).ready(function() {
+    $.ajaxSetup({
+      beforeSend: function(xhr, settings) {
+        if (!/^(GET|HEAD|OPTIONS|TRACE)$/.test(settings.type) && !this.crossDomain) {
+          var csrftoken = $.cookie('csrftoken');
+          xhr.setRequestHeader("X-CSRFToken", csrftoken);
+        }
+      }
+    });
+
+    $('a.notification-link').click(function(event) {
+      //event.preventDefault();
+      console.log($(this).data('notification-id'));
+      $.post('{% url 'log:mark_read' %}', {'unread': $(this).data('notification-id')});
+    });
+  });
+</script>
+{% endblock %}
+
 {% block title %}Notifications | S2C2{% endblock %}
 
 {% block page-header %}Notifications <small>{% icon user %} {{ user|name }}</small>{% endblock %}
@@ -23,7 +44,7 @@
   <blockquote>
     <p>{% if not notification.done %}<span class="label label-danger">new</span> {% endif %}{{ notification.display }}
       {% if notification.log.get_links %}
-        {% for link in notification.log.get_links %}<a href="{{ link.href }}"><i class="fa fa-link"></i></a> {% endfor %}
+        {% for link in notification.log.get_links %}<a href="{{ link.href }}" class="notification-link" data-notification-id="{{ notification.id }}"><i class="fa fa-link"></i></a> {% endfor %}
       {% endif %}
     </p>
     <footer>from {% if notification.sender %}<a href="{% url 'dashboard' uid=notification.sender.id %}">{% icon 'user' %} {{ notification.sender|name }}</a>{% else %}<em>system</em>{% endif %}

@@ -3,6 +3,7 @@ from django.contrib.auth.decorators import login_required
 from django.core.urlresolvers import reverse
 from django.db.models import Q
 from django.views.generic import ListView, FormView
+from django_ajax.mixin import AJAXMixin
 from log.models import Notification
 from s2c2.utils import get_now
 
@@ -35,7 +36,8 @@ class MarkReadForm(forms.Form):
     unread = forms.CharField()
 
 
-class MarkRead(FormView):
+class MarkRead(AJAXMixin, FormView):
+    ajax_mandatory = False
     form_class = MarkReadForm
     template_name = 'base_form.html'
 
