@@ -276,7 +276,7 @@ class TimeTokenField(models.TimeField, metaclass=models.SubfieldBase):
                 _value = super(TimeTokenField, self).to_python(value)
                 return TimeToken(_value)
             elif isinstance(value, TimeToken):
-                # if it's just DayToken, don't change anything.
+                # if it's just TimeToken, don't change anything.
                 return value
             else:
                 raise ValidationError('Cannot identify TimeToken type: %s' % type(value))
