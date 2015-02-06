@@ -78,8 +78,8 @@ def classroom_home(request, pk):
 
     # check permission:
     # only viewable by people from the same center. doesn't need "verified".
-    if not UserProfile(request.user).is_same_center(classroom):
-        return defaults.permission_denied(request)
+    # if not UserProfile(request.user).is_same_center(classroom):
+    #     return defaults.permission_denied(request)
 
     classroom_staff = classroom.get_staff()
     week_table_data = classroom.get_week_table(day)
