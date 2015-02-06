@@ -271,7 +271,7 @@ class TimeTokenField(models.TimeField, metaclass=models.SubfieldBase):
             if isinstance(value, str):
                 # when value is a string, it's a token.
                 return TimeToken.from_token(value)
-            elif isinstance(value, time):
+            elif isinstance(value, time) or isinstance(value, datetime):
                 # when the value is time, go through the super one, and then return TimeToken
                 _value = super(TimeTokenField, self).to_python(value)
                 return TimeToken(_value)
