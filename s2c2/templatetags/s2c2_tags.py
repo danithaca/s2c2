@@ -138,6 +138,9 @@ def show_notification_message(notification):
 def user_picture_url(context, user_profile, **kwargs):
     assert isinstance(user_profile, UserProfile)
     if user_profile.has_picture():
-        return cropped_thumbnail(context, user_profile.profile, 'picture_cropping', **kwargs)
-    else:
-        return static('user_200x200.png')
+        try:
+            return cropped_thumbnail(context, user_profile.profile, 'picture_cropping', **kwargs)
+        except:
+            # todo: add logging info.
+            pass
+    return static('user_200x200.png')
