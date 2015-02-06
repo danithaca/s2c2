@@ -1,8 +1,9 @@
 from django.contrib import auth, messages
 from django.contrib.auth import views as auth_views
 from django.contrib.auth.decorators import login_required
-from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
+from django.contrib.auth.forms import UserCreationForm, AuthenticationForm, authenticate
 from django.contrib.auth.models import User, Group
+from django.contrib.auth import REDIRECT_FIELD_NAME
 from django.core.urlresolvers import reverse
 from django.forms import ModelForm, RegexField, TextInput, CheckboxSelectMultiple, ChoiceField, Form, \
     MultipleChoiceField
@@ -195,9 +196,38 @@ def signup_simple(request):
 #     return SignupView.as_view()(request)
 
 
+class ExAuthenticationForm(AuthenticationForm):
+    """ Allows log in with either username or email """
+    def clean(self):
+        username = self.cleaned_data.get('username')
+        password = self.cleaned_data.get('password')
+
+        # this is the hack that allows email
+        if '@' in username:
+            try:
+                actual_username = User.objects.filter(email=username).values_list('username', flat=True).first()
+                if actual_username:
+                    username = actual_username
+            except User.DoesNotExist:
+                pass
+
+        if username and password:
+            self.user_cache = authenticate(username=username, password=password)
+            if self.user_cache is None:
+                raise forms.ValidationError(
+                    self.error_messages['invalid_login'],
+                    code='invalid_login',
+                    params={'username': self.username_field.verbose_name},
+                    )
+            else:
+                self.confirm_login_allowed(self.user_cache)
+
+        return self.cleaned_data
+
+
 def login(request):
     # extra_context={'next': '/'} is not needed since we have settings.LOGIN_REDIRECT_URL
-    response = auth_views.login(request, template_name='user/login.html', authentication_form=AuthenticationForm)
+    response = auth_views.login(request, template_name='user/login.html', authentication_form=ExAuthenticationForm)
     if isinstance(response, HttpResponseRedirect):
         # messages.success(request, 'User %s logged in successfully.' % request.user.get_username())
         # someday: allow user set REMEMBER_ME later.
