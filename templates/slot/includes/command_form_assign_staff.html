@@ -2,7 +2,7 @@
 {% load bootstrap %}
 
 {% block command_form_content %}
-  <form class="form-horizontal" role="form" method="post" action="{% url 'slot:classroom_assign' cid=classroom.pk %}">
+  <form class="form-horizontal" role="form" method="post" action="{% url 'slot:classroom_assign' cid=classroom.pk %}?day={{ day.get_token }}">
     {% csrf_token %}
     {{ command_form_assign|bootstrap_horizontal:'col-sm-4' }}
     <div class="form-group">
