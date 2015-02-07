@@ -22,6 +22,9 @@ def home(request):
     if request.user.is_anonymous():
         return render(request, 'home.html', {'form': AuthenticationForm()})
     else:
+        user_profile = UserProfile(request.user)
+        if user_profile.is_center_staff():
+            return redirect('calendar_staff')
         return redirect('dashboard')
 
 
@@ -168,3 +171,18 @@ def center_home(request, pk, tab='directory'):
         assert False
 
     return render(request, 'center.html', context)
+
+
+# permission: myself or verified user from same center.
+@login_required
+@user_check_against_arg(
+    lambda view_user_profile, target_user: target_user is None or view_user_profile.user == target_user or view_user_profile.is_verified() and view_user_profile.is_same_center( target_user),
+    lambda args, kwargs: get_object_or_404(User, pk=kwargs['uid']) if 'uid' in kwargs and kwargs['uid'] is not None else None,
+    lambda u: UserProfile(u)
+)
+def calendar_staff(request, uid=None):
+    user_profile = UserProfile.get_by_id_default(uid, request.user)
+    context = {
+        'user_profile': user_profile,
+    }
+    return TemplateResponse(request, template='calendar_staff.html', context=context)
