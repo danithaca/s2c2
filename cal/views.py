@@ -1,6 +1,7 @@
 from itertools import groupby
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
+from django.core.urlresolvers import reverse
 from django.shortcuts import render, get_object_or_404
 from django.template.response import TemplateResponse
 from django.http import JsonResponse
@@ -56,6 +57,7 @@ def calendar_staff_events(request, uid):
                     if location_id:
                         location = Location.get_by_id(location_id)
                         event['title'] = location.name
+                        event['url'] = reverse('cal:classroom', kwargs={'cid': location_id})
                     else:
                         event['title'] = 'Open'
                         event['color'] = 'gray'
@@ -64,3 +66,7 @@ def calendar_staff_events(request, uid):
         return JsonResponse(data, safe=False)
     else:
         return bad_request(request)
+
+
+def calendar_classroom(request, cid):
+    return dummy(request)

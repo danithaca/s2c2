@@ -1,0 +1,29 @@
+{% extends "base_page.html" %}
+{% load staticfiles %}
+{% load bootstrap %}
+{% load s2c2_tags %}
+
+{% block extra_header %}
+  <link href='{% static 'fullcalendar/fullcalendar.css' %}' rel='stylesheet' />
+  <link href='{% static 'fullcalendar/fullcalendar.print.css' %}' rel='stylesheet' media='print' />
+  <script src='{% static 'fullcalendar/lib/moment.min.js' %}'></script>
+  <script src='{% static 'fullcalendar/fullcalendar.js' %}'></script>
+  <script>
+    $(document).ready(function() {
+
+    }); // end of document.ready().
+  </script>
+{% endblock %}
+
+{% block title %}Classroom Calendar | S2C2{% endblock %}
+{% block page-header %}Calendar <small>{% icon user %} {{ user|name }}</small>{% endblock %}
+
+{% block page-content %}
+  <div class="row">
+    <div class="col-sm-9">
+      <div id='calendar'></div>
+    </div>
+    <div class="col-sm-3">
+    </div>
+  </div>
+{% endblock %}
