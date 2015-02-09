@@ -14,8 +14,6 @@ urlpatterns = patterns(
     url(r'^dashboard(?:/(?P<uid>\d+))?/$', s2c2.views.dashboard, name='dashboard'),
     url(r'^classroom/(?P<pk>\d+)/$', s2c2.views.classroom_home, name='classroom'),
 
-    url(r'^calendar/staff(?:/(?P<uid>\d+))?/$', s2c2.views.calendar_staff, name='calendar_staff'),
-
     url(r'^center/(?P<pk>\d+)/$', s2c2.views.center_home, name='center'),
     url(r'^center/(?P<pk>\d+)/directory/$', s2c2.views.center_home, {'tab': 'directory'}, name='center_directory'),
     url(r'^center/(?P<pk>\d+)/list-classroom/$', s2c2.views.center_home, {'tab': 'list-classroom'}, name='center_list_classroom'),
@@ -26,6 +24,8 @@ urlpatterns = patterns(
     url(r'^user/', include('user.urls', namespace='user')),
     url(r'^slot/', include('slot.urls', namespace='slot')),
     url(r'^log/', include('log.urls', namespace='log')),
+    url(r'^cal/', include('cal.urls', namespace='cal')),
+
     url(r'^admin/', include(admin.site.urls)),
     url(r'^dummy/$', utils.dummy, name='dummy'),
     url(r'^dummy/(?P<message>.+)/$', utils.dummy, name='dummy_extra'),

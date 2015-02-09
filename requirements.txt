@@ -4,4 +4,4 @@ pytz>=2014.10
 django-localflavor>=1.1
 django-image-cropping>=0.9.1
 easy-thumbnails>=2.2
-djangoajax>=2.2
+django-ajax>=2.2
