@@ -6,15 +6,6 @@
 {% block extra_header %}
 <script type="text/javascript">
   $(document).ready(function() {
-    $.ajaxSetup({
-      beforeSend: function(xhr, settings) {
-        if (!/^(GET|HEAD|OPTIONS|TRACE)$/.test(settings.type) && !this.crossDomain) {
-          var csrftoken = $.cookie('csrftoken');
-          xhr.setRequestHeader("X-CSRFToken", csrftoken);
-        }
-      }
-    });
-
     $('a.notification-link').click(function(event) {
       //event.preventDefault();
       console.log($(this).data('notification-id'));

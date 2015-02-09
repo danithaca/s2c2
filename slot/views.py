@@ -10,6 +10,7 @@ from django.views import defaults
 from django.shortcuts import render, redirect, get_object_or_404
 from django.template.response import TemplateResponse
 from django import forms
+from django_ajax.decorators import ajax
 
 from location.models import Classroom
 from log.models import Log
@@ -127,6 +128,7 @@ class NeedSlotForm(SlotForm):
 
 
 # permission: myself (as a staff), or verified center manager from the same center.
+@ajax(mandatory=False)
 @login_required
 @user_check_against_arg(
     lambda view_user_profile, target_user: view_user_profile.user == target_user or view_user_profile.is_verified() and view_user_profile.is_center_manager() and view_user_profile.is_same_center(target_user),
