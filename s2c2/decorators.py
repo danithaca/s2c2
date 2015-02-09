@@ -1,7 +1,8 @@
 from functools import wraps
 from django.contrib import messages
 from django.contrib.auth.decorators import user_passes_test
-from django.shortcuts import redirect
+from django.contrib.auth.models import User
+from django.shortcuts import redirect, get_object_or_404
 from django.utils.decorators import available_attrs
 from django.views import defaults
 from user.models import UserProfile
@@ -43,6 +44,17 @@ def user_check_against_arg(check_func, get_func, request_user_func=lambda u: u):
             return view_func(request, *args, **kwargs)
         return _wrapper_inner
     return _wrapper_outer
+
+
+def user_is_me_or_same_center(view_func):
+    @wraps(view_func)
+    def _wrapped_view(request, *args, **kwargs):
+        return user_check_against_arg(
+            lambda view_user_profile, target_user: target_user is None or view_user_profile.user == target_user or view_user_profile.is_verified() and view_user_profile.is_same_center(target_user),
+            lambda args, kwargs: get_object_or_404(User, pk=kwargs['uid']) if 'uid' in kwargs and kwargs['uid'] is not None else None,
+            lambda u: UserProfile(u)
+        )(view_func)(request, *args, **kwargs)
+    return _wrapped_view
     
     
 # def user_is_same_center(convert_target_func):

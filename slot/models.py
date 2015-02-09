@@ -57,6 +57,14 @@ class DayToken(object):
             raise ValueError('Cannot identify DayToken: %s' % token)
 
     @staticmethod
+    def from_fullcalendar(fc_str):
+        assert isinstance(fc_str, str)
+        value = datetime.strptime(fc_str, '%Y-%m-%d').date()
+        if not DayToken.check_date(value):
+            raise ValueError('Valid date between 2010-01-01 and 2030-12-31')
+        return DayToken(value)
+
+    @staticmethod
     def today():
         return DayToken(datetime.today().date())
 
@@ -292,6 +300,7 @@ class TimeTokenField(models.TimeField, metaclass=models.SubfieldBase):
 
 class TimeSlot(object):
     def __init__(self, start, end):
+        # this are 'datetime.time', not timetoken.
         self.start = start
         self.end = end
 

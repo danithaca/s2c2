@@ -1,6 +1,7 @@
 import sys
+from datetime import datetime, date, time
 from django.http import HttpResponse
-from slot.models import DayToken
+from slot.models import DayToken, TimeToken
 from s2c2.decorators import *
 from django.utils import timezone
 
@@ -41,6 +42,20 @@ def get_request_day(request):
         day = DayToken.today()
     return day
 
+
+def get_fullcaldendar_request_date_range(request):
+    return DayToken.from_fullcalendar(request.GET['start']), DayToken.from_fullcalendar(request.GET['end'])
+
+
+def to_fullcalendar_timestamp(d, t):
+    # someday: timezone concerns?
+    if isinstance(d, DayToken):
+        d = d.value
+    if isinstance(t, TimeToken):
+        t = t.value
+    assert isinstance(d, date) and isinstance(t, time)
+    dt = datetime.combine(d, t)
+    return dt.isoformat()
 
 def get_now():
     return timezone.now()
