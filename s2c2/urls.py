@@ -14,6 +14,8 @@ urlpatterns = patterns(
     url(r'^dashboard(?:/(?P<uid>\d+))?/$', s2c2.views.dashboard, name='dashboard'),
     url(r'^classroom/(?P<pk>\d+)/$', s2c2.views.classroom_home, name='classroom'),
 
+    url(r'^calendar/staff(?:/(?P<uid>\d+))?/$', s2c2.views.calendar_staff, name='calendar_staff'),
+
     url(r'^center/(?P<pk>\d+)/$', s2c2.views.center_home, name='center'),
     url(r'^center/(?P<pk>\d+)/directory/$', s2c2.views.center_home, {'tab': 'directory'}, name='center_directory'),
     url(r'^center/(?P<pk>\d+)/list-classroom/$', s2c2.views.center_home, {'tab': 'list-classroom'}, name='center_list_classroom'),
