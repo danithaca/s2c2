@@ -63,6 +63,7 @@ INSTALLED_APPS = (
     'user',
     'slot',
     'log',
+    'cal',
 )
 
 MIDDLEWARE_CLASSES = (
