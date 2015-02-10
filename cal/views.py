@@ -11,7 +11,7 @@ from location.models import Location
 from s2c2.decorators import user_check_against_arg, user_is_me_or_same_center
 from s2c2.templatetags.s2c2_tags import s2c2_icon
 from s2c2.utils import dummy, get_fullcaldendar_request_date_range, to_fullcalendar_timestamp
-from slot.models import OfferSlot, TimeSlot, TimeToken
+from slot.models import OfferSlot, TimeSlot, TimeToken, DayToken
 from user.models import UserProfile
 
 
@@ -53,16 +53,17 @@ def calendar_staff_events(request, uid):
                 for time_slot in TimeSlot.combine([TimeToken(x[1]) for x in g]):
                     event = {
                         'start': to_fullcalendar_timestamp(day, time_slot.start),
-                        'end': to_fullcalendar_timestamp(day, time_slot.end)
+                        'end': to_fullcalendar_timestamp(day, time_slot.end),
+                        'id': '%d-%s-%s-%s' % (user_profile.pk, DayToken(day).get_token(), TimeToken(time_slot.start).get_token(), TimeToken(time_slot.end).get_token())
                     }
                     if location_id:
                         location = Location.get_by_id(location_id)
                         # event['title'] = s2c2_icon('classroom') + ' ' + location.name
                         event['title'] = location.name
                         event['url'] = reverse('cal:classroom', kwargs={'cid': location_id})
+                        event['color'] = 'darkgreen'
                     else:
                         event['title'] = 'Open'
-                        event['color'] = 'gray'
                     data.append(event)
 
         return JsonResponse(data, safe=False)

@@ -170,6 +170,7 @@ def offer_add(request, uid):
 
 
 # permission: myself only.
+@ajax(mandatory=False)
 @login_required
 @user_check_against_arg(
     lambda view_user, target_user: view_user == target_user,

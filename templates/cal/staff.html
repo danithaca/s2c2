@@ -8,6 +8,12 @@
   <link href='{% static 'fullcalendar/fullcalendar.print.css' %}' rel='stylesheet' media='print' />
   <script src='{% static 'fullcalendar/lib/moment.min.js' %}'></script>
   <script src='{% static 'fullcalendar/fullcalendar.js' %}'></script>
+  <style type="text/css">
+    .offer-remove:hover {
+      cursor: pointer;
+      color: red;
+    }
+  </style>
   <script>
     $(document).ready(function() {
 
@@ -19,9 +25,26 @@
         header: {
           left: 'prev,next today',
           center: 'title',
-          right: 'month,agendaWeek,agendaDay'
+          right: 'agendaDay,agendaWeek template'
         },
         defaultView: 'agendaWeek',
+        fixedWeekCount: false,
+        allDaySlot: false,
+        minTime: '06:00',
+        maxTime: '21:00',
+        scrollTime: '08:00',
+
+        views: {
+          templateWeek: {
+            type: 'agenda',
+            duration: { weeks: 1 },
+            //weekends: false,
+            buttonText: 'template',
+            //start: '1900-01-01',
+            //end: '1900-01-07',
+            titleFormat: '[Every] dddd'
+          }
+        },
 
         selectable: true,
         selectHelper: true,
@@ -54,8 +77,28 @@
         //firstDay: 1,
         //editable: true,
         eventLimit: true, // allow "more" link when too many events
-        events: '{% url "cal:staff_events" uid=user_profile.pk %}'
+        events: '{% url "cal:staff_events" uid=user_profile.pk %}',
+        eventRender: function(event, element) {
+          // append "offer remove" ajax link.
+          $('div.fc-content div.fc-title', element).append(' <span class="glyphicon glyphicon-remove offer-remove" data-offer="' + event.id + '"></span>');
+        }
       });
+
+      $('#calendar').on('click', '.offer-remove', function(e) {
+        e.stopPropagation();
+        e.preventDefault();
+        var [staff_id, day, start, end] = $(this).data('offer').split('-');
+        //console.log(staff_id, day, start, end);
+        // note: staff_id is not available to django backend. we'll assume user_profile.pk === staff_id
+        $.post('{% url "slot:offer_delete" uid=user_profile.pk %}', {day: day, start_time: start, end_time: end}, function(data) {
+          //console.log(data);
+          if (data.status === 302) {
+            window.location.replace(data.content);
+          }
+        });
+      });
+
+      //console.log($('#calendar').data('fullCalendar').getDate());
 
     }); // end of document.ready().
   </script>
