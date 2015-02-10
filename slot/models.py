@@ -60,9 +60,16 @@ class DayToken(object):
     def from_fullcalendar(fc_str):
         assert isinstance(fc_str, str)
         value = datetime.strptime(fc_str, '%Y-%m-%d').date()
+        # full calendar is exlusive at "end", so we allow end date to be 1900-1-8
+        if value == date(1900, 1, 8):
+            value = date(1900, 1, 7)
         if not DayToken.check_date(value):
-            raise ValueError('Valid date between 2010-01-01 and 2030-12-31')
-        return DayToken(value)
+            raise ValueError('Date out of range.')
+        else:
+            return DayToken(value)
+
+    def to_fullcalendar(self):
+        return self.value.strftime('%Y-%m-%d')
 
     @staticmethod
     def today():

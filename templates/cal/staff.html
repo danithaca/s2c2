@@ -23,10 +23,11 @@
 
       $('#calendar').fullCalendar({
         header: {
-          left: 'prev,next today',
+          left: 'prev,next today,template',
           center: 'title',
-          right: 'agendaDay,agendaWeek template'
+          right: 'agendaDay,agendaWeek'
         },
+        defaultDate: '{{ day.to_fullcalendar }}',
         defaultView: 'agendaWeek',
         fixedWeekCount: false,
         allDaySlot: false,
@@ -34,7 +35,7 @@
         maxTime: '21:00',
         scrollTime: '08:00',
 
-        views: {
+        /*views: {
           templateWeek: {
             type: 'agenda',
             duration: { weeks: 1 },
@@ -44,7 +45,7 @@
             //end: '1900-01-07',
             titleFormat: '[Every] dddd'
           }
-        },
+        },*/
 
         selectable: true,
         selectHelper: true,
@@ -56,6 +57,11 @@
           //console.log(start.format('YYYYMMDD'));
           //console.log(start.format('HHmm'));
           var form_day = start.format('YYYYMMDD');
+          // handle template string.
+          if (start.isBetween('1900-01-01', '1900-01-08')) {
+            form_day = start.format('d');
+            console.log(form_day);
+          }
           var form_start = start.format('HHmm');
           var form_end = end.format('HHmm');
           $.post('{% url "slot:offer_add" uid=user_profile.pk %}', {day: form_day, start_time: form_start, end_time: form_end}, function(data) {
@@ -74,7 +80,7 @@
           //$('#calendar').fullCalendar('refetchEvents');
         },
 
-        //firstDay: 1,
+        firstDay: 1,
         //editable: true,
         eventLimit: true, // allow "more" link when too many events
         events: '{% url "cal:staff_events" uid=user_profile.pk %}',

@@ -10,7 +10,7 @@ from django_ajax.decorators import ajax
 from location.models import Location
 from s2c2.decorators import user_check_against_arg, user_is_me_or_same_center
 from s2c2.templatetags.s2c2_tags import s2c2_icon
-from s2c2.utils import dummy, get_fullcaldendar_request_date_range, to_fullcalendar_timestamp
+from s2c2.utils import dummy, get_fullcaldendar_request_date_range, to_fullcalendar_timestamp, get_request_day
 from slot.models import OfferSlot, TimeSlot, TimeToken, DayToken
 from user.models import UserProfile
 
@@ -24,9 +24,11 @@ from user.models import UserProfile
 )
 def calendar_staff(request, uid=None):
     user_profile = UserProfile.get_by_id_default(uid, request.user)
+    day = get_request_day(request)
     context = {
         'user_profile': user_profile,
-        }
+        'day': day,
+    }
     return TemplateResponse(request, template='cal/staff.html', context=context)
 
 
