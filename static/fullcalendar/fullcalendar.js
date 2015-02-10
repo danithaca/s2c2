@@ -2,8 +2,6 @@
  * FullCalendar v2.2.6
  * Docs & License: http://arshaw.com/fullcalendar/
  * (c) 2013 Adam Shaw
- *
- * UPDATED to include "template" operation to s2c2.
  */
 
 (function(factory) {
@@ -61,7 +59,6 @@ var defaults = {
 		prevYear: "prev year",
 		nextYear: "next year",
 		today: 'today',
-    template: 'template',
 		month: 'month',
 		week: 'week',
 		day: 'day'
@@ -6945,7 +6942,6 @@ function Calendar(element, instanceOptions) {
 	t.prevYear = prevYear;
 	t.nextYear = nextYear;
 	t.today = today;
-  t.template = template;
 	t.gotoDate = gotoDate;
 	t.incrementDate = incrementDate;
 	t.zoomTo = zoomTo;
@@ -7586,12 +7582,6 @@ function Calendar(element, instanceOptions) {
 		date = t.getNow();
 		renderView();
 	}
-
-
-  function template() {
-    date = t.moment('1900-01-01');
-    renderView();
-  }
 	
 	
 	function gotoDate(dateInput) {
