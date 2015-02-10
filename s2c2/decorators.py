@@ -5,6 +5,8 @@ from django.contrib.auth.models import User
 from django.shortcuts import redirect, get_object_or_404
 from django.utils.decorators import available_attrs
 from django.views import defaults
+from django.views.defaults import bad_request
+from location.models import Classroom
 from user.models import UserProfile
 
 
@@ -65,3 +67,25 @@ def user_is_me_or_same_center(view_func):
 #         messages.error(request, 'This operation is only valid for center managers.')
 #         return redirect('dashboard')
 #     return _wrapped_view
+
+
+def user_classroom_same_center(view_func):
+    @wraps(view_func)
+    def _wrapped_view(request, *args, **kwargs):
+        user_profile = UserProfile(request.user)
+        classroom = get_object_or_404(Classroom, pk=kwargs['cid'])
+        if not request.user.is_superuser:
+            if not user_profile.is_same_center(classroom):
+                # messages.error(request, 'The operation is only valid for center managers.')
+                return defaults.permission_denied(request)
+        return view_func(request, *args, **kwargs)
+    return _wrapped_view
+
+
+def is_ajax(view_func):
+    @wraps(view_func)
+    def _wrapped_view(request, *args, **kwargs):
+        if not request.is_ajax():
+            return bad_request(request)
+        return view_func(request, *args, **kwargs)
+    return _wrapped_view

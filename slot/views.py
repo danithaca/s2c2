@@ -291,6 +291,7 @@ def day_classroom(request, cid):
 
 
 # permission: only verified center manager.
+@ajax(mandatory=False)
 @login_required     # check login first, which will be executed first.
 @user_is_verified
 @user_is_center_manager
@@ -540,5 +541,5 @@ def classroom_assign(request, cid):
     if request.method == 'GET':
         form = AssignForm(classroom, day)
 
-    form_url = request.META['HTTP_REFERER'] if 'HTTP_REFERER' in request.META else reverse('slot:classroom_assign', kwargs={'cid': cid})
+    form_url = request.META.get('HTTP_REFERER', reverse('slot:classroom_assign', kwargs={'cid': cid}))
     return render(request, 'base_form.html', {'form': form, 'form_url': form_url})

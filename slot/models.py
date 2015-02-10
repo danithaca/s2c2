@@ -320,10 +320,25 @@ class TimeSlot(object):
         assert len(list_timetoken) > 0
         combined = []
         list_index = [TimeToken._to_index(t.value) for t in list_timetoken]
-        sorted(list_index)
+        list_index.sort()
         for k, g in groupby(enumerate(list_index), lambda x: x[1] - x[0]):
             l = list(g)
             combined.append(TimeSlot(TimeToken._from_index(l[0][1]), TimeToken._from_index((l[-1][1] + 1) % 48)))
+        return combined
+
+    @staticmethod
+    def separate_combined(list_timetoken):
+        assert len(list_timetoken) > 0
+        combined = []
+        list_index = [TimeToken._to_index(t.value) for t in list_timetoken]
+        while len(list_index) > 0:
+            sub_list = list(set(list_index))
+            sub_list.sort()
+            for k, g in groupby(enumerate(sub_list), lambda x: x[1] - x[0]):
+                l = list(g)
+                combined.append(TimeSlot(TimeToken._from_index(l[0][1]), TimeToken._from_index((l[-1][1] + 1) % 48)))
+            for i in sub_list:
+                list_index.remove(i)
         return combined
 
     @staticmethod

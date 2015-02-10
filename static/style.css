@@ -20,6 +20,11 @@ body {
 
 .multiple-checkbox ul.list-inline li label { font-weight: normal; }
 
+.offer-remove:hover, .need-remove:hover {
+  cursor: pointer;
+  color: red;
+}
+
 /********************************* special settings for print **********************************/
 
 @media print {

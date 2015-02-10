@@ -8,12 +8,6 @@
   <link href='{% static 'fullcalendar/fullcalendar.print.css' %}' rel='stylesheet' media='print' />
   <script src='{% static 'fullcalendar/lib/moment.min.js' %}'></script>
   <script src='{% static 'fullcalendar/fullcalendar.js' %}'></script>
-  <style type="text/css">
-    .offer-remove:hover {
-      cursor: pointer;
-      color: red;
-    }
-  </style>
   <script>
     $(document).ready(function() {
 
@@ -23,7 +17,7 @@
 
       $('#calendar').fullCalendar({
         header: {
-          left: 'prev,next today,template',
+          left: 'prev,next today',
           center: 'title',
           right: 'agendaDay,agendaWeek'
         },
@@ -67,7 +61,9 @@
           $.post('{% url "slot:offer_add" uid=user_profile.pk %}', {day: form_day, start_time: form_start, end_time: form_end}, function(data) {
             //console.log(data);
             if (data.status === 302) {
-              window.location.replace(data.content);
+              //window.location.replace(data.content);
+              $('#calendar').fullCalendar('refetchEvents');
+              $('#calendar').fullCalendar('rerenderEvents');
             }
           });
           //var eventData;
@@ -99,7 +95,9 @@
         $.post('{% url "slot:offer_delete" uid=user_profile.pk %}', {day: day, start_time: start, end_time: end}, function(data) {
           //console.log(data);
           if (data.status === 302) {
-            window.location.replace(data.content);
+            //window.location.replace(data.content);
+            $('#calendar').fullCalendar('refetchEvents');
+            $('#calendar').fullCalendar('rerenderEvents');
           }
         });
       });
@@ -111,14 +109,17 @@
 {% endblock %}
 
 {% block title %}Staff Calendar | S2C2{% endblock %}
-{% block page-header %}Calendar <small>{% icon user %} {{ user|name }}</small>{% endblock %}
+{% block page-header %}{% icon user %} {{ user|name }}{% endblock %}
 
 {% block page-content %}
-<div class="row">
-<div class="col-sm-9">
-  <div id='calendar'></div>
-</div>
-<div class="col-sm-3">
-</div>
-</div>
+  <div class="row">
+    <div class="col-sm-3">
+      <div>
+        placeholder
+      </div>
+    </div>
+    <div class="col-sm-9">
+      <div id='calendar'></div>
+    </div>
+  </div>
 {% endblock %}
