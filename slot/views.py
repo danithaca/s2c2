@@ -130,11 +130,7 @@ class NeedSlotForm(SlotForm):
 # permission: myself (as a staff), or verified center manager from the same center.
 @ajax(mandatory=False)
 @login_required
-@user_check_against_arg(
-    lambda view_user_profile, target_user: view_user_profile.user == target_user or view_user_profile.is_verified() and view_user_profile.is_center_manager() and view_user_profile.is_same_center(target_user),
-    lambda args, kwargs: get_object_or_404(User, pk=kwargs.get('uid')),
-    lambda u: UserProfile(u)
-)
+@user_is_me_or_same_center_manager
 def offer_add(request, uid):
     # uid is the target uid, which different from request.user.pk who is the "action" user.
     user_profile = UserProfile.get_by_id(uid)
@@ -169,13 +165,10 @@ def offer_add(request, uid):
     return render(request, 'base_form.html', {'form': form, 'form_url': form_url})
 
 
-# permission: myself only.
+# permission: myself only, or verified manager from the same center.
 @ajax(mandatory=False)
 @login_required
-@user_check_against_arg(
-    lambda view_user, target_user: view_user == target_user,
-    lambda args, kwargs: get_object_or_404(User, pk=kwargs.get('uid')),
-)
+@user_is_me_or_same_center_manager
 def offer_delete(request, uid):
     # uid is the target uid, which different from request.user.pk who is the "action" user.
     user_profile = UserProfile.get_by_id(uid)
@@ -185,6 +178,7 @@ def offer_delete(request, uid):
         form = SlotForm(request.POST)
         if form.is_valid():
             deleted_time = []
+            cascade_delete = {}
             day = DayToken.from_token(form.cleaned_data['day'])
             start_time = form.cleaned_data['start_time']
             end_time = form.cleaned_data['end_time']
@@ -210,7 +204,8 @@ def offer_delete(request, uid):
                     for offer in qs:
                         try:
                             meet = offer.meet
-                            Log.create(Log.MEET_CASCADE_DELETE_OFFER, request.user, (user_profile.user, meet.need.location, day, t))
+                            #Log.create(Log.MEET_CASCADE_DELETE_OFFER, request.user, (user_profile.user, meet.need.location, day, t))
+                            cascade_delete[meet.need.location] = cascade_delete.get(meet.need.location, t)      # this only get set once when cascade_delete is none.
                             meet.delete()
                         except Meet.DoesNotExist:
                             pass
@@ -223,6 +218,8 @@ def offer_delete(request, uid):
                 deleted_time_display = ', '.join([t.display() for t in TimeSlot.combine(deleted_time)])
                 messages.success(request, 'Deleted slot(s): %s' % deleted_time_display)
                 Log.create(Log.OFFER_UPDATE, request.user, (user_profile.user, day), 'deleted %s' % deleted_time_display)
+                for loc in cascade_delete:
+                    Log.create(Log.MEET_CASCADE_DELETE_OFFER, request.user, (user_profile.user, loc, day, cascade_delete[loc]))
 
             return redirect(request.GET.get('next', request.META['HTTP_REFERER']))
 
@@ -334,6 +331,7 @@ def need_delete(request, cid):
 
             for t in TimeToken.interval(start_time, end_time):
                 deleted = False
+                cascade_delete = {}
                 # always delete empty needs
                 qs = NeedSlot.objects.filter(location=classroom, day=day, start_time=t, end_time=t.get_next(), meet__isnull=True)
                 if qs.exists():
@@ -347,7 +345,8 @@ def need_delete(request, cid):
                         for need in nqs:
                             try:
                                 meet = need.meet
-                                Log.create(Log.MEET_CASCADE_DELETE_NEED, request.user, (meet.offer.user, need.location, need.day, need.start_time))
+                                #Log.create(Log.MEET_CASCADE_DELETE_NEED, request.user, (meet.offer.user, need.location, need.day, need.start_time))
+                                cascade_delete[meet.offer.user] = cascade_delete.get(meet.offer.user, t)      # this only get set once when cascade_delete is none.
                                 meet.delete()
                             except Meet.DoesNotExist:
                                 pass
@@ -363,6 +362,8 @@ def need_delete(request, cid):
                 deleted_message = ', '.join([t.display() for t in TimeSlot.combine(deleted_time)])
                 messages.success(request, 'Deleted slot(s): %s' % deleted_message)
                 Log.create(Log.NEED_UPDATE, request.user, (classroom, day), 'deleted %s' % deleted_message)
+                for u in cascade_delete:
+                    Log.create(Log.MEET_CASCADE_DELETE_NEED, request.user, (u, need.location, need.day, need.start_time))
 
             return redirect(request.GET.get('next', request.META['HTTP_REFERER']))
 

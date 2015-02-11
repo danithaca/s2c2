@@ -48,11 +48,24 @@ def user_check_against_arg(check_func, get_func, request_user_func=lambda u: u):
     return _wrapper_outer
 
 
+# second parameter is also a user.
 def user_is_me_or_same_center(view_func):
     @wraps(view_func)
     def _wrapped_view(request, *args, **kwargs):
         return user_check_against_arg(
             lambda view_user_profile, target_user: target_user is None or view_user_profile.user == target_user or view_user_profile.is_verified() and view_user_profile.is_same_center(target_user),
+            lambda args, kwargs: get_object_or_404(User, pk=kwargs['uid']) if 'uid' in kwargs and kwargs['uid'] is not None else None,
+            lambda u: UserProfile(u)
+        )(view_func)(request, *args, **kwargs)
+    return _wrapped_view
+
+
+# second parameter is also a user.
+def user_is_me_or_same_center_manager(view_func):
+    @wraps(view_func)
+    def _wrapped_view(request, *args, **kwargs):
+        return user_check_against_arg(
+            lambda view_user_profile, target_user: view_user_profile.user == target_user or view_user_profile.is_verified() and view_user_profile.is_center_manager() and view_user_profile.is_same_center(target_user),
             lambda args, kwargs: get_object_or_404(User, pk=kwargs['uid']) if 'uid' in kwargs and kwargs['uid'] is not None else None,
             lambda u: UserProfile(u)
         )(view_func)(request, *args, **kwargs)
