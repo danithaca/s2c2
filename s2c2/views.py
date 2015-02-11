@@ -1,17 +1,19 @@
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
 from django.db.models import Q
+from django.http import JsonResponse
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.forms import AuthenticationForm
 from django.template.response import TemplateResponse
 from django.views.generic import ListView
 from django.views import defaults
 from django import forms
+from django_ajax.decorators import ajax
 
 from location.models import Classroom, Center
 from log.models import Notification
-from s2c2.decorators import user_check_against_arg
-from s2c2.utils import get_request_day, dummy, get_now
+from s2c2.decorators import user_check_against_arg, is_ajax
+from s2c2.utils import get_request_day, dummy, get_now, process_messages
 from slot.models import DayToken
 from user.models import UserProfile, CenterStaff, GroupRole
 
@@ -171,3 +173,12 @@ def center_home(request, pk, tab='directory'):
         assert False
 
     return render(request, 'center.html', context)
+
+
+@is_ajax
+def ajax_messages(request):
+    m = process_messages(request)
+    data = {}
+    if m:
+        data['ajax_messages'] = m
+    return JsonResponse(data)

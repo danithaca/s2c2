@@ -21,6 +21,8 @@ urlpatterns = patterns(
 
     url(r'^notification/$', s2c2.views.notification, name='notification'),
 
+    url(r'^ajax_messages/$', s2c2.views.ajax_messages, name='ajax_messages'),
+
     url(r'^user/', include('user.urls', namespace='user')),
     url(r'^slot/', include('slot.urls', namespace='slot')),
     url(r'^log/', include('log.urls', namespace='log')),

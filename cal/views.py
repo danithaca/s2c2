@@ -15,7 +15,8 @@ from log.models import Log
 from s2c2.decorators import user_check_against_arg, user_is_me_or_same_center, user_classroom_same_center, is_ajax, \
     user_is_center_manager, user_is_verified
 from s2c2.templatetags.s2c2_tags import s2c2_icon
-from s2c2.utils import dummy, get_fullcaldendar_request_date_range, to_fullcalendar_timestamp, get_request_day
+from s2c2.utils import dummy, get_fullcaldendar_request_date_range, to_fullcalendar_timestamp, get_request_day, \
+    process_messages
 from slot.models import OfferSlot, TimeSlot, TimeToken, DayToken, NeedSlot, Meet
 from slot import views as slot_views
 from user.models import UserProfile
@@ -182,7 +183,9 @@ def assign(request, cid):
                 messages.success(request, 'Assigned slot(s): %s' % TimeSlot.display_combined(assigned_list))
             else:
                 messages.warning(request, 'No assignment made due to mismatch between staff availability and classroom needs in the specified time period.')
-            return JsonResponse({'success': True})
+            #data = {'success': True, 'ajax_messages': process_messages(request)}
+            data = {'success': True}
+            return JsonResponse(data)
 
     # someday: do not return form html string. instead, return "select" widget options and have all form html already in modal.
     if request.method == 'GET':

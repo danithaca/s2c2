@@ -63,6 +63,7 @@
             if (data.status === 302) {
               //window.location.replace(data.content);
               fullcalendar_refresh($('#calendar'));
+              display_ajax_messages();
             }
           });
           //var eventData;
@@ -96,6 +97,10 @@
           if (data.status === 302) {
             //window.location.replace(data.content);
             fullcalendar_refresh($('#calendar'));
+            display_ajax_messages();
+          }
+          else if (data.status === 403) {
+            display_message('Permission not allowed.', 'danger');
           }
         });
       });

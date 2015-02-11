@@ -1,6 +1,8 @@
 import sys
 from datetime import datetime, date, time
+from django.contrib.messages import get_messages
 from django.http import HttpResponse
+from django.template.loader import render_to_string
 from slot.models import DayToken, TimeToken
 from s2c2.decorators import *
 from django.utils import timezone
@@ -57,5 +59,47 @@ def to_fullcalendar_timestamp(d, t):
     dt = datetime.combine(d, t)
     return dt.isoformat()
 
+
 def get_now():
     return timezone.now()
+
+
+def process_messages(request):
+    """ If messages exist, return the rendered messages string. Otherwise return none. """
+    storage = get_messages(request)
+    if storage:
+        return '\n'.join([render_to_string('includes/message.html', {'message': message}) for message in storage])
+    else:
+        return None
+
+
+# def monkey_patch_django_ajax_render_to_json(response, *args, **kwargs):
+#     from django_ajax.shortcuts import logger, Http404, settings, ExceptionReporter, HttpResponseServerError, REASON_PHRASES, JSONResponse
+#
+#     if hasattr(response, 'status_code'):
+#         status_code = response.status_code
+#     elif issubclass(type(response), Http404):
+#         status_code = 404
+#     elif issubclass(type(response), Exception):
+#         status_code = 500
+#         logger.exception(str(response))
+#
+#         if settings.DEBUG:
+#             import sys
+#             reporter = ExceptionReporter(None, *sys.exc_info())
+#             text = reporter.get_traceback_text()
+#             response = HttpResponseServerError(text, content_type='text/plain')
+#         else:
+#             response = HttpResponseServerError("An error occured while processing an AJAX request.", content_type='text/plain')
+#     else:
+#         status_code = 200
+#
+#     data = {
+#         'status': status_code,
+#         'statusText': REASON_PHRASES.get(status_code, 'UNKNOWN STATUS CODE'),
+#         'content': response
+#     }
+#
+#     # this is the only thing we add here.
+#
+#     return JSONResponse(data,  *args, **kwargs)

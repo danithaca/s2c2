@@ -47,6 +47,10 @@
             if (data.status === 302) {
               //window.location.replace(data.content);
               fullcalendar_refresh($('#calendar'));
+              display_ajax_messages();
+            }
+            else if (data.status === 403) {
+              display_message('Permission not allowed.', 'danger');
             }
           });
         },
@@ -60,7 +64,7 @@
           $('div.fc-content div.fc-title', element).append(' <span class="glyphicon glyphicon-remove need-remove" data-need="' + event.id + '"></span>');
         },
         eventClick: function(event, jsEvent, view) {
-          if (event.empty && !(jsEvent.target).hasClass('need-remove')) {
+          if (event.empty && !($(jsEvent.target).hasClass('need-remove'))) {
             var form_day = event.start.format('YYYYMMDD');
             var form_start = event.start.format('HHmm');
             var form_end = event.end.format('HHmm');
@@ -69,6 +73,7 @@
               $('#modal-form').data('content', jsonResult.form);
               $('#modal-form').data('day', form_day);
               $('#modal-form').modal('show');
+              display_ajax_messages();
             });
           }
         }
@@ -86,6 +91,10 @@
           if (data.success) {
             //window.location.replace(data.content);
             fullcalendar_refresh($('#calendar'));
+            display_ajax_messages();
+          }
+          else {
+            display_message('Permission not allowed or other errors.', 'danger');
           }
         });
       });
@@ -111,6 +120,7 @@
             //window.location.replace(data.content);
             $('#modal-form').modal('hide');
             fullcalendar_refresh($('#calendar'));
+            display_ajax_messages();
           }
         });
       });
