@@ -1,4 +1,5 @@
 from itertools import groupby
+from bootstrapform.templatetags.bootstrap import bootstrap_horizontal
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
@@ -118,11 +119,35 @@ def calendar_classroom_events(request, cid):
                     user_profile = UserProfile.get_by_id(user_id)
                     event['title'] = user_profile.get_display_name()
                     event['color'] = 'darkgreen'
+                    event['url'] = reverse('cal:staff', kwargs={'uid': user_id})
                 else:
                     event['title'] = 'Empty'
+                    event['empty'] = True
                 data.append(event)
 
     return JsonResponse(data, safe=False)
+
+
+class AssignForm(slot_views.SlotForm):
+    #staff = forms.TypedChoiceField(choices=(), label='Available staff', coerce=int, required=True)
+    staff = forms.IntegerField(label='Available staff', widget=forms.Select)
+
+    def __init__(self, classroom, day, start_time, end_time, *args, **kwargs):
+        super(AssignForm, self).__init__(*args, **kwargs)
+        # find all staff in the center who are available at the give time period.
+        if start_time is not None and end_time is not None:
+            list_staff = User.objects.filter(profile__centers=classroom.center, profile__verified=True, offerslot__day=day, offerslot__start_time__gte=start_time, offerslot__end_time__lte=end_time, offerslot__meet__isnull=True).distinct()
+            self.fields['start_time'].initial = start_time.get_token()
+            self.fields['end_time'].initial = end_time.get_token()
+        else:
+            list_staff = []
+
+        if len(list_staff) == 0:
+            self.fields['staff'].widget.attrs['disabled'] = True
+
+        self.fields['staff'].widget.choices = [(0, '- Select -')] + [(u.pk, u.get_full_name() or u.username) for u in list_staff]
+        self.fields['day'].widget = forms.HiddenInput()
+        self.fields['day'].initial = day.get_token()
 
 
 @is_ajax
@@ -132,10 +157,11 @@ def calendar_classroom_events(request, cid):
 def assign(request, cid):
     classroom = get_object_or_404(Classroom, pk=cid)
     day = get_request_day(request)
-    AssignForm = slot_views.AssignForm
+    start_time = TimeToken.from_token(request.GET.get('start', '0000'))
+    end_time = TimeToken.from_token(request.GET.get('end', '2330'))
 
     if request.method == 'POST':
-        form = AssignForm(classroom, day, request.POST)
+        form = AssignForm(classroom, day, None, None, request.POST)
         if form.is_valid():
             form_day, start_time, end_time = form.get_cleaned_data()
             assert form_day == day
@@ -156,12 +182,12 @@ def assign(request, cid):
                 messages.success(request, 'Assigned slot(s): %s' % TimeSlot.display_combined(assigned_list))
             else:
                 messages.warning(request, 'No assignment made due to mismatch between staff availability and classroom needs in the specified time period.')
-            return redirect(request.GET.get('next', request.META['HTTP_REFERER']))
+            return JsonResponse({'success': True})
 
     if request.method == 'GET':
-        form = AssignForm(classroom, day)
+        form = AssignForm(classroom, day, start_time, end_time)
 
-    data = {'form': str(form)}
+    data = {'form': bootstrap_horizontal(form)}
     return JsonResponse(data)
 
 

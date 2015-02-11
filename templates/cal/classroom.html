@@ -46,16 +46,9 @@
             //console.log(data);
             if (data.status === 302) {
               //window.location.replace(data.content);
-              $('#calendar').fullCalendar('unselect');
-              $('#calendar').fullCalendar('refetchEvents');
-              $('#calendar').fullCalendar('rerenderEvents');
+              fullcalendar_refresh($('#calendar'));
             }
           });
-
-          //$.get('{% url "cal:assign" cid=classroom.pk %}' + '?day=' + form_day, function(data) {
-          //  console.log(data);
-          //});
-          //$('#modal-form').modal('show');
         },
 
         firstDay: 1,
@@ -65,6 +58,19 @@
         eventRender: function(event, element) {
           // append "offer remove" ajax link.
           $('div.fc-content div.fc-title', element).append(' <span class="glyphicon glyphicon-remove need-remove" data-need="' + event.id + '"></span>');
+        },
+        eventClick: function(event) {
+          if (event.empty) {
+            var form_day = event.start.format('YYYYMMDD');
+            var form_start = event.start.format('HHmm');
+            var form_end = event.end.format('HHmm');
+            $.get('{% url "cal:assign" cid=classroom.pk %}' + '?day=' + form_day + '&start=' + form_start + '&end=' + form_end, function(jsonResult) {
+              //console.log(data);
+              $('#modal-form').data('content', jsonResult.form);
+              $('#modal-form').data('day', form_day);
+              $('#modal-form').modal('show');
+            });
+          }
         }
       });
 
@@ -78,8 +84,32 @@
           //console.log(data);
           if (data.success) {
             //window.location.replace(data.content);
-            $('#calendar').fullCalendar('refetchEvents');
-            $('#calendar').fullCalendar('rerenderEvents');
+            fullcalendar_refresh($('#calendar'));
+          }
+        });
+      });
+
+      $('#modal-form').on('show.bs.modal', function (event) {
+        //console.log(event);
+        var modal = $(this);
+        //console.log(modal.data('content'));
+        modal.find('#modal-form-content').html(modal.data('content'));
+
+        //var button = $(event.relatedTarget);
+        //var recipient = button.data('whatever');
+        //var modal = $(this);
+        //modal.find('.modal-title').text('New message to ' + recipient);
+        //modal.find('.modal-body input').val(recipient);
+      });
+
+      $('#modal-form-submit').click(function() {
+        var form_day = $('#modal-form').data('day');
+        $.post('{% url "cal:assign" cid=classroom.pk %}' + '?day=' + form_day, $('#modal-form form').serialize(), function(data) {
+          //console.log(data);
+          if (data.success) {
+            //window.location.replace(data.content);
+            $('#modal-form').modal('hide');
+            fullcalendar_refresh($('#calendar'));
           }
         });
       });
@@ -109,16 +139,16 @@
       <div class="modal-content">
         <div class="modal-header">
           <button type="button" class="close" data-dismiss="modal">&times;</button>
-          <h4 class="modal-title">Assign Classroom Needs</h4>
+          <h4 class="modal-title">Assign Staff</h4>
         </div>
         <div class="modal-body">
-          <form class="form-horizontal">
+          <form class="form-horizontal" method="post" action="{% url 'cal:assign' cid=classroom.pk %}?day={{ day.to }}">
             {% csrf_token %}
-            {{ form|bootstrap_horizontal }}
+            <div id="modal-form-content"></div>
           </form>
         </div>
         <div class="modal-footer">
-          <button type="button" class="btn btn-primary">Assign</button>
+          <button type="button" class="btn btn-primary" id="modal-form-submit" type="submit">Assign</button>
           <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
         </div>
       </div>

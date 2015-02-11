@@ -62,8 +62,7 @@
             //console.log(data);
             if (data.status === 302) {
               //window.location.replace(data.content);
-              $('#calendar').fullCalendar('refetchEvents');
-              $('#calendar').fullCalendar('rerenderEvents');
+              fullcalendar_refresh($('#calendar'));
             }
           });
           //var eventData;
@@ -96,8 +95,7 @@
           //console.log(data);
           if (data.status === 302) {
             //window.location.replace(data.content);
-            $('#calendar').fullCalendar('refetchEvents');
-            $('#calendar').fullCalendar('rerenderEvents');
+            fullcalendar_refresh($('#calendar'));
           }
         });
       });
@@ -109,7 +107,7 @@
 {% endblock %}
 
 {% block title %}Staff Calendar | S2C2{% endblock %}
-{% block page-header %}{% icon user %} {{ user|name }}{% endblock %}
+{% block page-header %}{% icon user_profile %} {{ user_profile|name }}{% endblock %}
 
 {% block page-content %}
   <div class="row">

@@ -89,10 +89,10 @@ class DayForm(forms.Form):
 
 
 class SlotForm(forms.Form):
-    start_time = forms.TypedChoiceField(choices=TimeToken.get_choices(time(7), time(19, 30)),
+    start_time = forms.TypedChoiceField(choices=TimeToken.get_choices(time(6), time(20, 30)),
                                         required=True, coerce=TimeToken.from_token, label='Start',
                                         initial=TimeToken(time(9)).get_token())
-    end_time = forms.TypedChoiceField(choices=TimeToken.get_choices(time(7, 30), time(20)),
+    end_time = forms.TypedChoiceField(choices=TimeToken.get_choices(time(6, 30), time(21)),
                                       required=True, coerce=TimeToken.from_token, label='End',
                                       initial=TimeToken(time(17)).get_token())
     day = forms.CharField(label='Day', required=True)
