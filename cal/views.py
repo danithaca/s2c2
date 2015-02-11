@@ -184,6 +184,7 @@ def assign(request, cid):
                 messages.warning(request, 'No assignment made due to mismatch between staff availability and classroom needs in the specified time period.')
             return JsonResponse({'success': True})
 
+    # someday: do not return form html string. instead, return "select" widget options and have all form html already in modal.
     if request.method == 'GET':
         form = AssignForm(classroom, day, start_time, end_time)
 

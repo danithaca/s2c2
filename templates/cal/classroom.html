@@ -59,8 +59,8 @@
           // append "offer remove" ajax link.
           $('div.fc-content div.fc-title', element).append(' <span class="glyphicon glyphicon-remove need-remove" data-need="' + event.id + '"></span>');
         },
-        eventClick: function(event) {
-          if (event.empty) {
+        eventClick: function(event, jsEvent, view) {
+          if (event.empty && !(jsEvent.target).hasClass('need-remove')) {
             var form_day = event.start.format('YYYYMMDD');
             var form_start = event.start.format('HHmm');
             var form_end = event.end.format('HHmm');
@@ -74,6 +74,7 @@
         }
       });
 
+      // this gets bound later, and thus will be executed later than "eventClick".
       $('#calendar').on('click', '.need-remove', function(e) {
         e.stopPropagation();
         e.preventDefault();
