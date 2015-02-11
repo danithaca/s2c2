@@ -426,6 +426,14 @@ class OfferSlot(Slot):
         for t in set(target_data.keys()).difference(set(template_data.keys())):
             target_data[t].delete()
 
+    @staticmethod
+    def safe_copy(user, from_day, to_day):
+        """ copy and make sure to_day is empty. """
+        assert from_day != to_day
+        if OfferSlot.objects.filter(user=user, day=to_day).exists():
+            raise ValueError('Target day must be empty.')
+        OfferSlot.objects.bulk_create([OfferSlot(user=user, day=to_day, start_time=start_time, end_time=end_time) for start_time, end_time in OfferSlot.objects.filter(user=user, day=from_day).values_list('start_time', 'end_time')])
+
 
 class NeedSlot(Slot):
     location = models.ForeignKey(Location)

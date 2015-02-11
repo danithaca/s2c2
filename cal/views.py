@@ -13,7 +13,7 @@ from django import forms
 from location.models import Location, Classroom
 from log.models import Log
 from s2c2.decorators import user_check_against_arg, user_is_me_or_same_center, user_classroom_same_center, is_ajax, \
-    user_is_center_manager, user_is_verified
+    user_is_center_manager, user_is_verified, user_is_me_or_same_center_manager
 from s2c2.templatetags.s2c2_tags import s2c2_icon
 from s2c2.utils import dummy, get_fullcaldendar_request_date_range, to_fullcalendar_timestamp, get_request_day, \
     process_messages
@@ -35,6 +35,7 @@ def calendar_staff(request, uid=None):
     context = {
         'user_profile': user_profile,
         'day': day,
+        'staff_copy_form': CopyForm()
     }
     return TemplateResponse(request, template='cal/staff.html', context=context)
 
@@ -246,3 +247,15 @@ def need_delete_ajax(request, cid):
         return JsonResponse({'success': True})
 
     return bad_request(request)
+
+
+class CopyForm(forms.Form):
+    from_field = forms.ChoiceField(choices=(('prev', 'last week'), ('curr', 'this week')))
+    to_field = forms.ChoiceField(choices=(('curr', 'this week'), ('next', 'next week')))
+    current_date = forms.DateField()
+
+
+@login_required
+@user_is_me_or_same_center_manager
+def calendar_staff_copy(request, uid):
+    return redirect(request.META.get('REFERER', '/'))

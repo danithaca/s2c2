@@ -1,8 +1,9 @@
-from datetime import time, date
+from datetime import time, date, datetime
+from django.contrib.auth.models import User
 
-from django.test import SimpleTestCase
+from django.test import SimpleTestCase, TestCase
 
-from slot.models import DayToken, TimeToken
+from slot.models import DayToken, TimeToken, OfferSlot
 
 
 
@@ -121,3 +122,24 @@ class TimeTokenTest(SimpleTestCase):
         self.assertEqual(7, len(interval))
         self.assertEqual(time(4, 0), interval[0].value)
         self.assertEqual(time(7, 0), interval[-1].value)
+
+
+class SlotTest(TestCase):
+    def test_offer_copy(self):
+        user = User.objects.create(username='unittest')
+
+        from_day = DayToken(date(2012, 1, 1))
+        to_day = DayToken(date(2012, 1, 2))
+        OfferSlot.objects.filter(user=user, day=from_day).delete()
+        OfferSlot.objects.filter(user=user, day=to_day).delete()
+
+        OfferSlot.objects.create(user=user, day=from_day, start_time=time(7), end_time=time(7,30))
+        OfferSlot.objects.create(user=user, day=from_day, start_time=time(14, 30), end_time=time(15))
+
+        self.assertEqual(2, OfferSlot.objects.filter(user=user, day=from_day).count())
+        self.assertEqual(0, OfferSlot.objects.filter(user=user, day=to_day).count())
+
+        OfferSlot.safe_copy(user, from_day, to_day)
+        self.assertEqual(2, OfferSlot.objects.filter(user=user, day=to_day).count())
+        self.assertEqual(1, OfferSlot.objects.filter(user=user, day=to_day, start_time=TimeToken(time(7)), end_time=TimeToken(time(7,30))).count())
+        self.assertEqual(1, OfferSlot.objects.filter(user=user, day=to_day, start_time=TimeToken(time(14, 30)), end_time=TimeToken(time(15))).count())

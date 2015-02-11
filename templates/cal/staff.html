@@ -19,7 +19,7 @@
         header: {
           left: 'prev,next today',
           center: 'title',
-          right: 'agendaDay,agendaWeek'
+          right: 'agendaDay,agendaWeek,month'
         },
         defaultDate: '{{ day.to_fullcalendar }}',
         defaultView: 'agendaWeek',
@@ -83,6 +83,12 @@
         eventRender: function(event, element) {
           // append "offer remove" ajax link.
           $('div.fc-content div.fc-title', element).append(' <span class="glyphicon glyphicon-remove offer-remove" data-offer="' + event.id + '"></span>');
+        },
+
+        viewRender: function(view, element) {
+          // update form.
+          $('#panel-staff-copy input[name=current_date]').val(view.calendar.getDate().format('YYYYMMDD'));
+          $('#panel-staff-copy select option[value=curr]').text('This week ('+ view.calendar.getDate().format('YYYYMMDD') +')');
         }
       });
 
@@ -117,8 +123,8 @@
 {% block page-content %}
   <div class="row">
     <div class="col-sm-3">
-      <div>
-        placeholder
+      <div class="panel-group" id="calendar-panel-list">
+        {% include "cal/includes/panel_staff_copy.html" with panel_id="panel-staff-copy" panel_title="Copy" panel_collapse=True %}
       </div>
     </div>
     <div class="col-sm-9">
