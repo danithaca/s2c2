@@ -32,10 +32,14 @@ from user.models import UserProfile
 def calendar_staff(request, uid=None):
     user_profile = UserProfile.get_by_id_default(uid, request.user)
     day = get_request_day(request)
+
+    staff_copy_form = CopyForm()
+    staff_copy_form.fields['current_date'].widget = forms.HiddenInput()
+
     context = {
         'user_profile': user_profile,
         'day': day,
-        'staff_copy_form': CopyForm()
+        'staff_copy_form': staff_copy_form
     }
     return TemplateResponse(request, template='cal/staff.html', context=context)
 
@@ -250,12 +254,72 @@ def need_delete_ajax(request, cid):
 
 
 class CopyForm(forms.Form):
-    from_field = forms.ChoiceField(choices=(('prev', 'last week'), ('curr', 'this week')))
-    to_field = forms.ChoiceField(choices=(('curr', 'this week'), ('next', 'next week')))
-    current_date = forms.DateField()
+    from_field = forms.ChoiceField(choices=(('prev', 'last week'), ('curr', 'this week')), label='From')
+    to_field = forms.ChoiceField(choices=(('curr', 'this week'), ('next', 'next week')), label='To')
+    current_date = forms.CharField()
+
+    def clean(self):
+        cleaned_data = super(CopyForm, self).clean()
+        from_field = cleaned_data.get("from_field")
+        to_field = cleaned_data.get("to_field")
+        current_date = cleaned_data.get('current_date')
+        if from_field not in ('prev', 'curr') or to_field not in ('curr', 'next') or from_field == to_field:
+            raise forms.ValidationError('Cannot copy to itself.')
+        if current_date is not None:     # day is required, but will be validated by django after this call
+            try:
+                d = DayToken.from_token(current_date)
+                cleaned_data['current_date'] = d
+            except ValueError as e:
+                raise forms.ValidationError('Please input a valid day token.')
+        return cleaned_data
 
 
+@ajax(mandatory=False)
 @login_required
 @user_is_me_or_same_center_manager
 def calendar_staff_copy(request, uid):
-    return redirect(request.META.get('REFERER', '/'))
+    user_profile = UserProfile.get_by_id(uid)
+    assert user_profile.is_center_staff()
+
+    if request.method == 'POST':
+        form = CopyForm(request.POST)
+        if form.is_valid():
+            from_field = form.cleaned_data["from_field"]
+            to_field = form.cleaned_data["to_field"]
+            current_day = form.cleaned_data['current_date']
+
+            if from_field == 'prev':
+                from_week = current_day.prev_week().expand_week()
+            elif from_field == 'curr':
+                from_week = current_day.expand_week()
+            else:
+                assert False
+
+            if to_field == 'curr':
+                to_week = current_day.expand_week()
+            elif to_field == 'next':
+                to_week = current_day.next_week().expand_week()
+            else:
+                assert False
+
+            failed = []
+            assert len(from_week) == len(to_week)
+            for from_day, to_day in zip(from_week, to_week):
+                assert from_day.weekday() == to_day.weekday()
+                try:
+                    OfferSlot.safe_copy(user_profile.user, from_day, to_day)
+                except ValueError as e:
+                    failed.append(to_day)
+
+            if failed:
+                messages.warning(request, 'Target day(s) are not empty and cannot be copied to: %s' % ', '.join([d.value.strftime('%b %d') for d in failed]))
+            else:
+                messages.success(request, 'Copy successful.')
+
+            return redirect(request.META.get('HTTP_REFERER', reverse('cal:staff', kwargs={'uid': uid})))
+
+    if request.method == 'GET':
+        form = CopyForm()
+
+    form_url = reverse('cal:staff_copy', kwargs={'uid': uid})
+    return render(request, 'base_form.html', {'form': form, 'form_url': form_url})

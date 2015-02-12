@@ -15,14 +15,18 @@
         console.log(data);
       });*/
 
+      var param_day = getParameterByName('day');
+      var day = param_day ? moment(param_day, 'YYYYMMDD') : moment();
+      var param_view = getParameterByName('view') || 'agendaWeek';
+
       $('#calendar').fullCalendar({
         header: {
           left: 'prev,next today',
           center: 'title',
           right: 'agendaDay,agendaWeek,month'
         },
-        defaultDate: '{{ day.to_fullcalendar }}',
-        defaultView: 'agendaWeek',
+        defaultDate: day.format('YYYY-MM-DD'),
+        defaultView: param_view,
         fixedWeekCount: false,
         allDaySlot: false,
         minTime: '06:00',
@@ -87,8 +91,12 @@
 
         viewRender: function(view, element) {
           // update form.
-          $('#panel-staff-copy input[name=current_date]').val(view.calendar.getDate().format('YYYYMMDD'));
-          $('#panel-staff-copy select option[value=curr]').text('This week ('+ view.calendar.getDate().format('YYYYMMDD') +')');
+          var current_day = view.calendar.getDate();
+          $('#panel-staff-copy input[name=current_date]').val(current_day.format('YYYYMMDD'));
+          $('#panel-staff-copy select option[value=curr]').text('Current week ('+ current_day.clone().day(1).format('MMM.D') + ' ~ ' + current_day.clone().day(7).format('D') +')');
+          $('#panel-staff-copy select option[value=prev]').text('Previous week ('+ current_day.clone().day(-6).format('MMM.D') + ' ~ ' + current_day.clone().day(0).format('D') +')');
+          $('#panel-staff-copy select option[value=next]').text('Next week ('+ current_day.clone().day(8).format('MMM.D') + ' ~ ' + current_day.clone().day(14).format('D') +')');
+          window.history.pushState(current_day, null, './?day=' + current_day.format('YYYYMMDD') + '&view=' + view.calendar.getView().type);
         }
       });
 
