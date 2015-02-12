@@ -76,6 +76,17 @@
               display_ajax_messages();
             });
           }
+        },
+
+        viewRender: function(view, element) {
+          // update form.
+          var current_day = view.calendar.getDate();
+          var $form = $('#panel-classroom-copy');
+          $form.find('input[name=current_date]').val(current_day.format('YYYYMMDD'));
+          $form.find('select option[value=curr]').text('Current week ('+ current_day.clone().day(1).format('MMM.D') + ' ~ ' + current_day.clone().day(7).format('D') +')');
+          $form.find('select option[value=prev]').text('Previous week ('+ current_day.clone().day(-6).format('MMM.D') + ' ~ ' + current_day.clone().day(0).format('D') +')');
+          $form.find('select option[value=next]').text('Next week ('+ current_day.clone().day(8).format('MMM.D') + ' ~ ' + current_day.clone().day(14).format('D') +')');
+          window.history.pushState(current_day, null, './?day=' + current_day.format('YYYYMMDD') + '&view=' + view.calendar.getView().type);
         }
       });
 
@@ -136,8 +147,8 @@
 {% block page-content %}
   <div class="row">
     <div class="col-sm-3">
-      <div>
-        Placeholder
+      <div class="panel-group" id="calendar-panel-list">
+        {% include "cal/includes/panel_classroom_copy.html" with panel_id="panel-classroom-copy" panel_title="Copy" panel_collapse=True %}
       </div>
     </div>
     <div class="col-sm-9">

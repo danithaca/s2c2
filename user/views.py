@@ -14,7 +14,7 @@ from django.utils.translation import ugettext_lazy as _
 from django.views.generic import FormView, UpdateView
 from django.views.generic.detail import SingleObjectMixin
 from log.models import Log
-from s2c2.decorators import user_is_center_manager, user_is_verified
+from s2c2.decorators import user_is_center_manager, user_is_verified, user_is_me_or_same_center
 from s2c2.utils import dummy
 from s2c2.widgets import InlineCheckboxSelectMultiple, USPhoneNumberWidget
 
@@ -497,3 +497,10 @@ def picture(request):
         form = PictureForm(instance=user_profile.profile)
 
     return render(request, 'user/picture.html', {'user_profile': user_profile, 'form': form})
+
+
+@login_required
+@user_is_me_or_same_center
+def profile(request, uid=None):
+    user_profile = UserProfile.get_by_id_default(uid, request.user)
+    return render(request, 'user/profile.html', {'user_profile': user_profile})

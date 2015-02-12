@@ -4,6 +4,8 @@ import user.views
 
 urlpatterns = patterns(
     '',
+    url(r'^$', user.views.profile, name='profile'),
+    url(r'^(?P<uid>\d+)/$', user.views.profile, name='profile'),
     url(r'^login/$', user.views.login, name='login'),
     url(r'^logout/$', user.views.logout, name='logout'),
     url(r'^signup/$', user.views.signup, name='signup'),

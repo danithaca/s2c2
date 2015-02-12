@@ -480,6 +480,14 @@ class NeedSlot(Slot):
         NeedSlot.objects.bulk_create(to_save)
 
     @staticmethod
+    def safe_copy(location, from_day, to_day):
+        """ copy and make sure to_day is empty. """
+        assert from_day != to_day
+        if NeedSlot.objects.filter(location=location, day=to_day).exists():
+            raise ValueError('Target day must be empty.')
+        NeedSlot.objects.bulk_create([NeedSlot(location=location, day=to_day, start_time=start_time, end_time=end_time) for start_time, end_time in NeedSlot.objects.filter(location=location, day=from_day).values_list('start_time', 'end_time')])
+
+    @staticmethod
     def get_or_create_unmet_need(location, day, start_time, end_time):
         qs = NeedSlot.objects.filter(location=location, day=day, start_time=start_time, end_time=end_time, meet__isnull=True)
         if not qs.exists():
@@ -541,4 +549,19 @@ class Meet(models.Model):
         for m in Meet.objects.filter(need__location=location, need__day=template_day):
             offer, created = OfferSlot.objects.get_or_create(user=m.offer.user, day=target_day, start_time=m.offer.start_time, end_time=m.offer.end_time, meet__isnull=True)
             need = NeedSlot.get_or_create_unmet_need(location=m.need.location, day=target_day, start_time=m.need.start_time, end_time=m.need.end_time)
+            Meet.objects.create(offer=offer, need=need)
+
+    @staticmethod
+    def safe_copy_by_location(location, from_day, to_day):
+        """
+        meet on a particular day could be by location or by user. this is by location. need to make sure the target date has not assignment before copy.
+        if offer/need does not exists, create them in process.
+        """
+        assert from_day != to_day
+        if Meet.objects.filter(need__location=location, need__day=to_day).exists():
+            raise ValueError('Target day must be empty.')
+
+        for m in Meet.objects.filter(need__location=location, need__day=from_day):
+            offer, created = OfferSlot.objects.get_or_create(user=m.offer.user, day=to_day, start_time=m.offer.start_time, end_time=m.offer.end_time, meet__isnull=True)
+            need = NeedSlot.get_or_create_unmet_need(location=m.need.location, day=to_day, start_time=m.need.start_time, end_time=m.need.end_time)
             Meet.objects.create(offer=offer, need=need)

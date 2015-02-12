@@ -90,12 +90,16 @@ def calendar_staff_events(request, uid):
 def calendar_classroom(request, cid):
     classroom = get_object_or_404(Classroom, pk=cid)
     day = get_request_day(request)
+
     assign_form = slot_views.AssignForm(classroom, day)
+    classroom_copy_form = CopyForm()
+    classroom_copy_form.fields['current_date'].widget = forms.HiddenInput()
 
     return render(request, 'cal/classroom.html', {
         'classroom': classroom,
         'day': day,
-        'form': assign_form,
+        'assign_form': assign_form,
+        'classroom_copy_form': classroom_copy_form
     })
 
 
@@ -322,4 +326,59 @@ def calendar_staff_copy(request, uid):
         form = CopyForm()
 
     form_url = reverse('cal:staff_copy', kwargs={'uid': uid})
+    return render(request, 'base_form.html', {'form': form, 'form_url': form_url})
+
+
+@ajax(mandatory=False)
+@login_required
+@user_classroom_same_center
+@user_is_center_manager
+def calendar_classroom_copy(request, cid):
+    classroom = get_object_or_404(Classroom, pk=cid)
+
+    if request.method == 'POST':
+        # someday: lots of code duplicate as in "calendar_staff_copy".
+        form = CopyForm(request.POST)
+        if form.is_valid():
+            from_field = form.cleaned_data["from_field"]
+            to_field = form.cleaned_data["to_field"]
+            current_day = form.cleaned_data['current_date']
+
+            if from_field == 'prev':
+                from_week = current_day.prev_week().expand_week()
+            elif from_field == 'curr':
+                from_week = current_day.expand_week()
+            else:
+                assert False
+
+            if to_field == 'curr':
+                to_week = current_day.expand_week()
+            elif to_field == 'next':
+                to_week = current_day.next_week().expand_week()
+            else:
+                assert False
+
+            failed = []
+            assert len(from_week) == len(to_week)
+            for from_day, to_day in zip(from_week, to_week):
+                assert from_day.weekday() == to_day.weekday()
+                try:
+                    # copy need.
+                    NeedSlot.safe_copy(classroom, from_day, to_day)
+                    # copy meet next. need to be in the same "try", because it should be skipped if NeedSlot copy raises exception.
+                    Meet.safe_copy_by_location(classroom, from_day, to_day)
+                except ValueError as e:
+                    failed.append(to_day)
+
+            if failed:
+                messages.warning(request, 'Target day(s) are not empty and cannot be copied to: %s' % ', '.join([d.value.strftime('%b %d') for d in set(failed)]))
+            else:
+                messages.success(request, 'Copy successful.')
+
+            return redirect(request.META.get('HTTP_REFERER', reverse('cal:classroom', kwargs={'cid': classroom.pk})))
+
+    if request.method == 'GET':
+        form = CopyForm()
+
+    form_url = reverse('cal:classroom_copy', kwargs={'cid': classroom.pk})
     return render(request, 'base_form.html', {'form': form, 'form_url': form_url})
