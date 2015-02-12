@@ -145,6 +145,19 @@ class UserProfile(object):
     def has_picture(self):
         return self.has_profile() and self.profile.picture_original and self.profile.picture_cropping
 
+    def get_active_classrooms(self):
+        """ return the list of classroom associated with the user. ordered by most recent activity. """
+        #assert self.is_center_manager() or self.is_center_staff()
+
+        if self.is_center_manager():
+            return [c for c in Classroom.objects.filter(status=True, center__in=self.profile.centers.all()).order_by('center', 'name').distinct()]
+        elif self.is_center_staff():
+            # might need to order by recency.
+            # order_by() doesn't work very well with distinct()
+            return [c for c in Classroom.objects.filter(status=True, needslot__meet__offer__user=self.user).order_by('center', 'name').distinct()]
+        else:
+            return []
+
 
 class CenterStaff(UserProfile):
     """ Provide additional functions if the user is a center staff. """

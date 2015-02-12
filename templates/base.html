@@ -65,6 +65,24 @@
           <li><a href="{% url 'user:signup' %}"><i class="fa fa-edit"></i> Signup</a></li>
         {% else %}
           <li{% if not current_user_profile.is_center_staff %} class="disabled"{% endif %}><a href="{% url 'cal:staff' %}"><i class="fa fa-calendar"></i> My Calendar</a></li>
+
+          {% with classroom_count=current_user_profile.get_active_classrooms|length %}
+            {% if classroom_count == 1 %}
+              {% with classroom=current_user_profile.get_active_classrooms.0 %}
+              <li><a href="{% url 'cal:classroom' cid=classroom.pk %}" title="{{ classroom|name }}">{% icon 'classroom' %} My Classroom</a></li>
+              {% endwith %}
+            {% elif classroom_count > 1 %}
+              <li class="dropdown user-classrooms">
+                <a class="dropdown-toggle" data-toggle="dropdown" href="#">{% icon 'classroom' %} My Classrooms<span class="caret"></span></a>
+                <ul class="dropdown-menu">
+                  {% for classroom in current_user_profile.get_active_classrooms %}
+                    <li><a href="{% url 'cal:classroom' cid=classroom.pk %}">{{ classroom|name }}</a></li>
+                  {% endfor %}
+                </ul>
+              </li>
+            {% endif %}
+          {% endwith %}
+
           {% with center_count=user.profile.centers.count %}
             {% if center_count == 1 %}
               {% with center=user.profile.centers.first %}
@@ -72,7 +90,7 @@
               {% endwith %}
             {% elif center_count > 1 %}
               <li class="dropdown user-centers">
-                <a class="dropdown-toggle" data-toggle="dropdown" href="#">{% icon 'center' %} My Centers <span class="caret"></span></a>
+                <a class="dropdown-toggle" data-toggle="dropdown" href="#">{% icon 'center' %} My Centers<span class="caret"></span></a>
                 <ul class="dropdown-menu">
                   {% for center in user.profile.centers.all %}
                     <li><a href="{% url 'center' pk=center.pk %}">{{ center|name }}</a></li>
@@ -81,7 +99,9 @@
               </li>
             {% endif %}
           {% endwith %}
+
           <li><a href="{% url 'log:notification' %}"><i class="fa fa-wifi"></i> My Notifications <span class="badge">{{ notification_count|default:'0' }}</span></a></li>
+
           <li class="dropdown user-admin">
             <a class="dropdown-toggle" data-toggle="dropdown" data-target="#" href="{% url 'user:profile' %}">{% icon user %} {{ user.username }} <span class="caret"></span></a>
             <ul class="dropdown-menu" role="menu">
