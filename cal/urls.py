@@ -13,4 +13,8 @@ urlpatterns = patterns(
 
     url(r'^classroom/(?P<cid>\d+)/assign$', views.assign, name='assign'),
     url(r'^classroom/(?P<cid>\d+)/delete$', views.need_delete_ajax, name='need_delete_ajax'),
+
+    url(r'^center/(?P<cid>\d+)/$', views.calendar_center, name='center'),
+    url(r'^center/(?P<cid>\d+)/filled$', views.calendar_center_events_filled, name='center_events_filled'),
+    url(r'^center/(?P<cid>\d+)/empty$', views.calendar_center_events_empty, name='center_events_empty'),
 )

@@ -1,0 +1,71 @@
+{% extends "base_page.html" %}
+{% load staticfiles %}
+{% load bootstrap %}
+{% load s2c2_tags %}
+
+{% block title %}Center | S2C2{% endblock %}
+
+{% block page-header %}{% icon center %} {{ center|name }}{% endblock %}
+
+{% block extra_header %}
+  <link href='{% static 'fullcalendar/fullcalendar.css' %}' rel='stylesheet' />
+  <link href='{% static 'fullcalendar/fullcalendar.print.css' %}' rel='stylesheet' media='print' />
+  <script src='{% static 'fullcalendar/lib/moment.min.js' %}'></script>
+  <script src='{% static 'fullcalendar/fullcalendar.js' %}'></script>
+  <script>
+    $(document).ready(function() {
+      var calendarDefaults = getCalendarDefaults();
+      var $calendar_filled = $('#calendar-filled');
+      var $calendar_empty = $('#calendar-empty');
+
+      $calendar_filled.fullCalendar($.extend(calendarDefaults, {
+        events: '{% url "cal:center_events_filled" cid=center.id %}',
+
+        viewRender: function(view, element) {
+          var current_day = view.calendar.getDate();
+          window.history.pushState(current_day, null, './?day=' + current_day.format('YYYYMMDD') + '&view=' + view.calendar.getView().type);
+        }
+      }));
+
+      $calendar_empty.fullCalendar($.extend(calendarDefaults, {
+        events: '{% url "cal:center_events_empty" cid=center.id %}',
+
+        viewRender: function(view, element) {
+          var current_day = view.calendar.getDate();
+          window.history.pushState(current_day, null, './?day=' + current_day.format('YYYYMMDD') + '&view=' + view.calendar.getView().type);
+        }
+      }));
+
+      $('a[data-toggle="tab"]').on('shown.bs.tab', function (e) {
+        $calendar_filled.fullCalendar('render');
+        $calendar_empty.fullCalendar('render');
+      })
+
+    }); // end of document.ready().
+  </script>
+{% endblock %}
+
+{% block page-content %}
+  <div class="row">
+    <div class="col-sm-3">
+      <div class="panel-group" id="calendar-panel-list">
+        {% include "cal/includes/panel_center_legend.html" with panel_id="panel-center-legend" panel_title="Classrooms" panel_collapse=True %}
+      </div>
+    </div>
+    <div class="col-sm-9">
+      <nav><ul class="nav nav-tabs">
+        <li class="active"><a href="#cal-center-tab-filled" data-toggle="tab">Classroom Schedule</a></li>
+        <li><a href="#cal-center-tab-empty" data-toggle="tab">Classroom Not Filled</a></li>
+      </ul></nav>
+
+      <div class="tab-content">
+        <div class="tab-pane active" id="cal-center-tab-filled">
+          <div id='calendar-filled'></div>
+        </div>
+        <div class="tab-pane" id="cal-center-tab-empty">
+          <div id='calendar-empty'></div>
+        </div>
+      </div>
+    </div>
+  </div>
+{% endblock %}

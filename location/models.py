@@ -1,10 +1,12 @@
 from collections import OrderedDict, defaultdict
 from datetime import time
+from itertools import cycle
 
 from django.db import models
 from django.contrib.auth.models import User
 from localflavor.us.models import USStateField
 from pytz import timezone
+from s2c2 import settings
 
 
 class Area(models.Model):
@@ -69,6 +71,10 @@ class Center(Location):
 
     def get_managers(self):
         return User.objects.filter(profile__centers=self, groups__role__machine_name='manager', is_active=True)
+
+    def get_classroom_color(self):
+        list_classroom = Classroom.objects.filter(center=self, status=True).order_by('name')
+        return zip(list_classroom, cycle(settings.COLORS))
 
 
 class Classroom(Location):

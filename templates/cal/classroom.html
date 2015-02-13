@@ -11,14 +11,18 @@
   <script>
     $(document).ready(function() {
 
+      var param_day = getParameterByName('day');
+      var day = param_day ? moment(param_day, 'YYYYMMDD') : moment();
+      var param_view = getParameterByName('view') || 'agendaWeek';
+
       $('#calendar').fullCalendar({
         header: {
           left: 'prev,next today',
           center: 'title',
           right: 'agendaDay,agendaWeek,month'
         },
-        defaultDate: '{{ day.to_fullcalendar }}',
-        defaultView: 'agendaWeek',
+        defaultDate: day.format('YYYY-MM-DD'),
+        defaultView: param_view,
         fixedWeekCount: false,
         allDaySlot: false,
         minTime: '06:00',

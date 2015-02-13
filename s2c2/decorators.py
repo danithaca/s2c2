@@ -6,7 +6,7 @@ from django.shortcuts import redirect, get_object_or_404
 from django.utils.decorators import available_attrs
 from django.views import defaults
 from django.views.defaults import bad_request
-from location.models import Classroom
+from location.models import Classroom, Center
 from user.models import UserProfile
 
 
@@ -89,6 +89,19 @@ def user_classroom_same_center(view_func):
         classroom = get_object_or_404(Classroom, pk=kwargs['cid'])
         if not request.user.is_superuser:
             if not user_profile.is_same_center(classroom):
+                # messages.error(request, 'The operation is only valid for center managers.')
+                return defaults.permission_denied(request)
+        return view_func(request, *args, **kwargs)
+    return _wrapped_view
+
+
+def user_in_center(view_func):
+    @wraps(view_func)
+    def _wrapped_view(request, *args, **kwargs):
+        user_profile = UserProfile(request.user)
+        center = get_object_or_404(Center, pk=kwargs['cid'])
+        if not request.user.is_superuser:
+            if center.id not in user_profile.get_centers_id_set():
                 # messages.error(request, 'The operation is only valid for center managers.')
                 return defaults.permission_denied(request)
         return view_func(request, *args, **kwargs)

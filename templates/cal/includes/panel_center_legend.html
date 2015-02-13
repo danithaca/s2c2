@@ -1,0 +1,11 @@
+{% extends 'cal/panel.html' %}
+{% load bootstrap %}
+{% load s2c2_tags %}
+
+{% block panel_content %}
+  <ul class="list-inline">
+  {% for classroom, color in classroom_color_legend %}
+    <li style="background-color: {{ color }}; padding: 5px; border-radius: 5px;"><a href="{% url 'cal:classroom' cid=classroom.id %}" style="color: white;">{% icon classroom %} {{ classroom|name }}</a></li>
+  {% endfor %}
+  </ul>
+{% endblock %}

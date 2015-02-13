@@ -93,7 +93,7 @@
                 <a class="dropdown-toggle" data-toggle="dropdown" href="#">{% icon 'center' %} My Centers<span class="caret"></span></a>
                 <ul class="dropdown-menu">
                   {% for center in user.profile.centers.all %}
-                    <li><a href="{% url 'center' pk=center.pk %}">{{ center|name }}</a></li>
+                    <li><a href="{% url 'cal:center' cid=center.id %}">{{ center|name }}</a></li>
                   {% endfor %}
                 </ul>
               </li>

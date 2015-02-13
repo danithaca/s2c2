@@ -192,6 +192,20 @@ THUMBNAIL_PROCESSORS = ('image_cropping.thumbnail_processors.crop_corners',) + t
 IMAGE_CROPPING_THUMB_SIZE = (400, 400)
 IMAGE_CROPPING_SIZE_WARNING = True
 
+COLORS = ['green',
+          'maroon',
+          'navy',
+          'red',
+          'teal',
+          'blue',
+          'orange',
+          'yellow',
+          'aqua',
+          'purple',
+          'fuchsia',
+          'lime',
+          'olive']
+
 # load local settings override.
 
 try:

@@ -18,6 +18,8 @@ body {
 
 #page-error-message:empty { display: none; }
 
+.tab-pane { padding-top: 12px; }
+
 .multiple-checkbox ul.list-inline li label { font-weight: normal; }
 
 .offer-remove:hover, .need-remove:hover {

@@ -3,13 +3,6 @@
  * Might consider using require.js
  */
 
-// $fc is jquery selector for fullcalendar. e.g., $('#calendar')
-function fullcalendar_refresh($fc) {
-  $fc.fullCalendar('unselect');
-  $fc.fullCalendar('refetchEvents');
-  $fc.fullCalendar('rerenderEvents');
-}
-
 function display_ajax_messages() {
   $.get('/ajax_messages', function(data) {
     if (data.ajax_messages) {
@@ -30,4 +23,40 @@ function getParameterByName(name) {
   var regex = new RegExp("[\\?&]" + name + "=([^&#]*)"),
     results = regex.exec(location.search);
   return results === null ? "" : decodeURIComponent(results[1].replace(/\+/g, " "));
+}
+
+////////////////////    full calendar related    ////////////////////////
+
+// $fc is jquery selector for fullcalendar. e.g., $('#calendar')
+function fullcalendar_refresh($fc) {
+  $fc.fullCalendar('unselect');
+  $fc.fullCalendar('refetchEvents');
+  $fc.fullCalendar('rerenderEvents');
+}
+
+function getCalendarDefaults() {
+  var param_day = getParameterByName('day');
+  var day = param_day ? moment(param_day, 'YYYYMMDD') : moment();
+  var param_view = getParameterByName('view') || 'agendaWeek';
+
+  return {
+    header: {
+      left: 'prev,next today',
+      center: 'title',
+      right: 'agendaDay,agendaWeek,month'
+    },
+    defaultDate: day.format('YYYY-MM-DD'),
+    defaultView: param_view,
+
+    fixedWeekCount: false,
+    allDaySlot: false,
+
+    minTime: '06:00',
+    maxTime: '21:00',
+    scrollTime: '08:00',
+
+    firstDay: 1,
+    editable: false,
+    eventLimit: true
+  };
 }

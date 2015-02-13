@@ -10,10 +10,10 @@ from django.http import JsonResponse
 from django.views.defaults import bad_request
 from django_ajax.decorators import ajax
 from django import forms
-from location.models import Location, Classroom
+from location.models import Location, Classroom, Center
 from log.models import Log
 from s2c2.decorators import user_check_against_arg, user_is_me_or_same_center, user_classroom_same_center, is_ajax, \
-    user_is_center_manager, user_is_verified, user_is_me_or_same_center_manager
+    user_is_center_manager, user_is_verified, user_is_me_or_same_center_manager, user_in_center
 from s2c2.templatetags.s2c2_tags import s2c2_icon
 from s2c2.utils import dummy, get_fullcaldendar_request_date_range, to_fullcalendar_timestamp, get_request_day, \
     process_messages
@@ -372,3 +372,77 @@ def calendar_classroom_copy(request, cid):
 
     form_url = reverse('cal:classroom_copy', kwargs={'cid': classroom.pk})
     return render(request, 'base_form.html', {'form': form, 'form_url': form_url})
+
+
+@login_required
+@user_in_center
+def calendar_center(request, cid):
+    center = get_object_or_404(Center, pk=cid)
+    classroom_color = center.get_classroom_color()
+    context = {
+        'center': center,
+        'classroom_color_legend': classroom_color
+    }
+    return render(request, 'cal/center.html', context)
+
+
+@is_ajax
+@login_required
+@user_in_center
+def calendar_center_events_filled(request, cid):
+    center = get_object_or_404(Center, pk=cid)
+    classroom_color = center.get_classroom_color()
+    start, end = get_fullcaldendar_request_date_range(request)
+    data = []
+
+    for classroom, color in classroom_color:
+        need_list = NeedSlot.objects.filter(location=classroom, day__range=(start, end), meet__offer__isnull=False).values_list('day', 'start_time', 'meet__offer__user', 'id').order_by('day', 'start_time', 'meet__offer__user__last_name', 'meet__offer__user__first_name', 'meet__offer__user__username')
+        # step1: group by day
+        for day, group_by_day in groupby(need_list, lambda x: x[0]):
+            # step2: group by half-hour slot
+            group_by_slot = [(t, [x[2] for x in g]) for t, g in groupby(group_by_day, lambda x: x[1])]
+            # step3: group by joined users
+            for user_list, group_by_user_list in groupby(group_by_slot, lambda x: x[1]):
+                # step4: for each joined users group, group the time slots.
+                for time_slot in TimeSlot.combine([TimeToken(x[0]) for x in group_by_user_list]):
+                    event = {
+                        'start': to_fullcalendar_timestamp(day, time_slot.start),
+                        'end': to_fullcalendar_timestamp(day, time_slot.end),
+                        'color': color,
+                        'title': ', '.join([UserProfile.get_by_id(i).get_display_name() for i in user_list]),
+                        'url': reverse('cal:classroom', kwargs={'cid': classroom.id})
+                    }
+                    data.append(event)
+
+    return JsonResponse(data, safe=False)
+
+
+@is_ajax
+@login_required
+@user_in_center
+def calendar_center_events_empty(request, cid):
+    center = get_object_or_404(Center, pk=cid)
+    classroom_color = center.get_classroom_color()
+    start, end = get_fullcaldendar_request_date_range(request)
+    data = []
+
+    for classroom, color in classroom_color:
+        need_list = NeedSlot.objects.filter(location=classroom, day__range=(start, end), meet__offer__isnull=True).values_list('day', 'start_time', 'id').order_by('day', 'start_time')
+        # step1: group by day
+        for day, group_by_day in groupby(need_list, lambda x: x[0]):
+            # step2: group by half-hour slot
+            group_by_slot = [(t, len(list(g))) for t, g in groupby(group_by_day, lambda x: x[1])]
+            # step3: group by joined users
+            for empty_count, group_by_empty_count in groupby(group_by_slot, lambda x: x[1]):
+                # step4: for each different empty slot count, group the time slots.
+                for time_slot in TimeSlot.combine([TimeToken(x[0]) for x in group_by_empty_count]):
+                    event = {
+                        'start': to_fullcalendar_timestamp(day, time_slot.start),
+                        'end': to_fullcalendar_timestamp(day, time_slot.end),
+                        'color': color,
+                        'title': 'Empty: %d' % empty_count,
+                        'url': reverse('cal:classroom', kwargs={'cid': classroom.id})
+                    }
+                    data.append(event)
+
+    return JsonResponse(data, safe=False)
