@@ -40,7 +40,7 @@ class Log(models.Model):
     TEMPLATE_OP_CLASSROOM = 12
 
     SIGNUP = 13
-    CLASSROOM_COMMENT = 14
+    COMMENT_BY_LOCATION = 14
     VERIFY = 15
 
     LOG_TYPE = (
@@ -56,7 +56,7 @@ class Log(models.Model):
         (TEMPLATE_OP_STAFF, 'staff template operation'),
         (TEMPLATE_OP_STAFF, 'classroom template operation'),
         (SIGNUP, 'user signup'),
-        (CLASSROOM_COMMENT, 'classroom comment'),
+        (COMMENT_BY_LOCATION, 'comment'),
         (VERIFY, 'user verification'),
     )
 
@@ -137,8 +137,8 @@ class Log(models.Model):
         entry.save()
 
     @staticmethod
-    def create_classroom_comment(creator, classroom, day, comment):
-        entry = Log(creator=creator, type=Log.CLASSROOM_COMMENT, ref='%d,%s' % (classroom.id, day.get_token()), message=comment)
+    def create_comment_by_location(creator, location, day, comment):
+        entry = Log(creator=creator, type=Log.COMMENT_BY_LOCATION, ref='%d,%s' % (location.id, day.get_token()), message=comment)
         entry.save()
 
     def is_today(self):
