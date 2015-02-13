@@ -192,8 +192,8 @@ THUMBNAIL_PROCESSORS = ('image_cropping.thumbnail_processors.crop_corners',) + t
 IMAGE_CROPPING_THUMB_SIZE = (400, 400)
 IMAGE_CROPPING_SIZE_WARNING = True
 
-COLORS = ['green',
-          'maroon',
+# remove green (clashes with other calendar colors), gray, black
+COLORS = ['maroon',
           'navy',
           'red',
           'teal',
@@ -201,6 +201,7 @@ COLORS = ['green',
           'orange',
           'yellow',
           'aqua',
+          'darkgreen',
           'purple',
           'fuchsia',
           'lime',

@@ -386,7 +386,7 @@ def edit(request):
                 messages.success(request, 'Profile updated.')
             else:
                 messages.warning(request, 'Nothing has updated.')
-            return redirect('dashboard')
+            return redirect('user:profile')
     else:
         form_user = UserEditForm(instance=user_profile.user)
         form_profile = ProfileForm(instance=user_profile.profile)
@@ -503,4 +503,20 @@ def picture(request):
 @user_is_me_or_same_center
 def profile(request, uid=None):
     user_profile = UserProfile.get_by_id_default(uid, request.user)
-    return render(request, 'user/profile.html', {'user_profile': user_profile})
+    current_user_profile = UserProfile(request.user)
+
+    context = {'user_profile': user_profile}
+
+    if user_profile != current_user_profile and current_user_profile.is_center_manager() \
+            and current_user_profile.is_verified() and not user_profile.is_verified() \
+            and current_user_profile.is_same_center(user_profile):
+        # then we allow verify form
+        # this form is similar to user:verify()::VerifyForm, but we use IntegerField instead.
+        # note that user:verify()::VerifyForm will validate the data using MultipleChoicesField.
+
+        class VerifyForm(forms.Form):
+            users = forms.IntegerField(widget=forms.HiddenInput, initial=user_profile.pk)
+
+        context['verify_form'] = VerifyForm()
+
+    return render(request, 'user/profile.html', context)

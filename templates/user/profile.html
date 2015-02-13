@@ -9,6 +9,17 @@
   <small>{{ user_profile.display_role|title }}{% if not user_profile.is_verified %} {% icon 'unverified' %}{% endif %}</small>
 {% endblock %}
 
+{% block page-header-extra %}{% if verify_form %}
+  <form class="form" method="post" action="{% url 'user:verify' %}">
+    {% csrf_token %}
+    {{ verify_form }}
+    <div class="form-group alert alert-warning">
+      <button type="submit" class="btn btn-primary">Verify</button>
+      <span class="text-muted">You may verify the user to have full access to the center you manage.</span>
+    </div>
+  </form>
+{% endif %}{% endblock %}
+
 {% block page-summary %}
   <div class="row">
     <div class="col-sm-6">

@@ -107,7 +107,7 @@
         //console.log(staff_id, day, start, end);
         // note: staff_id is not available to django backend. we'll assume user_profile.pk === staff_id
         $.post('{% url "slot:offer_delete" uid=user_profile.pk %}', {day: day, start_time: start, end_time: end}, function(data) {
-          //console.log(data);
+          //console.log(data);bad
           if (data.status === 302) {
             //window.location.replace(data.content);
             fullcalendar_refresh($('#calendar'));
@@ -126,7 +126,7 @@
 {% endblock %}
 
 {% block title %}Staff Calendar | S2C2{% endblock %}
-{% block page-header %}{% icon user_profile %} {{ user_profile|name }}{% endblock %}
+{% block page-header %}{% icon user_profile %} {{ user_profile|name }} <small><a href="{% url 'user:profile' uid=user_profile.id %}" title="View profile">{% icon 'profile' %}</a></small>{% endblock %}
 
 {% block page-content %}
   <div class="row">

@@ -46,7 +46,9 @@ def s2c2_icon(obj):
     if obj == 'unverified':
         # return '<i class="fa fa-ban"></i>'
         return '<span class="label label-danger" title="Please wait for your account to be verified."><i class="fa fa-ban"></i> unverified</span>'
-    if isinstance(obj, User) or isinstance(obj, UserProfile) or obj == 'user':
+    elif obj == 'profile':
+        return '<span class="glyphicon glyphicon-info-sign"></span>'
+    elif isinstance(obj, User) or isinstance(obj, UserProfile) or obj == 'user':
         return '<i class="fa fa-user"></i>'
     elif isinstance(obj, Classroom) or obj == 'classroom':
         return '<i class="fa fa-paw"></i>'
