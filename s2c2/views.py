@@ -27,6 +27,8 @@ def home(request):
         user_profile = UserProfile(request.user)
         if user_profile.is_center_staff():
             return redirect('cal:staff')
+        elif user_profile.is_center_manager():
+            return redirect('user:profile')
         return redirect('dashboard')
 
 
