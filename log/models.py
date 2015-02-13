@@ -40,7 +40,7 @@ class Log(models.Model):
     TEMPLATE_OP_CLASSROOM = 12
 
     SIGNUP = 13
-    COMMENT = 14
+    CLASSROOM_COMMENT = 14
     VERIFY = 15
 
     LOG_TYPE = (
@@ -56,7 +56,7 @@ class Log(models.Model):
         (TEMPLATE_OP_STAFF, 'staff template operation'),
         (TEMPLATE_OP_STAFF, 'classroom template operation'),
         (SIGNUP, 'user signup'),
-        (COMMENT, 'user comment'),
+        (CLASSROOM_COMMENT, 'classroom comment'),
         (VERIFY, 'user verification'),
     )
 
@@ -134,6 +134,11 @@ class Log(models.Model):
 
         # todo: create or update based on time elapse.
         entry = Log(creator=creator, type=t, ref=ref, message=message)
+        entry.save()
+
+    @staticmethod
+    def create_classroom_comment(creator, classroom, day, comment):
+        entry = Log(creator=creator, type=Log.CLASSROOM_COMMENT, ref='%d,%s' % (classroom.id, day.get_token()), message=comment)
         entry.save()
 
     def is_today(self):
