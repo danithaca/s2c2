@@ -219,38 +219,28 @@ def need_delete_ajax(request, cid):
     if request.method == 'POST':
         form = DeleteFrom(request.POST)
         if form.is_valid():
-            deleted_time = []
-            cascade_delete = {}
             day, start_time, end_time = form.get_cleaned_data()
             user_id = int(form.cleaned_data['user_id'])
 
-            for t in TimeToken.interval(start_time, end_time):
-                deleted = False
-
-                # always delete empty needs
-                if user_id == 0:
+            if user_id == 0:
+                # only delete need. make sure there's no meet assigned.
+                for t in TimeToken.interval(start_time, end_time):
                     need = NeedSlot.objects.filter(location=classroom, day=day, start_time=t, end_time=t.get_next(), meet__isnull=True).first()
-                else:
-                    need = NeedSlot.objects.filter(location=classroom, day=day, start_time=t, end_time=t.get_next(), meet__offer__user__id=user_id).first()
-                if need:
-                    try:
-                        meet = need.meet
-                        #Log.create(Log.MEET_CASCADE_DELETE_NEED, request.user, (meet.offer.user, need.location, need.day, need.start_time))
-                        cascade_delete[meet.offer.user] = cascade_delete.get(meet.offer.user, t)      # this only get set once when cascade_delete is none.
-                        meet.delete()
-                    except Meet.DoesNotExist:
-                        pass
+                    assert need is not None
                     need.delete()
-                    deleted = True
+                Log.create(Log.NEED_UPDATE, request.user, (classroom, day), 'deleted %s' % TimeSlot(start_time, end_time))
 
-                if deleted:
-                    deleted_time.append(t)
-
-            if len(deleted_time) >= 0:
-                deleted_message = ', '.join([t.display() for t in TimeSlot.combine(deleted_time)])
-                Log.create(Log.NEED_UPDATE, request.user, (classroom, day), 'deleted %s' % deleted_message)
-                for u in cascade_delete:
-                    Log.create(Log.MEET_CASCADE_DELETE_NEED, request.user, (u, need.location, need.day, need.start_time))
+            else:
+                # only delete meet, not need.
+                u = User.objects.get(pk=user_id)
+                for t in TimeToken.interval(start_time, end_time):
+                    need = NeedSlot.objects.filter(location=classroom, day=day, start_time=t, end_time=t.get_next(), meet__offer__user__id=user_id).first()
+                    assert need is not None
+                    try:
+                        need.meet.delete()
+                    except Meet.DoesNotExist:
+                        assert False
+                Log.create(Log.MEET_UPDATE, request.user, (u, classroom, day, start_time))
 
         return JsonResponse({'success': True})
 
