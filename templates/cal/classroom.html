@@ -90,7 +90,7 @@
           $form.find('select option[value=curr]').text('Current week ('+ current_day.clone().day(1).format('MMM.D') + ' ~ ' + current_day.clone().day(7).format('D') +')');
           $form.find('select option[value=prev]').text('Previous week ('+ current_day.clone().day(-6).format('MMM.D') + ' ~ ' + current_day.clone().day(0).format('D') +')');
           $form.find('select option[value=next]').text('Next week ('+ current_day.clone().day(8).format('MMM.D') + ' ~ ' + current_day.clone().day(14).format('D') +')');
-          window.history.pushState(current_day, null, './?day=' + current_day.format('YYYYMMDD') + '&view=' + view.calendar.getView().type);
+          calendarChangeBookmark(view);
         }
       });
 

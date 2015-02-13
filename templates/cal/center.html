@@ -15,31 +15,25 @@
   <script>
     $(document).ready(function() {
       var calendarDefaults = getCalendarDefaults();
+      $.extend(calendarDefaults, {
+        viewRender: calendarChangeBookmark
+      });
+
       var $calendar_filled = $('#calendar-filled');
       var $calendar_empty = $('#calendar-empty');
 
       $calendar_filled.fullCalendar($.extend(calendarDefaults, {
-        events: '{% url "cal:center_events_filled" cid=center.id %}',
-
-        viewRender: function(view, element) {
-          var current_day = view.calendar.getDate();
-          window.history.pushState(current_day, null, './?day=' + current_day.format('YYYYMMDD') + '&view=' + view.calendar.getView().type);
-        }
+        events: '{% url "cal:center_events_filled" cid=center.id %}'
       }));
 
       $calendar_empty.fullCalendar($.extend(calendarDefaults, {
-        events: '{% url "cal:center_events_empty" cid=center.id %}',
-
-        viewRender: function(view, element) {
-          var current_day = view.calendar.getDate();
-          window.history.pushState(current_day, null, './?day=' + current_day.format('YYYYMMDD') + '&view=' + view.calendar.getView().type);
-        }
+        events: '{% url "cal:center_events_empty" cid=center.id %}'
       }));
 
       $('a[data-toggle="tab"]').on('shown.bs.tab', function (e) {
         $calendar_filled.fullCalendar('render');
         $calendar_empty.fullCalendar('render');
-      })
+      });
 
     }); // end of document.ready().
   </script>

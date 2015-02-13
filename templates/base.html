@@ -86,7 +86,7 @@
           {% with center_count=user.profile.centers.count %}
             {% if center_count == 1 %}
               {% with center=user.profile.centers.first %}
-              <li><a href="{% url 'center' pk=center.pk %}" title="{{ center|name }}">{% icon center %} My Center</a></li>
+              <li><a href="{% url 'cal:center' cid=center.id %}" title="{{ center|name }}">{% icon center %} My Center</a></li>
               {% endwith %}
             {% elif center_count > 1 %}
               <li class="dropdown user-centers">

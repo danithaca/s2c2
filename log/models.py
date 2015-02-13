@@ -153,22 +153,22 @@ class Log(models.Model):
         try:
             if self.type in (Log.OFFER_UPDATE, Log.TEMPLATE_OP_STAFF):
                 u = User.objects.get(pk=ref_list[0])
-                links.append({'text': 'view availability', 'href': '%s?day=%s' % (reverse('slot:staff', kwargs={'uid': u.pk}), ref_list[1])})
+                links.append({'text': 'view availability', 'href': '%s?day=%s' % (reverse('cal:staff', kwargs={'uid': u.pk}), ref_list[1])})
 
             elif self.type in (Log.NEED_UPDATE, Log.TEMPLATE_OP_CLASSROOM):
                 classroom = Classroom.objects.get(pk=ref_list[0])
-                links.append({'text': 'view availability', 'href': '%s?day=%s' % (reverse('slot:classroom', kwargs={'cid': classroom.pk}), ref_list[1])})
+                links.append({'text': 'view availability', 'href': '%s?day=%s' % (reverse('cal:classroom', kwargs={'cid': classroom.pk}), ref_list[1])})
 
             elif self.type in (Log.MEET_UPDATE, Log.MEET_CASCADE_DELETE_OFFER, Log.MEET_CASCADE_DELETE_NEED):
                 staff_id, classroom_id, d, t = self.ref.split(',')
                 u = User.objects.get(pk=ref_list[0])
-                links.append({'text': 'view availability', 'href': '%s?day=%s' % (reverse('slot:staff', kwargs={'uid': u.pk}), staff_id)})
+                links.append({'text': 'view availability', 'href': '%s?day=%s' % (reverse('cal:staff', kwargs={'uid': u.id}), d)})
                 classroom = Classroom.objects.get(pk=ref_list[0])
-                links.append({'text': 'view availability', 'href': '%s?day=%s' % (reverse('slot:classroom', kwargs={'cid': classroom.pk}), classroom_id)})
+                links.append({'text': 'view availability', 'href': '%s?day=%s' % (reverse('cal:classroom', kwargs={'cid': classroom.id}), d)})
 
             elif self.type in (Log.SIGNUP, Log.VERIFY):
                 staff = User.objects.get(pk=self.ref)
-                links.append({'text': 'view availability', 'href': '%s' % (reverse('dashboard', kwargs={'uid': staff.pk}))})
+                links.append({'text': 'view availability', 'href': '%s' % (reverse('user:profile', kwargs={'uid': staff.pk}))})
 
         except (User.DoesNotExist, Location.DoesNotExist):
             pass

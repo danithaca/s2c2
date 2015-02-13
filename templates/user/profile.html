@@ -23,7 +23,7 @@
               <table class="table table-condensed">
                 <tr><th scope="row">Center{{ user_profile.centers.all|pluralize }}</th><td><ul class="list-unstyled">
                   {% for center in user_profile.centers.all %}
-                    <li><a href="{% url 'center' pk=center.pk %}">{% icon center %} {{ center|name }}</a></li>
+                    <li><a href="{% url 'cal:center' cid=center.id %}">{% icon center %} {{ center|name }}</a></li>
                   {% empty %}
                     <li class="text-muted">-None-</li>
                   {% endfor %}

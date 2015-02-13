@@ -96,7 +96,7 @@
           $('#panel-staff-copy select option[value=curr]').text('Current week ('+ current_day.clone().day(1).format('MMM.D') + ' ~ ' + current_day.clone().day(7).format('D') +')');
           $('#panel-staff-copy select option[value=prev]').text('Previous week ('+ current_day.clone().day(-6).format('MMM.D') + ' ~ ' + current_day.clone().day(0).format('D') +')');
           $('#panel-staff-copy select option[value=next]').text('Next week ('+ current_day.clone().day(8).format('MMM.D') + ' ~ ' + current_day.clone().day(14).format('D') +')');
-          window.history.pushState(current_day, null, './?day=' + current_day.format('YYYYMMDD') + '&view=' + view.calendar.getView().type);
+          calendarChangeBookmark(view);
         }
       });
 
@@ -132,6 +132,7 @@
   <div class="row">
     <div class="col-sm-3">
       <div class="panel-group" id="calendar-panel-list">
+        {% include "cal/includes/panel_staff_hours.html" with panel_id="panel-staff-hours" panel_title="Hours" panel_collapse=True %}
         {% include "cal/includes/panel_staff_copy.html" with panel_id="panel-staff-copy" panel_title="Copy" panel_collapse=True %}
       </div>
     </div>
