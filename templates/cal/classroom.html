@@ -98,7 +98,8 @@
       $('#calendar').on('click', '.need-remove', function(e) {
         e.stopPropagation();
         e.preventDefault();
-        var [classroom_id, day, start, end, user_id] = $(this).data('need').split('-');
+        var id_data = $(this).data('need').split('-');
+        var classroom_id = id_data[0], day = id_data[1], start = id_data[2], end = id_data[3], user_id = id_data[4];
         //console.log(classroom_id, day, start, end, user_id);
         // note: classroom.id is not available to django backend. we'll assume classroom.pk (in django) === classroom_id (in js)
         $.post('{% url "cal:need_delete_ajax" cid=classroom.pk %}', {day: day, start_time: start, end_time: end, user_id: user_id}, function(data) {

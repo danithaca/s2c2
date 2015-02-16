@@ -103,7 +103,8 @@
       $('#calendar').on('click', '.offer-remove', function(e) {
         e.stopPropagation();
         e.preventDefault();
-        var [staff_id, day, start, end] = $(this).data('offer').split('-');
+        var id_data = $(this).data('offer').split('-');
+        var staff_id = id_data[0], day = id_data[1], start = id_data[2], end = id_data[3];
         //console.log(staff_id, day, start, end);
         // note: staff_id is not available to django backend. we'll assume user_profile.pk === staff_id
         $.post('{% url "slot:offer_delete" uid=user_profile.pk %}', {day: day, start_time: start, end_time: end}, function(data) {
