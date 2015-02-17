@@ -20,14 +20,23 @@
       el: '#staff-hours-table',
       template: _.template($('#staff-hours-table-template').html()),
       initialize: function(){
-        this.render();
+        this.render(getRequestDay());
       },
-      render: function(){
-        this.$el.html(this.template({work: 10, empty: 20, total: 30}));
+      render: function(day){
+        var url = '{% url "cal:staff_hours" uid=user_profile.id %}';
+        if (day) url = url + '?day=' + day;
+        //console.log(url);
+        var view = this;
+        $.get(url, function(data) {
+          view.$el.html(view.template({work: data['work'] || 'N/A', empty: data['empty'] || 'N/A', total: data['total'] || 'N/A'}));
+        });
       }
+
+      // note: Backbone.View.events doesn't seem to bind external elements. use fullCalendar to trigger update.
     });
 
     var staffHoursView = new StaffHoursView();
+    $('#staff-hours-table').data('view', staffHoursView);
   });
   </script>
 

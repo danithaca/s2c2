@@ -97,6 +97,13 @@
           $('#panel-staff-copy select option[value=prev]').text('Previous week ('+ current_day.clone().day(-6).format('MMM.D') + ' ~ ' + current_day.clone().day(0).format('D') +')');
           $('#panel-staff-copy select option[value=next]').text('Next week ('+ current_day.clone().day(8).format('MMM.D') + ' ~ ' + current_day.clone().day(14).format('D') +')');
           calendarChangeBookmark(view);
+        },
+
+        eventAfterAllRender: function(view) {
+          var current_day = view.calendar.getDate();
+          // update staff hours.
+          var staff_hours_table_view = $('#staff-hours-table').data('view');
+          if (staff_hours_table_view) staff_hours_table_view.render(current_day.format('YYYYMMDD'));
         }
       });
 

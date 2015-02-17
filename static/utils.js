@@ -25,6 +25,15 @@ function getParameterByName(name) {
   return results === null ? "" : decodeURIComponent(results[1].replace(/\+/g, " "));
 }
 
+function getRequestDay() {
+  var day = getParameterByName('day');
+  if (day) {
+    return day;
+  } else {
+    return moment().format('YYYYMMDD');
+  }
+}
+
 ////////////////////    full calendar related    ////////////////////////
 
 // $fc is jquery selector for fullcalendar. e.g., $('#calendar')
