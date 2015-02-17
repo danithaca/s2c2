@@ -380,7 +380,7 @@ def calendar_center(request, cid):
     center = get_object_or_404(Center, pk=cid)
     classroom_color = center.get_classroom_color()
 
-    sections = [(g.name, User.objects.filter(profile__centers=center, groups=g.group, is_active=True).order_by("last_name", "first_name", 'username')) for g in (GroupRole.get_by_name(n) for n in ('manager', 'teacher', 'support', 'intern'))]
+    sections = [(g.name, User.objects.filter(profile__centers=center, groups=g.group, is_active=True).order_by("last_name", "first_name", 'username')) for g in (GroupRole.get_by_name(n) for n in ('teacher', 'support', 'intern'))]
 
     context = {
         'center': center,
