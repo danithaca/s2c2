@@ -562,6 +562,19 @@ class Meet(models.Model):
             raise ValueError('Target day must be empty.')
 
         for m in Meet.objects.filter(need__location=location, need__day=from_day):
+            # this problem will arise when a staff is assigned to another classroom, but still get copied from the template.
+            # todo: consider combine with the for loop below.
+            if OfferSlot.objects.filter(user=m.offer.user, day=to_day, start_time=m.offer.start_time, end_time=m.offer.end_time, meet__isnull=False).exists():
+                raise ValueError('Staff is not available at the time to be assigned.')
+
+        for m in Meet.objects.filter(need__location=location, need__day=from_day):
             offer, created = OfferSlot.objects.get_or_create(user=m.offer.user, day=to_day, start_time=m.offer.start_time, end_time=m.offer.end_time, meet__isnull=True)
             need = NeedSlot.get_or_create_unmet_need(location=m.need.location, day=to_day, start_time=m.need.start_time, end_time=m.need.end_time)
             Meet.objects.create(offer=offer, need=need)
+
+
+class TemplateSettings(models.Model):
+    template_base_date = models.DateField()
+
+    class Meta:
+        abstract = True

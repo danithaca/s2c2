@@ -361,7 +361,7 @@ def calendar_classroom_copy(request, cid):
                     failed.append(to_day)
 
             if failed:
-                messages.warning(request, 'Target day(s) are not empty and cannot be copied to: %s' % ', '.join([d.value.strftime('%b %d') for d in set(failed)]))
+                messages.warning(request, 'Target date(s) are not copied: %s. Possible reasons: target date(s) not empty or staff is not available.' % ', '.join([d.value.strftime('%b %d') for d in set(failed)]))
             else:
                 messages.success(request, 'Copy successful.')
 
@@ -458,5 +458,9 @@ def calendar_center_events_empty(request, cid):
 def calendar_staff_hours(request, uid):
     user_profile = UserProfile.get_by_id(uid)
     day = get_request_day(request)
-    hours = user_profile.get_week_hours(day)
+    if user_profile.is_center_staff():
+        # note: .get_week_hours() is in CenterStaff class, not in user_profile in general.
+        hours = user_profile.get_week_hours(day)
+    else:
+        hours = [0, 0, 0]
     return JsonResponse({'total': hours[0], 'work': hours[1], 'empty': hours[2]})
