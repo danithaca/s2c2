@@ -446,3 +446,13 @@ def calendar_center_events_empty(request, cid):
                     data.append(event)
 
     return JsonResponse(data, safe=False)
+
+
+@is_ajax
+@login_required
+@user_is_me_or_same_center
+def calendar_staff_hours(request, uid):
+    user_profile = UserProfile.get_by_id(uid)
+    day = get_request_day(request)
+    hours = user_profile.get_week_hours(day)
+    return JsonResponse({'total': hours[0], 'work': hours[1], 'empty': hours[2]})

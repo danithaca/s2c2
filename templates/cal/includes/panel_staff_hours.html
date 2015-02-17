@@ -2,5 +2,33 @@
 {% load bootstrap %}
 
 {% block panel_content %}
-  placeholder
+  <div id="staff-hours-table"></div>
+
+  <script type="text/template" id="staff-hours-table-template">
+    <table class="table table-bordered table-hover table-condensed">
+      <tbody>
+      <tr><th scope="row">Work</th><td><%= work %></td></tr>
+      <tr><th scope="row">Available</th><td><%= empty %></td></tr>
+      <tr><th scope="row">Total</th><td><%= total %></td></tr>
+      </tbody>
+    </table>
+  </script>
+
+  <script type="text/javascript">
+  $(document).ready(function() {
+    var StaffHoursView = Backbone.View.extend({
+      el: '#staff-hours-table',
+      template: _.template($('#staff-hours-table-template').html()),
+      initialize: function(){
+        this.render();
+      },
+      render: function(){
+        this.$el.html(this.template({work: 10, empty: 20, total: 30}));
+      }
+    });
+
+    var staffHoursView = new StaffHoursView();
+  });
+  </script>
+
 {% endblock %}
