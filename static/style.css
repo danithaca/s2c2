@@ -27,8 +27,6 @@ body {
   color: red;
 }
 
-.classroom-color-legend { padding: 5px; border-radius: 5px;}
-
 /********************************* special settings for print **********************************/
 
 @media print {
