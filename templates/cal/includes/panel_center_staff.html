@@ -1,0 +1,14 @@
+{% extends 'cal/panel.html' %}
+{% load bootstrap %}
+{% load s2c2_tags %}
+
+{% block panel_content %}
+  {% for header, staff_list in sections %}
+    <h5>{{ header|title }}</h5>
+    <ul class="nav nav-pills">
+      {% for staff in staff_list %}
+        <li><a href="{% url 'cal:staff' uid=staff.id %}">{% icon staff %} {{ staff|name }} {% if not staff.profile.verified %}{% icon 'unverified' %}{% endif %}</a></li>
+      {% endfor %}
+    </ul>
+  {% endfor %}
+{% endblock %}
