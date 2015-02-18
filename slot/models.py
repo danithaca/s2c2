@@ -9,11 +9,8 @@ import warnings
 from django.core.exceptions import ValidationError
 from django.db import models
 from django.contrib.auth.models import User
-from django.db.models.signals import pre_delete
-from django.dispatch import receiver
 
 from location.models import Location
-from log.models import Log
 
 
 class DayToken(object):
@@ -574,7 +571,7 @@ class Meet(models.Model):
 
 
 class TemplateSettings(models.Model):
-    template_base_date = models.DateField()
+    template_base_date = models.DateField(blank=True, null=True)
 
     class Meta:
         abstract = True

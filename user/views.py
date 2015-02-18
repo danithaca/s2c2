@@ -520,3 +520,34 @@ def profile(request, uid=None):
         context['verify_form'] = VerifyForm()
 
     return render(request, 'user/profile.html', context)
+
+
+@login_required
+def pref(request):
+    user_profile = UserProfile(request.user)
+
+    class PrefForm(ModelForm):
+        class Meta:
+            model = Profile
+            fields = ('template_base_date',)
+
+    class PrefView(FormView):
+        template_name = 'user/pref.html'
+        form_class = PrefForm
+        success_url = '/'
+
+        def get_form_kwargs(self):
+            kwargs = super(PrefView, self).get_form_kwargs()
+            if user_profile.has_profile():
+                kwargs['instance'] = user_profile.profile
+            return kwargs
+
+        def get_context_data(self, **kwargs):
+            kwargs['title'] = 'Edit preferences'
+            return kwargs
+
+        def form_valid(self, form):
+            form.save()
+            return super(PrefView, self).form_valid(form)
+
+    return PrefView.as_view()(request)

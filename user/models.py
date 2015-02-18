@@ -8,9 +8,10 @@ from django.core.exceptions import ObjectDoesNotExist
 from image_cropping import ImageCropField, ImageRatioField
 from localflavor.us.models import PhoneNumberField
 from location.models import Center, Area, Classroom
+from slot.models import TemplateSettings
 
 
-class Profile(models.Model):
+class Profile(TemplateSettings):
     """
     This has a one-to-one relationship with User, using user.pk as pk.
     A "profile" instance is bound to have a "user" object, but not vice versa.
