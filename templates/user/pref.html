@@ -1,6 +1,10 @@
 {% extends "user/user-admin.html" %}
 {% load bootstrap %}
 
+{% block more_header %}
+  {{ form.media }}
+{% endblock %}
+
 {% block content %}
 <div class="panel panel-default">
   <div class="panel-heading">{{ title }}</div>

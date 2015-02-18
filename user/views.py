@@ -1,3 +1,4 @@
+from datetimewidget.widgets import DateTimeWidget, DateWidget
 from django.contrib import auth, messages
 from django.contrib.auth import views as auth_views
 from django.contrib.auth.decorators import login_required
@@ -530,6 +531,19 @@ def pref(request):
         class Meta:
             model = Profile
             fields = ('template_base_date',)
+            widgets = {
+                'template_base_date': DateWidget(bootstrap_version=3, options={
+                  'daysOfWeekDisabled': '"0,6"',
+                  'format': 'yyyy-mm-dd',
+                  'weekStart': 1
+                })
+            }
+            labels = {
+                'template_base_date': 'Template week'
+            }
+            help_texts = {
+                'template_base_date': 'Pick a date whose week schedule would be the template for automatic copy. Clear the date to disable automatic copy.'
+            }
 
     class PrefView(FormView):
         template_name = 'user/pref.html'

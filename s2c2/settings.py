@@ -56,6 +56,7 @@ INSTALLED_APPS = (
     'easy_thumbnails',
     'image_cropping',
     'django_ajax',
+    'datetimewidget',
 
     # customized
     's2c2',
