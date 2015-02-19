@@ -10,3 +10,4 @@ Tags:
   * rel-0.1:  initial offer for children's center
   * rel-0.1.1: some fix based on rel-0.1
   * rel-0.2:  switched to fullcalendar
+  * rel-0.2.1:  a few fixes before adding "message" system.
