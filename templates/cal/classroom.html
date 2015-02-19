@@ -35,7 +35,7 @@
           start: '06:00',
           end: '21:00'
         },
-        select: function(start, end) {
+        select: function(start, end, jsEvent, view) {
           //console.log(start.format('YYYYMMDD'));
           //console.log(start.format('HHmm'));
           var form_day = start.format('YYYYMMDD');
@@ -46,17 +46,35 @@
           }*/
           var form_start = start.format('HHmm');
           var form_end = end.format('HHmm');
-          $.post('{% url "slot:need_add" cid=classroom.pk %}', {day: form_day, start_time: form_start, end_time: form_end, howmany: 1}, function(data) {
-            //console.log(data);
-            if (data.status === 302) {
-              //window.location.replace(data.content);
-              fullcalendar_refresh($('#calendar'));
-              display_ajax_messages();
-            }
-            else if (data.status === 403) {
-              display_message('Permission not allowed.', 'danger');
-            }
-          });
+
+          if (jsEvent.shiftKey) {
+            // delete empty slot
+            $.post('{% url "cal:need_delete_ajax" cid=classroom.pk %}', {day: form_day, start_time: form_start, end_time: form_end, user_id: 0}, function(data) {
+              //console.log(data);
+              if (data.success) {
+                //window.location.replace(data.content);
+                fullcalendar_refresh($('#calendar'));
+                display_ajax_messages();
+              }
+              else {
+                display_message('Permission not allowed or other errors.', 'danger');
+              }
+            });
+          }
+          else {
+            // add empty slot.
+            $.post('{% url "slot:need_add" cid=classroom.pk %}', {day: form_day, start_time: form_start, end_time: form_end, howmany: 1}, function(data) {
+              //console.log(data);
+              if (data.status === 302) {
+                //window.location.replace(data.content);
+                fullcalendar_refresh($('#calendar'));
+                display_ajax_messages();
+              }
+              else if (data.status === 403) {
+                display_message('Permission not allowed.', 'danger');
+              }
+            });
+          }
         },
 
         firstDay: 1,

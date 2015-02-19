@@ -51,7 +51,7 @@
           start: '06:00',
           end: '21:00'
         },
-        select: function(start, end) {
+        select: function(start, end, jsEvent, view) {
           //console.log(start.format('YYYYMMDD'));
           //console.log(start.format('HHmm'));
           var form_day = start.format('YYYYMMDD');
@@ -62,14 +62,33 @@
           }
           var form_start = start.format('HHmm');
           var form_end = end.format('HHmm');
-          $.post('{% url "slot:offer_add" uid=user_profile.pk %}', {day: form_day, start_time: form_start, end_time: form_end}, function(data) {
-            //console.log(data);
-            if (data.status === 302) {
-              //window.location.replace(data.content);
-              fullcalendar_refresh($('#calendar'));
-              display_ajax_messages();
-            }
-          });
+
+          if (jsEvent.shiftKey) {
+            // this will do delete
+            $.post('{% url "slot:offer_delete" uid=user_profile.pk %}', {day: form_day, start_time: form_start, end_time: form_end}, function(data) {
+              //console.log(data);bad
+              if (data.status === 302) {
+                //window.location.replace(data.content);
+                fullcalendar_refresh($('#calendar'));
+                display_ajax_messages();
+              }
+              else if (data.status === 403) {
+                display_message('Permission not allowed.', 'danger');
+              }
+            });
+          }
+          else {
+            // for all other cases
+            $.post('{% url "slot:offer_add" uid=user_profile.pk %}', {day: form_day, start_time: form_start, end_time: form_end}, function(data) {
+              //console.log(data);
+              if (data.status === 302) {
+                //window.location.replace(data.content);
+                fullcalendar_refresh($('#calendar'));
+                display_ajax_messages();
+              }
+            });
+          }
+
           //var eventData;
           //eventData = {
           //  start: start,

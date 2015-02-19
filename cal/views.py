@@ -226,8 +226,9 @@ def need_delete_ajax(request, cid):
                 # only delete need. make sure there's no meet assigned.
                 for t in TimeToken.interval(start_time, end_time):
                     need = NeedSlot.objects.filter(location=classroom, day=day, start_time=t, end_time=t.get_next(), meet__isnull=True).first()
-                    assert need is not None
-                    need.delete()
+                    # need could be empty, now that we enable "shift" delete.
+                    if need is not None:
+                        need.delete()
                 Log.create(Log.NEED_UPDATE, request.user, (classroom, day), 'deleted %s' % TimeSlot(start_time, end_time))
 
             else:
