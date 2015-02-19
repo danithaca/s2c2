@@ -330,7 +330,7 @@ class TimeSlot(object):
         list_index = [TimeToken._to_index(t.value) for t in list_timetoken]
         # the algorithm works like this:
         # first, it tries to combine the most available time span.
-        # second, it removes the available 
+        # second, it removes the available
         while len(list_index) > 0:
             sub_list = list(set(list_index))
             sub_list.sort()
@@ -433,6 +433,26 @@ class OfferSlot(Slot):
         if OfferSlot.objects.filter(user=user, day=to_day).exists():
             raise ValueError('Target day must be empty.')
         OfferSlot.objects.bulk_create([OfferSlot(user=user, day=to_day, start_time=start_time, end_time=end_time) for start_time, end_time in OfferSlot.objects.filter(user=user, day=from_day).values_list('start_time', 'end_time')])
+
+    @staticmethod
+    def safe_copy_by_week(user, from_day, to_day):
+        from_week = from_day.expand_week()
+        to_week = to_day.expand_week()
+
+        if from_week[0] == to_week[0]:
+            raise ValueError('From and to cannot be in the same week.')
+
+        failed = []
+        assert len(from_week) == len(to_week)
+
+        for from_day, to_day in zip(from_week, to_week):
+            assert from_day.weekday() == to_day.weekday()
+            try:
+                OfferSlot.safe_copy(user, from_day, to_day)
+            except ValueError as e:
+                failed.append(to_day)
+
+        return failed
 
 
 class NeedSlot(Slot):

@@ -13,6 +13,7 @@ import os
 import logging
 
 from django.core.urlresolvers import reverse_lazy
+import sys
 
 
 BASE_DIR = os.path.dirname(os.path.dirname(__file__))
@@ -164,11 +165,24 @@ ADMINS = (('admin', 'danithaca@gmail.com'), )
 LOGGING = {
     'version': 1,
     'disable_existing_loggers': False,
+    'formatters': {
+        'verbose': {
+            'format': '%(levelname)s %(asctime)s %(module)s %(process)d %(thread)d %(message)s'
+            },
+        'simple': {
+            'format': '%(levelname)s %(message)s'
+            },
+        },
     'handlers': {
         'file': {
             'level': 'DEBUG',
             'class': 'logging.FileHandler',
             'filename': os.path.join(BASE_DIR, 'debug.log'),
+            },
+        'console': {
+            'level': 'DEBUG',
+            'class': 'logging.StreamHandler',
+            'formatter': 'simple',
             },
         },
     'loggers': {
@@ -182,6 +196,10 @@ LOGGING = {
             'handlers': ['file'],
             'propagate': True,
             'level': 'ERROR',
+            },
+        's2c2.management': {
+            'handlers': ['console'],
+            'level': 'DEBUG',
             },
     }
 
