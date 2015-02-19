@@ -6,7 +6,7 @@
 
 {% block page-header %}
   {% icon user_profile %} {{ user_profile|name }}
-  <small>{{ user_profile.display_role|title }}{% if not user_profile.is_verified %} {% icon 'unverified' %}{% endif %}</small>
+  <small><a href="{% url 'cal:staff' uid=user_profile.id %}" title="View calendar">{% icon 'calendar' %}</a> {{ user_profile.display_role|title }}{% if not user_profile.is_verified %} {% icon 'unverified' %}{% endif %}</small>
 {% endblock %}
 
 {% block page-header-extra %}{% if verify_form %}
