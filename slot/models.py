@@ -328,6 +328,9 @@ class TimeSlot(object):
         assert len(list_timetoken) > 0
         combined = []
         list_index = [TimeToken._to_index(t.value) for t in list_timetoken]
+        # the algorithm works like this:
+        # first, it tries to combine the most available time span.
+        # second, it removes the available 
         while len(list_index) > 0:
             sub_list = list(set(list_index))
             sub_list.sort()

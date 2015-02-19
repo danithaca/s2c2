@@ -1,6 +1,7 @@
 from django.conf.urls import patterns, include, url
 from django.contrib import admin
 from django.conf.urls.static import static
+from django.views.generic import TemplateView
 
 from s2c2 import utils
 import s2c2.views
@@ -31,6 +32,8 @@ urlpatterns = patterns(
     url(r'^admin/', include(admin.site.urls)),
     url(r'^dummy/$', utils.dummy, name='dummy'),
     url(r'^dummy/(?P<message>.+)/$', utils.dummy, name='dummy_extra'),
+
+    url(r'^design/$', TemplateView.as_view(template_name='pages/design.html'), name='design'),
 
     # note: the following thing about static is only valid in dev.
 ) + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

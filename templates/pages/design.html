@@ -1,0 +1,24 @@
+{% extends "base_page.html" %}
+{% load staticfiles %}
+{% load bootstrap %}
+
+{% block title %}Design Philosophy{% endblock %}
+
+{% block page-header %}Design Philosophy{% endblock %}
+
+{% block page-content %}
+  <p>This page explains a few key concepts and design choices behind S2C2. It will help you understand the system. For now, please watch the video below.</p>
+  <p>There are 2 types of users in the system: managers and caregivers (full time teachers, substitutes, and student employees). For managers</p>
+  <ul>
+  <li></li>
+  </ul>
+
+  key concept: availability, needs, and assignment
+
+  it looks like Google Calendar, but different:
+  challenges of using Google Calendar: 1. you want to assign staff to classroom need, but the staff might not be available at certain times => shards of empty time slot. 2. different time
+
+  Design choices:
+  no edit. only add/remove
+  dynamic grouping of classroom "needs".
+{% endblock %}
