@@ -1,0 +1,26 @@
+{% extends 'cal/panel.html' %}
+
+{% block panel_content %}
+  <form class="form">
+    {% csrf_token %}
+    <div class="input-group">
+      <input type="text" class="form-control" placeholder="Message" name="comment">
+      <span class="input-group-btn"><button type="submit" class="btn btn-primary">Post</button></span>
+    </div>
+  </form>
+
+  <div id="center-wall"></div>
+
+  <script type="text/template" id="center-wall-template">
+
+  </script>
+
+  <script type="text/javascript">
+    $(document).ready(function() {
+      var CenterWallView = Backbone.View.extend({
+        el: '#center-wall',
+        template: _.template($('#center-wall-template').html())
+      });
+    });
+  </script>
+{% endblock %}

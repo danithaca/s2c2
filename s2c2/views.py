@@ -28,7 +28,10 @@ def home(request):
         if user_profile.is_center_staff():
             return redirect('cal:staff')
         elif user_profile.is_center_manager():
-            return redirect('user:profile')
+            if len(user_profile.get_centers_id_set()) == 1:
+                return redirect('cal:center')
+            else:
+                return redirect('user:profile')
         return redirect('dashboard')
 
 

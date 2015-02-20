@@ -2,12 +2,18 @@ from django import forms
 from django.contrib.auth.decorators import login_required
 from django.core.urlresolvers import reverse
 from django.db.models import Q
+from django.http import JsonResponse
+from django.shortcuts import get_object_or_404
 from django.views.generic import ListView, FormView
 from django_ajax.mixin import AJAXMixin
 from rest_framework import generics
+from rest_framework import status
+from rest_framework.response import Response
+from location.models import Location
 from log.models import Notification, Log
 from log.serializers import LogSerializer
-from s2c2.utils import get_now
+from s2c2.utils import get_now, get_request_day
+from slot.models import DayToken
 
 
 @login_required
@@ -52,9 +58,37 @@ class MarkRead(AJAXMixin, FormView):
         return super(MarkRead, self).form_valid(form)
 
 
-class CommentByLocationList(generics.ListCreateAPIView):
-    queryset = Log.objects.filter(type=Log.COMMENT_BY_LOCATION)
+class CommentByLocation(generics.ListCreateAPIView):
     serializer_class = LogSerializer
+    # model = Log
+
+    def get_queryset(self):
+        day = get_request_day(self.request)
+        ref = '%s,%s' % (self.kwargs['cid'], day.get_token())
+        return Log.objects.filter(type=Log.COMMENT_BY_LOCATION, ref=ref)
+
+    # def post(self, request, *args, **kwargs):
+    #     return super(CommentByLocation, self).post(request, *args, **kwargs)
+
+    def create(self, request, *args, **kwargs):
+        data = {
+            'message': request.data['message'],
+            'type': Log.COMMENT_BY_LOCATION,
+            'creator': request.user.id,
+            'ref': '%s,%s' % (kwargs['cid'], request.data['day'])
+        }
+        serializer = self.get_serializer(data=data)
+
+        # start copy from super.
+        serializer.is_valid(raise_exception=True)
+        self.perform_create(serializer)
+        headers = self.get_success_headers(serializer.data)
+        return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
+
+    # def create(self, request, *args, **kwargs):
+    #     location = get_object_or_404(Location, pk=self.kwargs['cid'])
+    #     Log.create_comment_by_location(request.user, location, DayToken.from_token(request.data['day']), request.data['message'])
+    #     return JsonResponse({'success': True})
 
 
 class CommentByLocationDetails(generics.RetrieveUpdateDestroyAPIView):

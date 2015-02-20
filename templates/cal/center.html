@@ -14,9 +14,16 @@
   <script src='{% static 'fullcalendar/fullcalendar.js' %}'></script>
   <script>
     $(document).ready(function() {
+      function centerCalendarViewRender(view, element) {
+        $.get('{% url "log:comment_location" cid=center.id %}', function(data) {
+          console.log(data);
+        });
+        calendarChangeBookmark(view);
+      }
+
       var calendarDefaults = getCalendarDefaults();
       $.extend(calendarDefaults, {
-        viewRender: calendarChangeBookmark
+        viewRender: centerCalendarViewRender
       });
 
       var $calendar_filled = $('#calendar-filled');
@@ -35,6 +42,18 @@
         $calendar_empty.fullCalendar('render');
       });
 
+      // post message on the wall
+      $('#panel-center-wall :submit').click(function(jsEvent) {
+        jsEvent.preventDefault();
+        var day = getRequestDay();
+        $.post('{% url "log:comment_location" cid=center.id %}', {day: day, message: $('#panel-center-wall input[name=comment]').val()}, function(data, status, jqxhr) {
+          $('#panel-center-wall input[name=comment]').val('');
+          if (jqxhr.status == 201) {
+            // successfully created.
+          }
+        });
+      });
+
     }); // end of document.ready().
   </script>
 {% endblock %}
@@ -44,6 +63,7 @@
     <div class="col-sm-3">
       <div class="panel-group" id="calendar-panel-list">
         {% include "cal/includes/panel_center_legend.html" with panel_id="panel-center-legend" panel_title="Classrooms" panel_collapse=True %}
+        {% include "cal/includes/panel_center_wall.html" with panel_id="panel-center-wall" panel_title="Wall" panel_collapse=True %}
         {% include "cal/includes/panel_center_staff.html" with panel_id="panel-center-staff" panel_title="Staff" panel_collapse=False %}
       </div>
     </div>
