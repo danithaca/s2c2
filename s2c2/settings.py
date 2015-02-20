@@ -58,6 +58,7 @@ INSTALLED_APPS = (
     'image_cropping',
     'django_ajax',
     'datetimewidget',
+    'rest_framework',
 
     # customized
     's2c2',
@@ -224,6 +225,14 @@ COLORS = ['maroon',
           'fuchsia',
           'lime',
           'olive']
+
+REST_FRAMEWORK = {
+    # Use Django's standard `django.contrib.auth` permissions,
+    # or allow read-only access for unauthenticated users.
+    'DEFAULT_PERMISSION_CLASSES': [
+        'rest_framework.permissions.DjangoModelPermissions'
+    ]
+}
 
 # load local settings override.
 

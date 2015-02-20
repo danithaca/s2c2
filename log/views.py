@@ -4,7 +4,9 @@ from django.core.urlresolvers import reverse
 from django.db.models import Q
 from django.views.generic import ListView, FormView
 from django_ajax.mixin import AJAXMixin
-from log.models import Notification
+from rest_framework import generics
+from log.models import Notification, Log
+from log.serializers import LogSerializer
 from s2c2.utils import get_now
 
 
@@ -48,3 +50,13 @@ class MarkRead(AJAXMixin, FormView):
         unread_list = form.cleaned_data['unread'].split(',')
         Notification.objects.filter(pk__in=unread_list).update(done=True)
         return super(MarkRead, self).form_valid(form)
+
+
+class CommentByLocationList(generics.ListCreateAPIView):
+    queryset = Log.objects.filter(type=Log.COMMENT_BY_LOCATION)
+    serializer_class = LogSerializer
+
+
+class CommentByLocationDetails(generics.RetrieveUpdateDestroyAPIView):
+    queryset = Log.objects.filter(type=Log.COMMENT_BY_LOCATION)
+    serializer_class = LogSerializer
