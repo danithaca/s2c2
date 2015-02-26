@@ -12,15 +12,44 @@
   <div id="center-wall"></div>
 
   <script type="text/template" id="center-wall-template">
+  </script>
 
+  <script type="text/template" id="center-wall-comment-template">
+  <blockquote><%= c.message %><small></small></blockquote>
   </script>
 
   <script type="text/javascript">
-    $(document).ready(function() {
-      var CenterWallView = Backbone.View.extend({
-        el: '#center-wall',
-        template: _.template($('#center-wall-template').html())
-      });
-    });
+  // these are definitions, not executions, and does not need to be in $.ready().
+  'use strict';
+  // namespace
+  var wall = {};
+
+  wall.LogComment = Backbone.Model.extend({
+  });
+
+  wall.LogCommentList = Backbone.Collection.extend({
+    model:  wall.LogComment,
+    url:    '{% url "log:comment_location" cid=center.id %}'
+  });
+
+  wall.logCommentList = new wall.LogCommentList();
+
+  wall.CenterWallView = Backbone.View.extend({
+    el: '#center-wall',
+    template: _.template($('#center-wall-template').html()),
+
+    initialize: function(){
+      //
+    },
+
+    render: function(day){
+      $('#center-wall').append();
+    }
+  });
+
+  wall.centerWallView = new wall.CenterWallView();
+
+  $(document).ready(function() {
+  });
   </script>
 {% endblock %}
