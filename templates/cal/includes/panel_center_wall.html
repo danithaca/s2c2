@@ -25,6 +25,9 @@
   var wall = {};
 
   wall.LogComment = Backbone.Model.extend({
+    defaults: {
+
+    }
   });
 
   wall.LogCommentList = Backbone.Collection.extend({
@@ -64,7 +67,8 @@
   wall.centerWallView = new wall.CenterWallView();
 
   $(document).ready(function() {
-
+    var data = wall.logCommentList.fetch();
+    console.log(data);
   });
   </script>
 {% endblock %}
