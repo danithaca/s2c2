@@ -15,7 +15,7 @@
   </script>
 
   <script type="text/template" id="center-wall-comment-template">
-  <blockquote><%= c.message %><small></small></blockquote>
+    <blockquote><%= c.message %><small></small></blockquote>
   </script>
 
   <script type="text/javascript">
@@ -34,6 +34,15 @@
 
   wall.logCommentList = new wall.LogCommentList();
 
+  // view for the individual message.
+  wall.LogCommentView = Backbone.View.extend({
+    template: _.template($('#center-wall-comment-template').html()),
+    render: function(){
+      this.$el.html(this.template(this.model.toJSON()));
+      return this; // enable chained calls
+    }
+  });
+
   wall.CenterWallView = Backbone.View.extend({
     el: '#center-wall',
     template: _.template($('#center-wall-template').html()),
@@ -43,13 +52,19 @@
     },
 
     render: function(day){
-      $('#center-wall').append();
+      var model = new wall.LogComment({
+        message: 'hello',
+        username: 'me'
+      });
+      var view = new wall.LogCommentView({model: model});
+      this.$el.append(view.render().el);
     }
   });
 
   wall.centerWallView = new wall.CenterWallView();
 
   $(document).ready(function() {
+
   });
   </script>
 {% endblock %}
