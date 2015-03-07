@@ -22,10 +22,12 @@ body {
 
 .multiple-checkbox ul.list-inline li label { font-weight: normal; }
 
-.offer-remove:hover, .need-remove:hover {
+.offer-remove:hover, .need-remove:hover, .message-remove:hover {
   cursor: pointer;
   color: red;
 }
+
+.message-remove { display: none; }
 
 /******* for comment ********/
 

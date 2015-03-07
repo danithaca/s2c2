@@ -16,7 +16,7 @@
 
   <script type="text/template" id="center-wall-comment-template">
     <div class="commenterImage"><img src="<%= creator_picture %>" alt="<%= creator_name %>"/></div>
-    <div class="commentText"><p><%= message %></p><span class="sub-text"><a href="<%= creator_profile_link %>"><%= creator_name %></a> at <%= updatedDisplay %></span></div>
+    <div class="commentText"><p><%= message %> <span class="glyphicon glyphicon-remove message-remove"></span></p><span class="sub-text"><a href="<%= creator_profile_link %>"><%= creator_name %></a> at <%= updatedDisplay %></span></div>
   </script>
 
   <script type="text/javascript">
@@ -53,10 +53,20 @@
     wall.LogCommentView = Backbone.View.extend({
       tagName: 'li',
       template: _.template($('#center-wall-comment-template').html()),
-      render: function(){
+
+      events: {
+        'click .delete': 'deleteOne'
+      },
+
+      render: function() {
         this.$el.html(this.template(this.model.toJSON()));
         return this; // enable chained calls
+      },
+
+      deleteOne: function() {
+        console.log(this.model.get('id'));
       }
+
     });
 
     wall.CenterWallView = Backbone.View.extend({
@@ -101,6 +111,15 @@
       $center_wall.data('wall', wall);
     }
     // wall.centerWallView.render();
+
+
+    $center_wall.on('mouseenter', 'li', function() {
+      console.log(this);
+      $(this).find('.message-delete').show();
+    });
+    $center_wall.on('mouseleave', 'li', function() {
+      $('.message-delete', this).hide();
+    });
   });
   </script>
 {% endblock %}
