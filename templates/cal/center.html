@@ -15,10 +15,17 @@
   <script>
     $(document).ready(function() {
       function centerCalendarViewRender(view, element) {
-        $.get('{% url "log:comment_location" cid=center.id %}', function(data) {
-          console.log(data);
-        });
+        //$.get('{% url "log:comment_location" cid=center.id %}', function(data) {
+        //  console.log(data);
+        //});
         calendarChangeBookmark(view);
+        var wall = $('#center-wall').data('wall');
+        if (wall) {
+          wall.centerWallView.render();
+        }
+
+        var calendar_day = view.calendar.getDate();
+        $('#panel-container-panel-center-wall .panel-title a').text('Wall (' + calendar_day.format('MMM. D') + ')');
       }
 
       var calendarDefaults = getCalendarDefaults();
@@ -46,12 +53,20 @@
       $('#panel-center-wall :submit').click(function(jsEvent) {
         jsEvent.preventDefault();
         var day = getRequestDay();
-        $.post('{% url "log:comment_location" cid=center.id %}', {day: day, message: $('#panel-center-wall input[name=comment]').val()}, function(data, status, jqxhr) {
-          $('#panel-center-wall input[name=comment]').val('');
-          if (jqxhr.status == 201) {
-            // successfully created.
-          }
-        });
+        var message = $('#panel-center-wall input[name=comment]').val();
+        if (message) {
+          // send post request
+          $.post('{% url "log:comment_location" cid=center.id %}', {day: day, message: message}, function(data, status, jqxhr) {
+            $('#panel-center-wall input[name=comment]').val('');
+            if (jqxhr.status == 201) {
+              // successfully created.
+              var wall = $('#center-wall').data('wall');
+              if (wall) {
+                wall.centerWallView.render();
+              }
+            }
+          });
+        } // end of if (message)
       });
 
     }); // end of document.ready().

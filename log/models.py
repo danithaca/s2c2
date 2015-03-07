@@ -175,6 +175,9 @@ class Log(models.Model):
 
         return links
 
+    # def get_creator_name(self):
+    #     return self.creator.get_full_name() or self.creator.username
+
 
 # this is the proxy class to Log. for different not implemented yet.
 class LogObject(metaclass=ABCMeta):

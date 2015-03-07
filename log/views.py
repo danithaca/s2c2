@@ -65,25 +65,25 @@ class CommentByLocation(generics.ListCreateAPIView):
     def get_queryset(self):
         day = get_request_day(self.request)
         ref = '%s,%s' % (self.kwargs['cid'], day.get_token())
-        return Log.objects.filter(type=Log.COMMENT_BY_LOCATION, ref=ref)
+        return Log.objects.filter(type=Log.COMMENT_BY_LOCATION, ref=ref).order_by('-updated')
 
-    # def post(self, request, *args, **kwargs):
-    #     return super(CommentByLocation, self).post(request, *args, **kwargs)
+    def post(self, request, *args, **kwargs):
+        return super(CommentByLocation, self).post(request, *args, **kwargs)
 
-    def create(self, request, *args, **kwargs):
-        data = {
-            'message': request.data['message'],
-            'type': Log.COMMENT_BY_LOCATION,
-            'creator': request.user.id,
-            'ref': '%s,%s' % (kwargs['cid'], request.data['day'])
-        }
-        serializer = self.get_serializer(data=data)
-
-        # start copy from super.
-        serializer.is_valid(raise_exception=True)
-        self.perform_create(serializer)
-        headers = self.get_success_headers(serializer.data)
-        return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
+    # def create(self, request, *args, **kwargs):
+    #     data = {
+    #         'message': request.data['message'],
+    #         'type': Log.COMMENT_BY_LOCATION,
+    #         'creator': request.user.id,
+    #         'ref': '%s,%s' % (kwargs['cid'], request.data['day'])
+    #     }
+    #     serializer = self.get_serializer(data=data)
+    #
+    #     # start copy from super.
+    #     serializer.is_valid(raise_exception=True)
+    #     self.perform_create(serializer)
+    #     headers = self.get_success_headers(serializer.data)
+    #     return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
 
     # def create(self, request, *args, **kwargs):
     #     location = get_object_or_404(Location, pk=self.kwargs['cid'])

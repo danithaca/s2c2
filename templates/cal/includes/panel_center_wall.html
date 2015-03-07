@@ -9,66 +9,98 @@
     </div>
   </form>
 
-  <div id="center-wall"></div>
+  <ul id="center-wall" class="commentList"></ul>
 
   <script type="text/template" id="center-wall-template">
   </script>
 
   <script type="text/template" id="center-wall-comment-template">
-    <blockquote><%= c.message %><small></small></blockquote>
+    <div class="commenterImage"><img src="<%= creator_picture %>" alt="<%= creator_name %>"/></div>
+    <div class="commentText"><p><%= message %></p><span class="sub-text"><a href="<%= creator_profile_link %>"><%= creator_name %></a> at <%= updatedDisplay %></span></div>
   </script>
 
   <script type="text/javascript">
-  // these are definitions, not executions, and does not need to be in $.ready().
-  'use strict';
-  // namespace
-  var wall = {};
 
-  wall.LogComment = Backbone.Model.extend({
-    defaults: {
+  function initialize_wall() {
+    // these are definitions, not executions, and does not need to be in $.ready().
+    'use strict';
 
-    }
-  });
+    // namespace
+    var wall = {};
 
-  wall.LogCommentList = Backbone.Collection.extend({
-    model:  wall.LogComment,
-    url:    '{% url "log:comment_location" cid=center.id %}'
-  });
+    wall.LogComment = Backbone.Model.extend({
+      defaults: {},
 
-  wall.logCommentList = new wall.LogCommentList();
+      initialize: function() {
+        //console.log(this.toJSON());
+        this.set('updatedDisplay', moment(this.get('updated')).format('h:mma, MMM. D'));
+        //this.on('change:updated', function() {
+        // this.updatedDisplay = moment(this.updated).format('YYYYmmdd');
+        //});
+      }
+    });
 
-  // view for the individual message.
-  wall.LogCommentView = Backbone.View.extend({
-    template: _.template($('#center-wall-comment-template').html()),
-    render: function(){
-      this.$el.html(this.template(this.model.toJSON()));
-      return this; // enable chained calls
-    }
-  });
+    wall.LogCommentList = Backbone.Collection.extend({
+      model:  wall.LogComment,
+      url:    function() {
+        return '{% url "log:comment_location" cid=center.id %}' + '?day=' + getRequestDay();
+      }
+    });
 
-  wall.CenterWallView = Backbone.View.extend({
-    el: '#center-wall',
-    template: _.template($('#center-wall-template').html()),
+    wall.logCommentList = new wall.LogCommentList();
 
-    initialize: function(){
-      //
-    },
+    // view for the individual message.
+    wall.LogCommentView = Backbone.View.extend({
+      tagName: 'li',
+      template: _.template($('#center-wall-comment-template').html()),
+      render: function(){
+        this.$el.html(this.template(this.model.toJSON()));
+        return this; // enable chained calls
+      }
+    });
 
-    render: function(day){
-      var model = new wall.LogComment({
-        message: 'hello',
-        username: 'me'
-      });
-      var view = new wall.LogCommentView({model: model});
-      this.$el.append(view.render().el);
-    }
-  });
+    wall.CenterWallView = Backbone.View.extend({
+      el: '#center-wall',
+      // template: _.template($('#center-wall-template').html()),
 
-  wall.centerWallView = new wall.CenterWallView();
+      initialize: function() {
+        this.render();
+      },
+
+      render: function() {
+        // clean up first.
+        this.$el.html('');
+
+        // this is non-blocking, meaning the results are not immediately available.
+        wall.logCommentList.fetch({
+          success: function(collection, response, options) {
+            //console.log(collection);
+            //console.log(options);
+            collection.each(function(comment) {
+              // console.log(comment);
+              var view = new wall.LogCommentView({model: comment});
+              this.$el.append(view.render().el);  // here "this" is bound to "options.view" passed in by each().
+            }, options.view);
+          },
+          view: this  // here "this" is the View.
+        });
+
+        return this;
+      }
+    });
+
+    wall.centerWallView = new wall.CenterWallView();
+
+    return wall;
+  }
 
   $(document).ready(function() {
-    var data = wall.logCommentList.fetch();
-    console.log(data);
+    var $center_wall = $('#center-wall');
+    if (!$center_wall.data('wall')) {
+      var wall = initialize_wall();
+      $center_wall.data('wall', wall);
+    }
+    // wall.centerWallView.render();
   });
   </script>
 {% endblock %}

@@ -1,6 +1,7 @@
 from collections import defaultdict
 from datetime import time
 import warnings
+from django.core.urlresolvers import reverse
 
 from django.db import models
 from django.contrib.auth.models import User, Group
@@ -158,6 +159,10 @@ class UserProfile(object):
             return [c for c in Classroom.objects.filter(status=True, needslot__meet__offer__user=self.user).order_by('center', 'name').distinct()]
         else:
             return []
+
+    def picture_link(self):
+        from s2c2.templatetags.s2c2_tags import user_picture_url
+        return user_picture_url(None, self)
 
 
 class CenterStaff(UserProfile):

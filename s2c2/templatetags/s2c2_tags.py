@@ -9,7 +9,7 @@ from django.utils import timezone, formats
 
 from log.models import Notification, Log
 from slot.models import DayToken
-from user.models import UserProfile
+from user.models import UserProfile, Profile
 from location.models import Classroom, Center, Location
 
 
@@ -140,6 +140,9 @@ def show_notification_message(notification):
 
 @register.simple_tag(takes_context=True)
 def user_picture_url(context, user_profile, **kwargs):
+    if isinstance(user_profile, Profile):
+        user_profile = UserProfile(user_profile.user)
+
     assert isinstance(user_profile, UserProfile)
     if user_profile.has_picture():
         try:
