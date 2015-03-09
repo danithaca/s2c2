@@ -31,6 +31,11 @@
     wall.LogComment = Backbone.Model.extend({
       defaults: {},
 
+      // seems there's no need to define this when it's from a location, which will be delegated to "[collection.url]/[id]".
+      // unfortunately collection.url is appended with ?day=..., which mess up the logic.
+      // we'll just define urlRoot instead, which should be collection.url without ?day=...
+      urlRoot: '{% url "log:comment_location" cid=center.id %}',
+
       initialize: function() {
         //console.log(this.toJSON());
         this.set('updatedDisplay', moment(this.get('updated')).format('h:mma, MMM. D'));
@@ -55,7 +60,7 @@
       template: _.template($('#center-wall-comment-template').html()),
 
       events: {
-        'click .delete': 'deleteOne'
+        'click .message-remove': 'deleteOne'
       },
 
       render: function() {
@@ -64,7 +69,15 @@
       },
 
       deleteOne: function() {
-        console.log(this.model.get('id'));
+        // console.log(this.model.get('id'));
+        this.model.destroy({success: function(model, response) {
+          //console.log(model);
+
+          // this is perhaps already removed from collection.
+          // the thing here is that the view needs to be refreshed.
+          //wall.logCommentList.remove(model);
+          wall.centerWallView.render();
+        }});
       }
 
     });
@@ -114,11 +127,10 @@
 
 
     $center_wall.on('mouseenter', 'li', function() {
-      console.log(this);
-      $(this).find('.message-delete').show();
+      $('.message-remove', this).show();
     });
     $center_wall.on('mouseleave', 'li', function() {
-      $('.message-delete', this).hide();
+      $('.message-remove', this).hide();
     });
   });
   </script>
