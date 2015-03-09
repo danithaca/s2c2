@@ -170,6 +170,10 @@ class Log(models.Model):
                 staff = User.objects.get(pk=self.ref)
                 links.append({'text': 'view availability', 'href': '%s' % (reverse('user:profile', kwargs={'uid': staff.pk}))})
 
+            elif self.type == Log.COMMENT_BY_LOCATION:
+                location_id, day = self.ref.split(',')
+                links.append({'text': 'view wall', 'href': '%s?day=%s&view=agendaDay' % (reverse('cal:center', kwargs={'cid': location_id}), day)})
+
         except (User.DoesNotExist, Location.DoesNotExist):
             pass
 
@@ -225,7 +229,11 @@ class Notification(models.Model):
         return timezone.now().date() == self.created.date()
 
     def display(self):
-        prefix = capfirst(self.log.get_type_display())
+        if self.log.type == Log.COMMENT_BY_LOCATION:
+            prefix = 'Wall post'
+        else:
+            prefix = capfirst(self.log.get_type_display())
+
         message = self.log.display()
         return '%s - %s' % (prefix, message)
 
@@ -269,6 +277,21 @@ def log_to_notification(sender, **kwargs):
         elif log.type == Log.VERIFY:
             target_user = UserProfile.get_by_id(log.ref)
             Notification.create(log, log.creator, target_user.user, Notification.LEVEL_HIGH)
+
+        elif log.type == Log.COMMENT_BY_LOCATION:
+            creator = UserProfile(log.creator)
+            location_id, day = log.ref.split(',')
+            center = Center.objects.get(pk=location_id)
+            if creator.is_center_staff():
+                # notify all center mangers.
+                for manager in center.get_managers():
+                    Notification.create(log, creator.user, manager, Notification.LEVEL_NORMAL)
+            elif creator.is_center_manager():
+                # notify all related people, except for the manager herself.
+                target_list = Log.objects.filter(type=Log.COMMENT_BY_LOCATION, ref=log.ref).exclude(creator=creator.user).values_list('creator', flat=True)
+                for target_id in target_list:
+                    target_user = User.objects.get(pk=target_id)
+                    Notification.create(log, creator.user, target_user, Notification.LEVEL_NORMAL)
 
     except (User.DoesNotExist, Location.DoesNotExist, Classroom.DoesNotExist, Center.DoesNotExist):
         pass

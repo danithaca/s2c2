@@ -26,6 +26,11 @@
 
         var calendar_day = view.calendar.getDate();
         $('#panel-container-panel-center-wall .panel-title a').text('Wall (' + calendar_day.format('MMM. D') + ')');
+
+        // only show comment icon on agendaWeek view.
+        //if (view.type == 'agendaWeek') {
+          //$('.fc-day-header', $calendar_filled).append(' <i class="fa fa-comment-o"></i>');
+        //}
       }
 
       var calendarDefaults = getCalendarDefaults();
