@@ -94,3 +94,17 @@ class CommentByLocation(generics.ListCreateAPIView):
 class CommentByLocationDetails(generics.RetrieveUpdateDestroyAPIView):
     queryset = Log.objects.filter(type=Log.COMMENT_BY_LOCATION)
     serializer_class = LogSerializer
+
+    def destroy(self, request, *args, **kwargs):
+        from user.models import UserProfile
+        from location.models import Center
+        # this has login_required, so request.user is set.
+        user_profile = UserProfile(request.user)
+        center = get_object_or_404(Center, pk=kwargs['cid'])
+        comment = get_object_or_404(Log, pk=kwargs['pk'])
+
+        # allow deletion in 2 cases: 1) my own message, 2) if i'm center manager deleting a message of my center.
+        if request.user == comment.creator or (comment.ref.startswith(str(center.id)) and user_profile.is_verified() and user_profile.is_center_manager() and user_profile.is_same_center(center)):
+            return super(CommentByLocationDetails, self).destroy(request, *args, **kwargs)
+        else:
+            return Response(status=status.HTTP_403_FORBIDDEN)

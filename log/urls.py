@@ -10,5 +10,5 @@ urlpatterns = patterns(
 
     # todo: more on permission: verified users only.
     url(r'^center/(?P<cid>[0-9]+)/comments/$', login_required(views.CommentByLocation.as_view()), name='comment_location'),
-    url(r'^center/(?P<cid>[0-9]+)/comments/(?P<pk>[0-9]+)/$', views.CommentByLocationDetails.as_view(), name='comment_location_details'),
+    url(r'^center/(?P<cid>[0-9]+)/comments/(?P<pk>[0-9]+)/$', login_required(views.CommentByLocationDetails.as_view()), name='comment_location_details'),
 )
