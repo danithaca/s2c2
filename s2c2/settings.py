@@ -70,7 +70,9 @@ INSTALLED_APPS = (
 )
 
 MIDDLEWARE_CLASSES = (
-    's2c2.middleware.DisableBrowserCacheMiddleware',
+    # no need for this anymore because we disabled mod_expires on apache.
+    # 's2c2.middleware.DisableBrowserCacheMiddleware',
+
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',

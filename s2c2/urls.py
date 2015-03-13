@@ -34,6 +34,7 @@ urlpatterns = patterns(
     url(r'^dummy/(?P<message>.+)/$', utils.dummy, name='dummy_extra'),
 
     url(r'^design/$', TemplateView.as_view(template_name='pages/design.html'), name='design'),
+    url(r'^howto/$', TemplateView.as_view(template_name='pages/howto.html'), name='design'),
 
     # note: the following thing about static is only valid in dev.
 ) + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
