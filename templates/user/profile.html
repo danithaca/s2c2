@@ -5,8 +5,8 @@
 {% block title %}User | S2C2{% endblock %}
 
 {% block page-header %}
-  {% icon user_profile %} {{ user_profile|name }}
-  <small><a href="{% url 'cal:staff' uid=user_profile.id %}" title="View calendar">{% icon 'calendar' %}</a> {{ user_profile.display_role|title }}{% if not user_profile.is_verified %} {% icon 'unverified' %}{% endif %}</small>
+  {{ user_profile|name }}
+  <small>{{ user_profile.display_role|title }}{% if not user_profile.is_verified %} {% icon 'unverified' %}{% endif %}</small>
 {% endblock %}
 
 {% block page-header-extra %}{% if verify_form %}
@@ -47,6 +47,9 @@
                   <li><i class="fa fa-envelope"></i> {{ user_profile.email }}</li>
                 </ul></td></tr>
                 {% if user_profile.address %}<tr><th scope="row">Address</th><td><ul class="list-unstyled"><li>{{ user_profile.address }}</li></ul></td></tr>{% endif %}
+                {% if user_profile.is_center_staff %}
+                  <tr><th scope="row">Calendar</th><td><ul class="list-unstyled"><li><a href="{% url 'cal:staff' uid=user_profile.id %}" title="View calendar">{% icon 'calendar' %} View</a></li></ul></td></tr>
+                {% endif %}
               </table>
             </div>
           </div>

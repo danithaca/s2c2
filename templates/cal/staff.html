@@ -153,7 +153,10 @@
 {% endblock %}
 
 {% block title %}Staff Calendar | S2C2{% endblock %}
-{% block page-header %}{% icon user_profile %} {{ user_profile|name }} <small><a href="{% url 'user:profile' uid=user_profile.id %}" title="View profile">{% icon 'profile' %}</a></small>{% endblock %}
+{% block page-header %}
+  <a href="{% url 'user:profile' uid=user_profile.id %}" title="Click to view profile info."><img src="{% user_picture_url user_profile %}" class="img-circle user-picture-md"></a>
+  {{ user_profile|name }}
+{% endblock %}
 
 {% block page-content %}
   <div class="row">

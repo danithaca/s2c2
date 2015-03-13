@@ -29,6 +29,8 @@ body {
 
 .message-remove { display: none; }
 
+img.user-picture-md { width: 48px; height: 100%; }
+
 /******* for comment ********/
 
 .commentList {
