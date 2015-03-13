@@ -350,7 +350,7 @@ class Slot(models.Model):
     """
     Any class that has the start_time and end_time will be subclass of this.
     """
-    day = DayTokenField()
+    day = DayTokenField(db_index=True)
 
     start_time = TimeTokenField()
     end_time = TimeTokenField()

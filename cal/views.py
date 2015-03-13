@@ -489,7 +489,7 @@ def calendar_center_events_available(request, cid):
     start, end = get_fullcaldendar_request_date_range(request)
     data = []
 
-    offer_list = OfferSlot.objects.filter(user__profile__centers=center, user__profile__verified=True, day__range=(start, end), meet__isnull=True).order_by('day', 'user__last_name', 'user__first_name', 'user__username', 'start_time')
+    offer_list = OfferSlot.objects.filter(user__profile__centers=center, user__profile__verified=True, day__range=(start, end), meet__isnull=True).order_by('day', 'user__username', 'start_time')
     for role_slug, color in GroupRole.role_color:
         # step0: filter by role
         if role_slug not in GroupRole.center_staff_roles:
