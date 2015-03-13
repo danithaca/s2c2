@@ -1,5 +1,6 @@
 from collections import defaultdict
 from datetime import time
+from itertools import cycle
 import warnings
 from django.core.urlresolvers import reverse
 
@@ -9,6 +10,7 @@ from django.core.exceptions import ObjectDoesNotExist
 from image_cropping import ImageCropField, ImageRatioField
 from localflavor.us.models import PhoneNumberField
 from location.models import Center, Area, Classroom
+from s2c2 import settings
 from slot.models import TemplateSettings
 
 
@@ -82,6 +84,9 @@ class UserProfile(object):
 
     def get_groups_id_set(self):
         return set(self.user.groups.values_list('pk', flat=True))
+
+    def get_roles_name_set(self):
+        return set([g.role.machine_name for g in self.user.groups.all()])
 
     def get_centers_id_set(self):
         if self.has_profile():
@@ -246,6 +251,8 @@ class GroupRole(object):
     all_valid_roles = ('manager', 'teacher', 'support', 'intern')
     center_staff_roles = ('teacher', 'support', 'intern')
     center_manager_roles = ('manager', )
+    role_color = list(zip(all_valid_roles, cycle(reversed(settings.COLORS))))
+    role_color_map = {s: c for s, c in role_color}
 
     def __init__(self, group):
         assert group is not None and isinstance(group, Group)
@@ -283,4 +290,7 @@ class GroupRole(object):
     @staticmethod
     def get_center_roles_choices():
         return [(0, '- Select -')] + [(g.pk, g.name) for g in Group.objects.filter(role__type_center=True).order_by('id')]
+
+    def get_color(self):
+        return GroupRole.role_color_map.get(self.role.machine_name, 'darkgray')
 

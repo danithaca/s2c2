@@ -3,8 +3,8 @@
 {% load s2c2_tags %}
 
 {% block panel_content %}
-  {% for header, staff_list in sections %}
-    <h5>{{ header|title }}</h5>
+  {% for header, color, staff_list in sections %}
+    <p class="colored-legend" style="background-color: {{ color }}">{{ header|title }}</p>
     {% if staff_list %}
     <ul class="nav nav-pills">
       {% for staff in staff_list %}

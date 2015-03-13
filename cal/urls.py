@@ -18,4 +18,5 @@ urlpatterns = patterns(
     url(r'^center/(?P<cid>\d+)/$', views.calendar_center, name='center'),
     url(r'^center/(?P<cid>\d+)/filled$', views.calendar_center_events_filled, name='center_events_filled'),
     url(r'^center/(?P<cid>\d+)/empty$', views.calendar_center_events_empty, name='center_events_empty'),
+    url(r'^center/(?P<cid>\d+)/available$', views.calendar_center_events_available, name='center_events_available'),
 )

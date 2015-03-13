@@ -29,6 +29,9 @@ body {
 
 .message-remove { display: none; }
 
+.colored-legend { background-color: darkgray; color: white; padding: 5px; border-radius: 5px; margin-bottom: 3px; }
+.colored-legend a { color: white; }
+
 img.user-picture-md { width: 48px; height: 100%; }
 
 /******* for comment ********/

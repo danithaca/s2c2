@@ -1,4 +1,4 @@
-from itertools import groupby
+from itertools import groupby, filterfalse
 from bootstrapform.templatetags.bootstrap import bootstrap_horizontal
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
@@ -381,7 +381,7 @@ def calendar_center(request, cid):
     center = get_object_or_404(Center, pk=cid)
     classroom_color = center.get_classroom_color()
 
-    sections = [(g.name, User.objects.filter(profile__centers=center, groups=g.group, is_active=True).order_by("last_name", "first_name", 'username')) for g in (GroupRole.get_by_name(n) for n in ('teacher', 'support', 'intern'))]
+    sections = [(g.name, g.get_color(), User.objects.filter(profile__centers=center, groups=g.group, is_active=True).order_by("last_name", "first_name", 'username')) for g in (GroupRole.get_by_name(n) for n in ('teacher', 'support', 'intern'))]
 
     context = {
         'center': center,
@@ -447,6 +447,68 @@ def calendar_center_events_empty(request, cid):
                         'color': color,
                         'title': 'Empty: %d' % empty_count,
                         'url': reverse('cal:classroom', kwargs={'cid': classroom.id})
+                    }
+                    data.append(event)
+
+    return JsonResponse(data, safe=False)
+
+
+# @is_ajax
+# @login_required
+# @user_in_center
+# def calendar_center_events_available(request, cid):
+#     center = get_object_or_404(Center, pk=cid)
+#     start, end = get_fullcaldendar_request_date_range(request)
+#     data = []
+#
+#     offer_list = OfferSlot.objects.filter(user__profile__centers=center, user__profile__verified=True, day__range=(start, end), meet__isnull=True).order_by('day', 'start_time', 'user__last_name', 'user__first_name', 'user__username')
+#     # step1: group by day
+#     for day, group_by_day in groupby(offer_list, lambda x: x.day):
+#         # step2: group by half-hour slot
+#         group_by_slot = [(t, [o.user for o in g]) for t, g in groupby(group_by_day, lambda x: x.start_time)]
+#         # step3: group by joined users
+#         for user_list, group_by_user_list in groupby(group_by_slot, lambda x: x[1]):
+#             # step4: for each joined users group, group the time slots.
+#             for time_slot in TimeSlot.combine([x[0] for x in group_by_user_list]):
+#                 event = {
+#                     'start': to_fullcalendar_timestamp(day, time_slot.start),
+#                     'end': to_fullcalendar_timestamp(day, time_slot.end),
+#                     # 'color': color,
+#                     'title': ', '.join([u.get_name() for u in user_list]),
+#                 }
+#                 data.append(event)
+#
+#     return JsonResponse(data, safe=False)
+
+
+@is_ajax
+@login_required
+@user_in_center
+def calendar_center_events_available(request, cid):
+    center = get_object_or_404(Center, pk=cid)
+    start, end = get_fullcaldendar_request_date_range(request)
+    data = []
+
+    offer_list = OfferSlot.objects.filter(user__profile__centers=center, user__profile__verified=True, day__range=(start, end), meet__isnull=True).order_by('day', 'user__last_name', 'user__first_name', 'user__username', 'start_time')
+    for role_slug, color in GroupRole.role_color:
+        # step0: filter by role
+        if role_slug not in GroupRole.center_staff_roles:
+            continue
+        # role_offer_list = filterfalse(lambda o: role_slug in UserProfile(o.user).get_roles_name_set(), offer_list)
+        role_offer_list = (o for o in offer_list if UserProfile(o.user).get_center_role().role.machine_name == role_slug)
+
+        # step1: group by day
+        for day, group_by_day in groupby(role_offer_list, lambda x: x.day):
+            # step2: group by users
+            for user, group_by_user_list in groupby(group_by_day, lambda x: x.user):
+                # step3: for each user, group the time slots.
+                for time_slot in TimeSlot.combine([x.start_time for x in group_by_user_list]):
+                    event = {
+                        'start': to_fullcalendar_timestamp(day, time_slot.start),
+                        'end': to_fullcalendar_timestamp(day, time_slot.end),
+                        'color': color,
+                        'title': user.get_name(),
+                        'url': '%s?day=%s' % (reverse('cal:staff', kwargs={'uid': user.id}), day.get_token())
                     }
                     data.append(event)
 

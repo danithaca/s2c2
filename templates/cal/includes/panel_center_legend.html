@@ -5,7 +5,7 @@
 {% block panel_content %}
   <ul class="list-inline">
   {% for classroom, color in classroom_color_legend %}
-    <li style="background-color: {{ color }}; padding: 5px; border-radius: 5px; margin-bottom: 3px;"><a href="{% url 'cal:classroom' cid=classroom.id %}" style="color: white;">{% icon classroom %} {{ classroom|name }}</a></li>
+    <li style="background-color: {{ color }};" class="colored-legend"><a href="{% url 'cal:classroom' cid=classroom.id %}">{% icon classroom %} {{ classroom|name }}</a></li>
   {% endfor %}
   </ul>
 {% endblock %}
