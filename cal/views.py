@@ -490,15 +490,20 @@ def calendar_center_events_available(request, cid):
     data = []
 
     offer_list = OfferSlot.objects.filter(user__profile__centers=center, user__profile__verified=True, day__range=(start, end), meet__isnull=True).order_by('day', 'user__username', 'start_time')
-    for role_slug, color in GroupRole.role_color:
-        # step0: filter by role
-        if role_slug not in GroupRole.center_staff_roles:
-            continue
-        # role_offer_list = filterfalse(lambda o: role_slug in UserProfile(o.user).get_roles_name_set(), offer_list)
-        role_offer_list = (o for o in offer_list if UserProfile(o.user).get_center_role().role.machine_name == role_slug)
+    # make it a list increase speed in the following when we need to traverse the list multiple times.
+    # offer_list = list(offer_list)
 
+    # for role_slug, color in GroupRole.role_color:
+    #     # step0: filter by role
+    #     if role_slug not in GroupRole.center_staff_roles:
+    #         continue
+    #     # role_offer_list = filterfalse(lambda o: role_slug in UserProfile(o.user).get_roles_name_set(), offer_list)
+    #     role_offer_list = (o for o in offer_list if UserProfile(o.user).get_center_role().role.machine_name == role_slug)
+
+    # step0: group by role
+    for role_slug, group_by_role in groupby(offer_list, lambda x: UserProfile(x.user).get_center_role().role.machine_name):
         # step1: group by day
-        for day, group_by_day in groupby(role_offer_list, lambda x: x.day):
+        for day, group_by_day in groupby(group_by_role, lambda x: x.day):
             # step2: group by users
             for user, group_by_user_list in groupby(group_by_day, lambda x: x.user):
                 # step3: for each user, group the time slots.
@@ -506,7 +511,7 @@ def calendar_center_events_available(request, cid):
                     event = {
                         'start': to_fullcalendar_timestamp(day, time_slot.start),
                         'end': to_fullcalendar_timestamp(day, time_slot.end),
-                        'color': color,
+                        'color': GroupRole.role_color_map.get(role_slug, 'darkgray'),
                         'title': user.get_name(),
                         'url': '%s?day=%s' % (reverse('cal:staff', kwargs={'uid': user.id}), day.get_token())
                     }
