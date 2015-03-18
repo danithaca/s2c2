@@ -17,7 +17,7 @@
 
 {% block page-content %}
   <div class="row">
-    <div class="col-sm-3">
+    <div class="col-sm-3 hidden-print">
       <div class="panel-group" id="calendar-panel-list">
         {% include "cal/includes/panel_center_legend.html" with panel_id="panel-center-legend" panel_title="Classrooms" panel_collapse=True %}
         {% include "cal/includes/panel_center_wall.html" with panel_id="panel-center-wall" panel_title="Wall" panel_collapse=True %}
