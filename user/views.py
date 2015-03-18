@@ -14,15 +14,19 @@ from django.shortcuts import render, redirect
 from django.utils.translation import ugettext_lazy as _
 from django.views.generic import FormView, UpdateView
 from django.views.generic.detail import SingleObjectMixin
+from rest_framework.generics import ListAPIView
 from log.models import Log
 from s2c2.decorators import user_is_center_manager, user_is_verified, user_is_me_or_same_center
 from s2c2.utils import dummy
 from s2c2.widgets import InlineCheckboxSelectMultiple, USPhoneNumberWidget
+from slot.models import DayToken
 
 from user.models import Profile, UserProfile, GroupRole
 
 
 # keep session open for 12 hours.
+from user.serializers import UserSerializer
+
 REMEMBER_ME_EXPIRY = 60 * 60 * 12
 
 
@@ -565,3 +569,20 @@ def pref(request):
             return super(PrefView, self).form_valid(form)
 
     return PrefView.as_view()(request)
+
+
+class UserList(ListAPIView):
+    serializer_class = UserSerializer
+
+    def get_queryset(self):
+        # see filter chaining: http://stackoverflow.com/questions/8164675/chaining-multiple-filter-in-django-is-this-a-bug
+        cid, start, end = self.request.GET.get('cid'), self.request.GET.get('start'), self.request.GET.get('end')
+
+        if cid is not None and start is not None and end is not None:
+            start_day, end_day = DayToken.from_token(start), DayToken.from_token(end).prev_day()
+            query = User.objects.filter(profile__verified=True, offerslot__meet__isnull=False, offerslot__meet__need__location__id=cid, offerslot__meet__need__day__range=(start_day, end_day)).distinct()
+
+        else:
+            query = User.objects.filter(profile__verified=True).order_by('last_name', 'first_name', 'username')[:20]
+
+        return query

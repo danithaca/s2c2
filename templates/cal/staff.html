@@ -8,148 +8,7 @@
   <link href='{% static 'fullcalendar/fullcalendar.print.css' %}' rel='stylesheet' media='print' />
   <script src='{% static 'fullcalendar/lib/moment.min.js' %}'></script>
   <script src='{% static 'fullcalendar/fullcalendar.js' %}'></script>
-  <script>
-    $(document).ready(function() {
-
-      /*$.get('{% url "cal:staff_events" uid=user_profile.pk %}', function(data) {
-        console.log(data);
-      });*/
-
-      var param_day = getParameterByName('day');
-      var day = param_day ? moment(param_day, 'YYYYMMDD') : moment();
-      var param_view = getParameterByName('view') || 'agendaWeek';
-
-      $('#calendar').fullCalendar({
-        header: {
-          left: 'prev,next today',
-          center: 'title',
-          right: 'agendaDay,agendaWeek,month'
-        },
-        defaultDate: day.format('YYYY-MM-DD'),
-        defaultView: param_view,
-        fixedWeekCount: false,
-        allDaySlot: false,
-        minTime: '06:00',
-        maxTime: '21:00',
-        scrollTime: '08:00',
-
-        /*views: {
-          templateWeek: {
-            type: 'agenda',
-            duration: { weeks: 1 },
-            //weekends: false,
-            buttonText: 'template',
-            //start: '1900-01-01',
-            //end: '1900-01-07',
-            titleFormat: '[Every] dddd'
-          }
-        },*/
-
-        selectable: true,
-        selectHelper: true,
-        selectConstraint: {
-          start: '06:00',
-          end: '21:00'
-        },
-        select: function(start, end, jsEvent, view) {
-          //console.log(start.format('YYYYMMDD'));
-          //console.log(start.format('HHmm'));
-          var form_day = start.format('YYYYMMDD');
-          // handle template string.
-          if (start.isBetween('1900-01-01', '1900-01-08')) {
-            form_day = start.format('d');
-            console.log(form_day);
-          }
-          var form_start = start.format('HHmm');
-          var form_end = end.format('HHmm');
-
-          if (jsEvent.shiftKey) {
-            // this will do delete
-            $.post('{% url "slot:offer_delete" uid=user_profile.pk %}', {day: form_day, start_time: form_start, end_time: form_end}, function(data) {
-              //console.log(data);bad
-              if (data.status === 302) {
-                //window.location.replace(data.content);
-                fullcalendar_refresh($('#calendar'));
-                display_ajax_messages();
-              }
-              else if (data.status === 403) {
-                display_message('Permission not allowed.', 'danger');
-              }
-            });
-          }
-          else {
-            // for all other cases
-            $.post('{% url "slot:offer_add" uid=user_profile.pk %}', {day: form_day, start_time: form_start, end_time: form_end}, function(data) {
-              //console.log(data);
-              if (data.status === 302) {
-                //window.location.replace(data.content);
-                fullcalendar_refresh($('#calendar'));
-                display_ajax_messages();
-              }
-            });
-          }
-
-          //var eventData;
-          //eventData = {
-          //  start: start,
-          //  end: end
-          //};
-          //$('#calendar').fullCalendar('renderEvent', eventData, true); // stick? = true
-          //$('#calendar').fullCalendar('unselect');
-          //$('#calendar').fullCalendar('refetchEvents');
-        },
-
-        firstDay: 1,
-        //editable: true,
-        eventLimit: true, // allow "more" link when too many events
-        events: '{% url "cal:staff_events" uid=user_profile.pk %}',
-        eventRender: function(event, element) {
-          // append "offer remove" ajax link.
-          $('div.fc-content div.fc-title', element).append(' <span class="glyphicon glyphicon-remove offer-remove" data-offer="' + event.id + '"></span>');
-        },
-
-        viewRender: function(view, element) {
-          // update form.
-          var current_day = view.calendar.getDate();
-          $('#panel-staff-copy input[name=current_date]').val(current_day.format('YYYYMMDD'));
-          $('#panel-staff-copy select option[value=curr]').text('Current week ('+ current_day.clone().day(1).format('MMM.D') + ' ~ ' + current_day.clone().day(7).format('D') +')');
-          $('#panel-staff-copy select option[value=prev]').text('Previous week ('+ current_day.clone().day(-6).format('MMM.D') + ' ~ ' + current_day.clone().day(0).format('D') +')');
-          $('#panel-staff-copy select option[value=next]').text('Next week ('+ current_day.clone().day(8).format('MMM.D') + ' ~ ' + current_day.clone().day(14).format('D') +')');
-          calendarChangeBookmark(view);
-        },
-
-        eventAfterAllRender: function(view) {
-          var current_day = view.calendar.getDate();
-          // update staff hours.
-          var staff_hours_table_view = $('#staff-hours-table').data('view');
-          if (staff_hours_table_view) staff_hours_table_view.render(current_day.format('YYYYMMDD'));
-        }
-      });
-
-      $('#calendar').on('click', '.offer-remove', function(e) {
-        e.stopPropagation();
-        e.preventDefault();
-        var id_data = $(this).data('offer').split('-');
-        var staff_id = id_data[0], day = id_data[1], start = id_data[2], end = id_data[3];
-        //console.log(staff_id, day, start, end);
-        // note: staff_id is not available to django backend. we'll assume user_profile.pk === staff_id
-        $.post('{% url "slot:offer_delete" uid=user_profile.pk %}', {day: day, start_time: start, end_time: end}, function(data) {
-          //console.log(data);bad
-          if (data.status === 302) {
-            //window.location.replace(data.content);
-            fullcalendar_refresh($('#calendar'));
-            display_ajax_messages();
-          }
-          else if (data.status === 403) {
-            display_message('Permission not allowed.', 'danger');
-          }
-        });
-      });
-
-      //console.log($('#calendar').data('fullCalendar').getDate());
-
-    }); // end of document.ready().
-  </script>
+  {% include 'cal/includes/js_staff.html' %}
 {% endblock %}
 
 {% block title %}Staff Calendar | S2C2{% endblock %}
@@ -160,7 +19,7 @@
 
 {% block page-content %}
   <div class="row">
-    <div class="col-sm-3">
+    <div class="col-sm-3 hidden-print">
       <div class="panel-group" id="calendar-panel-list">
         {% include "cal/includes/panel_staff_hours.html" with panel_id="panel-staff-hours" panel_title="Weekly Hours" panel_collapse=False %}
         {% include "cal/includes/panel_staff_copy.html" with panel_id="panel-staff-copy" panel_title="Copy" panel_collapse=False %}
