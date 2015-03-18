@@ -1,6 +1,5 @@
 from rest_framework import serializers
 from log import models
-from user.serializers import UserSerializer
 
 
 # todo: rename to CommentByLocationSerializer

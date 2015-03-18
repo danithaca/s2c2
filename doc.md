@@ -1,6 +1,15 @@
 Development Documentation
 =========================
 
+Deploy to Production Checklist
+------------------------------
+
+1. git pull (on production)
+2. . /opt/python34/bin/activate
+3. ./manage.py collectstatic
+4. touch wsgi.py
+
+
 Timezone concerns
 -----------------
 
@@ -29,9 +38,9 @@ Production deployment
 
 In settings_local.py:
 
-    * New database settings
-    * DEBUG=FALSE, ALLOWED_HOST=...
-    * (new SECRET_KEY)
+  * New database settings
+  * DEBUG=FALSE, ALLOWED_HOST=...
+  * (new SECRET_KEY)
 
 
 WSGI Settings

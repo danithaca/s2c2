@@ -1,4 +1,5 @@
 from django.conf.urls import patterns, url
+from django.contrib.auth.decorators import login_required
 
 import user.views
 
@@ -29,5 +30,7 @@ urlpatterns = patterns(
     url(r'^password/change/$', user.views.password_change, name='password_change'),
     url(r'^password/reset/$', user.views.password_reset, name='password_reset'),
     url(r'^password/reset/(?P<uidb64>\w+)/(?P<token>[-\w]+)/$', user.views.password_reset_confirm, name='password_reset_confirm'),
+
+    url(r'^api/$', login_required(user.views.UserList.as_view()), name='api_list')
 )
 

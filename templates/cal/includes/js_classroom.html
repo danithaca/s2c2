@@ -98,6 +98,15 @@
         $form.find('select option[value=curr]').text('Current week ('+ current_day.clone().day(1).format('MMM.D') + ' ~ ' + current_day.clone().day(7).format('D') +')');
         $form.find('select option[value=prev]').text('Previous week ('+ current_day.clone().day(-6).format('MMM.D') + ' ~ ' + current_day.clone().day(0).format('D') +')');
         $form.find('select option[value=next]').text('Next week ('+ current_day.clone().day(8).format('MMM.D') + ' ~ ' + current_day.clone().day(14).format('D') +')');
+
+        var $roster = $('#roster');
+        var user_api = $roster.data('roster');
+        if (user_api) {
+          var start = view.intervalStart.format('YYYYMMDD');
+          var end = view.intervalEnd.format('YYYYMMDD');
+          user_api.refresh($roster.data('cid'), start, end);
+        }
+
         calendarChangeBookmark(view);
       }
     });

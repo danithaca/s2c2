@@ -9,6 +9,23 @@
   <script src='{% static 'fullcalendar/lib/moment.min.js' %}'></script>
   <script src='{% static 'fullcalendar/fullcalendar.js' %}'></script>
   {% include 'cal/includes/js_classroom.html' %}
+  <script src='{% static 'js/user_api.js' %}'></script>
+  <script>
+    $(document).ready(function() {
+      var $roster = $('#roster');
+      var user_api = $roster.data('roster');
+      if (!user_api) {
+        user_api = initialize_user_api('#roster');
+        $roster.data('roster', user_api);
+      }
+
+      // duplicate code: see js_classroom, viewRender().
+      var fc = $('#calendar').data('fullCalendar');
+      var start = fc.getView().intervalStart.format('YYYYMMDD');
+      var end = fc.getView().intervalEnd.format('YYYYMMDD');
+      user_api.refresh($roster.data('cid'), start, end);
+    });
+  </script>
 {% endblock %}
 
 {% block title %}Classroom Calendar | S2C2{% endblock %}
@@ -25,6 +42,7 @@
       </div>
     </div>
     <div class="col-sm-9">
+      <ul id='roster' class="list-inline" data-cid="{{ classroom.pk }}"></ul>
       <div id='calendar'></div>
     </div>
   </div>
