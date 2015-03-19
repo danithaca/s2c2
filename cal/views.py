@@ -91,14 +91,17 @@ def calendar_classroom(request, cid):
     classroom = get_object_or_404(Classroom, pk=cid)
     day = get_request_day(request)
 
-    assign_form = slot_views.AssignForm(classroom, day)
+    # handle the modal staff assign form. not used at all now we switch to jquery modal.
+    # assign_form = slot_views.AssignForm(classroom, day)
+
+    # handle classroom copy
     classroom_copy_form = CopyForm()
     classroom_copy_form.fields['current_date'].widget = forms.HiddenInput()
 
     return render(request, 'cal/classroom.html', {
         'classroom': classroom,
         'day': day,
-        'assign_form': assign_form,
+        # 'assign_form': assign_form,
         'classroom_copy_form': classroom_copy_form
     })
 
@@ -140,7 +143,7 @@ def calendar_classroom_events(request, cid):
 
 class AssignForm(slot_views.SlotForm):
     #staff = forms.TypedChoiceField(choices=(), label='Available staff', coerce=int, required=True)
-    staff = forms.IntegerField(label='Available staff', widget=forms.Select)
+    staff = forms.IntegerField(label='Available', widget=forms.Select)
 
     def __init__(self, classroom, day, start_time, end_time, *args, **kwargs):
         super(AssignForm, self).__init__(*args, **kwargs)
