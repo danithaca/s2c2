@@ -14,6 +14,7 @@ from django import forms
 import re
 from location.models import Location, Classroom, Center
 from log.models import Log
+from s2c2 import settings
 from s2c2.decorators import user_check_against_arg, user_is_me_or_same_center, user_classroom_same_center, is_ajax, \
     user_is_center_manager, user_is_verified, user_is_me_or_same_center_manager, user_in_center
 from s2c2.templatetags.s2c2_tags import s2c2_icon
@@ -77,9 +78,10 @@ def calendar_staff_events(request, uid):
                         # event['title'] = s2c2_icon('classroom') + ' ' + location.name
                         event['title'] = location.name
                         event['url'] = reverse('cal:classroom', kwargs={'cid': location_id})
-                        event['color'] = 'darkgreen'
+                        event['color'] = settings.CALENDAR_EVENT_COLOR_FILLED
                     else:
-                        event['title'] = 'Open'
+                        event['title'] = 'Open',
+                        event['color'] = settings.CALENDAR_EVENT_COLOR_EMPTY
                     data.append(event)
 
         return JsonResponse(data, safe=False)
@@ -125,6 +127,9 @@ def calendar_classroom_events(request, cid):
         for user_id, g in groupby(group_by_day, lambda x: x[2]):
             need_slot = list(g)
             for time_slot in TimeSlot.separate_combined([TimeToken(x[1]) for x in need_slot]):
+                day_token = DayToken(day)
+                start_token = TimeToken(time_slot.start)
+                end_token = TimeToken(time_slot.end)
                 event = {
                     'start': to_fullcalendar_timestamp(day, time_slot.start),
                     'end': to_fullcalendar_timestamp(day, time_slot.end),
@@ -133,11 +138,13 @@ def calendar_classroom_events(request, cid):
                 if user_id:
                     user_profile = UserProfile.get_by_id(user_id)
                     event['title'] = user_profile.get_display_name()
-                    event['color'] = 'darkgreen'
+                    event['color'] = settings.CALENDAR_EVENT_COLOR_FILLED
                     event['url'] = reverse('cal:staff', kwargs={'uid': user_id})
                 else:
                     event['title'] = 'Empty'
+                    event['color'] = settings.CALENDAR_EVENT_COLOR_EMPTY
                     event['empty'] = True
+                    event['url'] = '%s?day=%s&start=%s&end=%s' % (reverse('cal:meet', kwargs={'cid': cid}), day_token.get_token(), start_token.get_token(), end_token.get_token())
                 data.append(event)
 
     return JsonResponse(data, safe=False)
@@ -213,13 +220,17 @@ def assign(request, cid):
 class MeetForm(slot_views.SlotForm):
     staff = forms.IntegerField(label='Available', widget=forms.Select, required=False)
     pick = forms.CharField(label='Any', required=False, help_text='Type in name for arbitrary assignment.')
+    referer = forms.URLField(required=False, widget=forms.HiddenInput)
 
     # this is to assign to a particular classroom so 'classroom' is needed.
+    # regardless of POST or GET, this will be executed.
+    # BUG: if POST and form error (eg: no staff selected), form will have incorrect status.
     def __init__(self, classroom, *args, **kwargs):
         self.classroom = classroom
         day = kwargs.pop('day', None)
         start_time = kwargs.pop('start_time', None)
         end_time = kwargs.pop('end_time', None)
+        referer = kwargs.pop('referer', None)
         super(MeetForm, self).__init__(*args, **kwargs)
 
         # self.fields['day'].widget.attrs['disabled'] = True
@@ -241,6 +252,9 @@ class MeetForm(slot_views.SlotForm):
             self.fields['staff'].widget.attrs['disabled'] = True
         self.fields['staff'].widget.choices = [(0, '- Select -')] + [(u.pk, u.get_full_name() or u.username) for u in list_staff]
 
+        if referer:
+            self.fields['referer'].initial = referer
+
     # here we grab the selected_staff.
     def clean(self):
         cleaned_data = super(MeetForm, self).clean()
@@ -259,7 +273,10 @@ class MeetForm(slot_views.SlotForm):
                 selected_staff = None
                 # raise forms.ValidationError('Cannot found typed in staff. Please try again and/or report the error.')
         else:
-            selected_staff = UserProfile.get_by_id(pick_name or staff_id)
+            try:
+                selected_staff = UserProfile.get_by_id(staff_id)
+            except:
+                selected_staff = None
 
         if not selected_staff or not selected_staff.is_center_staff():
             raise forms.ValidationError('Selected staff is not valid. Please report the error.')
@@ -275,17 +292,13 @@ def meet(request, cid):
     # this is the new view function for classroom assignment.
 
     classroom = get_object_or_404(Classroom, pk=cid)
-    day = get_request_day(request)
-    start_time = TimeToken.from_token(request.GET['start']) if 'start' in request.GET else None
-    end_time = TimeToken.from_token(request.GET['end']) if 'end' in request.GET else None
 
     if request.method == 'POST':
         form = MeetForm(classroom, request.POST)
 
         if form.is_valid():
-            form_day, start_time, end_time = form.get_cleaned_data()
+            day, start_time, end_time = form.get_cleaned_data()
             target_user_profile = form.cleaned_data['selected_staff']
-            assert form_day == day
             assigned_list = []
 
             if 'forced-assign' in form.data:
@@ -327,10 +340,17 @@ def meet(request, cid):
             else:
                 messages.warning(request, 'No assignment made due to mismatch between staff availability and classroom needs in the specified time period.')
 
-            return redirect(request.META.get('HTTP_REFERER', reverse('cal:meet', kwargs={'cid': cid})))
+            referer = form.cleaned_data.get('referer')
+            if referer:
+                return redirect(referer)
+            else:
+                return redirect(request.META.get('HTTP_REFERER', reverse('cal:meet', kwargs={'cid': cid})))
 
     if request.method == 'GET':
-        form = MeetForm(classroom, day=day, start_time=start_time, end_time=end_time)
+        day = get_request_day(request)
+        start_time = TimeToken.from_token(request.GET['start']) if 'start' in request.GET else None
+        end_time = TimeToken.from_token(request.GET['end']) if 'end' in request.GET else None
+        form = MeetForm(classroom, day=day, start_time=start_time, end_time=end_time, referer=request.META.get('HTTP_REFERER'))
 
     return render(request, 'cal/form_meet.html', {
         'form': form,
@@ -675,7 +695,7 @@ def classroom_user_autocomplete(request, cid, template_name='cal/autocomplete.ht
     q = request.GET.get('pick', '')
     context = {'q': q}
     queries = {
-        'users': User.objects.filter(Q(username__icontains=q) | Q(first_name__icontains=q) | Q(last_name__icontains=q) | Q(email__icontains=q), profile__centers=classroom.center, profile__verified=True).distinct()[:3]
+        'users': User.objects.filter(Q(username__icontains=q) | Q(first_name__icontains=q) | Q(last_name__icontains=q) | Q(email__icontains=q), profile__centers=classroom.center, profile__verified=True, groups__role__machine_name__in=GroupRole.center_staff_roles).distinct()[:3]
     }
     context.update(queries)
     return render(request, template_name, context)

@@ -230,6 +230,9 @@ COLORS = ['maroon',
           'lime',
           'olive']
 
+CALENDAR_EVENT_COLOR_EMPTY = 'gray'
+CALENDAR_EVENT_COLOR_FILLED = 'darkgreen'
+
 REST_FRAMEWORK = {
     # Use Django's standard `django.contrib.auth` permissions,
     # or allow read-only access for unauthenticated users.
