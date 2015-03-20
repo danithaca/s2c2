@@ -1,0 +1,7 @@
+<div>
+  {% for user in users %}
+    <div class="autocomplete-choice">{{ user.get_name }} ({{ user.username }})</div>
+  {% empty %}
+    No user found matching your query
+  {% endfor %}
+</div>

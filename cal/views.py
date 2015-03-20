@@ -4,12 +4,14 @@ from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse
+from django.db.models import Q
 from django.shortcuts import render, get_object_or_404, redirect
 from django.template.response import TemplateResponse
 from django.http import JsonResponse
 from django.views.defaults import bad_request
 from django_ajax.decorators import ajax
 from django import forms
+import re
 from location.models import Location, Classroom, Center
 from log.models import Log
 from s2c2.decorators import user_check_against_arg, user_is_me_or_same_center, user_classroom_same_center, is_ajax, \
@@ -206,6 +208,134 @@ def assign(request, cid):
 
     data = {'form': bootstrap_horizontal(form)}
     return JsonResponse(data)
+
+
+class MeetForm(slot_views.SlotForm):
+    staff = forms.IntegerField(label='Available', widget=forms.Select, required=False)
+    pick = forms.CharField(label='Any', required=False, help_text='Type in name for arbitrary assignment.')
+
+    # this is to assign to a particular classroom so 'classroom' is needed.
+    def __init__(self, classroom, *args, **kwargs):
+        self.classroom = classroom
+        day = kwargs.pop('day', None)
+        start_time = kwargs.pop('start_time', None)
+        end_time = kwargs.pop('end_time', None)
+        super(MeetForm, self).__init__(*args, **kwargs)
+
+        # self.fields['day'].widget.attrs['disabled'] = True
+        if day:
+            self.fields['day'].widget = forms.HiddenInput()
+            self.fields['day'].initial = day.get_token()
+
+        # find all staff in the center who are available at the give time period.
+        if start_time is not None and end_time is not None:
+            list_staff = User.objects.filter(profile__centers=classroom.center, profile__verified=True, offerslot__day=day, offerslot__start_time__gte=start_time, offerslot__end_time__lte=end_time, offerslot__meet__isnull=True).distinct()
+            self.fields['start_time'].initial = start_time.get_token()
+            self.fields['end_time'].initial = end_time.get_token()
+            self.fields['staff'].help_text = 'Available staff between %s and %s. Disabled if none is found.' % (start_time.display(), end_time.display())
+        else:
+            list_staff = []
+            self.fields['staff'].help_text = 'Initial time slot not given. Cannot find available staff.'
+
+        if len(list_staff) == 0:
+            self.fields['staff'].widget.attrs['disabled'] = True
+        self.fields['staff'].widget.choices = [(0, '- Select -')] + [(u.pk, u.get_full_name() or u.username) for u in list_staff]
+
+    # here we grab the selected_staff.
+    def clean(self):
+        cleaned_data = super(MeetForm, self).clean()
+        staff_id = cleaned_data.get('staff')
+        pick_name = cleaned_data.get('pick')
+
+        if staff_id is None and pick_name is None:
+            raise forms.ValidationError('Require at least one staff specified.')
+
+        if pick_name:
+            try:
+                un = re.match(r'.+ \((.+)\)', pick_name).group(1)
+                u = User.objects.get(username=un)
+                selected_staff = UserProfile(u)
+            except:
+                selected_staff = None
+                # raise forms.ValidationError('Cannot found typed in staff. Please try again and/or report the error.')
+        else:
+            selected_staff = UserProfile.get_by_id(pick_name or staff_id)
+
+        if not selected_staff or not selected_staff.is_center_staff():
+            raise forms.ValidationError('Selected staff is not valid. Please report the error.')
+
+        cleaned_data['selected_staff'] = selected_staff
+        return cleaned_data
+
+
+@login_required
+@user_classroom_same_center
+@user_is_center_manager
+def meet(request, cid):
+    # this is the new view function for classroom assignment.
+
+    classroom = get_object_or_404(Classroom, pk=cid)
+    day = get_request_day(request)
+    start_time = TimeToken.from_token(request.GET['start']) if 'start' in request.GET else None
+    end_time = TimeToken.from_token(request.GET['end']) if 'end' in request.GET else None
+
+    if request.method == 'POST':
+        form = MeetForm(classroom, request.POST)
+
+        if form.is_valid():
+            form_day, start_time, end_time = form.get_cleaned_data()
+            target_user_profile = form.cleaned_data['selected_staff']
+            assert form_day == day
+            assigned_list = []
+
+            if 'forced-assign' in form.data:
+                # the desired behaviors:
+                # 1. if the staff is already assigned somewhere else in any of the given slots, stop and raise an error. we won't handle the case when staff is partially assigned.
+                # 2. if the staff is not available at the given slots, create the slots for her.
+                # 3. assign the staff so that she takes the exact period.
+
+                # first, test if staff is already assigned somewhere else
+                if OfferSlot.objects.filter(user=target_user_profile.user, day=day, start_time__gte=start_time, end_time__lte=end_time, meet__isnull=False).exists():
+                    messages.error(request, 'Cannot make assignment because %s is already assigned to another classroom at the time.' % (target_user_profile.get_name()))
+                else:
+                    # now we know the user doesn't not have any other assignment at the time.
+                    # warning: might need to take care of concurrent issues
+                    for t in TimeToken.interval(start_time, end_time):
+                        need = NeedSlot.objects.filter(location=classroom, day=day, start_time=t, end_time=t.get_next(), meet__isnull=True).first()
+                        if need is not None:
+                            # this make sure we have an offer that's either created or exists already.
+                            offer, created = OfferSlot.objects.get_or_create(user=target_user_profile.user, day=day, start_time=t, end_time=t.get_next())
+                            # assert offer.meet is None
+                            meet = Meet(offer=offer, need=need)
+                            meet.save()
+                            assigned_list.append(t)
+                            # someday: perhaps we want to send an extra notification too?
+
+            else:
+                # business as usual.
+                for t in TimeToken.interval(start_time, end_time):
+                    offer = OfferSlot.objects.filter(user=target_user_profile.user, day=day, start_time=t, end_time=t.get_next(), meet__isnull=True).first()
+                    need = NeedSlot.objects.filter(location=classroom, day=day, start_time=t, end_time=t.get_next(), meet__isnull=True).first()
+                    if offer is not None and need is not None:
+                        meet = Meet(offer=offer, need=need)
+                        meet.save()
+                        assigned_list.append(t)
+
+            if len(assigned_list) > 0:
+                messages.success(request, 'Assigned slot(s): %s' % TimeSlot.display_combined(assigned_list))
+                Log.create(Log.MEET_UPDATE, request.user, (target_user_profile.user, classroom, day, assigned_list[0]), 'assigned')
+            else:
+                messages.warning(request, 'No assignment made due to mismatch between staff availability and classroom needs in the specified time period.')
+
+            return redirect(request.META.get('HTTP_REFERER', reverse('cal:meet', kwargs={'cid': cid})))
+
+    if request.method == 'GET':
+        form = MeetForm(classroom, day=day, start_time=start_time, end_time=end_time)
+
+    return render(request, 'cal/form_meet.html', {
+        'form': form,
+        'classroom': classroom
+    })
 
 
 # permission: only verified center manager.
@@ -535,3 +665,19 @@ def calendar_staff_hours(request, uid):
     else:
         hours = [0, 0, 0]
     return JsonResponse({'total': hours[0], 'work': hours[1], 'empty': hours[2]})
+
+
+@is_ajax
+@login_required
+@user_classroom_same_center
+def classroom_user_autocomplete(request, cid, template_name='cal/autocomplete.html'):
+    classroom = get_object_or_404(Classroom, pk=cid)
+    q = request.GET.get('pick', '')
+    context = {'q': q}
+    queries = {
+        'users': User.objects.filter(Q(username__icontains=q) | Q(first_name__icontains=q) | Q(last_name__icontains=q) | Q(email__icontains=q), profile__centers=classroom.center, profile__verified=True).distinct()[:3]
+    }
+    context.update(queries)
+    return render(request, template_name, context)
+
+

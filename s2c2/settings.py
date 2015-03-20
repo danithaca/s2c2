@@ -59,6 +59,7 @@ INSTALLED_APPS = (
     'django_ajax',
     'datetimewidget',
     'rest_framework',
+    'autocomplete_light',
 
     # customized
     's2c2',
