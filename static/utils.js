@@ -74,7 +74,9 @@ function calendarChangeBookmark(view) {
   var current_day = view.calendar.getDate();
   var current_day_token = current_day.format('YYYYMMDD');
   var param_day = getParameterByName('day') || moment().format('YYYYMMDD');
-  if (param_day != current_day.format('YYYYMMDD')) {
+  var param_view = getParameterByName('view') || 'agendaWeek';
+
+  if (param_day != current_day.format('YYYYMMDD') || param_view != view.type) {
     window.history.pushState(current_day, null, './?day=' + current_day_token + '&view=' + view.calendar.getView().type);
   }
 }

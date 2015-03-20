@@ -12,3 +12,4 @@ Tags:
   * rel-0.2:    switched to fullcalendar
   * rel-0.2.1:  a few fixes before adding "message" system.
   * rel-0.3:    added message system
+  * rel-0.4:    better assignment (arbitrary assignment)

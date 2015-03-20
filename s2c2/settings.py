@@ -59,6 +59,7 @@ INSTALLED_APPS = (
     'django_ajax',
     'datetimewidget',
     'rest_framework',
+    'autocomplete_light',
 
     # customized
     's2c2',
@@ -228,6 +229,9 @@ COLORS = ['maroon',
           'fuchsia',
           'lime',
           'olive']
+
+CALENDAR_EVENT_COLOR_EMPTY = 'gray'
+CALENDAR_EVENT_COLOR_FILLED = 'darkgreen'
 
 REST_FRAMEWORK = {
     # Use Django's standard `django.contrib.auth` permissions,

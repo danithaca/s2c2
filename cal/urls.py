@@ -13,6 +13,8 @@ urlpatterns = patterns(
     url(r'^classroom/(?P<cid>\d+)/copy', views.calendar_classroom_copy, name='classroom_copy'),
 
     url(r'^classroom/(?P<cid>\d+)/assign$', views.assign, name='assign'),
+    url(r'^classroom/(?P<cid>\d+)/meet$', views.meet, name='meet'),
+    url(r'^classroom/(?P<cid>\d+)/user_autocomplete$', views.classroom_user_autocomplete, name='user_autocomplete'),
     url(r'^classroom/(?P<cid>\d+)/delete$', views.need_delete_ajax, name='need_delete_ajax'),
 
     url(r'^center/(?P<cid>\d+)/$', views.calendar_center, name='center'),
