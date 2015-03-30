@@ -562,6 +562,7 @@ def pref(request):
 
         def get_context_data(self, **kwargs):
             kwargs['title'] = 'Edit preferences'
+            kwargs['user_profile'] = user_profile
             return kwargs
 
         def form_valid(self, form):
