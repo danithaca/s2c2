@@ -1,11 +1,5 @@
 """
-Django settings for s2c2 project.
-
-For more information on this file, see
-https://docs.djangoproject.com/en/1.7/topics/settings/
-
-For the full list of settings and their values, see
-https://docs.djangoproject.com/en/1.7/ref/settings/
+Settings file for the s2c2 webapp.
 """
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
@@ -49,6 +43,8 @@ INSTALLED_APPS = (
     # should not use in production
     # 'django_extensions',
 
+    'django.contrib.sites',
+
     'localflavor',
     'pytz',
     # 'pinax_theme_bootstrap',
@@ -68,6 +64,7 @@ INSTALLED_APPS = (
     'slot',
     'log',
     'cal',
+    'p2',
 )
 
 MIDDLEWARE_CLASSES = (
@@ -240,6 +237,8 @@ REST_FRAMEWORK = {
         'rest_framework.permissions.IsAuthenticated'
     ]
 }
+
+SITE_ID = 1
 
 # load local settings override.
 

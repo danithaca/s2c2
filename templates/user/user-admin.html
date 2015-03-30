@@ -13,7 +13,7 @@
 {% block page %}
   <div class="page-header">
     <h1>
-      <a href="{% url 'user:profile' uid=user_profile.id %}" title="Click to view profile info."><img src="{% user_picture_url user_profile %}" class="img-circle user-picture-md"></a>
+      <a href="{% url 'user:profile' uid=current_user_profile.id %}" title="Click to view profile info."><img src="{% user_picture_url current_user_profile %}" class="img-circle user-picture-md"></a>
       {{ user|name }}{% if not user.profile.verified %} <small>{% icon 'unverified' %}</small>{% endif %}
     </h1>
   </div>
