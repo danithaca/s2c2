@@ -1,5 +1,6 @@
 from itertools import groupby, filterfalse
 from bootstrapform.templatetags.bootstrap import bootstrap_horizontal
+from datetimewidget.widgets import DateWidget
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
@@ -102,11 +103,14 @@ def calendar_classroom(request, cid):
     classroom_copy_form = CopyForm()
     classroom_copy_form.fields['current_date'].widget = forms.HiddenInput()
 
+    classroom_copy_day_form = CopyDayForm()
+
     return render(request, 'cal/classroom.html', {
         'classroom': classroom,
         'day': day,
         # 'assign_form': assign_form,
-        'classroom_copy_form': classroom_copy_form
+        'classroom_copy_form': classroom_copy_form,
+        'classroom_copy_day_form': classroom_copy_day_form,
     })
 
 
@@ -525,6 +529,68 @@ def calendar_classroom_copy(request, cid):
         form = CopyForm()
 
     form_url = reverse('cal:classroom_copy', kwargs={'cid': classroom.pk})
+    return render(request, 'base_form.html', {'form': form, 'form_url': form_url})
+
+
+class CopyDayForm(forms.Form):
+    # from_field = forms.DateField(label='From', required=True, widget=DateWidget(bootstrap_version=3, options={
+    #     'daysOfWeekDisabled': '"0,6"',
+    #     'format': 'yyyy-mm-dd',
+    #     'weekStart': 1
+    # }))
+    # to_field = forms.DateField(label='To', required=True, widget=DateWidget(bootstrap_version=3, options={
+    #     'daysOfWeekDisabled': '"0,6"',
+    #     'format': 'yyyy-mm-dd',
+    #     'weekStart': 1
+    # }))
+    from_field = forms.DateField(label='From', required=True)
+    to_field = forms.DateField(label='To', required=True)
+
+    def clean(self):
+        cleaned_data = super(CopyDayForm, self).clean()
+        from_field = cleaned_data.get("from_field")
+        to_field = cleaned_data.get("to_field")
+        if from_field == to_field:
+            raise forms.ValidationError('Cannot copy to itself.')
+        return cleaned_data
+
+
+@ajax(mandatory=False)
+@login_required
+@user_classroom_same_center
+@user_is_center_manager
+def calendar_classroom_copy_day(request, cid):
+    classroom = get_object_or_404(Classroom, pk=cid)
+
+    if request.method == 'POST':
+        # someday: lots of code duplicate as in "calendar_staff_copy".
+        form = CopyDayForm(request.POST)
+        if form.is_valid():
+            from_field = form.cleaned_data["from_field"]
+            to_field = form.cleaned_data["to_field"]
+            from_day = DayToken(from_field)
+            to_day = DayToken(to_field)
+
+            failed = []
+            try:
+                # copy need.
+                NeedSlot.safe_copy(classroom, from_day, to_day)
+                # copy meet next. need to be in the same "try", because it should be skipped if NeedSlot copy raises exception.
+                Meet.safe_copy_by_location(classroom, from_day, to_day)
+            except ValueError as e:
+                failed.append(to_day)
+
+            if failed:
+                messages.warning(request, 'Target date(s) are not copied: %s. Possible reasons: target date(s) not empty or staff is not available.' % ', '.join([d.value.strftime('%b %d') for d in set(failed)]))
+            else:
+                messages.success(request, 'Copy successful.')
+
+            return redirect(request.META.get('HTTP_REFERER', reverse('cal:classroom', kwargs={'cid': classroom.pk})))
+
+    if request.method == 'GET':
+        form = CopyDayForm()
+
+    form_url = reverse('cal:classroom_copy_day', kwargs={'cid': classroom.pk})
     return render(request, 'base_form.html', {'form': form, 'form_url': form_url})
 
 

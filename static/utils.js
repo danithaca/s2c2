@@ -63,6 +63,7 @@ function getCalendarDefaults() {
     minTime: '06:00',
     maxTime: '21:00',
     scrollTime: '08:00',
+    weekends: false,
 
     firstDay: 1,
     editable: false,

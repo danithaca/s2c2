@@ -1,0 +1,17 @@
+{% extends 'cal/panel.html' %}
+{% load bootstrap %}
+
+{% block panel_content %}
+  <form class="form" method="post" action="{% url 'cal:classroom_copy_day' cid=classroom.pk %}">
+    {% csrf_token %}
+    {{ classroom_copy_day_form|bootstrap }}
+    <div class="form-group">
+      <button type="submit" class="btn btn-primary">Copy</button>
+    </div>
+    <div class="help-block">
+      <ul>
+        <li>Copy only works for empty target date.</li>
+      </ul>
+    </div>
+  </form>
+{% endblock %}

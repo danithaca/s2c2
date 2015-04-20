@@ -2,6 +2,10 @@
 {% load staticfiles %}
 {% load bootstrap %}
 
+{% block extra_header %}
+{{ form.media }}
+{% endblock %}
+
 {% block page %}
   <div class="page-header">
     <h1>Form</h1>
