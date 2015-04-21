@@ -825,7 +825,7 @@ def calendar_center_events_available(request, cid):
     #     role_offer_list = (o for o in offer_list if UserProfile(o.user).get_center_role().role.machine_name == role_slug)
 
     # step0: group by role
-    for role_slug, group_by_role in groupby(offer_list, lambda x: UserProfile(x.user).get_center_role().role.machine_name):
+    for role_slug, group_by_role in groupby(offer_list, lambda x: UserProfile(x.user).get_primary_center_role().role.machine_name):
         # step1: group by day
         for day, group_by_day in groupby(group_by_role, lambda x: x.day):
             # step2: group by users

@@ -21,6 +21,7 @@
 
     var calendarDefaults = getCalendarDefaults();
     $.extend(calendarDefaults, {
+      defaultView: getParameterByName('view') || 'agendaDay',
       viewRender: centerCalendarViewRender,
       loading: function(isLoading, view) {
         if (isLoading) {

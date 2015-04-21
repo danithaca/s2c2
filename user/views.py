@@ -281,7 +281,7 @@ def logout(request):
 @login_required
 def edit(request):
     user_profile = UserProfile(request.user)
-    gr = user_profile.get_center_role()
+    gr = user_profile.get_primary_center_role()
     role_initial_id = gr.group.pk if gr is not None else 0
 
     class UserEditForm(ModelForm):

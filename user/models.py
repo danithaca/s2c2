@@ -143,9 +143,9 @@ class UserProfile(object):
     def display_role(self):
         return ', '.join(self.user.groups.values_list('name', flat=True))
 
-    def get_center_role(self):
+    def get_primary_center_role(self):
         # use this instead of "user.groups" because we want to do ordering and filtering.
-        # ordering is automatically by 'id' using last(). the last 'id' is the most recent role assignment.
+        # ordering follows this order:
         g = Group.objects.filter(user=self.user, role__type_center=True).last()
         return GroupRole(g) if g is not None else None
 
