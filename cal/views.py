@@ -427,7 +427,7 @@ def need_delete_ajax(request, cid):
 
 
 class CopyForm(forms.Form):
-    from_field = forms.ChoiceField(choices=(('prev', 'last week'), ('curr', 'this week')), label='From')
+    from_field = forms.ChoiceField(choices=(('template', 'Template week'), ('prev', 'last week'), ('curr', 'this week')), label='From')
     to_field = forms.ChoiceField(choices=(('curr', 'this week'), ('next', 'next week')), label='To')
     current_date = forms.CharField()
 
@@ -436,7 +436,7 @@ class CopyForm(forms.Form):
         from_field = cleaned_data.get("from_field")
         to_field = cleaned_data.get("to_field")
         current_date = cleaned_data.get('current_date')
-        if from_field not in ('prev', 'curr') or to_field not in ('curr', 'next') or from_field == to_field:
+        if from_field not in ('prev', 'curr', 'template') or to_field not in ('curr', 'next') or from_field == to_field:
             raise forms.ValidationError('Cannot copy to itself.')
         if current_date is not None:     # day is required, but will be validated by django after this call
             try:
@@ -465,6 +465,12 @@ def calendar_staff_copy(request, uid):
                 from_week = current_day.prev_week().expand_week()
             elif from_field == 'curr':
                 from_week = current_day.expand_week()
+            elif from_field == 'template':
+                if user_profile.profile.template_base_date:
+                    from_week = DayToken(user_profile.profile.template_base_date).expand_week()
+                else:
+                    messages.error(request, 'Template not set')
+                    return redirect(request.META.get('HTTP_REFERER', reverse('cal:staff', kwargs={'uid': uid})))
             else:
                 assert False
 
@@ -474,6 +480,10 @@ def calendar_staff_copy(request, uid):
                 to_week = current_day.next_week().expand_week()
             else:
                 assert False
+
+            if from_week == to_week:
+                messages.error(request, 'Cannot copy template to the same week.')
+                return redirect(request.META.get('HTTP_REFERER', reverse('cal:staff', kwargs={'uid': uid})))
 
             failed = []
             assert len(from_week) == len(to_week)
@@ -517,6 +527,12 @@ def calendar_classroom_copy(request, cid):
                 from_week = current_day.prev_week().expand_week()
             elif from_field == 'curr':
                 from_week = current_day.expand_week()
+            elif from_field == 'template':
+                if classroom.template_base_date:
+                    from_week = DayToken(classroom.template_base_date).expand_week()
+                else:
+                    messages.error(request, 'Template not set')
+                    return redirect(request.META.get('HTTP_REFERER', reverse('cal:classroom', kwargs={'cid': classroom.pk})))
             else:
                 assert False
 
@@ -526,6 +542,10 @@ def calendar_classroom_copy(request, cid):
                 to_week = current_day.next_week().expand_week()
             else:
                 assert False
+
+            if from_week == to_week:
+                messages.error(request, 'Cannot copy template to the same week.')
+                return redirect(request.META.get('HTTP_REFERER', reverse('cal:classroom', kwargs={'cid': classroom.pk})))
 
             failed = []
             assert len(from_week) == len(to_week)
