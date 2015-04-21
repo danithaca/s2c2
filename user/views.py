@@ -534,7 +534,7 @@ def pref(request):
     class PrefForm(ModelForm):
         class Meta:
             model = Profile
-            fields = ('template_base_date',)
+            fields = ('template_base_date', 'template_copy_ahead')
             widgets = {
                 'template_base_date': DateWidget(bootstrap_version=3, options={
                   'daysOfWeekDisabled': '"0,6"',

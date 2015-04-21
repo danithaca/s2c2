@@ -1,0 +1,12 @@
+{% extends 'cal/panel.html' %}
+{% load bootstrap %}
+
+{% block panel_content %}
+  <form class="form" method="post" action="{% url 'cal:staff_template' uid=user_profile.pk %}">
+    {% csrf_token %}
+    {{ staff_template_settings_form|bootstrap }}
+    <div class="form-group">
+      <button type="submit" class="btn btn-primary">Update</button>
+    </div>
+  </form>
+{% endblock %}

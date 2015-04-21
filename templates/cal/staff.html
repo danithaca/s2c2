@@ -4,6 +4,7 @@
 {% load s2c2_tags %}
 
 {% block extra_header %}
+  {{ staff_template_settings_form.media }}
   <link href='{% static 'fullcalendar/fullcalendar.css' %}' rel='stylesheet' />
   <link href='{% static 'fullcalendar/fullcalendar.print.css' %}' rel='stylesheet' media='print' />
   <script src='{% static 'fullcalendar/lib/moment.min.js' %}'></script>
@@ -22,7 +23,8 @@
     <div class="col-sm-3 hidden-print">
       <div class="panel-group" id="calendar-panel-list">
         {% include "cal/includes/panel_staff_hours.html" with panel_id="panel-staff-hours" panel_title="Weekly Hours" panel_collapse=False %}
-        {% include "cal/includes/panel_staff_copy.html" with panel_id="panel-staff-copy" panel_title="Copy" panel_collapse=False %}
+        {% include "cal/includes/panel_staff_copy.html" with panel_id="panel-staff-copy" panel_title="Copy (by week)" panel_collapse=False %}
+        {% include "cal/includes/panel_staff_template.html" with panel_id="panel-staff-template" panel_title="Template Settings" panel_collapse=False %}
         {% include "cal/includes/panel_staff_help.html" with panel_id="panel-staff-help" panel_title="Help" panel_collapse=False %}
       </div>
     </div>

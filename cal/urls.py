@@ -7,6 +7,7 @@ urlpatterns = patterns(
     url(r'^staff/(?P<uid>\d+)/events/$', views.calendar_staff_events, name='staff_events'),
     url(r'^staff/(?P<uid>\d+)/hours/$', views.calendar_staff_hours, name='staff_hours'),
     url(r'^staff/(?P<uid>\d+)/copy/$', views.calendar_staff_copy, name='staff_copy'),
+    url(r'^staff/(?P<uid>\d+)/template/$', views.calendar_staff_template, name='staff_template'),
 
     url(r'^classroom/(?P<cid>\d+)/$', views.calendar_classroom, name='classroom'),
     url(r'^classroom/(?P<cid>\d+)/events/$', views.calendar_classroom_events, name='classroom_events'),

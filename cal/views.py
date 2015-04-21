@@ -23,7 +23,27 @@ from s2c2.utils import dummy, get_fullcaldendar_request_date_range, to_fullcalen
     process_messages
 from slot.models import OfferSlot, TimeSlot, TimeToken, DayToken, NeedSlot, Meet
 from slot import views as slot_views
-from user.models import UserProfile, GroupRole
+from user.models import UserProfile, GroupRole, Profile
+
+
+class StaffTemplateForm(forms.ModelForm):
+    class Meta:
+        model = Profile
+        fields = ('template_base_date', 'template_copy_ahead')
+        widgets = {
+            'template_base_date': DateWidget(bootstrap_version=3, options={
+                'daysOfWeekDisabled': '"0,6"',
+                'format': 'yyyy-mm-dd',
+                'weekStart': 1
+            })
+        }
+        labels = {
+            'template_base_date': 'Template week',
+            'template_copy_ahead': 'Copy schedule'
+        }
+        help_texts = {
+            'template_base_date': 'Pick a date of which the weekly schedule would be used as the template for automatic copy.'
+        }
 
 
 # permission: myself or verified user from same center.
@@ -43,9 +63,31 @@ def calendar_staff(request, uid=None):
     context = {
         'user_profile': user_profile,
         'day': day,
-        'staff_copy_form': staff_copy_form
+        'staff_copy_form': staff_copy_form,
+        'staff_template_settings_form': StaffTemplateForm(instance=user_profile.profile)
     }
     return TemplateResponse(request, template='cal/staff.html', context=context)
+
+
+@ajax(mandatory=False)
+@login_required
+@user_is_me_or_same_center_manager
+def calendar_staff_template(request, uid=None):
+    user_profile = UserProfile.get_by_id(uid)
+    assert user_profile.is_center_staff()
+
+    if request.method == 'POST':
+        form = StaffTemplateForm(request.POST, instance=user_profile.profile)
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'Template settings updated successfully.')
+            return redirect(request.META.get('HTTP_REFERER', reverse('cal:staff', kwargs={'uid': user_profile.user.id})))
+
+    if request.method == 'GET':
+        form = StaffTemplateForm(instance=user_profile.profile)
+
+    form_url = reverse('cal:staff', kwargs={'uid': user_profile.user.id})
+    return render(request, 'base_form.html', {'form': form, 'form_url': form_url})
 
 
 @login_required
