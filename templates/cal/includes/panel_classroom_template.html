@@ -1,0 +1,12 @@
+{% extends 'cal/panel.html' %}
+{% load bootstrap %}
+
+{% block panel_content %}
+  <form class="form" method="post" action="{% url 'cal:classroom_template' cid=classroom.pk %}">
+    {% csrf_token %}
+    {{ classroom_template_settings_form|bootstrap }}
+    <div class="form-group">
+      <button type="submit" class="btn btn-primary">Update</button>
+    </div>
+  </form>
+{% endblock %}

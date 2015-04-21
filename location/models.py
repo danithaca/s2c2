@@ -7,6 +7,7 @@ from django.contrib.auth.models import User
 from localflavor.us.models import USStateField
 from pytz import timezone
 from s2c2 import settings
+from s2c2.models import TemplateSettings
 
 
 class Area(models.Model):
@@ -77,7 +78,7 @@ class Center(Location):
         return zip(list_classroom, cycle(settings.COLORS))
 
 
-class Classroom(Location):
+class Classroom(Location, TemplateSettings):
     center = models.ForeignKey(Center)
 
     def get_slot_table(self, day):
@@ -142,3 +143,22 @@ class Classroom(Location):
         from slot.models import NeedSlot
         weekday = day.expand_week()
         return NeedSlot.objects.filter(day__in=weekday, location=self, meet__isnull=True).exists()
+
+    def copy_week_schedule(self, from_day, to_day):
+        from slot.models import NeedSlot, Meet
+        assert from_day != to_day
+        from_week = from_day.expand_week()
+        to_week = to_day.expand_week()
+        assert from_week != to_week
+        assert len(from_week) == len(to_week)
+
+        failed = []
+        for from_day, to_day in zip(from_week, to_week):
+            assert from_day.weekday() == to_day.weekday()
+            try:
+                NeedSlot.safe_copy(self, from_day, to_day)
+                Meet.safe_copy_by_location(self, from_day, to_day)
+            except ValueError as e:
+                failed.append(to_day)
+
+        return failed

@@ -90,6 +90,26 @@ def calendar_staff_events(request, uid):
         return bad_request(request)
 
 
+class ClassroomTemplateForm(forms.ModelForm):
+    class Meta:
+        model = Classroom
+        fields = ('template_base_date', 'template_copy_ahead')
+        widgets = {
+            'template_base_date': DateWidget(bootstrap_version=3, options={
+                'daysOfWeekDisabled': '"0,6"',
+                'format': 'yyyy-mm-dd',
+                'weekStart': 1
+            })
+        }
+        labels = {
+            'template_base_date': 'Template week',
+            'template_copy_ahead': 'Copy schedule'
+        }
+        help_texts = {
+            'template_base_date': 'Pick a date of which the weekly schedule would be used as the template for automatic copy.'
+        }
+
+
 @login_required
 @user_classroom_same_center
 def calendar_classroom(request, cid):
@@ -111,6 +131,7 @@ def calendar_classroom(request, cid):
         # 'assign_form': assign_form,
         'classroom_copy_form': classroom_copy_form,
         'classroom_copy_day_form': CopyDayForm(),
+        'classroom_template_settings_form': ClassroomTemplateForm(instance=classroom)
     })
 
 
@@ -592,6 +613,27 @@ def calendar_classroom_copy_day(request, cid):
         form = CopyDayForm()
 
     form_url = reverse('cal:classroom_copy_day', kwargs={'cid': classroom.pk})
+    return render(request, 'base_form.html', {'form': form, 'form_url': form_url})
+
+
+@ajax(mandatory=False)
+@login_required
+@user_classroom_same_center
+@user_is_center_manager
+def calendar_classroom_template(request, cid):
+    classroom = get_object_or_404(Classroom, pk=cid)
+
+    if request.method == 'POST':
+        form = ClassroomTemplateForm(request.POST, instance=classroom)
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'Template settings updated successfully.')
+            return redirect(request.META.get('HTTP_REFERER', reverse('cal:classroom', kwargs={'cid': classroom.pk})))
+
+    if request.method == 'GET':
+        form = ClassroomTemplateForm(instance=classroom)
+
+    form_url = reverse('cal:classroom_template', kwargs={'cid': classroom.pk})
     return render(request, 'base_form.html', {'form': form, 'form_url': form_url})
 
 

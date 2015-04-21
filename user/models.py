@@ -11,7 +11,7 @@ from image_cropping import ImageCropField, ImageRatioField
 from localflavor.us.models import PhoneNumberField
 from location.models import Center, Area, Classroom
 from s2c2 import settings
-from slot.models import TemplateSettings
+from s2c2.models import TemplateSettings
 
 
 class Profile(TemplateSettings):

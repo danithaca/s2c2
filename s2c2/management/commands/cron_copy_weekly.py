@@ -1,12 +1,13 @@
 import logging
 from django.contrib.auth.models import User
 from django.core.management import BaseCommand
+from location.models import Classroom
 from slot.models import DayToken, OfferSlot
 from user.models import GroupRole, UserProfile
 
 
 class Command(BaseCommand):
-    help = 's2c2 cron to copy staff schedule one week ahead based on the template base date.'
+    help = 's2c2 cron to copy staff/classroom schedule one week ahead based on the template base date.'
 
     def handle(self, *args, **options):
         # get today:
@@ -41,3 +42,23 @@ class Command(BaseCommand):
             else:
                 # logger.info('No copy schedule for %s' % staff.username)
                 self.stdout.write('No copy schedule for %s' % staff.username)
+
+        # get all valid classroom.
+        classroom_list = Classroom.objects.filter(template_base_date__isnull=False, status=True).exclude(template_copy_ahead='none')
+        self.stdout.write('To process classrooms: %d' % (classroom_list.count(),))
+        for classroom in classroom_list:
+            self.stdout.write('Processing %s' % classroom.name)
+            assert classroom.template_base_date and classroom.template_copy_ahead != 'none'
+            if classroom.template_copy_ahead in ('1week', '2week', '3week', '4week'):
+                week_num = int(classroom.template_copy_ahead[0])
+            else:
+                week_num = 0
+
+            source_day = DayToken(classroom.template_base_date)
+            target_day = today
+            for w in range(week_num):
+                if source_day.is_same_week(target_day):
+                    self.stderr.write('Same week. Do not copy')
+                else:
+                    classroom.copy_week_schedule(source_day, target_day)
+                target_day = target_day.next_week()

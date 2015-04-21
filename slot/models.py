@@ -1,4 +1,4 @@
-from abc import ABCMeta, abstractstaticmethod, abstractmethod
+from abc import abstractmethod
 from functools import total_ordering
 import calendar
 from itertools import groupby
@@ -9,8 +9,6 @@ import warnings
 from django.core.exceptions import ValidationError
 from django.db import models
 from django.contrib.auth.models import User
-
-from location.models import Location
 
 
 class DayToken(object):
@@ -145,6 +143,9 @@ class DayToken(object):
             return result[0:5]
         else:
             return result
+
+    def is_same_week(self, target_day):
+        return self.value.strftime('%Y%U') == target_day.value.strftime('%Y%U')
 
 
 class DayTokenField(models.DateField, metaclass=models.SubfieldBase):
@@ -456,6 +457,7 @@ class OfferSlot(Slot):
 
 
 class NeedSlot(Slot):
+    from location.models import Location
     location = models.ForeignKey(Location)
 
     def __str__(self):
@@ -591,10 +593,3 @@ class Meet(models.Model):
             offer, created = OfferSlot.objects.get_or_create(user=m.offer.user, day=to_day, start_time=m.offer.start_time, end_time=m.offer.end_time, meet__isnull=True)
             need = NeedSlot.get_or_create_unmet_need(location=m.need.location, day=to_day, start_time=m.need.start_time, end_time=m.need.end_time)
             Meet.objects.create(offer=offer, need=need)
-
-
-class TemplateSettings(models.Model):
-    template_base_date = models.DateField(blank=True, null=True)
-
-    class Meta:
-        abstract = True
