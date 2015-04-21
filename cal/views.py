@@ -103,14 +103,14 @@ def calendar_classroom(request, cid):
     classroom_copy_form = CopyForm()
     classroom_copy_form.fields['current_date'].widget = forms.HiddenInput()
 
-    classroom_copy_day_form = CopyDayForm()
+    # classroom_copy_day_form = CopyDayForm()
 
     return render(request, 'cal/classroom.html', {
         'classroom': classroom,
         'day': day,
         # 'assign_form': assign_form,
         'classroom_copy_form': classroom_copy_form,
-        'classroom_copy_day_form': classroom_copy_day_form,
+        'classroom_copy_day_form': CopyDayForm(),
     })
 
 
@@ -533,18 +533,19 @@ def calendar_classroom_copy(request, cid):
 
 
 class CopyDayForm(forms.Form):
-    # from_field = forms.DateField(label='From', required=True, widget=DateWidget(bootstrap_version=3, options={
-    #     'daysOfWeekDisabled': '"0,6"',
-    #     'format': 'yyyy-mm-dd',
-    #     'weekStart': 1
-    # }))
-    # to_field = forms.DateField(label='To', required=True, widget=DateWidget(bootstrap_version=3, options={
-    #     'daysOfWeekDisabled': '"0,6"',
-    #     'format': 'yyyy-mm-dd',
-    #     'weekStart': 1
-    # }))
-    from_field = forms.DateField(label='From', required=True)
-    to_field = forms.DateField(label='To', required=True)
+    # this is weird: only showing in the first collapsible panel would the DateWidget work.
+    from_field = forms.DateField(label='From', required=True, widget=DateWidget(bootstrap_version=3, options={
+        'daysOfWeekDisabled': '"0,6"',
+        'format': 'yyyy-mm-dd',
+        'weekStart': 1
+    }))
+    to_field = forms.DateField(label='To', required=True, widget=DateWidget(bootstrap_version=3, options={
+        'daysOfWeekDisabled': '"0,6"',
+        'format': 'yyyy-mm-dd',
+        'weekStart': 1
+    }))
+    # from_field = forms.DateField(label='From', required=True)
+    # to_field = forms.DateField(label='To', required=True)
 
     def clean(self):
         cleaned_data = super(CopyDayForm, self).clean()
@@ -758,7 +759,7 @@ def calendar_staff_hours(request, uid):
 @user_classroom_same_center
 def classroom_user_autocomplete(request, cid, template_name='cal/autocomplete.html'):
     classroom = get_object_or_404(Classroom, pk=cid)
-    q = request.GET.get('pick', '')
+    q = request.GET.get('pick', '').strip()
     context = {'q': q}
     queries = {
         'users': User.objects.filter(Q(username__icontains=q) | Q(first_name__icontains=q) | Q(last_name__icontains=q) | Q(email__icontains=q), profile__centers=classroom.center, profile__verified=True, groups__role__machine_name__in=GroupRole.center_staff_roles).distinct()[:3]

@@ -21,7 +21,14 @@
 
     var calendarDefaults = getCalendarDefaults();
     $.extend(calendarDefaults, {
-      viewRender: centerCalendarViewRender
+      viewRender: centerCalendarViewRender,
+      loading: function(isLoading, view) {
+        if (isLoading) {
+          $('#fullcalendar-loading').show();
+        } else {
+          $('#fullcalendar-loading').hide();
+        }
+      }
     });
 
     var $calendar_filled = $('#calendar-filled');
