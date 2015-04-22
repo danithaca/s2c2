@@ -145,9 +145,12 @@ class UserProfile(object):
 
     def get_primary_center_role(self):
         # use this instead of "user.groups" because we want to do ordering and filtering.
-        # ordering follows this order:
-        g = Group.objects.filter(user=self.user, role__type_center=True).last()
-        return GroupRole(g) if g is not None else None
+        # ordering follows this order: 'teacher', 'support', 'intern', 'manager'
+        roles = self.get_roles_name_set()
+        for r in GroupRole.center_staff_roles + GroupRole.center_manager_roles:
+            if r in roles:
+                return GroupRole.get_by_name(r)
+        return None
 
     def has_picture(self):
         return self.has_profile() and self.profile.picture_original and self.profile.picture_cropping
