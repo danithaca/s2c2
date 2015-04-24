@@ -315,8 +315,8 @@ def edit(request):
         #     **_phone_field_options
         # )
 
-        role = forms.TypedChoiceField(label='Employment role', required=False, coerce=int, empty_value=0,
-                                      choices=GroupRole.get_center_roles_choices(), initial=role_initial_id,
+        role = forms.TypedChoiceField(label='Employment role', required=False, coerce=int, empty_value=0, initial=role_initial_id,
+                                      choices=[(0, '- Select -')] + [(g.pk, g.name) for g in Group.objects.filter(role__machine_name__in=GroupRole.center_roles).order_by('id')],
                                       help_text='Please select your role with the center. Changing role needs verification from the managers.')
 
         class Meta:

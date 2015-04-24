@@ -251,9 +251,12 @@ class Role(models.Model):
 
 
 class GroupRole(object):
-    all_valid_roles = ('manager', 'teacher', 'support', 'intern')
-    center_staff_roles = ('teacher', 'support', 'intern')
+    # all_valid_roles = ('manager', 'teacher', 'support', 'intern')
+    all_valid_roles = ('manager', 'teacher', 'support')
+    # center_staff_roles = ('teacher', 'support', 'intern')
+    center_staff_roles = ('teacher', 'support')
     center_manager_roles = ('manager', )
+    center_roles = center_staff_roles + center_manager_roles
     role_color = list(zip(all_valid_roles, cycle(reversed(settings.COLORS))))
     role_color_map = {s: c for s, c in role_color}
 
@@ -282,7 +285,8 @@ class GroupRole(object):
     def get_center_staff_role_id_set():
         # someday: make it cache or load in "class".
         # however, when put as class property, django will complain with error. perhaps because Role.objects are not loaded yet.
-        center_staff_role_id_set = set(Role.objects.filter(machine_name__in=('teacher', 'support', 'intern')).values_list('pk', flat=True))
+        # center_staff_role_id_set = set(Role.objects.filter(machine_name__in=('teacher', 'support', 'intern')).values_list('pk', flat=True))
+        center_staff_role_id_set = set(Role.objects.filter(machine_name__in=('teacher', 'support')).values_list('pk', flat=True))
         return center_staff_role_id_set
 
     @staticmethod
@@ -290,9 +294,9 @@ class GroupRole(object):
         center_manager_role_id_set = set(Role.objects.filter(machine_name='manager').values_list('pk', flat=True))
         return center_manager_role_id_set
 
-    @staticmethod
-    def get_center_roles_choices():
-        return [(0, '- Select -')] + [(g.pk, g.name) for g in Group.objects.filter(role__type_center=True).order_by('id')]
+    # @staticmethod
+    # def get_center_roles_choices():
+    #     return [(0, '- Select -')] + [(g.pk, g.name) for g in Group.objects.filter(role__type_center=True).order_by('id')]
 
     def get_color(self):
         return GroupRole.role_color_map.get(self.role.machine_name, 'darkgray')

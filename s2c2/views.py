@@ -149,7 +149,7 @@ def center_home(request, pk, tab='directory'):
     manager_group = GroupRole.get_by_name('manager')
     teacher_group = GroupRole.get_by_name('teacher')
     support_group = GroupRole.get_by_name('support')
-    intern_group = GroupRole.get_by_name('intern')
+    # intern_group = GroupRole.get_by_name('intern')
     managers = User.objects.filter(profile__centers=center, groups=manager_group.group, is_active=True)
     context['managers'] = managers
 
@@ -159,7 +159,7 @@ def center_home(request, pk, tab='directory'):
         sections = (
             (teacher_group.name, User.objects.filter(profile__centers=center, groups=teacher_group.group, is_active=True)),
             (support_group.name, User.objects.filter(profile__centers=center, groups=support_group.group, is_active=True)),
-            (intern_group.name, User.objects.filter(profile__centers=center, groups=intern_group.group, is_active=True)),
+            # (intern_group.name, User.objects.filter(profile__centers=center, groups=intern_group.group, is_active=True)),
         )
         context.update({'classrooms': list_classroom, 'sections': sections})
 
@@ -171,7 +171,8 @@ def center_home(request, pk, tab='directory'):
 
     # handle list of staff tab.
     elif tab == 'list-staff':
-        list_staff = [CenterStaff(u) for u in User.objects.filter(profile__centers=center, groups__in=[teacher_group.group, support_group.group, intern_group.group], is_active=True)]
+        # list_staff = [CenterStaff(u) for u in User.objects.filter(profile__centers=center, groups__in=[teacher_group.group, support_group.group, intern_group.group], is_active=True)]
+        list_staff = [CenterStaff(u) for u in User.objects.filter(profile__centers=center, groups__in=[teacher_group.group, support_group.group], is_active=True)]
         context['list_staff'] = list_staff
 
     else:
