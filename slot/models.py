@@ -182,6 +182,13 @@ class DayTokenField(models.DateField, metaclass=models.SubfieldBase):
         assert isinstance(value, DayToken)
         return value.value
 
+    def value_to_string(self, obj):
+        val = self._get_val_from_obj(obj)
+        if isinstance(val, DayToken):
+            return '' if val.value is None else val.value.isoformat()
+        else:
+            return super(DayTokenField, self).value_to_string(obj)
+
 
 @total_ordering
 class TimeToken(object):
