@@ -716,6 +716,28 @@ def calendar_center(request, cid):
     return render(request, 'cal/center.html', context)
 
 
+def center_wall_events(cid, fc_start, fc_end):
+    search_ref_list = []
+    while fc_start != fc_end:
+        search_ref_list.append('%d,%s' % (cid, fc_start.get_token()))
+        fc_start = fc_start.next_day()
+
+    data = []
+    qs = Log.objects.filter(ref__in=search_ref_list, type=Log.COMMENT_BY_LOCATION).values_list('ref', flat=True).distinct()
+    for ref in qs:
+        day = DayToken.from_token(ref.split(',')[1])
+        event = {
+            'allDay': True,
+            'title': 'Messages posted!',
+            'color': 'red',
+            'start': day.to_fullcalendar(),
+            'url': '%s?day=%s&view=agendaDay' % (reverse('cal:center', kwargs={'cid': cid}), day.get_token()),
+        }
+        data.append(event)
+
+    return data
+
+
 @is_ajax
 @login_required
 @user_in_center
@@ -743,6 +765,9 @@ def calendar_center_events_filled(request, cid):
                         'url': reverse('cal:classroom', kwargs={'cid': classroom.id})
                     }
                     data.append(event)
+
+    # add wall posts event.
+    data.extend(center_wall_events(int(cid), start, end))
 
     return JsonResponse(data, safe=False)
 

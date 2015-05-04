@@ -84,17 +84,18 @@ class Log(models.Model):
             elif self.type == Log.MEET_UPDATE:
                 staff_id, classroom_id, d, t = self.ref.split(',')
                 t = TimeToken.from_token(t)
-                message = 'assignment updated (%s): %s' % (t.display(), message)
+                # message = 'assignment updated (%s): %s' % (t.display(), message)
+                message = '%s' % (t.display(),)
             elif self.type == Log.MEET_CASCADE_DELETE_OFFER:
                 staff_id, classroom_id, d, t = self.ref.split(',')
                 staff = UserProfile.get_by_id(staff_id)
                 t = TimeToken.from_token(t)
-                message = 'assignment updated due to staff availability change: %s on %s' % (staff.get_display_name(), t.display())
+                message = '%s on %s' % (staff.get_display_name(), t.display())
             elif self.type == Log.MEET_CASCADE_DELETE_NEED:
                 staff_id, classroom_id, d, t = self.ref.split(',')
                 classroom = Classroom.get_by_id(classroom_id)
                 t = TimeToken.from_token(t)
-                message = 'assignment updated due to classroom needs change: %s on %s' % (classroom.name, t.display())
+                message = '%s on %s' % (classroom.name, t.display())
             elif self.type == Log.SIGNUP:
                 staff = UserProfile.get_by_id(self.ref)
                 if not message:
