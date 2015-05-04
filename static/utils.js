@@ -57,6 +57,33 @@ function getCalendarDefaults() {
   var day = param_day ? moment(param_day, 'YYYYMMDD') : moment();
   var param_view = getParameterByName('view') || 'agendaWeek';
 
+  var defaultEventRender = function(event, element, view) {
+    // change fc-event link to go to the correct date/view.
+    // note: change event.url has no effect. has to change the rendered element.
+
+    var href = element.attr('href');
+    // only add current url's query string if the event url does not have any query string.
+    if (href && href.indexOf('?') == -1) {
+      var queryString = getQueryString;
+      if (queryString() != '') {
+        element.attr('href', href + '?' + getQueryString());
+      }
+    }
+  };
+
+  var defaultDayClick = function(date, jsEvent, view) {
+    // console.log(date);
+    //console.log(jsEvent);
+    var currentUrl = location.search;
+    var newQueryString = '?' + 'day=' + date.format('YYYYMMDD') + '&view=agendaDay';
+    var qsPos = currentUrl.indexOf('?')
+    if (qsPos != -1) {
+      window.location = currentUrl.substring(0, qsPos) + newQueryString;
+    } else {
+      window.location = currentUrl + newQueryString;
+    }
+  };
+
   return {
     header: {
       left: 'prev,next today',
@@ -67,7 +94,9 @@ function getCalendarDefaults() {
     defaultView: param_view,
 
     fixedWeekCount: false,
-    allDaySlot: false,
+    //allDaySlot: false,
+    allDaySlot: true,
+    allDayText: '',
 
     minTime: '06:00',
     maxTime: '21:00',
@@ -78,24 +107,16 @@ function getCalendarDefaults() {
     editable: false,
     eventLimit: true,
 
-    eventRender: function(event, element, view) {
-      // change fc-event link to go to the correct date/view.
-      // note: change event.url has no effect. has to change the rendered element.
+    eventRender: defaultEventRender,
+    defaultEventRender: defaultEventRender,
 
-      var href = element.attr('href');
-      // only add current url's query string if the event url does not have any query string.
-      if (href && href.indexOf('?') == -1) {
-        var queryString = getQueryString;
-        if (queryString() != '') {
-          element.attr('href', href + '?' + getQueryString());
-        }
-      }
-    },
+    dayClick: defaultDayClick,
+    defaultDayClick: defaultDayClick,
 
-    dayClick: function(date, jsEvent, view) {
-      //console.log(date);
-      //console.log(jsEvent);
-    }
+    //dayRender: function(date, cell) {
+    //  //console.log(date);
+    //  console.log(cell);
+    //}
   };
 }
 

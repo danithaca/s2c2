@@ -5,15 +5,13 @@
     var day = param_day ? moment(param_day, 'YYYYMMDD') : moment();
 
     var calendarDefaults = getCalendarDefaults();
-    var defaultEventRender = calendarDefaults.eventRender;
-
     $('#calendar').fullCalendar($.extend(calendarDefaults, {
       // about events
 
       events: '{% url "cal:classroom_events" cid=classroom.pk %}',
       eventRender: function(event, element, view) {
         // call default
-        defaultEventRender(event, element, view);
+        calendarDefaults.defaultEventRender(event, element, view);
         // append "offer remove" ajax link.
         $('div.fc-content div.fc-title', element).append(' <span class="glyphicon glyphicon-remove need-remove" data-need="' + event.id + '"></span>');
       },
@@ -111,6 +109,10 @@
         }
       });
     });
+
+    //$('#calendar').on('click', 'th.fc-day-header.fc-widget-header', function(e) {
+    //  console.log(e.target);
+    //});
 
   }); // end of document.ready().
 </script>

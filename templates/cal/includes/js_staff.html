@@ -5,8 +5,6 @@
     var day = param_day ? moment(param_day, 'YYYYMMDD') : moment();
 
     var calendarDefaults = getCalendarDefaults();
-    var defaultEventRender = calendarDefaults.eventRender;
-
     $('#calendar').fullCalendar($.extend(calendarDefaults, {
 
       // about selectables
@@ -61,7 +59,7 @@
       events: '{% url "cal:staff_events" uid=user_profile.pk %}',
       eventRender: function(event, element, view) {
         // call the original eventRender
-        defaultEventRender(event, element, view);
+        calendarDefaults.defaultEventRender(event, element, view);
         // append "offer remove" ajax link.
         $('div.fc-content div.fc-title', element).append(' <span class="glyphicon glyphicon-remove offer-remove" data-offer="' + event.id + '"></span>');
       },
