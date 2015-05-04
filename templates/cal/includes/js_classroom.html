@@ -3,22 +3,22 @@
 
     var param_day = getParameterByName('day');
     var day = param_day ? moment(param_day, 'YYYYMMDD') : moment();
-    var param_view = getParameterByName('view') || 'agendaWeek';
 
-    $('#calendar').fullCalendar({
-      header: {
-        left: 'prev,next today',
-        center: 'title',
-        right: 'agendaDay,agendaWeek,month'
+    var calendarDefaults = getCalendarDefaults();
+    var defaultEventRender = calendarDefaults.eventRender;
+
+    $('#calendar').fullCalendar($.extend(calendarDefaults, {
+      // about events
+
+      events: '{% url "cal:classroom_events" cid=classroom.pk %}',
+      eventRender: function(event, element, view) {
+        // call default
+        defaultEventRender(event, element, view);
+        // append "offer remove" ajax link.
+        $('div.fc-content div.fc-title', element).append(' <span class="glyphicon glyphicon-remove need-remove" data-need="' + event.id + '"></span>');
       },
-      defaultDate: day.format('YYYY-MM-DD'),
-      defaultView: param_view,
-      fixedWeekCount: false,
-      allDaySlot: false,
-      minTime: '06:00',
-      maxTime: '21:00',
-      scrollTime: '08:00',
-      weekends: false,
+
+      // about seletables
 
       selectable: true,
       selectHelper: true,
@@ -68,30 +68,7 @@
         }
       },
 
-      firstDay: 1,
-      //editable: true,
-      eventLimit: true,
-      events: '{% url "cal:classroom_events" cid=classroom.pk %}',
-
-      eventRender: function(event, element) {
-        // append "offer remove" ajax link.
-        $('div.fc-content div.fc-title', element).append(' <span class="glyphicon glyphicon-remove need-remove" data-need="' + event.id + '"></span>');
-      },
-
-      /*eventClick: function(event, jsEvent, view) {
-        if (event.empty && !($(jsEvent.target).hasClass('need-remove'))) {
-          var form_day = event.start.format('YYYYMMDD');
-          var form_start = event.start.format('HHmm');
-          var form_end = event.end.format('HHmm');
-          $.get('{% url "cal:assign" cid=classroom.pk %}' + '?day=' + form_day + '&start=' + form_start + '&end=' + form_end, function(jsonResult) {
-            //console.log(data);
-            $('#modal-form').data('content', jsonResult.form);
-            $('#modal-form').data('day', form_day);
-            $('#modal-form').modal('show');
-            display_ajax_messages();
-          });
-        }
-      },*/
+      // about view
 
       viewRender: function(view, element) {
         // update form.
@@ -112,7 +89,7 @@
 
         calendarChangeBookmark(view);
       }
-    });
+    }));
 
     // this gets bound later, and thus will be executed later than "eventClick".
     $('#calendar').on('click', '.need-remove', function(e) {
@@ -134,32 +111,6 @@
         }
       });
     });
-
-    /*$('#modal-form').on('show.bs.modal', function (event) {
-      //console.log(event);
-      var modal = $(this);
-      //console.log(modal.data('content'));
-      modal.find('#modal-form-content').html(modal.data('content'));
-
-      //var button = $(event.relatedTarget);
-      //var recipient = button.data('whatever');
-      //var modal = $(this);
-      //modal.find('.modal-title').text('New message to ' + recipient);
-      //modal.find('.modal-body input').val(recipient);
-    });
-
-    $('#modal-form-submit').click(function() {
-      var form_day = $('#modal-form').data('day');
-      $.post('{% url "cal:assign" cid=classroom.pk %}' + '?day=' + form_day, $('#modal-form form').serialize(), function(data) {
-        //console.log(data);
-        if (data.success) {
-          //window.location.replace(data.content);
-          $('#modal-form').modal('hide');
-          fullcalendar_refresh($('#calendar'));
-          display_ajax_messages();
-        }
-      });
-    });*/
 
   }); // end of document.ready().
 </script>

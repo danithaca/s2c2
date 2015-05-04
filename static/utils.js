@@ -34,6 +34,15 @@ function getRequestDay() {
   }
 }
 
+function getQueryString() {
+  var pos = location.search.indexOf('?')
+  if (pos != -1) {
+    return location.search.substring(pos + 1);
+  } else {
+    return '';
+  }
+}
+
 ////////////////////    full calendar related    ////////////////////////
 
 // $fc is jquery selector for fullcalendar. e.g., $('#calendar')
@@ -67,7 +76,26 @@ function getCalendarDefaults() {
 
     firstDay: 1,
     editable: false,
-    eventLimit: true
+    eventLimit: true,
+
+    eventRender: function(event, element, view) {
+      // change fc-event link to go to the correct date/view.
+      // note: change event.url has no effect. has to change the rendered element.
+
+      var href = element.attr('href');
+      // only add current url's query string if the event url does not have any query string.
+      if (href && href.indexOf('?') == -1) {
+        var queryString = getQueryString;
+        if (queryString() != '') {
+          element.attr('href', href + '?' + getQueryString());
+        }
+      }
+    },
+
+    dayClick: function(date, jsEvent, view) {
+      //console.log(date);
+      //console.log(jsEvent);
+    }
   };
 }
 
