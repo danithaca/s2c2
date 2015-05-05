@@ -13,23 +13,31 @@
 {% endblock %}
 
 {% block title %}Staff Calendar | S2C2{% endblock %}
-{% block page-header %}
-  <a href="{% url 'user:profile' uid=user_profile.id %}" title="Click to view profile info."><img src="{% user_picture_url user_profile %}" class="img-circle user-picture-md"></a>
-  {{ user_profile|name }}
-{% endblock %}
 
-{% block page-content %}
-  <div class="row">
-    <div class="col-sm-3 hidden-print">
-      <div class="panel-group" id="calendar-panel-list">
-        {% include "cal/includes/panel_staff_hours.html" with panel_id="panel-staff-hours" panel_title="Weekly Hours" panel_collapse=False %}
-        {% include "cal/includes/panel_staff_copy.html" with panel_id="panel-staff-copy" panel_title="Copy (by week)" panel_collapse=False %}
-        {% include "cal/includes/panel_staff_template.html" with panel_id="panel-staff-template" panel_title="Template Settings" panel_collapse=False %}
-        {% include "cal/includes/panel_staff_help.html" with panel_id="panel-staff-help" panel_title="Help" panel_collapse=False %}
-      </div>
-    </div>
-    <div class="col-sm-9">
-      <div id='calendar'></div>
+{% block page %}
+  <div id="menu-command-list" class="navmenu navmenu-default navmenu-fixed-right offcanvas">
+    <div class="navmenu-brand">Staff Calendar</div>
+    <div class="panel-group" id="calendar-panel-list">
+      {% include "cal/includes/panel_staff_hours.html" with panel_id="panel-staff-hours" panel_title="Weekly Hours" panel_collapse=False %}
+      {% include "cal/includes/panel_staff_copy.html" with panel_id="panel-staff-copy" panel_title="Copy (by week)" panel_collapse=False %}
+      {% include "cal/includes/panel_staff_template.html" with panel_id="panel-staff-template" panel_title="Template Settings" panel_collapse=False %}
+      {% include "cal/includes/panel_staff_help.html" with panel_id="panel-staff-help" panel_title="Help" panel_collapse=True %}
     </div>
   </div>
+
+  <div class="page-header">
+      <h1>
+        <a href="{% url 'user:profile' uid=user_profile.id %}" title="Click to view profile info."><img src="{% user_picture_url user_profile %}" class="img-circle user-picture-md"></a>
+        {{ user_profile|name }}
+        <small><button type="button" class="btn btn-default btn-navbar pull-right hidden-print" data-toggle="offcanvas" data-target="#menu-command-list" data-canvas="body"><i class="fa fa-bars"></i> Menu</button></small>
+      </h1>
+  </div>
+
+  <section id="page-content">
+    <div class="row">
+      <div class="col-sm-12">
+        <div id='calendar'></div>
+      </div>
+    </div>
+  </section>
 {% endblock %}

@@ -10,6 +10,7 @@
   <script src='{% static 'fullcalendar/lib/moment.min.js' %}'></script>
   <script src='{% static 'fullcalendar/fullcalendar.js' %}'></script>
   {% include 'cal/includes/js_classroom.html' %}
+
   <script src='{% static 'js/user_api.js' %}'></script>
   <script>
     $(document).ready(function() {
@@ -31,43 +32,53 @@
 
 {% block title %}Classroom Calendar | S2C2{% endblock %}
 
-{% block page-header %}{% icon classroom %} {{ classroom|name }}{% endblock %}
 
-{% block page-content %}
-  <div class="row">
-    <div class="col-sm-3 hidden-print">
+{% block page %}
+  <div class="page-header">
+    <h1>
+      {% icon classroom %} {{ classroom|name }}
+      <small><button type="button" class="btn btn-default btn-navbar pull-right hidden-print" data-toggle="offcanvas" data-target="#menu-command-list" data-canvas="body"><i class="fa fa-bars"></i> Menu</button></small>
+    </h1>
+  </div>
+
+  <section id="page-content">
+    <div id="menu-command-list" class="navmenu navmenu-default navmenu-fixed-right offcanvas">
+      <div class="navmenu-brand">Classroom Calendar</div>
       <div class="panel-group" id="calendar-panel-list">
         {#{% include "cal/includes/panel_classroom_comment.html" with panel_id="panel-classroom-comment" panel_title="Notes" panel_collapse=True %}#}
         {% include "cal/includes/panel_classroom_copy_day.html" with panel_id="panel-classroom-copy-day" panel_title="Copy (by day)" panel_collapse=False %}
         {% include "cal/includes/panel_classroom_copy.html" with panel_id="panel-classroom-copy" panel_title="Copy (by week)" panel_collapse=False %}
         {% include "cal/includes/panel_classroom_template.html" with panel_id="panel-classroom-template" panel_title="Template Settings" panel_collapse=False %}
-        {% include "cal/includes/panel_classroom_help.html" with panel_id="panel-classroom-help" panel_title="Help" panel_collapse=False %}
+        {% include "cal/includes/panel_classroom_help.html" with panel_id="panel-classroom-help" panel_title="Help" panel_collapse=True %}
       </div>
     </div>
-    <div class="col-sm-9">
-      <ul id='roster' class="list-inline" data-cid="{{ classroom.pk }}"></ul>
-      <div id='calendar'></div>
-    </div>
-  </div>
 
-  <div class="modal fade" id="modal-form">
-    <div class="modal-dialog">
-      <div class="modal-content">
-        <div class="modal-header">
-          <button type="button" class="close" data-dismiss="modal">&times;</button>
-          <h4 class="modal-title">Assign staff to classroom</h4>
-        </div>
-        <div class="modal-body">
-          <form class="form-horizontal" method="post" action="{% url 'cal:assign' cid=classroom.pk %}?day={{ day.to }}">
-            {% csrf_token %}
-            <div id="modal-form-content"></div>
-          </form>
-        </div>
-        <div class="modal-footer">
-          <button type="button" class="btn btn-primary btn-lg" id="modal-form-submit" type="submit">Assign</button>
-          <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+    <div class="row">
+      <div class="col-sm-12">
+        <ul id='roster' class="list-inline" data-cid="{{ classroom.pk }}"></ul>
+        <div id='calendar'></div>
+      </div>
+    </div>
+
+    <div class="modal fade" id="modal-form">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal">&times;</button>
+            <h4 class="modal-title">Assign staff to classroom</h4>
+          </div>
+          <div class="modal-body">
+            <form class="form-horizontal" method="post" action="{% url 'cal:assign' cid=classroom.pk %}?day={{ day.to }}">
+              {% csrf_token %}
+              <div id="modal-form-content"></div>
+            </form>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-primary btn-lg" id="modal-form-submit" type="submit">Assign</button>
+            <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+          </div>
         </div>
       </div>
     </div>
-  </div>
+  </section>
 {% endblock %}
