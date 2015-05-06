@@ -32,6 +32,17 @@
       <small><span class="pull-right"><button type="button" class="btn btn-default btn-navbar hidden-print" data-toggle="collapse" data-target="#page-summary"><i class="fa fa-info"></i> Profile</button> <button type="button" class="btn btn-default btn-navbar hidden-print" data-toggle="offcanvas" data-target="#menu-command-list" data-canvas="body"><i class="fa fa-bars"></i> Menu</button></span></small>
     </h1>
 
+    {% if verify_form %}
+      <form class="form" method="post" action="{% url 'user:verify' %}">
+        {% csrf_token %}
+        {{ verify_form }}
+        <div class="form-group alert alert-warning">
+          <button type="submit" class="btn btn-primary">Verify</button>
+          <span class="text-muted">You may verify the user to have full access to the center you manage.</span>
+        </div>
+      </form>
+    {% endif %}
+
     <div class="row collapse well" id="page-summary">
       <div class="col-sm-6">
         <div class="panel panel-default">

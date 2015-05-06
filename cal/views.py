@@ -55,6 +55,7 @@ class StaffTemplateForm(forms.ModelForm):
 )
 def calendar_staff(request, uid=None):
     user_profile = UserProfile.get_by_id_default(uid, request.user)
+    current_user_profile = UserProfile(request.user)
     day = get_request_day(request)
 
     staff_copy_form = CopyForm()
@@ -66,6 +67,19 @@ def calendar_staff(request, uid=None):
         'staff_copy_form': staff_copy_form,
         'staff_template_settings_form': StaffTemplateForm(instance=user_profile.profile)
     }
+
+    if user_profile != current_user_profile and current_user_profile.is_center_manager() \
+            and current_user_profile.is_verified() and not user_profile.is_verified() \
+            and current_user_profile.is_same_center(user_profile):
+        # then we allow verify form
+        # this form is similar to user:verify()::VerifyForm, but we use IntegerField instead.
+        # note that user:verify()::VerifyForm will validate the data using MultipleChoicesField.
+
+        class VerifyForm(forms.Form):
+            users = forms.IntegerField(widget=forms.HiddenInput, initial=user_profile.pk)
+
+        context['verify_form'] = VerifyForm()
+
     return TemplateResponse(request, template='cal/staff.html', context=context)
 
 

@@ -431,7 +431,9 @@ def password_change(request):
     redirect_url = '/'
     response = auth_views.password_change(request,
         template_name='user/password_change.html',
-        post_change_redirect=redirect_url)
+        post_change_redirect=redirect_url,
+        extra_context={'user_profile': UserProfile(request.user)}
+    )
     if isinstance(response, HttpResponseRedirect):
         messages.success(request, 'Your password has changed successfully.')
     return response
