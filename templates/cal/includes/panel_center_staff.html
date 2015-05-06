@@ -8,7 +8,7 @@
     {% if staff_list %}
     <ul class="nav nav-pills">
       {% for staff in staff_list %}
-        <li><a href="{% url 'user:profile' uid=staff.id %}">{% icon staff %} {{ staff|name }} {% if not staff.profile.verified %}{% icon 'unverified' %}{% endif %}</a></li>
+        <li><a href="{% url 'cal:staff' uid=staff.id %}">{% icon staff %} {{ staff|name }} {% if not staff.profile.verified %}{% icon 'unverified' %}{% endif %}</a></li>
       {% endfor %}
     </ul>
     {% else %}

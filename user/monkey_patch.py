@@ -9,7 +9,7 @@ def user_monkey_patch():
         return self.get_full_name() or self.username
 
     def get_link(self):
-        return reverse('user:profile', kwargs={'uid': self.id})
+        return reverse('cal:staff', kwargs={'uid': self.id})
 
     def get_user_profile(self):
         return UserProfile(self)

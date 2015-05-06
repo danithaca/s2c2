@@ -169,7 +169,7 @@ class Log(models.Model):
 
             elif self.type in (Log.SIGNUP, Log.VERIFY):
                 staff = User.objects.get(pk=self.ref)
-                links.append({'text': 'view availability', 'href': '%s' % (reverse('user:profile', kwargs={'uid': staff.pk}))})
+                links.append({'text': 'view availability', 'href': '%s' % (reverse('cal:staff', kwargs={'uid': staff.pk}))})
 
             elif self.type == Log.COMMENT_BY_LOCATION:
                 location_id, day = self.ref.split(',')
