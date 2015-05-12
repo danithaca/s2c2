@@ -16,5 +16,3 @@ class CenterAdmin(admin.ModelAdmin):
 @admin.register(models.Classroom)
 class ClassroomAdmin(admin.ModelAdmin):
     list_display = ('name', 'center')
-
-admin.site.register(models.Neverland)

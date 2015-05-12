@@ -162,13 +162,3 @@ class Classroom(Location, TemplateSettings):
                 failed.append(to_day)
 
         return failed
-
-
-class Neverland(Location):
-    """ This is a special type of location for vacation/meeting purposes. """
-    pass
-
-
-# Neverland.MEETING = Neverland.objects.get(name='Meeting', owner=1, status=True, address='Administration')
-# Neverland.VACATION, created = Neverland.objects.get_or_create(name='Vacation', owner__id=1, status=True, address='Administration')
-# Neverland.UNAVAILABLE, created = Neverland.objects.get_or_create(name='Unavailable', owner__id=1, status=True, address='Administration')
