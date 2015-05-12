@@ -51,6 +51,13 @@ class Location(models.Model):
 
         return Location.objects.get(pk=pk)
 
+    @staticmethod
+    def init_special_list():
+        Location.MEETING = Location.objects.get(name='- Meeting -', address='Administration', status=True)
+        Location.VACATION = Location.objects.get(name='- Vacation -', address='Administration', status=True, owner_id=1)
+        Location.UNAVAILABLE = Location.objects.get(name='- Unavailable -', address='Administration', status=True, owner_id=1)
+        Location.SPECIAL_LIST = [Location.MEETING, Location.VACATION, Location.UNAVAILABLE]
+
 
 class Center(Location):
     area = models.ForeignKey(Area)

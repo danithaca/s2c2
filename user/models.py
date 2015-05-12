@@ -9,7 +9,6 @@ from django.contrib.auth.models import User, Group
 from django.core.exceptions import ObjectDoesNotExist
 from image_cropping import ImageCropField, ImageRatioField
 from localflavor.us.models import PhoneNumberField
-from location.models import Center, Area, Classroom
 from s2c2 import settings
 from s2c2.models import TemplateSettings
 
@@ -20,6 +19,8 @@ class Profile(TemplateSettings):
     A "profile" instance is bound to have a "user" object, but not vice versa.
     Business logic about users should all happen here.
     """
+    from location.models import Center, Area
+
     user = models.OneToOneField(User, primary_key=True)
     address = models.CharField(max_length=200, blank=True)
     # phone_main = models.CharField(max_length=12)
@@ -129,6 +130,8 @@ class UserProfile(object):
         :param target: The target, could be another user or a classroom or a center
         :return: True if they belong to the same center, or false.
         """
+        from location.models import Classroom, Center
+
         if isinstance(target, UserProfile):
             return not self.get_centers_id_set().isdisjoint(target.get_centers_id_set())
         elif isinstance(target, User):
@@ -159,6 +162,7 @@ class UserProfile(object):
         """ return the list of classroom associated with the user. ordered by most recent activity. """
         #assert self.is_center_manager() or self.is_center_staff()
 
+        from location.models import Classroom
         if self.is_center_manager():
             return [c for c in Classroom.objects.filter(status=True, center__in=self.profile.centers.all()).order_by('center', 'name').distinct()]
         elif self.is_center_staff():
