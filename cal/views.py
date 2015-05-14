@@ -139,6 +139,7 @@ def calendar_staff_events(request, uid):
                     else:
                         event['title'] = 'Open',
                         event['color'] = settings.CALENDAR_EVENT_COLOR_EMPTY
+                        event['url'] = "%s?day=%s&start=%s&end=%s" % (reverse('cal:staff_meet', kwargs={'uid': uid}), DayToken(day).get_token(), TimeToken(time_slot.start).get_token(), TimeToken(time_slot.end).get_token())
                     data.append(event)
 
         return JsonResponse(data, safe=False)
@@ -912,3 +913,49 @@ def classroom_user_autocomplete(request, cid, template_name='cal/autocomplete.ht
     return render(request, template_name, context)
 
 
+class StaffMeet(slot_views.SlotForm):
+    location = forms.ChoiceField(required=True, label='Mark the slot as')
+    referer = forms.URLField(required=False, widget=forms.HiddenInput)
+
+    def __init__(self, *args, **kwargs):
+        day = kwargs.pop('day', None)
+        start_time = kwargs.pop('start_time', None)
+        end_time = kwargs.pop('end_time', None)
+        referer = kwargs.pop('referer', None)
+        super(StaffMeet, self).__init__(*args, **kwargs)
+
+        # self.fields['day'].widget.attrs['disabled'] = True
+        if day:
+            self.fields['day'].widget = forms.HiddenInput()
+            self.fields['day'].initial = day.get_token()
+
+        # find all staff in the center who are available at the give time period.
+        if start_time is not None and end_time is not None:
+            self.fields['start_time'].initial = start_time.get_token()
+            self.fields['end_time'].initial = end_time.get_token()
+
+        if referer:
+            self.fields['referer'].initial = referer
+
+        Location.init_special_list()
+        self.fields['location'].choices = [(loc.id, loc.name) for loc in Location.SPECIAL_LIST]
+
+
+@login_required
+@user_is_me_or_same_center_manager
+def staff_meet(request, uid):
+    user_profile = UserProfile.get_by_id(uid)
+
+    if request.method == 'POST':
+        form = StaffMeet(request.POST)
+        if form.is_valid():
+            day, start, end = form.get_cleaned_data()
+
+
+    if request.method == 'GET':
+        day = get_request_day(request)
+        start_time = TimeToken.from_token(request.GET['start']) if 'start' in request.GET else None
+        end_time = TimeToken.from_token(request.GET['end']) if 'end' in request.GET else None
+        form = StaffMeet(day=day, start_time=start_time, end_time=end_time, referer=request.META.get('HTTP_REFERER'))
+
+    return render(request, 'cal/form_staff_meet.html', {'form': form, 'user_profile': user_profile})
