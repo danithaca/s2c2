@@ -13,7 +13,8 @@ function initialize_user_api(tag_id) {
 
   user_api.UserPictureView = Backbone.View.extend({
     tagName:  'li',
-    template: _.template('<a href="<%= profile_link %>" title="<%= display_name %>"><img src="<%= picture %>" alt="<%= display_name %>" class="img-circle user-picture-md"/></a>'),
+    //template: _.template('<a href="<%= profile_link %>" title="<%= display_name %>"><img src="<%= picture %>" alt="<%= display_name %>" class="img-circle user-picture-md"/></a>'),
+    template: _.template('<img src="<%= picture %>" alt="<%= display_name %>" class="img-circle user-picture-md"/>'),
 
     render: function() {
       this.$el.html(this.template(this.model.toJSON()));

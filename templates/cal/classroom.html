@@ -37,8 +37,13 @@
   <div class="page-header">
     <h1>
       {% icon classroom %} {{ classroom|name }}
-      <small><button type="button" class="btn btn-default btn-navbar pull-right hidden-print" data-toggle="offcanvas" data-target="#menu-command-list" data-canvas="body"><i class="fa fa-bars"></i> Menu</button></small>
+      <small><span class="pull-right hidden-print"><button type="button" class="btn btn-default btn-navbar hidden-print" data-toggle="collapse" data-target="#page-summary"><i class="fa fa-users"></i> Roster</button> <button type="button" class="btn btn-default btn-navbar" data-toggle="offcanvas" data-target="#menu-command-list" data-canvas="body"><i class="fa fa-bars"></i> Menu</button></span></small>
     </h1>
+    <div class="row collapse well" id="page-summary">
+      <div class="col-sm-12">
+        <ul id='roster' class="list-inline" data-cid="{{ classroom.pk }}"></ul>
+      </div>
+    </div>
   </div>
 
   <section id="page-content">
@@ -55,7 +60,6 @@
 
     <div class="row">
       <div class="col-sm-12">
-        <ul id='roster' class="list-inline" data-cid="{{ classroom.pk }}"></ul>
         <div id='calendar'></div>
       </div>
     </div>
