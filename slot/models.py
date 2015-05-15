@@ -185,7 +185,7 @@ class DayTokenField(models.DateField, metaclass=models.SubfieldBase):
     def value_to_string(self, obj):
         val = self._get_val_from_obj(obj)
         if isinstance(val, DayToken):
-            return '' if val.value is None else val.value.isoformat()
+            return val.get_token()
         else:
             return super(DayTokenField, self).value_to_string(obj)
 
@@ -308,6 +308,13 @@ class TimeTokenField(models.TimeField, metaclass=models.SubfieldBase):
             return None
         assert isinstance(value, TimeToken)
         return value.value
+
+    def value_to_string(self, obj):
+        val = self._get_val_from_obj(obj)
+        if isinstance(val, TimeToken):
+            return val.get_token()
+        else:
+            return super(TimeTokenField, self).value_to_string(obj)
 
 
 class TimeSlot(object):
