@@ -33,6 +33,7 @@ class Log(models.Model):
     # MEET_DELETE = 9
     MEET_CASCADE_DELETE_OFFER = 16
     MEET_CASCADE_DELETE_NEED = 17
+    MEET_SPECIAL_UPDATE = 18
 
     # this implies it's "offer" update
     TEMPLATE_OP_STAFF = 11
@@ -58,6 +59,7 @@ class Log(models.Model):
         (SIGNUP, 'user signup'),
         (COMMENT_BY_LOCATION, 'comment'),
         (VERIFY, 'user verification'),
+        (MEET_SPECIAL_UPDATE, 'staff availability update')
     )
 
     creator = models.ForeignKey(User)
@@ -123,6 +125,10 @@ class Log(models.Model):
             staff, classroom, day, start_time = data
             assert isinstance(staff, User) and isinstance(classroom, Location) and isinstance(day, DayToken) and isinstance(start_time, TimeToken)
             ref = '%d,%d,%s,%s' % (staff.pk, classroom.pk, day.get_token(), start_time.get_token())
+        elif t in (Log.MEET_SPECIAL_UPDATE,):
+            staff, location, day, start_time = data
+            assert isinstance(staff, User) and isinstance(location, Location) and isinstance(day, DayToken) and isinstance(start_time, TimeToken)
+            ref = '%d,%d,%s,%s' % (staff.pk, location.pk, day.get_token(), start_time.get_token())
         elif t in (Log.TEMPLATE_OP_STAFF, Log.TEMPLATE_OP_CLASSROOM):
             target, day = data
             assert isinstance(target, User) or isinstance(target, Location)

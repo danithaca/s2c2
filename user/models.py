@@ -232,14 +232,18 @@ class CenterStaff(UserProfile):
 
     def get_week_hours(self, day):
         from slot.models import TimeToken, OfferSlot
+        from location.models import Location
         count = [0, 0, 0]
         weekday = day.expand_week()
+        special_location_id_set = Location.get_special_list_id_set()
         for offer in OfferSlot.objects.filter(day__in=weekday, user=self.user):
-            count[0] += 1
             try:
                 m = offer.meet
-                count[1] += 1
+                if m.need.location.id not in special_location_id_set:
+                    count[0] += 1
+                    count[1] += 1
             except ObjectDoesNotExist:
+                count[0] += 1
                 count[2] += 1
         return tuple([str(TimeToken.convert_slot_count_to_hours(i)) for i in count])
 
@@ -261,7 +265,7 @@ class GroupRole(object):
     center_staff_roles = ('teacher', 'support')
     center_manager_roles = ('manager', )
     center_roles = center_staff_roles + center_manager_roles
-    role_color = list(zip(all_valid_roles, cycle(reversed(settings.COLORS))))
+    role_color = list(zip(all_valid_roles, (settings.COLOR_MANAGER, settings.COLOR_STAFF, settings.COLOR_STAFF_SUBSTITUTE)))
     role_color_map = {s: c for s, c in role_color}
 
     def __init__(self, group):

@@ -116,6 +116,12 @@ def calendar_staff_events(request, uid):
         user_profile = UserProfile.get_by_id(uid)
         start, end = get_fullcaldendar_request_date_range(request)
         data = []
+        special_location_id_set = Location.get_special_list_id_set()
+        user_primary_role = user_profile.get_primary_center_role()
+        if user_primary_role.machine_name == 'teacher':
+            event_color = settings.COLOR_CALENDAR_EVENT_FILLED
+        else:
+            event_color = settings.COLOR_CALENDAR_EVENT_FILLED_SUBSTITUTE
 
         # note: fullcalendar passes in start/end half inclusive [start, end)
         # note that ForeignKey will be 'id' in values_list().
@@ -134,11 +140,16 @@ def calendar_staff_events(request, uid):
                         location = Location.get_by_id(location_id)
                         # event['title'] = s2c2_icon('classroom') + ' ' + location.name
                         event['title'] = location.name
-                        event['url'] = reverse('cal:classroom', kwargs={'cid': location_id})
-                        event['color'] = settings.CALENDAR_EVENT_COLOR_FILLED
+                        if location_id in special_location_id_set:
+                            # todo: change settings instead of no url.
+                            # event['url'] = reverse('cal:staff_meet', kwargs={'uid': uid})
+                            event['color'] = settings.COLOR_CALENDAR_EVENT_SPECIAL
+                        else:
+                            event['url'] = reverse('cal:classroom', kwargs={'cid': location_id})
+                            event['color'] = event_color
                     else:
                         event['title'] = 'Open',
-                        event['color'] = settings.CALENDAR_EVENT_COLOR_EMPTY
+                        event['color'] = settings.COLOR_CALENDAR_EVENT_EMPTY
                         event['url'] = "%s?day=%s&start=%s&end=%s" % (reverse('cal:staff_meet', kwargs={'uid': uid}), DayToken(day).get_token(), TimeToken(time_slot.start).get_token(), TimeToken(time_slot.end).get_token())
                     data.append(event)
 
@@ -219,12 +230,18 @@ def calendar_classroom_events(request, cid):
                 }
                 if user_id:
                     user_profile = UserProfile.get_by_id(user_id)
+                    user_primary_role = user_profile.get_primary_center_role()
+                    if user_primary_role.machine_name == 'teacher':
+                        event_color = settings.COLOR_CALENDAR_EVENT_FILLED
+                    else:
+                        event_color = settings.COLOR_CALENDAR_EVENT_FILLED_SUBSTITUTE
+
                     event['title'] = user_profile.get_display_name()
-                    event['color'] = settings.CALENDAR_EVENT_COLOR_FILLED
+                    event['color'] = event_color
                     event['url'] = reverse('cal:staff', kwargs={'uid': user_id})
                 else:
                     event['title'] = 'Empty'
-                    event['color'] = settings.CALENDAR_EVENT_COLOR_EMPTY
+                    event['color'] = settings.COLOR_CALENDAR_EVENT_EMPTY
                     event['empty'] = True
                     event['url'] = '%s?day=%s&start=%s&end=%s' % (reverse('cal:meet', kwargs={'cid': cid}), day_token.get_token(), start_token.get_token(), end_token.get_token())
                 data.append(event)
@@ -937,8 +954,7 @@ class StaffMeet(slot_views.SlotForm):
         if referer:
             self.fields['referer'].initial = referer
 
-        Location.init_special_list()
-        self.fields['location'].choices = [(loc.id, loc.name) for loc in Location.SPECIAL_LIST]
+        self.fields['location'].choices = [(loc.id, loc.name) for loc in Location.get_special_list()]
 
 
 @login_required
@@ -949,8 +965,28 @@ def staff_meet(request, uid):
     if request.method == 'POST':
         form = StaffMeet(request.POST)
         if form.is_valid():
-            day, start, end = form.get_cleaned_data()
+            assigned_list = []
+            day, start_time, end_time = form.get_cleaned_data()
+            special_location = Location.objects.get(pk=form.cleaned_data['location'])
+            for t in TimeToken.interval(start_time, end_time):
+                offer = OfferSlot.objects.filter(user=user_profile.user, day=day, start_time=t, end_time=t.get_next(), meet__isnull=True).first()
+                need = NeedSlot.get_or_create_unmet_need(location=special_location, day=day, start_time=start_time, end_time=end_time)
+                assert offer is not None and need is not None
+                meet = Meet(offer=offer, need=need)
+                meet.save()
+                assigned_list.append(t)
 
+            if len(assigned_list) > 0:
+                messages.success(request, 'Assigned slot(s): %s' % TimeSlot.display_combined(assigned_list))
+                Log.create(Log.MEET_SPECIAL_UPDATE, request.user, (user_profile.user, special_location, day, assigned_list[0]), 'assigned')
+            else:
+                messages.warning(request, 'No assignment made due to mismatch between staff availability and classroom needs in the specified time period.')
+
+            referer = form.cleaned_data.get('referer')
+            if referer:
+                return redirect(referer)
+            else:
+                return redirect(request.META.get('HTTP_REFERER', reverse('cal:staff_meet', kwargs={'uid': uid})))
 
     if request.method == 'GET':
         day = get_request_day(request)

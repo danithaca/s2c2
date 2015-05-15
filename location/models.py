@@ -58,6 +58,18 @@ class Location(models.Model):
         Location.UNAVAILABLE = Location.objects.get(name='- Unavailable -', address='Administration', status=True, owner_id=1)
         Location.SPECIAL_LIST = [Location.MEETING, Location.VACATION, Location.UNAVAILABLE]
 
+    @staticmethod
+    def get_special_list():
+        try:
+            return Location.SPECIAL_LIST
+        except AttributeError as e:
+            Location.init_special_list()
+            return Location.SPECIAL_LIST
+
+    @staticmethod
+    def get_special_list_id_set():
+        return set([l.id for l in Location.get_special_list()])
+
 
 class Center(Location):
     area = models.ForeignKey(Area)
