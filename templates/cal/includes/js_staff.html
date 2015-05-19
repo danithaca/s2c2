@@ -92,14 +92,14 @@
       var staff_id = id_data[0], day = id_data[1], start = id_data[2], end = id_data[3];
       //console.log(staff_id, day, start, end);
       // note: staff_id is not available to django backend. we'll assume user_profile.pk === staff_id
-      $.post('{% url "slot:offer_delete" uid=user_profile.pk %}', {day: day, start_time: start, end_time: end}, function(data) {
-        //console.log(data);bad
-        if (data.status === 302) {
+      $.post('{% url "cal:offer_delete_ajax" uid=user_profile.pk %}', {day: day, start_time: start, end_time: end}, function(data) {
+        console.log(data);
+        if (data.success) {
           //window.location.replace(data.content);
           fullcalendar_refresh($('#calendar'));
           display_ajax_messages();
         }
-        else if (data.status === 403) {
+        else {
           display_message('Permission not allowed.', 'danger');
         }
       });

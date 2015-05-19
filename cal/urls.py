@@ -9,6 +9,7 @@ urlpatterns = patterns(
     url(r'^staff/(?P<uid>\d+)/copy/$', views.calendar_staff_copy, name='staff_copy'),
     url(r'^staff/(?P<uid>\d+)/template/$', views.calendar_staff_template, name='staff_template'),
     url(r'^staff/(?P<uid>\d+)/meet/$', views.staff_meet, name='staff_meet'),
+    url(r'^staff/(?P<uid>\d+)/delete/$', views.offer_delete_ajax, name='offer_delete_ajax'),
 
     url(r'^classroom/(?P<cid>\d+)/$', views.calendar_classroom, name='classroom'),
     url(r'^classroom/(?P<cid>\d+)/events/$', views.calendar_classroom_events, name='classroom_events'),

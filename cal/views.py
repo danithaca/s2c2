@@ -500,6 +500,51 @@ def need_delete_ajax(request, cid):
     return bad_request(request)
 
 
+@is_ajax
+@login_required
+@user_is_me_or_same_center_manager
+def offer_delete_ajax(request, uid):
+    # uid is the target uid, which different from request.user.pk who is the "action" user.
+    user_profile = UserProfile.get_by_id(uid)
+    assert user_profile.is_center_staff()
+
+    if request.method == 'POST':
+        form = slot_views.SlotForm(request.POST)
+        if form.is_valid():
+            deleted_time = []
+            cascade_delete = {}
+            day = DayToken.from_token(form.cleaned_data['day'])
+            start_time = form.cleaned_data['start_time']
+            end_time = form.cleaned_data['end_time']
+
+            # default 'submit' handler for all other submit button.
+            for t in TimeToken.interval(start_time, end_time):
+                qs = OfferSlot.objects.filter(day=day, user=user_profile.user, start_time=t, end_time=t.get_next())
+                if qs.exists():
+                    # there should be one single offer in this queryset.
+                    for offer in qs:
+                        try:
+                            meet = offer.meet
+                            cascade_delete[meet.need.location] = cascade_delete.get(meet.need.location, t)      # this only get set once when cascade_delete is none.
+                            meet.delete()
+                        except Meet.DoesNotExist:
+                            # delete offer only when there's no meet.
+                            offer.delete()
+                    deleted_time.append(t)
+
+            if len(deleted_time) == 0:
+                messages.warning(request, 'No available time slot is in the specified time period to delete.')
+            else:
+                deleted_time_display = ', '.join([t.display() for t in TimeSlot.combine(deleted_time)])
+                messages.success(request, 'Deleted slot(s): %s' % deleted_time_display)
+                Log.create(Log.OFFER_UPDATE, request.user, (user_profile.user, day), 'deleted %s' % deleted_time_display)
+                for loc in cascade_delete:
+                    Log.create(Log.MEET_CASCADE_DELETE_OFFER, request.user, (user_profile.user, loc, day, cascade_delete[loc]))
+
+            return JsonResponse({'success': True})
+    return bad_request(request)
+
+
 class CopyForm(forms.Form):
     from_field = forms.ChoiceField(choices=(('template', 'Template week'), ('prev', 'last week'), ('curr', 'this week')), label='From')
     to_field = forms.ChoiceField(choices=(('curr', 'this week'), ('next', 'next week')), label='To')
