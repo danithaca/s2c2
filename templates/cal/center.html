@@ -29,6 +29,7 @@
         <li class="active"><a href="#cal-center-tab-filled" data-toggle="tab">Classroom Schedule</a></li>
         <li><a href="#cal-center-tab-empty" data-toggle="tab">Not Covered ("Holes")</a></li>
         <li><a href="#cal-center-tab-available" data-toggle="tab">Who Are Available</a></li>
+        <li><a href="#cal-center-tab-vacation" data-toggle="tab">Vacations</a></li>
       </ul></nav>
 
       <div id="fullcalendar-loading"><span class="label label-warning">Loading... <i class="fa fa-spinner fa-spin"></i></span></div>
@@ -42,6 +43,18 @@
         </div>
         <div class="tab-pane" id="cal-center-tab-available">
           <div id='calendar-available'></div>
+        </div>
+        <div class="tab-pane" id="cal-center-tab-vacation">
+          <table class="table table-bordered table-hover table-condensed">
+            <thead>
+              <th>Date on vacation</th><th>Staff <small>(full time teacher only)</small></th>
+            </thead>
+            <tbody>
+              {% for vuser, day, vurl in vacations %}
+                <tr><td>{{ day }}</td><td>{{ vuser|name }} <a href="{{ vurl }}"><i class="fa fa-calendar"></i></a></td></tr>
+              {% endfor %}
+            </tbody>
+          </table>
         </div>
       </div>
     </div>

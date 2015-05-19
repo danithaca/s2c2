@@ -740,10 +740,14 @@ def calendar_center(request, cid):
     # sections = [(g.name, g.get_color(), User.objects.filter(profile__centers=center, groups=g.group, is_active=True).order_by("last_name", "first_name", 'username')) for g in (GroupRole.get_by_name(n) for n in ('teacher', 'support', 'intern'))]
     sections = [(g.name, g.get_color(), User.objects.filter(profile__centers=center, groups=g.group, is_active=True).order_by("last_name", "first_name", 'username')) for g in (GroupRole.get_by_name(n) for n in ('teacher', 'support'))]
 
+    Location.get_special_list()
+    vacations = [(User.objects.get(pk=uid), day, "%s?day=%s" % (reverse('cal:staff', kwargs={'uid': uid}), DayToken(day).get_token())) for uid, day in OfferSlot.objects.filter(user__profile__centers=center, day__gte=DayToken.today(), meet__need__location=Location.VACATION).values_list('user', 'day').distinct().order_by('day', 'user')]
+
     context = {
         'center': center,
         'classroom_color_legend': classroom_color,
-        'sections': sections
+        'sections': sections,
+        'vacations': vacations
     }
     return render(request, 'cal/center.html', context)
 
@@ -779,6 +783,7 @@ def calendar_center_events_filled(request, cid):
     start, end = get_fullcaldendar_request_date_range(request)
     data = []
 
+    # todo: profile and optimize
     for classroom, color in classroom_color:
         need_list = NeedSlot.objects.filter(location=classroom, day__range=(start, end), meet__offer__isnull=False).values_list('day', 'start_time', 'meet__offer__user', 'id').order_by('day', 'start_time', 'meet__offer__user__last_name', 'meet__offer__user__first_name', 'meet__offer__user__username')
         # step1: group by day
