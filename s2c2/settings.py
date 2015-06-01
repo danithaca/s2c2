@@ -79,6 +79,7 @@ MIDDLEWARE_CLASSES = (
     'django.contrib.auth.middleware.SessionAuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    #'django.contrib.sites.middleware.CurrentSiteMiddleware',
 
     # external
     # 'account.middleware.LocaleMiddleware',
@@ -137,9 +138,10 @@ TEMPLATE_CONTEXT_PROCESSORS = (
     # 'pinax_theme_bootstrap.context_processors.theme',
     # 'account.context_processors.account',
 
+    # for all templates
+    's2c2.context_processors.global_templates_vars',
     # add 'user_profile' to request
     'user.context_processors.current_user_profile',
-
     # add notification count
     'log.context_processors.notification_count',
 )

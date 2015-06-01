@@ -8,6 +8,7 @@ from s2c2 import utils
 urlpatterns = patterns(
     '',
     url(r'^$', views.home, name='home'),
+    url(r'^user/', include('user.urls', namespace='user')),
 
     url(r'^admin/', include(admin.site.urls)),
     url(r'^dummy/$', utils.dummy, name='dummy'),

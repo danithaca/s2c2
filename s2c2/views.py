@@ -22,7 +22,7 @@ def home(request):
     # username = request.user.get_username() if request.user.is_authenticated() else str(request.user)
     # return render(request, 'home.html', {'username': username})
     if request.user.is_anonymous():
-        return render(request, 'home.html', {'form': AuthenticationForm()})
+        return render(request, 'home_s2c2.html', {'form': AuthenticationForm()})
     else:
         user_profile = UserProfile(request.user)
         if user_profile.is_center_staff():
