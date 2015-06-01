@@ -342,7 +342,8 @@ class MeetForm(slot_views.SlotForm):
             list_staff = User.objects.filter(profile__centers=classroom.center, profile__verified=True, offerslot__day=day, offerslot__start_time__gte=start_time, offerslot__end_time__lte=end_time, offerslot__meet__isnull=True).distinct()
             self.fields['start_time'].initial = start_time.get_token()
             self.fields['end_time'].initial = end_time.get_token()
-            self.fields['staff'].help_text = 'Available staff between %s and %s. Disabled if none is found.' % (start_time.display(), end_time.display())
+            self.fields['staff'].help_text = 'Select any staff who is available between %s and %s (this option is disabled if no one is available).' % (start_time.display(), end_time.display())
+            self.fields['pick'].help_text = 'Or type the name to assign arbitrarily regardless of whether he or she is available.'
         else:
             list_staff = []
             self.fields['staff'].help_text = 'Initial time slot not given. Cannot find available staff.'
