@@ -56,6 +56,7 @@ INSTALLED_APPS = (
     'datetimewidget',
     'rest_framework',
     'autocomplete_light',
+    #'debug_toolbar',
 
     # customized
     's2c2',
@@ -250,4 +251,5 @@ SITE_ID = 1
 try:
     from s2c2.settings_local import *
 except ImportError:
-    logging.warning('Local settings not found.')
+    if DEBUG:
+        logging.warning('s2c2 local settings not found.')
