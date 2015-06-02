@@ -75,12 +75,12 @@
         <span class="icon-bar"></span>
         <span class="icon-bar"></span>
       </button>
-      <a class="navbar-brand" href="/"><img alt="brand" src="{% static 'logo_i.png' %}"></a>
+      <a class="navbar-brand" href="/">{# <img alt="brand" src="{% static 'logo_i.png' %}"> #}<i class="fa fa-home"></i> Servuno</a>
     </div>
     <div id="navbar-left" class="collapse navbar-collapse">
-      <ul class="nav navbar-nav">
-        <li><a href="/"><i class="fa fa-home"></i> Home</a></li>
-      </ul>
+{#      <ul class="nav navbar-nav">#}
+{#        <li><a href="/"><i class="fa fa-home"></i> Home</a></li>#}
+{#      </ul>#}
       <ul class="nav navbar-nav navbar-right">
         {% include "includes/menu_s2c2.html" %}
       </ul>
@@ -103,7 +103,7 @@
   <div class="page-footer">
     <hr>
     <p class="text-center text-muted" style="font-size:80%"><i class="fa fa-copyright"></i> 2015 <a href="http://consulting.knowsun.com">Knowsun LLC</a>, in collaboration with <a href="http://hr.umich.edu/childcare/">University of Michigan Children's Centers</a></p>
-    <p class="text-center"><img src="{% static 'logo.png' %}" style="max-width: 50px; max-height: 20px;"></p>
+{#    <p class="text-center"><img src="{% static 'logo.png' %}" style="max-width: 50px; max-height: 20px;"></p>#}
   </div>
 </div><!-- /.container -->
 

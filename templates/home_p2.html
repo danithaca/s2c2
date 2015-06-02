@@ -11,11 +11,6 @@
     {#  <div><img src="{% static 'logo.png' %}"></div>#}
     <h1>Servuno <small></small></h1>
     <p>A Uber-like app to help you find one time babysitters your trust</p>
-    <ul>
-      <li>xxxxx</li>
-      <li>xxxxx</li>
-      <li>xxxxx</li>
-    </ul>
     <p>
       <a class="btn btn-primary btn-lg" href="{% url 'user:signup' %}" role="button">Sign Up</a>
       {#      <a class="btn btn-primary btn-lg" href="{% url 'user:login' %}" role="button">Login</a>#}
@@ -41,5 +36,14 @@
     </div>
   </div>
 </div>
-<p class="alert alert-warning">This site is in development is currently only available to the University of Michigan <strong>North Campus Children's Center</strong>. If you are interested in using the site, please <a href="http://consulting.knowsun.com">contact us</a>.</p>
+<div class="row">
+  <div class="col-sm-12">
+    <ul>
+      <li>Find help from family and friends</li>
+      <li>Return the favor of helping them</li>
+      <li>Smart recommendations</li>
+      <li>On demand</li>
+    </ul>
+  </div>
+</div>
 {% endblock %}
