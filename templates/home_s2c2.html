@@ -6,19 +6,26 @@
 
 {% block page %}
 <div class="row jumbotron">
-
   <div class="col-sm-8">
     {#  <div><img src="{% static 'logo.png' %}"></div>#}
-    <h1>Welcome</h1>
-    <p>Scheduling Software for Children's Center</p>
+    <h1>Servuno<br><small>for Children's Centers</small></h1>
+    <p>Classroom Scheduling Made Easy!</p>
+{#    <ul>#}
+{#      <li>Clean and simple design</li>#}
+{#      <li>Classroom "holes" management</li>#}
+{#      <li>Staff vacation management</li>#}
+{#      <li>Notifications and "wall post"</li>#}
+{#      <li><em>and more ...</em></li>#}
+{#    </ul>#}
     <p>
       <a class="btn btn-primary btn-lg" href="{% url 'user:signup' %}" role="button">Sign Up</a>
       {#      <a class="btn btn-primary btn-lg" href="{% url 'user:login' %}" role="button">Login</a>#}
     </p>
   </div>
+
   <div class="col-sm-4">
     <div class="panel panel-default">
-      <div class="panel-heading">Already signed up? Login here:</div>
+      <div class="panel-heading">Existing users? Login here:</div>
       <div class="panel-body">
         <form class="form-horizontal" role="form" method="post" action="{% url 'user:login' %}">
           {% csrf_token %}
@@ -36,5 +43,4 @@
     </div>
   </div>
 </div>
-<p class="alert alert-warning">This site is in development is currently only available to the University of Michigan <strong>North Campus Children's Center</strong>. If you are interested in using the site, please <a href="http://consulting.knowsun.com">contact us</a>.</p>
 {% endblock %}
