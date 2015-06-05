@@ -8,6 +8,45 @@ SITE_ID = 2
 ROOT_URLCONF = 'p2.urls'
 WSGI_APPLICATION = 'p2.wsgi.application'
 
+INSTALLED_APPS = (
+    'django.contrib.admin',
+    'django.contrib.auth',
+    'django.contrib.contenttypes',
+    'django.contrib.sessions',
+    'django.contrib.messages',
+    'django.contrib.staticfiles',
+
+    # should not use in production
+    # 'django_extensions',
+
+    'django.contrib.sites',
+
+    'localflavor',
+    'pytz',
+    # 'pinax_theme_bootstrap',
+    'bootstrapform', # from django-bootstrap-form
+    # 'account',
+    'easy_thumbnails',
+    'image_cropping',
+    'django_ajax',
+    'datetimewidget',
+    'rest_framework',
+    'autocomplete_light',
+    #'debug_toolbar',
+
+    # customized
+    's2c2',
+    'location',
+    'user',
+    'log',
+
+    'p2',
+    'puser',
+    'circle',
+    'contract',
+)
+
+
 # load local settings override.
 
 try:
