@@ -47,6 +47,9 @@ class Profile(TemplateSettings):
     # def get_profile(user):
     #     return Profile.objects.get(pk=user.id)
 
+    class Meta:
+        app_label = 'user'
+
 
 class UserProfile(object):
     """
@@ -256,6 +259,9 @@ class Role(models.Model):
     machine_name = models.SlugField(max_length=50)
     # specify whether this role is to function for children centers.
     type_center = models.BooleanField(default=False)
+
+    class Meta:
+        app_label = 'user'
 
 
 class GroupRole(object):
