@@ -23,9 +23,9 @@ INSTALLED_APPS = (
 
     'localflavor',
     'pytz',
-    # 'pinax_theme_bootstrap',
+    'pinax_theme_bootstrap',
     'bootstrapform', # from django-bootstrap-form
-    # 'account',
+    'account',
     'easy_thumbnails',
     'image_cropping',
     'django_ajax',
