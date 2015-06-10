@@ -81,9 +81,16 @@
 {#      <ul class="nav navbar-nav">#}
 {#        <li><a href="/"><i class="fa fa-home"></i> Home</a></li>#}
 {#      </ul>#}
-      <ul class="nav navbar-nav navbar-right">
-        {% include "includes/menu_s2c2.html" %}
-      </ul>
+      {% if site_id == 1 %}
+        <ul class="nav navbar-nav navbar-right">
+          {% include "includes/menu_s2c2.html" %}
+        </ul>
+      {% elif site_id == 2 %}
+        <ul class="nav navbar-nav navbar-right">
+          {% include "includes/menu_p2.html" %}
+        </ul>
+      {% endif %}
+
     </div><!--/.nav-collapse -->
   </div>
 </nav>

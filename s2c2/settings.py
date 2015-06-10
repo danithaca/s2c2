@@ -206,6 +206,10 @@ LOGGING = {
             'handlers': ['console'],
             'level': 'DEBUG',
             },
+        'p2.management': {
+            'handlers': ['console'],
+            'level': 'DEBUG',
+            },
     }
 
 # for thumbnail processing.

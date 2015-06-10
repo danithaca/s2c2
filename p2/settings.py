@@ -23,7 +23,7 @@ INSTALLED_APPS = (
 
     'localflavor',
     'pytz',
-    'pinax_theme_bootstrap',
+    #'pinax_theme_bootstrap',
     'bootstrapform', # from django-bootstrap-form
     'account',
     'easy_thumbnails',
@@ -46,6 +46,27 @@ INSTALLED_APPS = (
     'contract',
 )
 
+TEMPLATE_CONTEXT_PROCESSORS += (
+    "account.context_processors.account",
+)
+
+# perhaps not needed for now.
+# MIDDLEWARE_CLASSES += (
+#     "account.middleware.LocaleMiddleware",
+#     "account.middleware.TimezoneMiddleware",
+# )
+
+AUTHENTICATION_BACKENDS = (
+    'django.contrib.auth.backends.ModelBackend',
+    'account.auth_backends.EmailAuthenticationBackend'
+)
+
+# from djang-user-account
+ACCOUNT_EMAIL_UNIQUE = True
+ACCOUNT_EMAIL_CONFIRMATION_REQUIRED = True
+# ACCOUNT_LOGIN_REDIRECT_URL = '/'
+# ACCOUNT_LOGOUT_REDIRECT_URL = '/'
+ACCOUNT_REMEMBER_ME_EXPIRY = 60 * 60 * 24 * 2       # 2 days
 
 # load local settings override.
 

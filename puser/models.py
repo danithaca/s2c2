@@ -2,6 +2,21 @@ from django.contrib.auth.models import User
 from django.db import models
 from image_cropping import ImageCropField, ImageRatioField
 from localflavor.us.models import PhoneNumberField
+from django.core import checks
+
+
+@checks.register()
+def email_duplicate_check(app_configs, **kwargs):
+    errors = []
+    if app_configs is None or 'puser' in [a.label for a in app_configs]:
+        from django.contrib.auth.models import User
+        from django.db import connection
+        cursor = connection.cursor()
+        cursor.execute('SELECT email, COUNT(*) FROM ' + User._meta.db_table + ' GROUP BY email HAVING COUNT(*) > 1')
+        rows = cursor.fetchall()
+        if len(rows) > 0:
+            errors.append(checks.Warning('Duplicate user email exits: %s' % len(rows)))
+    return errors
 
 
 class Info(models.Model):
