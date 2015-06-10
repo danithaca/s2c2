@@ -252,6 +252,27 @@ REST_FRAMEWORK = {
 
 SITE_ID = 1
 
+
+# Email SES settings
+
+DEFAULT_FROM_EMAIL = 'admin@servuno.com'
+
+if DEBUG:
+    # use dummy email
+    EMAIL_BACKEND = 'django.core.mail.backends.filebased.EmailBackend'
+    EMAIL_FILE_PATH = os.path.join(BASE_DIR, 'emails')
+
+else:
+    EMAIL_BACKEND = 'django_ses_backend.SESBackend'
+    AWS_ACCESS_KEY_ID = 'AKIAIK5B54SZPOMAKGMA,'
+    AWS_SECRET_ACCESS_KEY = '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'
+
+# AWS_SES_ACCESS_KEY_ID = 'AKIAJEETWEVXBZAUCAHA'
+# AWS_SES_SECRET_ACCESS_KEY = 'AmcSdbDZUrYduXOFnvtn+NfUNNKr+DZahbfugNIOwaXx'
+# AWS_SES_REGION_NAME = 'us-east-1'
+# AWS_SES_REGION_ENDPOINT = 'email.us-east-1.amazonaws.com'
+
+
 # load local settings override.
 
 try:

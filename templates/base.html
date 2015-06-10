@@ -10,11 +10,11 @@
   <meta name="author" content="">
   <!--link rel="icon" href="favicon.ico"-->
 
-  <title>{% block title %}{{ title|default:'S2C2' }}{% endblock %}</title>
+  <title>{% block title %}{{ title|default:'Servuno' }}{% endblock %}</title>
 
-  {% if site_id == 1 %}
+  {% if SITE_ID == 1 %}
     <link href="//maxcdn.bootstrapcdn.com/bootswatch/3.3.4/spacelab/bootstrap.min.css" rel="stylesheet">
-  {% elif site_id == 2 %}
+  {% elif SITE_ID == 2 %}
     <link href="//maxcdn.bootstrapcdn.com/bootswatch/3.3.4/cerulean/bootstrap.min.css" rel="stylesheet">
   {% else %}
     <link href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap.min.css" rel="stylesheet">
@@ -81,11 +81,11 @@
 {#      <ul class="nav navbar-nav">#}
 {#        <li><a href="/"><i class="fa fa-home"></i> Home</a></li>#}
 {#      </ul>#}
-      {% if site_id == 1 %}
+      {% if SITE_ID == 1 %}
         <ul class="nav navbar-nav navbar-right">
           {% include "includes/menu_s2c2.html" %}
         </ul>
-      {% elif site_id == 2 %}
+      {% elif SITE_ID == 2 %}
         <ul class="nav navbar-nav navbar-right">
           {% include "includes/menu_p2.html" %}
         </ul>

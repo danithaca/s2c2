@@ -1,5 +1,6 @@
 s2c2/settings_local.py
 assets
+emails
 
 # IDE related
 *.tmproj

@@ -18,10 +18,12 @@ class LoginView(account.views.LoginView):
     form_class = account.forms.LoginEmailForm
 
 
-class PasswordResetView(account.views.PasswordResetView):
-    def send_email(self, email):
-        try:
-            super(PasswordResetView, self).send_email(email)
-            messages.success(self.request, 'Password reset sent.</a>')
-        except ConnectionRefusedError as e:
-            messages.warning(self.request, 'Cannot connect to email service.')
+# this is perhaps not needed anymore. we'll make sure email works in all environment.
+
+# class PasswordResetView(account.views.PasswordResetView):
+#     def send_email(self, email):
+#         try:
+#             super(PasswordResetView, self).send_email(email)
+#             messages.success(self.request, 'Password reset sent.</a>')
+#         except ConnectionRefusedError as e:
+#             messages.warning(self.request, 'Cannot connect to email service.')
