@@ -8,9 +8,11 @@ from s2c2 import utils
 urlpatterns = patterns(
     '',
     url(r'^$', views.home, name='home'),
-    #url(r'^account/', include('account.urls')),
-    #url(r"^user/", include("puser.urls", namespace='user')),
+
+    # first occurance takes priority
     url(r"^account/", include("puser.urls")),
+    url(r'^account/', include('account.urls')),
+    #url(r"^user/", include("puser.urls", namespace='user')),
 
     url(r'^admin/', include(admin.site.urls)),
     url(r'^dummy/$', utils.dummy, name='dummy'),
