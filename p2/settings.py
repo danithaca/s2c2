@@ -20,6 +20,7 @@ INSTALLED_APPS = (
     # 'django_extensions',
 
     'django.contrib.sites',
+    'formtools',
 
     'localflavor',
     'pytz',

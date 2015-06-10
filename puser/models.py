@@ -39,3 +39,12 @@ class Info(models.Model):
 
     def __str__(self):
         return self.user.get_full_name() or self.user.username
+
+
+class PUser(User):
+    """
+    This is the proxy class for User instead of using monkey patch.
+    """
+
+    class Meta:
+        proxy = True

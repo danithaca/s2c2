@@ -379,6 +379,9 @@ class Slot(models.Model):
 
 
 class OfferSlot(Slot):
+    class Meta:
+        app_label = 'slot'
+
     user = models.ForeignKey(User)
 
     @staticmethod
@@ -474,6 +477,9 @@ class NeedSlot(Slot):
     from location.models import Location
     location = models.ForeignKey(Location)
 
+    class Meta:
+        app_label = 'slot'
+
     def __str__(self):
         return '%s: %s %s ~ %s' % (self.location.name, self.day.get_token(), self.start_time.display(), self.end_time.display())
 
@@ -563,6 +569,7 @@ class Meet(models.Model):
 
     class Meta:
         unique_together = ('offer', 'need')
+        app_label = 'slot'
 
     def __str__(self):
         assert self.need.day == self.offer.day and self.need.start_time == self.offer.start_time and self.need.end_time == self.offer.end_time
