@@ -1,11 +1,14 @@
 import sys
+import re
 from datetime import datetime, date, time
+
 from django.contrib.messages import get_messages
 from django.http import HttpResponse
 from django.template.loader import render_to_string
+from django.utils import timezone
+
 from slot.models import DayToken, TimeToken
 from s2c2.decorators import *
-from django.utils import timezone
 
 
 @user_check_against_arg(lambda x, y: y is None or x.username == y, lambda args, kwargs: kwargs.get('message', None))
@@ -71,6 +74,15 @@ def process_messages(request):
         return '\n'.join([render_to_string('includes/message.html', {'message': message}) for message in storage])
     else:
         return None
+
+
+def is_valid_email(email):
+    from django.core.validators import validate_email
+    try:
+        validate_email(email)
+        return True
+    except ValueError:
+        return False
 
 
 # def monkey_patch_django_ajax_render_to_json(response, *args, **kwargs):

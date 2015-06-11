@@ -34,9 +34,9 @@ class LoginView(account.views.LoginView):
 
 class OnboardWizard(SessionWizardView):
     form_list = [
+        ('subscribe', SignupCircleForm),
         ('basic', account.views.SignupForm),
         ('favorite', SignupFavoriteForm),
-        ('subscribe', SignupCircleForm),
     ]
     template_name = 'account/onboard.html'
 

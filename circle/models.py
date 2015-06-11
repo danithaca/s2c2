@@ -12,7 +12,7 @@ class Circle(models.Model):
         PERSONAL = 1
         PUBLIC = 2
         AGENCY = 3
-        # SUPERSET = 4
+        SUPERSET = 4
         # SUBSCRIBER = 5
 
     name = models.CharField(max_length=200)
@@ -21,7 +21,7 @@ class Circle(models.Model):
     type = models.PositiveSmallIntegerField(choices=[(t.value, t.name.capitalize()) for t in Type])
 
     # the last resort to access someone in the circle. usually we'll use membership.
-    creator = models.ForeignKey(User)
+    owner = models.ForeignKey(User)
     created = models.DateTimeField(auto_now_add=True)
 
     from location.models import Area
