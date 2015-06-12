@@ -17,28 +17,27 @@ class SignupFavoriteForm(forms.Form):
         return cleaned_data
 
 
-class SignupCircleForm(forms.Form):
-    # circle = forms.MultipleChoiceField(label='Circle', widget=forms.CheckboxSelectMultiple, required=False,
-    #                                    choices=(
-    #                                        (1, 'Field one'),
-    #                                        (2, 'Field two'),
-    #                                    ),
-    #                                    help_text='Choose which circle to join.')
-
-    circle = forms.CharField(label='Circle', required=False, help_text='Separate the circle ID by commas.')
+class ManageCircleForm(forms.Form):
+    circle = forms.CharField(widget=forms.HiddenInput, label='Circle', required=False, help_text='Separate the circle ID by commas.')
 
     def clean(self):
-        cleaned_data = super(SignupCircleForm, self).clean()
+        cleaned_data = super(ManageCircleForm, self).clean()
         circle = cleaned_data.get('circle')
         cleaned_data['circle_list'] = [int(s) for s in re.split(r'[\s,;]+', circle) if get_int(s)]
         return cleaned_data
 
-    def __init__(self, *args, **kwargs):
-        super(SignupCircleForm, self).__init__(*args, **kwargs)
+    def get_circle_id_list(self):
+        return self.cleaned_data['circle_list']
+
+    def __init__(self, puser, *args, **kwargs):
+        super(ManageCircleForm, self).__init__(*args, **kwargs)
+        self.puser = puser
 
         # build circle options
-        self.circle_options = []
-        area = Area.objects.get(pk=1)  # this is ann arbor
+        self.circle_options = self.build_circle_options(puser.get_area())
+
+    def build_circle_options(self, area):
+        options = []
         for superset in Circle.objects.filter(type=Circle.Type.SUPERSET.value, area=area):
             d = {
                 'title': superset.name,
@@ -51,7 +50,43 @@ class SignupCircleForm(forms.Form):
                     'description': rel.child.description,
                     'id': rel.child.pk,
                 })
-            self.circle_options.append(d)
+            options.append(d)
+        return options
+
+
+# todo: this is very similar to ManageCircleForm
+class SignupCircleForm(forms.Form):
+    circle = forms.CharField(label='Circle', required=False, help_text='Separate the circle ID by commas.')
+
+    def clean(self):
+        cleaned_data = super(SignupCircleForm, self).clean()
+        circle = cleaned_data.get('circle')
+        cleaned_data['circle_list'] = [int(s) for s in re.split(r'[\s,;]+', circle) if get_int(s)]
+        return cleaned_data
+
+    def __init__(self, *args, **kwargs):
+        super(SignupCircleForm, self).__init__(*args, **kwargs)
+
+        # build circle options
+        area = Area.objects.get(pk=1)  # this is ann arbor
+        self.circle_options = self.build_circle_options(area)
+
+    def build_circle_options(self, area):
+        options = []
+        for superset in Circle.objects.filter(type=Circle.Type.SUPERSET.value, area=area):
+            d = {
+                'title': superset.name,
+                'description': superset.description,
+                'list': []
+            }
+            for rel in Superset.objects.filter(parent=superset, child__type=Circle.Type.PUBLIC.value, child__area=area):
+                d['list'].append({
+                    'title': rel.child.name,
+                    'description': rel.child.description,
+                    'id': rel.child.pk,
+                })
+            options.append(d)
+        return options
 
 
 class SignupConfirmForm(forms.Form):

@@ -3,6 +3,7 @@ from django.db import models
 from image_cropping import ImageCropField, ImageRatioField
 from localflavor.us.models import PhoneNumberField
 from django.core import checks
+from circle.models import Membership, Circle
 
 
 @checks.register()
@@ -56,3 +57,13 @@ class PUser(User):
     @staticmethod
     def from_user(user):
         return PUser.objects.get(pk=user.id)
+
+    def get_area(self):
+        try:
+            return self.info.area
+        except Info.DoesNotExist:
+            return None
+
+    def join(self, circle):
+        membership, created = Membership.objects.update_or_create(member=self, circle=circle, defaults={'active': True})
+        return membership

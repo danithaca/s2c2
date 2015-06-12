@@ -8,5 +8,8 @@ urlpatterns = patterns(
     url(r"^signup/$", views.OnboardWizard.as_view(), name="account_signup"),
     url(r"^view/$", views.UserView.as_view(), name="account_view"),
     url(r"^edit/$", views.UserEditView.as_view(), name="account_edit"),
+
+    url(r"^circle/$", views.ManageCircleView.as_view(), name="account_circle"),
+
     # url(r"^password/reset/$", views.PasswordResetView.as_view(), name="account_password_reset"),
 )

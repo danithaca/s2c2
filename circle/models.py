@@ -64,9 +64,14 @@ class Membership(models.Model):
 
     # this specifies whether the user is disabled or activated
     active = models.BooleanField(default=False)
+    # whether the membership is approved by authorities or a panel.
+    approved = models.BooleanField(default = False)
 
     # seems we don't need a "owner" type. the admin will suffice
     type = models.PositiveSmallIntegerField(choices=[(t.value, t.name.capitalize()) for t in Type], default=Type.NORMAL.value)
 
     created = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        unique_together = ('member', 'circle')
