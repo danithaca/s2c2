@@ -1,0 +1,19 @@
+default:
+  suites:
+    default:
+      contexts:
+        - FeatureContext
+
+  extensions:
+    Behat\MinkExtension:
+      goutte: ~
+      selenium2: ~
+      show_cmd: 'firefox %s'
+      show_tmp_dir: '/tmp'
+      base_url: http://localhost:8001
+
+
+live:
+  extensions:
+    Behat\MinkExtension:
+      base_url: http://servuno.com

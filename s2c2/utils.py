@@ -81,8 +81,15 @@ def is_valid_email(email):
     try:
         validate_email(email)
         return True
-    except ValueError:
+    except:
         return False
+
+
+def get_int(s):
+    try:
+        return int(s)
+    except ValueError:
+        return 0
 
 
 # def monkey_patch_django_ajax_render_to_json(response, *args, **kwargs):

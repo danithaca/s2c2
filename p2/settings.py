@@ -69,6 +69,8 @@ ACCOUNT_EMAIL_CONFIRMATION_REQUIRED = True
 # ACCOUNT_LOGOUT_REDIRECT_URL = '/'
 ACCOUNT_REMEMBER_ME_EXPIRY = 60 * 60 * 24 * 2       # 2 days
 
+ACCOUNT_USER_DISPLAY = lambda user: user.get_fullname() or user.email
+
 # load local settings override.
 
 try:

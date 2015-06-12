@@ -35,7 +35,11 @@ class Info(models.Model):
 
     from location.models import Area
     # user's home area. it doesn't necessarily mean the user will request/respond to this area only.
-    area = models.ForeignKey(Area)
+    area = models.ForeignKey(Area, default=1)
+
+    # True:     the user has setup a password, and is able to login (not necessarily filled out anything)
+    # False:    just created a user stub with email only.
+    initiated = models.BooleanField(default=False)
 
     def __str__(self):
         return self.user.get_full_name() or self.user.username

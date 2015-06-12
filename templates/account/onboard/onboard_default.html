@@ -1,0 +1,23 @@
+{% extends 'account/onboard/onboard_base.html' %}
+{% load bootstrap %}
+
+{% block onboard-step %}
+  <form class="form-horizontal" method="post" autocapitalize="off" {% if form.is_multipart %}enctype="multipart/form-data"{% endif %}>
+    {% csrf_token %}
+    {{ wizard.management_form }}
+    {{ wizard.form|bootstrap_horizontal:'col-sm-4' }}
+
+    <div class="form-group">
+      <div class="col-sm-offset-4 col-sm-8">
+        {% if wizard.steps.prev %}
+          <button class="btn btn-default" name="wizard_goto_step" type="submit" value="{{ wizard.steps.prev }}">< Previous</button>
+        {% endif %}
+        {% if wizard.steps.next %}
+          <button class="btn btn-primary" type="submit">Next ></button>
+        {% else %}
+          <button class="btn btn-primary" type="submit">Sign up!</button>
+        {% endif %}
+      </div>
+    </div>
+  </form>
+{% endblock %}

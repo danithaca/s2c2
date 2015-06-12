@@ -21,12 +21,33 @@ class Circle(models.Model):
     type = models.PositiveSmallIntegerField(choices=[(t.value, t.name.capitalize()) for t in Type])
 
     # the last resort to access someone in the circle. usually we'll use membership.
-    owner = models.ForeignKey(User)
+    owner = models.ForeignKey(User, related_name='owner')
     created = models.DateTimeField(auto_now_add=True)
+
+    members = models.ManyToManyField(User, through='Membership')
 
     from location.models import Area
     # circle's listing area. doesn't necessarily mean every member in the circle have to be in the area
-    area = models.ForeignKey(Area)
+    area = models.ForeignKey(Area, default=1)
+
+    def __str__(self):
+        return self.name
+
+
+class Superset(models.Model):
+    """
+    Many-many to track circle inclusions.
+    """
+
+    # child can be any type of circle
+    child = models.ForeignKey(Circle, related_name='child')
+    # parent has to be 'superset'
+    parent = models.ForeignKey(Circle, related_name='parent', limit_choices_to={'type': Circle.Type.SUPERSET.value})
+
+    created = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        unique_together = ('child', 'parent')
 
 
 class Membership(models.Model):

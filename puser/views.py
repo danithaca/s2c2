@@ -1,13 +1,16 @@
+import tempfile
 import account.views
 import account.forms
 from account.conf import settings
 from django.contrib.auth.decorators import login_required
 from django.contrib import auth
+from django.core.files.storage import FileSystemStorage
 from django.shortcuts import redirect, render
 from formtools.wizard.views import SessionWizardView
 from django.contrib import messages
 
-from circle.forms import SignupFavoriteForm, SignupCircleForm
+from circle.forms import SignupFavoriteForm, SignupCircleForm, SignupConfirmForm
+from puser.forms import SignupBasicForm, UserInfoForm
 
 
 @login_required
@@ -19,6 +22,14 @@ def logout(request):
 
 class LoginView(account.views.LoginView):
     form_class = account.forms.LoginEmailForm
+
+
+class SignupView(account.views.SignupView):
+    form_class = SignupBasicForm
+
+    def generate_username(self, form):
+        username = form.cleaned_data['email'].split('@')[0]
+        return username
 
 
 # this is perhaps not needed anymore. we'll make sure email works in all environment.
@@ -34,29 +45,49 @@ class LoginView(account.views.LoginView):
 
 class OnboardWizard(SessionWizardView):
     form_list = [
-        ('subscribe', SignupCircleForm),
-        ('basic', account.views.SignupForm),
+        ('basic', SignupBasicForm),
+        ('info', UserInfoForm),
         ('favorite', SignupFavoriteForm),
+        ('subscribe', SignupCircleForm),
+        ('confirm', SignupConfirmForm),
     ]
-    template_name = 'account/onboard.html'
+    # template_name = 'account/onboard/onboard_default.html'
+
+    file_storage = FileSystemStorage(tempfile.tempdir)
 
     step_meta_data = {
         'basic': {
             'title': 'Add basic info',
-            'description': 'Fill in basic account information'
+            'description': 'Fill in basic account information',
+            'help_text': 'Please fill in basic account information',
+        },
+        'info': {
+            'title': 'Edit profile',
+            'description': 'Fill in basic account information',
+            'help_text': 'Please fill in basic account information',
         },
         'favorite': {
             'title': 'Add favorite people',
-            'description': 'Add a list of people to your favorite list'
+            'description': 'Add a list of people to your favorite list',
+            'help_text': 'Add a list of people to your favorite list',
         },
         'subscribe': {
             'title': 'Join circles',
-            'description': 'Join circles of people you trust'
+            'description': 'Join circles of people you trust',
+            'help_text': 'Subscribe to a few circles to allow peoples in the trusted circles babysit for you.',
+            'template': 'account/onboard/onboard_subscribe.html',
+        },
+        'confirm': {
+            'title': 'Confirm',
+            'description': 'Review the information and sign up',
+            'help_text': 'Click the button to confirm',
         },
     }
 
     def get_context_data(self, form, **kwargs):
         context = super(OnboardWizard, self).get_context_data(form=form, **kwargs)
+
+        # process all steps meta data to display the vertical tabs
         context['step_meta_data'] = []
         for i, f in enumerate(self.form_list):
             # have to be pass by value
@@ -73,6 +104,10 @@ class OnboardWizard(SessionWizardView):
                 d['status'] = 'disabled'
 
             context['step_meta_data'].append(d)
+
+        # add the current step meta data
+        context['current_step_meta_data'] = self.step_meta_data[self.steps.current]
+
         return context
 
     def process_step(self, form):
@@ -80,6 +115,9 @@ class OnboardWizard(SessionWizardView):
         # set status to be '' to avoid set as 'disabled'
         self.step_meta_data[self.steps.current]['status'] = ''
         return super(OnboardWizard, self).process_step(form)
+
+    def get_template_names(self):
+        return self.step_meta_data[self.steps.current].get('template', 'account/onboard/onboard_default.html')
 
     def done(self, form_list, form_dict, **kwargs):
         messages.success(self.request, 'Sign up successful. Please verify email.')
