@@ -5,6 +5,6 @@ from s2c2.utils import dummy
 
 def home(request):
     if request.user.is_anonymous():
-        return render(request, 'home_p2.html', {'form': LoginEmailForm()})
+        return render(request, 'landing_p2.html', {'form': LoginEmailForm()})
     else:
-        return dummy(request)
+        return render(request, 'home_p2.html')

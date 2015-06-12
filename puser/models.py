@@ -52,3 +52,7 @@ class PUser(User):
 
     class Meta:
         proxy = True
+
+    @staticmethod
+    def from_user(user):
+        return PUser.objects.get(pk=user.id)

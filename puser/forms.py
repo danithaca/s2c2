@@ -24,5 +24,8 @@ class UserInfoForm(ModelForm):
 
     class Meta:
         model = Info
-        # fields = ['first_name', 'last_name', 'phone', 'address', 'note', 'picture_original', 'picture_cropping']
-        fields = ['first_name', 'last_name', 'phone', 'address', 'note']
+        fields = ['first_name', 'last_name', 'phone', 'address', 'note', 'picture_original', 'picture_cropping']
+        # fields = ['first_name', 'last_name', 'phone', 'address', 'note']
+        labels = {
+            'note': 'About me',
+        }

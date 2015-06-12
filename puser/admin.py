@@ -1,3 +1,4 @@
 from django.contrib import admin
+from puser.models import Info
 
-# Register your models here.
+admin.site.register(Info)
