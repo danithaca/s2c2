@@ -67,3 +67,12 @@ class PUser(User):
     def join(self, circle):
         membership, created = Membership.objects.update_or_create(member=self, circle=circle, defaults={'active': True})
         return membership
+
+    # a person could have multiple personal list based on area.
+    def get_personal_circle(self, area=None):
+        if area is None:
+            area = self.area
+        circle, created = Circle.objects.get_or_create(type=Circle.Type.PERSONAL, owner=self, area=area, defaults={
+            'name': 'personal'
+        })
+        return circle

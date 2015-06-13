@@ -63,8 +63,13 @@ class Membership(models.Model):
     circle = models.ForeignKey(Circle)
 
     # this specifies whether the user is disabled or activated
+    # private circle (favorite): whether the member is still in the circle
+    # public circle: whether the member wants to be in the circle, or resigned.
     active = models.BooleanField(default=False)
+
     # whether the membership is approved by authorities or a panel.
+    # private circle: should always be true, because private list are always approved by the owner. if the member doesn't want to be included, it could be set as false.
+    # public circle: someone (either the owner or a panel) needs to approve the membership.
     approved = models.BooleanField(default = False)
 
     # seems we don't need a "owner" type. the admin will suffice

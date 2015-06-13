@@ -1,0 +1,12 @@
+{% extends 'account/manage/base.html' %}
+{% load bootstrap %}
+
+{% block manage-block %}
+  <form class="form" method="post" autocapitalize="off" {% if form.is_multipart %}enctype="multipart/form-data"{% endif %}>
+    {% csrf_token %}
+    {{ form|bootstrap }}
+    <div class="form-group">
+      <button class="btn btn-primary" type="submit">Submit</button>
+    </div>
+  </form>
+{% endblock %}

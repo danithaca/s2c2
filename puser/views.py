@@ -1,4 +1,5 @@
 import tempfile
+
 from account.mixins import LoginRequiredMixin
 import account.views
 import account.forms
@@ -6,16 +7,16 @@ from account.conf import settings
 from django.contrib.auth.decorators import login_required
 from django.contrib import auth
 from django.core.files.storage import FileSystemStorage
-from django.core.urlresolvers import reverse, reverse_lazy
-from django.shortcuts import redirect, render
-from django.views.generic import FormView, View, TemplateView
+from django.core.urlresolvers import reverse_lazy
+from django.shortcuts import redirect
+from django.views.generic import FormView, TemplateView
 from formtools.wizard.views import SessionWizardView
+
 from django.contrib import messages
 
-from circle.forms import SignupFavoriteForm, ManageCircleForm, SignupConfirmForm, SignupCircleForm
-from circle.models import Circle, Membership
-from puser.forms import SignupBasicForm, UserInfoForm
-from puser.models import PUser, Info
+from circle.forms import SignupFavoriteForm, SignupCircleForm
+from puser.forms import SignupBasicForm, UserInfoForm, SignupConfirmForm
+from puser.models import Info
 
 
 @login_required
@@ -78,39 +79,6 @@ class UserEditView(LoginRequiredMixin, FormView):
 class UserView(LoginRequiredMixin, TemplateView):
     template_name = 'account/view.html'
 
-
-class ManageCircleView(LoginRequiredMixin, FormView):
-    template_name = 'account/manage/circle.html'
-    form_class = ManageCircleForm
-    success_url = reverse_lazy('account_circle')
-
-    def get_initial(self):
-        initial = super(ManageCircleView, self).get_initial()
-        circles = Membership.objects.filter(member=self.request.user, circle__type=Circle.Type.PUBLIC.value, active=True).values_list('circle', flat=True).distinct()
-        initial['circle'] = ','.join(list(map(str, circles)))
-        return initial
-
-    def get_form_kwargs(self):
-        kwargs = super(ManageCircleView, self).get_form_kwargs()
-        kwargs['puser'] = PUser.from_user(self.request.user)
-        return kwargs
-
-    def form_valid(self, form):
-        if form.has_changed():
-            new_set = set(form.get_circle_id_list())
-            puser = form.puser
-            old_set = set(Membership.objects.filter(member=self.request.user, circle__type=Circle.Type.PUBLIC.value, active=True).values_list('circle', flat=True).distinct())
-            # unsubscribe old set not in new set
-            for circle_id in old_set - new_set:
-                membership = Membership.objects.get(circle__id=circle_id, member=puser)
-                membership.active = False
-                membership.save()
-            # subscribe new set not in old set
-            for circle_id in new_set - old_set:
-                circle = Circle.objects.get(pk=circle_id)
-                puser.join(circle)
-            messages.success(self.request, 'Circles updated.')
-        return super(ManageCircleView, self).form_valid(form)
 
 # this is perhaps not needed anymore. we'll make sure email works in all environment.
 
