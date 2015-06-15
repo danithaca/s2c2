@@ -38,6 +38,14 @@ class Contract(models.Model):
     def get_absolute_url(self):
         return reverse('contract:view', kwargs={'pk': self.pk})
 
+    def change_status(self, old_status, new_status):
+        assert self.status == old_status, 'Status does not match'
+        self.status = new_status
+        self.save()
+
+        # someday: use signals/MQ instead.
+        # quick and dirty approach is just to make call here directly.
+
 
 class Match(models.Model):
     """
@@ -52,7 +60,7 @@ class Match(models.Model):
         CANCELED = 5            # the buyer canceled the match for some reason.
 
     contract = models.ForeignKey(Contract)
-    target = models.ForeignKey(User)
+    target_user = models.ForeignKey(User)
 
     created = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True)
