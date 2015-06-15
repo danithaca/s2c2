@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+{% load staticfiles %}
+{% load bootstrap %}
+
+{% block page %}
+  <div class="row">
+    <section class="col-sm-12">
+      {{ contract.buyer.email }}
+      <br>
+      {{ contract.description }}
+    </section>
+  </div>
+{% endblock %}

@@ -14,6 +14,8 @@ urlpatterns = patterns(
     url(r'^account/', include('account.urls')),
     #url(r"^user/", include("puser.urls", namespace='user')),
 
+    url(r'^contract/', include('contract.urls', namespace='contract')),
+
     url(r'^admin/', include(admin.site.urls)),
     url(r'^dummy/$', utils.dummy, name='dummy'),
 

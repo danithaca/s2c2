@@ -1,5 +1,6 @@
 from enum import Enum
 from django.contrib.auth.models import User
+from django.core.urlresolvers import reverse
 from django.db import models
 
 
@@ -33,6 +34,9 @@ class Contract(models.Model):
     # where does this contract happens. this is the ultimate place to decide where a contract goes
     from location.models import Area
     area = models.ForeignKey(Area)
+
+    def get_absolute_url(self):
+        return reverse('contract:view', kwargs={'pk': self.pk})
 
 
 class Match(models.Model):

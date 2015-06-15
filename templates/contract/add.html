@@ -1,0 +1,26 @@
+{% extends "base_page.html" %}
+{% load staticfiles %}
+{% load bootstrap %}
+
+{% block extra_header %}
+  {{ form.media }}
+{% endblock %}
+
+{% block title %}Find help{% endblock %}
+{% block page-header %}Find help{% endblock %}
+
+{% block page-content %}
+  <div class="row">
+    <div class="col-sm-12">
+      <form class="form-horizontal" method="post">
+        {% csrf_token %}
+        {{ form|bootstrap_horizontal:'col-sm-4' }}
+        <div class="form-group">
+          <div class="col-sm-offset-4 col-sm-8">
+            <button type="submit" class="btn btn-primary">Submit</button>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+{% endblock %}
