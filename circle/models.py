@@ -33,6 +33,29 @@ class Circle(models.Model):
     def __str__(self):
         return self.name
 
+    def add_member(self, user):
+        """
+        :return: if membership already exists, return it. otherwise, create the membership with default.
+        """
+        try:
+            membership = Membership.objects.get(member=user, circle=self)
+            return membership
+        except Membership.DoesNotExist:
+            membership = Membership()
+            membership.member = user
+            membership.circle = self
+            membership.active = True
+            if self.type == Circle.Type.PERSONAL.value:
+                membership.approved = True
+            membership.save()
+            return membership
+
+    def get_membership(self, user):
+        return Membership.objects.get(member=user, circle=self)
+
+    def get_active_member(self):
+        return self.members.filter(membership__active=True)
+
 
 class Superset(models.Model):
     """

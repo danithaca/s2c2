@@ -92,6 +92,24 @@ def get_int(s):
         return 0
 
 
+def auto_user_name(email):
+    """
+    Given an email address, generate a random username
+    """
+    name = email.split('@')[0]
+    from django.contrib.auth.models import User
+    existing = set(User.objects.filter(email__startswith=name))
+    if name not in existing:
+        return name
+    for i in range(1000):
+        new_name = '%s%d' % (name, i)
+        if new_name not in existing:
+            return new_name
+    # last resort is to use UUID
+    import uuid
+    return str(uuid.uuid4())
+
+
 # def monkey_patch_django_ajax_render_to_json(response, *args, **kwargs):
 #     from django_ajax.shortcuts import logger, Http404, settings, ExceptionReporter, HttpResponseServerError, REASON_PHRASES, JSONResponse
 #

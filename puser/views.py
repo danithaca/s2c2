@@ -17,6 +17,7 @@ from django.contrib import messages
 from circle.forms import SignupFavoriteForm, SignupCircleForm
 from puser.forms import SignupBasicForm, UserInfoForm, SignupConfirmForm
 from puser.models import Info
+from s2c2.utils import auto_user_name
 
 
 @login_required
@@ -34,8 +35,7 @@ class SignupView(account.views.SignupView):
     form_class = SignupBasicForm
 
     def generate_username(self, form):
-        username = form.cleaned_data['email'].split('@')[0]
-        return username
+        return auto_user_name(form.cleaned_data['email'])
 
 
 class UserEditView(LoginRequiredMixin, FormView):

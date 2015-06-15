@@ -37,6 +37,7 @@ class SignupFavoriteForm(forms.Form):
         return cleaned_data
 
 
+# todo: remove puser from 'init', use area instead.
 class ManageCircleForm(forms.Form):
     circle = forms.CharField(widget=forms.HiddenInput, label='Circle', required=False, help_text='Separate the circle ID by commas.')
 
