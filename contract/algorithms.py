@@ -1,7 +1,10 @@
 from abc import ABCMeta, abstractmethod
+from circle.models import Membership, Circle
+from contract.models import Match
+from puser.models import PUser
 
 
-class RecommenderStrategy(ABCMeta):
+class RecommenderStrategy(metaclass=ABCMeta):
     """
     Strategy pattern.
     """
@@ -12,6 +15,45 @@ class RecommenderStrategy(ABCMeta):
         Given the contract, compute and persist the recommended matches and return the "Match" objects.
         """
 
-class RecentFavoriteRecommender(RecommenderStrategy):
+class RandomFavoriteRecommender(RecommenderStrategy):
     def recommend(self, contract):
-        pass
+        buyer = PUser.from_user(contract.buyer)
+        buyer_circle = buyer.get_personal_circle()
+        # order by random and limit by 10.
+        for ms in Membership.objects.filter(circle=buyer_circle, active=True, approved=True, type=Circle.Type.PERSONAL.value).order_by('?')[:10]:
+            target_user = ms.member
+            score = ms.updated.timestamp()
+            match, created = Match.objects.get_or_create(contract=contract, target_user=target_user, defaults={
+                'status': Match.Status.INITIALIZED.value,
+                'score': score,
+            })
+
+            # we'll not update existing matches
+            if not created:
+                pass
+
+            # save explanation
+            # if buyer_circle not in match.circles:
+            #     match.circles.add(buyer_circle)
+
+            # adding a second time is ok.
+            match.circles.add(buyer_circle)
+
+
+# todo: other algorithms
+# 1. favorite plus public circle
+# 2. used sitters go first
+
+
+class L1Recommender(RandomFavoriteRecommender):
+    """
+    The immediate algorithm to run after a new contract to create; should be fast but not thorough.
+    """
+    pass
+
+
+class L2Recommender(RandomFavoriteRecommender):
+    """
+    This runs peoriodically to update contract matches.
+    """
+    pass

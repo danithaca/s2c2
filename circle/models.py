@@ -93,7 +93,7 @@ class Membership(models.Model):
     # whether the membership is approved by authorities or a panel.
     # private circle: should always be true, because private list are always approved by the owner. if the member doesn't want to be included, it could be set as false.
     # public circle: someone (either the owner or a panel) needs to approve the membership.
-    approved = models.BooleanField(default = False)
+    approved = models.BooleanField(default=False)
 
     # seems we don't need a "owner" type. the admin will suffice
     type = models.PositiveSmallIntegerField(choices=[(t.value, t.name.capitalize()) for t in Type], default=Type.NORMAL.value)

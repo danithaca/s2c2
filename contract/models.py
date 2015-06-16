@@ -39,12 +39,24 @@ class Contract(models.Model):
         return reverse('contract:view', kwargs={'pk': self.pk})
 
     def change_status(self, old_status, new_status):
-        assert self.status == old_status, 'Status does not match'
+        assert self.status == old_status, 'Status does not match: %s, %s' % (Contract.Status(old_status), Contract.Status(new_status))
         self.status = new_status
         self.save()
 
+    def activate(self):
+        """
+        Make the contract active after payment received.
+        """
+
         # someday: use signals/MQ instead.
         # quick and dirty approach is just to make call here directly.
+        old_status = Contract.Status.INITIATED.value
+        new_status = Contract.Status.ACTIVE.value
+        self.change_status(old_status, new_status)
+
+        from contract.algorithms import L1Recommender
+        recommender = L1Recommender()
+        recommender.recommend(self)
 
 
 class Match(models.Model):
@@ -67,7 +79,7 @@ class Match(models.Model):
 
     status = models.PositiveSmallIntegerField(choices=[(s.value, s.name.capitalize()) for s in Status], default=Status.INITIALIZED.value)
 
-    # used for ranking
+    # used for ranking, this is intentionally undefined and pertain to different algorithms
     score = models.FloatField(default=0.0)
 
     # the circles to which the target belongs that leads to the match.
@@ -76,4 +88,4 @@ class Match(models.Model):
     circles = models.ManyToManyField(to=Circle)
 
     class Meta:
-        unique_together = ('contract', 'target')
+        unique_together = ('contract', 'target_user')
