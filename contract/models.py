@@ -13,8 +13,9 @@ class Contract(models.Model):
         INITIATED = 1       # just created. no payment, etc.
         ACTIVE = 2          # payment posted, matching in process
         CONFIRMED = 3       # found someone, and both parties agree to the work.
-        FINISHED = 4        # after the contract, everyone are happy.
+        SUCCESSFUL = 4        # after the contract, everyone are happy.
         CANCELED = 5        # for some reason this was canceled.
+        FAILED = 6          # was confirmed, but not carried through.
 
     buyer = models.ForeignKey(User, related_name='buyer')
     seller = models.ForeignKey(User, related_name='seller', blank=True, null=True)

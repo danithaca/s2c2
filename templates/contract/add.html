@@ -11,16 +11,17 @@
 
 {% block page-content %}
   <div class="row">
-    <div class="col-sm-12">
-      <form class="form-horizontal" method="post">
+    <div class="col-sm-6">
+      <form class="form" method="post">
         {% csrf_token %}
-        {{ form|bootstrap_horizontal:'col-sm-4' }}
+        {{ form|bootstrap }}
         <div class="form-group">
-          <div class="col-sm-offset-4 col-sm-8">
-            <button type="submit" class="btn btn-primary">Submit</button>
-          </div>
+          <button type="submit" class="btn btn-primary">Submit</button>
         </div>
       </form>
+    </div>
+    <div class="col-sm-6">
+      help
     </div>
   </div>
 {% endblock %}
