@@ -2,6 +2,9 @@ from enum import Enum
 from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse
 from django.db import models
+from django.db.models.signals import post_save
+from django.dispatch import receiver
+from contract.tasks import activate_contract
 
 
 class Contract(models.Model):
@@ -60,6 +63,18 @@ class Contract(models.Model):
         recommender.recommend(self)
 
 
+# this automatically activates the contract.
+# todo: add payment step.
+@receiver(post_save, sender=Contract)
+def auto_activate(sender, **kwargs):
+    instance = kwargs['instance']
+    created = kwargs['created']
+    if created and instance.status == Contract.Status.INITIATED.value:
+        # instead of activate in a blocking fashion, do it through celery
+        # instance.activate()
+        activate_contract.delay(instance)
+
+
 class Match(models.Model):
     """
     Given a contract, find the matched users for the contract.
@@ -90,3 +105,9 @@ class Match(models.Model):
 
     class Meta:
         unique_together = ('contract', 'target_user')
+
+
+############################ signals ###############################
+
+# signals should be declared in AppConfig.ready() according to https://docs.djangoproject.com/en/1.8/ref/signals/
+# see also http://stackoverflow.com/questions/2719038/where-should-signal-handlers-live-in-a-django-project
