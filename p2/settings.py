@@ -89,6 +89,14 @@ ACCOUNT_REMEMBER_ME_EXPIRY = 60 * 60 * 24 * 2       # 2 days
 
 ACCOUNT_USER_DISPLAY = lambda user: user.get_full_name() or user.email
 
+
+# celery related settings
+BROKER_URL = 'sqla+sqlite:///celerydb.sqlite'
+CELERY_RESULT_BACKEND = 'db+sqlite:///celerydb.sqlite'
+# CELERY_ACCEPT_CONTENT = ['json']
+# CELERY_TASK_SERIALIZER = 'json'
+# CELERY_RESULT_SERIALIZER = 'json'
+
 # load local settings override.
 
 try:
