@@ -76,7 +76,29 @@ class Contract(StatusMixin, models.Model):
         recommender.recommend(self)
 
     def confirm(self, match):
-        pass
+        assert self.confirmed_match is None, 'Confirmed match already exists.'
+        assert self == match.contract, 'Match object does not link to contract object.'
+        self.confirmed_match = match
+        self.change_status(Contract.Status.ACTIVE.value, Contract.Status.CONFIRMED.value)
+
+    def cancel(self):
+        assert self.status != Contract.Status.CANCELED.value, 'Contract already canceled.'
+        old_status = self.status
+        self.change_status(old_status, Contract.Status.CANCELED.value)
+
+    def revert(self):
+        """
+        From confirmed status back to active
+        """
+        self.confirmed_match = None
+        self.change_status(Contract.Status.CONFIRMED.value, Contract.Status.ACTIVE.value)
+
+    def is_active(self):
+        return self.status == Contract.Status.ACTIVE.value
+
+    def is_confirmed(self):
+        return self.status == Contract.Status.CONFIRMED.value
+
 
 # this automatically activates the contract.
 # todo: add payment step.
@@ -130,9 +152,11 @@ class Match(StatusMixin, models.Model):
     def decline(self):
         old_status = self.status
         if old_status != Match.Status.DECLINED.value:
-            self.change_status(old_status, Match.Status.ACCEPTED.value)
+            self.change_status(old_status, Match.Status.DECLINED.value)
         # todo: based on old status, do additional notification
 
+    def is_accepted(self):
+        return self.status == Match.Status.ACCEPTED.value
 
 
 ############################ signals ###############################

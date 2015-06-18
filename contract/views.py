@@ -56,6 +56,20 @@ class ContractCreate(CreateView):
         return super(ContractCreate, self).form_valid(form)
 
 
+class ContractChangeStatus(LoginRequiredMixin, JSONResponseMixin, AjaxResponseMixin, View):
+    def post_ajax(self, request, pk):
+        contract = Contract.objects.get(pk=pk)
+        op = request.POST['op']
+        if op == 'confirm':
+            match = Match.objects.get(pk=(request.POST['match_id']))
+            contract.confirm(match)
+        elif op == 'cancel':
+            contract.cancel()
+        elif op == 'revert':
+            contract.revert()
+        return self.render_json_response({'success': True, 'op': op})
+
+
 class MatchDetail(DetailView):
     model = Match
     template_name = 'contract/match_view.html'
