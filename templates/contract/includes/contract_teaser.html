@@ -1,0 +1,6 @@
+<div class="contract-teaser" data-id="{{ contract.id }}">
+  <h4><a href="{% url 'contract:view' pk=contract.id %}">Contract: {{ contract.id }}</a></h4>
+  <p>{{ contract.buyer.email }}</p>
+  <p>Note: {{ contract.description }}</p>
+  <p>Status: {% include 'elements/contract_status_label.html' with status=contract.status %}</p>
+</div>

@@ -90,6 +90,12 @@ ACCOUNT_REMEMBER_ME_EXPIRY = 60 * 60 * 24 * 2       # 2 days
 ACCOUNT_USER_DISPLAY = lambda user: user.get_full_name() or user.email
 
 
+# override login urls
+LOGIN_REDIRECT_URL = '/'
+LOGIN_URL = reverse_lazy('account_login')
+LOGOUT_URL = reverse_lazy('account_logout')
+
+
 # celery related settings
 BROKER_URL = 'sqla+sqlite:///celerydb.sqlite'
 CELERY_RESULT_BACKEND = 'db+sqlite:///celerydb.sqlite'

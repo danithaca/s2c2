@@ -30,6 +30,12 @@ class Circle(models.Model):
     # circle's listing area. doesn't necessarily mean every member in the circle have to be in the area
     area = models.ForeignKey(Area, default=1)
 
+    def display(self):
+        if self.type == Circle.Type.PERSONAL.value:
+            return '%s\'s favorites' % self.owner.first_name or self.ower.email
+        else:
+            return self.name
+
     def __str__(self):
         return self.name
 

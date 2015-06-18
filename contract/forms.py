@@ -18,3 +18,14 @@ class ContractForm(forms.ModelForm):
             'event_start': w,
             'event_end': w
         }
+
+    def clean(self):
+        cleaned_data = super(ContractForm, self).clean()
+        event_start = cleaned_data.get("event_start")
+        event_end = cleaned_data.get("event_end")
+
+        if event_start is not None and event_end is not None and event_start >= event_end:
+            raise forms.ValidationError('End time must be later than start time.')
+
+        return cleaned_data
+

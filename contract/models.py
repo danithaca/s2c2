@@ -1,4 +1,5 @@
 from enum import Enum
+from decimal import Decimal
 from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse
 from django.db import models
@@ -41,6 +42,11 @@ class Contract(models.Model):
 
     def get_absolute_url(self):
         return reverse('contract:view', kwargs={'pk': self.pk})
+
+    def hourly_rate(self):
+        hours = (self.event_end - self.event_start).total_seconds() / 3600
+        rate = float(self.price) / hours if hours > 0 else 0
+        return round(Decimal(rate), 2)
 
     def change_status(self, old_status, new_status):
         assert self.status == old_status, 'Status does not match: %s, %s' % (Contract.Status(old_status), Contract.Status(new_status))

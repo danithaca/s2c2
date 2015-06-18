@@ -21,6 +21,10 @@ class Area(models.Model):
     def __str__(self):
         return '%s - %s' % (self.name, self.state)
 
+    # @staticmethod
+    # def default():
+    #     return Area.objects.get(pk=1)
+
 
 class Location(models.Model):
     """ A location is a place to create "Need" object. """

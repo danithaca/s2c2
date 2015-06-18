@@ -1,13 +1,31 @@
 {% extends "base.html" %}
 {% load staticfiles %}
 {% load bootstrap %}
+{% load p2_tags %}
 
 {% block page %}
   <div class="row">
     <section class="col-sm-12">
-      {{ contract.buyer.email }}
-      <br>
-      {{ contract.description }}
+      <h4>Contract: {{ contract.id }}</h4>
+      <p>{{ contract.buyer.email }}</p>
+      <p>{{ contract.seller.email|default:"N/A" }}</p>
+      <p>Start: {{ contract.event_start }}</p>
+      <p>End: {{ contract.event_end }}</p>
+      <p>Total: ${{ contract.price }}</p>
+      <p>Hourly: ${{ contract.hourly_rate }}</p>
+      <p>Note: {{ contract.description }}</p>
+      <p>Status: {% include 'elements/contract_status_label.html' with status=contract.status %}</p>
+      <hr>
+      {% for match in matches %}
+        <h5>Match: {{ match.id }}</h5>
+        <p>{{ match.target_user.email }}</p>
+        <p>
+          <span class="label label-default">{% match-status match.status %}</span>
+          {% for circle in match.circles.all %}
+            <span class="badge badge-default">{{ circle.display }}</span>
+          {% endfor %}
+        </p>
+      {% endfor %}
     </section>
   </div>
 {% endblock %}

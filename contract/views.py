@@ -1,6 +1,6 @@
 from django.forms import modelform_factory
 from django.shortcuts import render
-from django.views.generic import CreateView, DetailView
+from django.views.generic import CreateView, DetailView, ListView
 from contract.forms import ContractForm
 from contract.models import Contract
 from datetimewidget.widgets import DateTimeWidget
@@ -9,6 +9,16 @@ from datetimewidget.widgets import DateTimeWidget
 class ContractDetail(DetailView):
     model = Contract
     template_name = 'contract/view.html'
+
+    def get_context_data(self, **kwargs):
+        kwargs['matches'] = self.object.match_set.all().order_by('-score')
+        return super(ContractDetail, self).get_context_data(**kwargs)
+
+
+class ContractList(ListView):
+    model = Contract
+    template_name = 'contract/list.html'
+    ordering = '-updated'
 
 
 class ContractCreate(CreateView):
