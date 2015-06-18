@@ -112,6 +112,21 @@ class Match(models.Model):
     class Meta:
         unique_together = ('contract', 'target_user')
 
+    def accept(self):
+        old_status = self.status
+        if self.status != Match.Status.ACCEPTED.value:
+            self.status = Match.Status.ACCEPTED.value
+            self.save()
+        # todo: based on old status, do additional notification
+
+    def decline(self):
+        old_status = self.status
+        if self.status != Match.Status.DECLINED.value:
+            self.status = Match.Status.DECLINED.value
+            self.save()
+        # todo: based on old status, do additional notification
+
+
 
 ############################ signals ###############################
 

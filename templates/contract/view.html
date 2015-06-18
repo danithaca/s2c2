@@ -17,7 +17,7 @@
       <p>Status: {% include 'elements/contract_status_label.html' with status=contract.status %}</p>
       <hr>
       {% for match in matches %}
-        <h5>Match: {{ match.id }}</h5>
+        <h5><a href="{% url 'contract:match_view' pk=match.id %}" >Match: {{ match.id }}</a></h5>
         <p>{{ match.target_user.email }}</p>
         <p>
           <span class="label label-default">{% match-status match.status %}</span>

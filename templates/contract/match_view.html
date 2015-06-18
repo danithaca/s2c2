@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+{% load staticfiles %}
+{% load bootstrap %}
+{% load p2_tags %}
+
+{% block extra_header %}
+<script type="text/javascript">
+$(document).ready(function() {
+  $('button[name="match"]').click(function() {
+    $.post($(this).data('url'), function(data) {
+      location.reload();
+    });
+  })
+});
+</script>
+{% endblock %}
+
+{% block page %}
+<div class="row">
+  <div class="col-sm-6">
+    <h4>Match: {{ match.id }}</h4>
+    <p>{{ match.target_user.email }}</p>
+    <p>
+      <span class="label label-default">{% match-status match.status %}</span>
+      {% for circle in match.circles.all %}
+        <span class="badge badge-default">{{ circle.display }}</span>
+      {% endfor %}
+    </p>
+    <hr>
+    <h5><a href="{% url 'contract:view' pk=contract.id %}">Contract: {{ contract.id }}</a></h5>
+    <p>{{ contract.buyer.email }}</p>
+    <p>Start: {{ contract.event_start }}</p>
+    <p>End: {{ contract.event_end }}</p>
+    <p>Total: ${{ contract.price }}</p>
+    <p>Hourly: ${{ contract.hourly_rate }}</p>
+    <p>Note: {{ contract.description }}</p>
+    <p>Contract Status: {% include 'elements/contract_status_label.html' with status=contract.status %}</p>
+  </div>
+
+  <div class="col-sm-6">
+    <button class="btn btn-primary" name="match" data-url="{% url 'contract:match_accept' pk=match.id %}">Accept</button>
+    <button class="btn btn-warning" name="match" data-url="{% url 'contract:match_decline' pk=match.id %}">Decline</button>
+  </div>
+</div>
+{% endblock %}

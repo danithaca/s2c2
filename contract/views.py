@@ -1,8 +1,9 @@
+from braces.views import JSONResponseMixin, AjaxResponseMixin, LoginRequiredMixin
 from django.forms import modelform_factory
 from django.shortcuts import render
-from django.views.generic import CreateView, DetailView, ListView
+from django.views.generic import CreateView, DetailView, ListView, View
 from contract.forms import ContractForm
-from contract.models import Contract
+from contract.models import Contract, Match
 from datetimewidget.widgets import DateTimeWidget
 
 
@@ -53,3 +54,24 @@ class ContractCreate(CreateView):
         contract.buyer = self.request.puser
         contract.status = Contract.Status.INITIATED.value
         return super(ContractCreate, self).form_valid(form)
+
+
+class MatchDetail(DetailView):
+    model = Match
+    template_name = 'contract/match_view.html'
+
+    def get_context_data(self, **kwargs):
+        kwargs['contract'] = self.object.contract
+        return super().get_context_data(**kwargs)
+
+
+class MatchStatusChange(LoginRequiredMixin, JSONResponseMixin, AjaxResponseMixin, View):
+    switch = None
+
+    def post_ajax(self, request, pk):
+        match = Match.objects.get(pk=pk)
+        if self.switch is True:
+            match.accept()
+        elif self.switch is False:
+            match.decline()
+        return self.render_json_response({'success': True})
