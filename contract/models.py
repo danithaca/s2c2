@@ -8,7 +8,19 @@ from django.dispatch import receiver
 from contract.tasks import activate_contract
 
 
-class Contract(models.Model):
+class StatusMixin(object):
+    """
+    We assume the subclass has a 'Status' class and a 'status' field that initiate the Status class
+    """
+
+    # IMPORTANT: all status change should go through this for centralized trigger handling.
+    def change_status(self, old_status, new_status):
+        assert self.status == old_status, 'Status does not match: %s, %s' % (self.__class__.Status(old_status), self.__class__.Status(new_status))
+        self.status = new_status
+        self.save()
+
+
+class Contract(StatusMixin, models.Model):
     """
     Handles parents looking for sitters.
     """
@@ -21,8 +33,8 @@ class Contract(models.Model):
         CANCELED = 5        # for some reason this was canceled.
         FAILED = 6          # was confirmed, but not carried through.
 
-    buyer = models.ForeignKey(User, related_name='buyer')
-    seller = models.ForeignKey(User, related_name='seller', blank=True, null=True)
+    initiate_user = models.ForeignKey(User)
+    confirmed_match = models.OneToOneField('Match', blank=True, null=True, related_name='confirmed_contract')     # user string for classname per django doc.
 
     created = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True)
@@ -48,11 +60,6 @@ class Contract(models.Model):
         rate = float(self.price) / hours if hours > 0 else 0
         return round(Decimal(rate), 2)
 
-    def change_status(self, old_status, new_status):
-        assert self.status == old_status, 'Status does not match: %s, %s' % (Contract.Status(old_status), Contract.Status(new_status))
-        self.status = new_status
-        self.save()
-
     def activate(self):
         """
         Make the contract active after payment received.
@@ -68,6 +75,8 @@ class Contract(models.Model):
         recommender = L1Recommender()
         recommender.recommend(self)
 
+    def confirm(self, match):
+        pass
 
 # this automatically activates the contract.
 # todo: add payment step.
@@ -81,7 +90,7 @@ def auto_activate(sender, **kwargs):
         activate_contract.delay(instance)
 
 
-class Match(models.Model):
+class Match(StatusMixin, models.Model):
     """
     Given a contract, find the matched users for the contract.
     """
@@ -90,8 +99,8 @@ class Match(models.Model):
         INITIALIZED = 1         # just created, nothing more
         ENGAGED = 2             # notification has been sent. but no response
         DECLINED = 3            # the target user declined the request
-        ACCEPTED = 4            # the target user accepted the request. doesn't mean the buyer selected the match
-        CANCELED = 5            # the buyer canceled the match for some reason.
+        ACCEPTED = 4            # the target user accepted the request. doesn't mean the initiate_user selected the match
+        CANCELED = 5            # the initiate_user canceled the match for some reason.
 
     contract = models.ForeignKey(Contract)
     target_user = models.ForeignKey(User)
@@ -105,7 +114,7 @@ class Match(models.Model):
     score = models.FloatField(default=0.0)
 
     # the circles to which the target belongs that leads to the match.
-    # doesn't necessarily links to the buyer's circle
+    # doesn't necessarily links to the initiate_user's circle
     from circle.models import Circle
     circles = models.ManyToManyField(to=Circle)
 
@@ -114,16 +123,14 @@ class Match(models.Model):
 
     def accept(self):
         old_status = self.status
-        if self.status != Match.Status.ACCEPTED.value:
-            self.status = Match.Status.ACCEPTED.value
-            self.save()
+        if old_status != Match.Status.ACCEPTED.value:
+            self.change_status(old_status, Match.Status.ACCEPTED.value)
         # todo: based on old status, do additional notification
 
     def decline(self):
         old_status = self.status
-        if self.status != Match.Status.DECLINED.value:
-            self.status = Match.Status.DECLINED.value
-            self.save()
+        if old_status != Match.Status.DECLINED.value:
+            self.change_status(old_status, Match.Status.ACCEPTED.value)
         # todo: based on old status, do additional notification
 
 

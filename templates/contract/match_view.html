@@ -28,7 +28,7 @@ $(document).ready(function() {
     </p>
     <hr>
     <h5><a href="{% url 'contract:view' pk=contract.id %}">Contract: {{ contract.id }}</a></h5>
-    <p>{{ contract.buyer.email }}</p>
+    <p>{{ contract.initiate_user.email }}</p>
     <p>Start: {{ contract.event_start }}</p>
     <p>End: {{ contract.event_end }}</p>
     <p>Total: ${{ contract.price }}</p>

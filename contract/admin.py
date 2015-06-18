@@ -3,7 +3,7 @@ from contract import models
 
 @admin.register(models.Contract)
 class CircleAdmin(admin.ModelAdmin):
-    list_display = ('id', 'buyer', 'seller', 'event_start', 'event_end', 'price', 'description', 'status', 'area')\
+    list_display = ('id', 'initiate_user', 'event_start', 'event_end', 'price', 'description', 'status', 'area')
 
 @admin.register(models.Match)
 class MatchAdmin(admin.ModelAdmin):

@@ -7,8 +7,8 @@
   <div class="row">
     <section class="col-sm-12">
       <h4>Contract: {{ contract.id }}</h4>
-      <p>{{ contract.buyer.email }}</p>
-      <p>{{ contract.seller.email|default:"N/A" }}</p>
+      <p>{{ contract.initiate_user.email }}</p>
+      <p>{{ contract.match.target_user.email|default:"N/A" }}</p>
       <p>Start: {{ contract.event_start }}</p>
       <p>End: {{ contract.event_end }}</p>
       <p>Total: ${{ contract.price }}</p>
