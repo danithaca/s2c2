@@ -8,4 +8,9 @@ def dummy(x, y):
 
 @shared_task
 def activate_contract(contract):
-    contract.activate()
+    from contract.models import Contract
+    if contract.status == Contract.Status.INITIATED.value:
+        contract.activate()
+        return True
+    else:
+        return False

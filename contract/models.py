@@ -6,7 +6,7 @@ from django.db import models
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 from contract.tasks import activate_contract
-
+from shout.notify import shout_match_accepted
 
 class StatusMixin(object):
     """
@@ -64,8 +64,6 @@ class Contract(StatusMixin, models.Model):
         """
         Make the contract active after payment received.
         """
-
-        # someday: use signals/MQ instead.
         # quick and dirty approach is just to make call here directly.
         old_status = Contract.Status.INITIATED.value
         new_status = Contract.Status.ACTIVE.value
@@ -98,6 +96,12 @@ class Contract(StatusMixin, models.Model):
 
     def is_confirmed(self):
         return self.status == Contract.Status.CONFIRMED.value
+
+    def count_accepted_match(self):
+        return Match.objects.filter(contract=self, status=Match.Status.ACCEPTED.value).count()
+
+    def count_total_match(self):
+        return Match.objects.filter(contract=self).count()
 
 
 # this automatically activates the contract.
@@ -147,13 +151,13 @@ class Match(StatusMixin, models.Model):
         old_status = self.status
         if old_status != Match.Status.ACCEPTED.value:
             self.change_status(old_status, Match.Status.ACCEPTED.value)
-        # todo: based on old status, do additional notification
+        shout_match_accepted.delay(self)
 
     def decline(self):
         old_status = self.status
         if old_status != Match.Status.DECLINED.value:
             self.change_status(old_status, Match.Status.DECLINED.value)
-        # todo: based on old status, do additional notification
+        # seems we don't need to send notification if a match is declined.
 
     def is_accepted(self):
         return self.status == Match.Status.ACCEPTED.value
