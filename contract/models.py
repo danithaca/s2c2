@@ -77,6 +77,9 @@ class Contract(StatusMixin, models.Model):
         self.confirmed_match = match
         self.change_status(Contract.Status.ACTIVE.value, Contract.Status.CONFIRMED.value)
 
+        # non-blocking: send messages
+        tasks.after_contract_confirmed.delay(self)
+
     def cancel(self):
         assert self.status != Contract.Status.CANCELED.value, 'Contract already canceled.'
         old_status = self.status

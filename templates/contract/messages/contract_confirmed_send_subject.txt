@@ -1,0 +1,2 @@
+{% load account_tags %}
+[{{ site_name }}] {% user_display initiate_user %} confirmed your offer

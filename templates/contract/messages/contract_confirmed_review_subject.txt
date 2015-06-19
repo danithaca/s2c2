@@ -1,0 +1,2 @@
+{% load account_tags %}
+[{{ site_name }}] Review the confirmed help request

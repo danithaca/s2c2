@@ -19,6 +19,18 @@ def after_contract_activated(contract):
 
 
 @shared_task
+def after_contract_confirmed(contract):
+    from shout.notify import notify_agent
+    confirmed_match = contract.confirmed_match
+    # first, shout to the target user
+    notify_agent.send(contract.initiate_user, confirmed_match.target_user, 'contract/messages/contract_confirmed_send',
+                      {'match': confirmed_match, 'contract': contract, 'initiate_user': contract.initiate_user})
+    # next, shout to the initiate user
+    notify_agent.send(confirmed_match.target_user, contract.initiate_user, 'contract/messages/contract_confirmed_review',
+                      {'match': confirmed_match, 'contract': contract, 'target_user': confirmed_match.target_user})
+
+
+@shared_task
 def after_match_accepted(match):
     from shout.notify import notify_agent
     notify_agent.send(match.target_user, match.contract.initiate_user, 'contract/messages/match_accepted', {'match': match, 'contract': match.contract})

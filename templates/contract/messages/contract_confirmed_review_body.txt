@@ -1,0 +1,15 @@
+{% load account_tags %}
+You have confirmed the offer from {% user_display target_user %}. You can response to the email to contact {% user_display target_user %}. Or use the following information:
+
+Name: {{ target_user.get_full_name }}
+Email: {{ target_user.email }}
+Phone: {{ target_user.info.phone }}
+Address: {{ target_user.info.address }}
+
+{% if contract.price > 0 %}
+You agreed to pay {% user_display target_user %} ${{ contract.price }}. Don't forget to pay after the service is delivered.
+{% endif %}
+
+Review the request here:
+
+{{ site_url}}{{ contract.get_absolute_url }}
