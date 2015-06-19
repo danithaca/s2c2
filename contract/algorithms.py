@@ -15,6 +15,7 @@ class RecommenderStrategy(metaclass=ABCMeta):
         Given the contract, compute and persist the recommended matches and return the "Match" objects.
         """
 
+
 class RandomFavoriteRecommender(RecommenderStrategy):
     def recommend(self, contract):
         initiate_user = PUser.from_user(contract.initiate_user)
@@ -40,6 +41,12 @@ class RandomFavoriteRecommender(RecommenderStrategy):
             match.circles.add(initiate_user_circle)
 
 
+# recommend more people till we got every target user
+class IncrementalAllRecommender(RecommenderStrategy):
+    def recommend(self, contract):
+        all_circle_id = Circle.objects.filter()
+
+
 # todo: other algorithms
 # 1. favorite plus public circle
 # 2. used sitters go first
@@ -52,7 +59,7 @@ class L1Recommender(RandomFavoriteRecommender):
     pass
 
 
-class L2Recommender(RandomFavoriteRecommender):
+class L2Recommender(IncrementalAllRecommender):
     """
     This runs peoriodically to update contract matches.
     """
