@@ -28,7 +28,7 @@ class Contract(StatusMixin, models.Model):
         INITIATED = 1       # just created. no payment, etc.
         ACTIVE = 2          # payment posted, matching in process
         CONFIRMED = 3       # found someone, and both parties agree to the work.
-        SUCCESSFUL = 4        # after the contract, everyone are happy.
+        SUCCESSFUL = 4      # after the contract, everyone are happy.
         CANCELED = 5        # for some reason this was canceled.
         FAILED = 6          # was confirmed, but not carried through.
 
@@ -101,15 +101,8 @@ class Contract(StatusMixin, models.Model):
     def count_total_match(self):
         return Match.objects.filter(contract=self).count()
 
-
-# this automatically activates the contract.
-# todo: add payment step.
-@receiver(post_save, sender=Contract)
-def auto_activate(sender, **kwargs):
-    instance = kwargs['instance']
-    created = kwargs['created']
-    if created and instance.status == Contract.Status.INITIATED.value:
-        instance.activate()
+    def event_length(self):
+        return self.event_end - self.event_start
 
 
 class Match(StatusMixin, models.Model):
@@ -143,6 +136,9 @@ class Match(StatusMixin, models.Model):
     class Meta:
         unique_together = ('contract', 'target_user')
 
+    def get_absolute_url(self):
+        return reverse('contract:match_view', kwargs={'pk': self.pk})
+
     def accept(self):
         old_status = self.status
         if old_status != Match.Status.ACCEPTED.value:
@@ -159,8 +155,40 @@ class Match(StatusMixin, models.Model):
     def is_accepted(self):
         return self.status == Match.Status.ACCEPTED.value
 
+    def engage(self):
+        """
+        shout to the targeted user and engage him/her for this match.
+        """
+        old_status = self.status
+        if old_status == Match.Status.INITIALIZED.value:
+            new_status = Match.Status.ENGAGED.value
+            self.change_status(old_status, new_status)
+
+            # non-blocking process
+            tasks.after_match_engaged.delay(self)
+
 
 ############################ signals ###############################
 
 # signals should be declared in AppConfig.ready() according to https://docs.djangoproject.com/en/1.8/ref/signals/
+# cannot be in signals.py because it's not loaded by django.
 # see also http://stackoverflow.com/questions/2719038/where-should-signal-handlers-live-in-a-django-project
+
+
+# this automatically activates the contract.
+# todo: add payment step.
+@receiver(post_save, sender=Contract)
+def contract_auto_activate(sender, **kwargs):
+    instance = kwargs['instance']
+    created = kwargs['created']
+    if created and instance.status == Contract.Status.INITIATED.value:
+        instance.activate()
+
+
+@receiver(post_save, sender=Match)
+def match_auto_engage(sender, **kwargs):
+    instance = kwargs['instance']
+    created = kwargs['created']
+    # only do it when the match was first created.
+    if created and instance.status == Match.Status.INITIALIZED.value:
+        instance.engage()

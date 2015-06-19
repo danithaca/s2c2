@@ -1,0 +1,10 @@
+{% load account_tags %}
+{% user_display contract.initiate_user %} needs your help babysitting. Here are the details:
+
+When: {{ contract.event_start }} ~ {{ contract.event_end }}
+Price: {{ contract.price }}
+Note: {{ contract.description }}
+
+Respond the request here:
+
+{{ site_url}}{{ match.get_absolute_url }}
