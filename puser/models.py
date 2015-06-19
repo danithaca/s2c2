@@ -4,6 +4,7 @@ from image_cropping import ImageCropField, ImageRatioField
 from localflavor.us.models import PhoneNumberField
 from django.core import checks
 from circle.models import Membership, Circle
+from p2 import settings
 from s2c2.utils import auto_user_name
 
 
@@ -105,3 +106,6 @@ class PUser(User):
     @staticmethod
     def get_by_email(email):
         return PUser.objects.get(email=email)
+
+
+site_admin_user = PUser.get_or_create(settings.DEFAULT_FROM_EMAIL)

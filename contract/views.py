@@ -51,7 +51,7 @@ class ContractCreate(CreateView):
 
     def form_valid(self, form):
         contract = form.instance
-        contract.buyer = self.request.puser
+        contract.initiate_user = self.request.puser
         contract.status = Contract.Status.INITIATED.value
         return super(ContractCreate, self).form_valid(form)
 

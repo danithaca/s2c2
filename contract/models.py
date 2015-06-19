@@ -5,8 +5,7 @@ from django.core.urlresolvers import reverse
 from django.db import models
 from django.db.models.signals import post_save
 from django.dispatch import receiver
-from contract.tasks import activate_contract
-from shout.notify import shout_match_accepted
+from contract import tasks
 
 class StatusMixin(object):
     """
@@ -62,16 +61,15 @@ class Contract(StatusMixin, models.Model):
 
     def activate(self):
         """
-        Make the contract active after payment received.
+        Make the contract active after payment received; Non-blocking.
         """
         # quick and dirty approach is just to make call here directly.
         old_status = Contract.Status.INITIATED.value
         new_status = Contract.Status.ACTIVE.value
         self.change_status(old_status, new_status)
 
-        from contract.algorithms import L1Recommender
-        recommender = L1Recommender()
-        recommender.recommend(self)
+        # non-blocking process
+        tasks.after_contract_activated.delay(self)
 
     def confirm(self, match):
         assert self.confirmed_match is None, 'Confirmed match already exists.'
@@ -111,9 +109,7 @@ def auto_activate(sender, **kwargs):
     instance = kwargs['instance']
     created = kwargs['created']
     if created and instance.status == Contract.Status.INITIATED.value:
-        # instead of activate in a blocking fashion, do it through celery
-        # instance.activate()
-        activate_contract.delay(instance)
+        instance.activate()
 
 
 class Match(StatusMixin, models.Model):
@@ -151,7 +147,8 @@ class Match(StatusMixin, models.Model):
         old_status = self.status
         if old_status != Match.Status.ACCEPTED.value:
             self.change_status(old_status, Match.Status.ACCEPTED.value)
-        shout_match_accepted.delay(self)
+            # non-blocking. only executed when match is really accepted.
+            tasks.after_match_accepted.delay(self)
 
     def decline(self):
         old_status = self.status

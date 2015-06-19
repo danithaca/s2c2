@@ -17,10 +17,10 @@ class RecommenderStrategy(metaclass=ABCMeta):
 
 class RandomFavoriteRecommender(RecommenderStrategy):
     def recommend(self, contract):
-        buyer = PUser.from_user(contract.buyer)
-        buyer_circle = buyer.get_personal_circle()
+        initiate_user = PUser.from_user(contract.initiate_user)
+        initiate_user_circle = initiate_user.get_personal_circle()
         # order by random and limit by 10.
-        for ms in Membership.objects.filter(circle=buyer_circle, active=True, approved=True, type=Circle.Type.PERSONAL.value).order_by('?')[:10]:
+        for ms in Membership.objects.filter(circle=initiate_user_circle, active=True, approved=True, type=Circle.Type.PERSONAL.value).order_by('?')[:10]:
             target_user = ms.member
             score = ms.updated.timestamp()
             match, created = Match.objects.get_or_create(contract=contract, target_user=target_user, defaults={
@@ -33,11 +33,11 @@ class RandomFavoriteRecommender(RecommenderStrategy):
                 pass
 
             # save explanation
-            # if buyer_circle not in match.circles:
-            #     match.circles.add(buyer_circle)
+            # if initiate_user_circle not in match.circles:
+            #     match.circles.add(initiate_user_circle)
 
             # adding a second time is ok.
-            match.circles.add(buyer_circle)
+            match.circles.add(initiate_user_circle)
 
 
 # todo: other algorithms

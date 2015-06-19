@@ -7,10 +7,18 @@ def dummy(x, y):
 
 
 @shared_task
-def activate_contract(contract):
-    from contract.models import Contract
-    if contract.status == Contract.Status.INITIATED.value:
-        contract.activate()
-        return True
-    else:
-        return False
+def after_contract_activated(contract):
+    # compute matches
+    from contract.algorithms import L1Recommender
+    recommender = L1Recommender()
+    recommender.recommend(contract)
+
+    from shout.notify import notify_agent
+    from puser.models import site_admin_user
+    notify_agent.send(site_admin_user, contract.initiate_user, 'contract/messages/contract_activated', {'contract': contract})
+
+
+@shared_task
+def after_match_accepted(match):
+    from shout.notify import notify_agent
+    notify_agent.send(match.target_user, match.contract.initiate_user, 'contract/messages/match_accepted', {'match': match, 'contract': match.contract})

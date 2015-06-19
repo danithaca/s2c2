@@ -1,0 +1,4 @@
+{% load account_tags %}
+{% user_display match.target_user %} accepted your request. You have a total of {{ contract.count_accepted_match }} offers. Review your request here:
+
+{{ site_url}}{{ contract.get_absolute_url }}

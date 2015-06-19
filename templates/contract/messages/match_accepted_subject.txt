@@ -1,0 +1,2 @@
+{% load account_tags %}
+[{{ site_name }}] {% user_display match.target_user %} accepted your request

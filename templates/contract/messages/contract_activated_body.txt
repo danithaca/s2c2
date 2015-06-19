@@ -1,0 +1,6 @@
+You just created a request:
+
+When: {{ contract.event_start }} ~ {{ contract.event_end }}
+Price: {{ contract.price }}
+Note: {{ contract.description }}
+Initial contacts: {{ contract.count_total_match }}
