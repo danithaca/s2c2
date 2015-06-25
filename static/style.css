@@ -34,6 +34,14 @@ body {
 
 img.user-picture-md { width: 48px; height: 100%; }
 
+.text-large { font-size: large; }
+.text-x-large { font-size: x-large; }
+.text-xx-large { font-size: xx-large; }
+
+.img-100 { max-height: 100px; max-width: 100px; }
+.img-150 { max-height: 150px; max-width: 150px; }
+.img-200 { max-height: 200px; max-width: 200px; }
+
 /******* for comment ********/
 
 .commentList {

@@ -107,5 +107,15 @@ class PUser(User):
     def get_by_email(email):
         return PUser.objects.get(email=email)
 
+    def has_info(self):
+        try:
+            self.info
+            return True
+        except Info.DoesNotExist:
+            return False
+
+    def has_picture(self):
+        return self.has_info() and self.info.picture_original and self.info.picture_cropping
+
 
 site_admin_user = PUser.get_or_create(settings.DEFAULT_FROM_EMAIL)
