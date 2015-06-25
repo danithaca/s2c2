@@ -48,16 +48,19 @@ class IncrementalAllRecommender(RecommenderStrategy):
         personal_circle = set(Circle.objects.filter(owner=contract.initiate_user, area=contract.area, type=Circle.Type.PERSONAL.value).values_list('id', flat=True))
         public_circle = set(Circle.objects.filter(membership__member=contract.initiate_user, area=contract.area, type=Circle.Type.PUBLIC.value).values_list('id', flat=True))
 
-        for membership in Membership.objects.filter(circle__in=(personal_circle | public_circle), active=True, approved=True).exclude(member=contract.initiate_user).exclude(member__match__contract=contract, member__match__circles=F('circle')).order_by('?')[:10]:
+        # for membership in Membership.objects.filter(circle__in=(personal_circle | public_circle), active=True, approved=True).exclude(member=contract.initiate_user).exclude(member__match__contract=contract, member__match__circles=F('circle')).order_by('?')[:10]:
+        for membership in Membership.objects.filter(circle__in=(personal_circle | public_circle), active=True, approved=True).exclude(member=contract.initiate_user).order_by('?'):
             target_user = membership.member
             score = membership.updated.timestamp()
             match, created = Match.objects.get_or_create(contract=contract, target_user=target_user, defaults={
                 'status': Match.Status.INITIALIZED.value,
                 'score': score,
             })
-            if not created:
-                match.score += score        # increase score if there are more circles.
-            match.circles.add(membership.circle)
+
+            if membership.circle not in match.circles.all():
+                if not created:
+                    match.score += score        # increase score if there are more circles.
+                match.circles.add(membership.circle)
 
 
 # todo: other algorithms
