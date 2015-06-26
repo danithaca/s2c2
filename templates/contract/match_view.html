@@ -16,30 +16,53 @@ $(document).ready(function() {
 {% endblock %}
 
 {% block page %}
-<div class="row">
-  <div class="col-sm-6">
-    <h4>Match: {{ match.id }}</h4>
-    <p>{{ match.target_user.email }}</p>
-    <p>
-      <span class="label label-default">{% match-status match.status %}</span>
-      {% for circle in match.circles.all %}
-        <span class="badge badge-default">{{ circle.display }}</span>
-      {% endfor %}
+<div class="row" data-contract-id="{{ contract.id }}" data-match-id="{{ match.id }}">
+  <div class="col-sm-6 col-md-8">
+    <p class="text-xx-large">
+      <span class="label label-default">Response: {% match-status match.status %}</span>
     </p>
-    <hr>
-    <h5><a href="{% url 'contract:view' pk=contract.id %}">Contract: {{ contract.id }}</a></h5>
-    <p>{{ contract.initiate_user.email }}</p>
-    <p>Start: {{ contract.event_start }}</p>
-    <p>End: {{ contract.event_end }}</p>
-    <p>Total: ${{ contract.price }}</p>
-    <p>Hourly: ${{ contract.hourly_rate }}</p>
-    <p>Note: {{ contract.description }}</p>
-    <p>Contract Status: {% include 'elements/contract_status_label.html' with status=contract.status %}</p>
+    <table class="table table-striped table-hover">
+      <tbody>
+      <tr>
+        <th scope="row">Time</th>
+        <td>Start: {{ contract.event_start }}, End: {{ contract.event_end }}</td>
+      </tr>
+      <tr>
+        <th scope="row">Compensation</th>
+        <td>
+          {% if contract.price > 0 %}
+            ${{ contract.price }} <small>(${{ contract.hourly_rate }}/hour)</small>
+          {% else %}
+            No monetary compensation. This will be based on exchange of favors.
+          {% endif %}
+        </td>
+      </tr>
+      <tr>
+        <th scope="row">Note</th>
+        <td>{{ contract.description }}</td>
+      </tr>
+      <tr>
+        <th scope="row">Status</th>
+        <td>{% contract-status contract.status %}. {{ contract.count_total_match }} contacted; {{ contract.count_accepted_match }} accepted</td>
+      </tr>
+      </tbody>
+    </table>
   </div>
 
-  <div class="col-sm-6">
-    <button class="btn btn-primary" name="match" data-url="{% url 'contract:match_accept' pk=match.id %}">Accept</button>
-    <button class="btn btn-warning" name="match" data-url="{% url 'contract:match_decline' pk=match.id %}">Decline</button>
+  <div class="col-xs-6 col-sm-3 col-md-2">
+    {% include 'contract/includes/match_initiate_user.html' with user=contract.initiate_user match=match%}
+  </div>
+  <div class="col-xs-6 col-sm-3 col-md-2">
+    {% include 'contract/includes/match_target_user.html' with user=match.target_user match=match %}
+  </div>
+
+  <div class="row">
+    <div class="col-sm-12">
+      <div class="well text-center">
+        <button class="btn btn-primary btn-lg" name="match" data-url="{% url 'contract:match_accept' pk=match.id %}">Accept</button>
+        <button class="btn btn-warning btn-lg" name="match" data-url="{% url 'contract:match_decline' pk=match.id %}">Decline</button>
+      </div>
+    </div>
   </div>
 </div>
 {% endblock %}
