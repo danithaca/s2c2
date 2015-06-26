@@ -42,6 +42,16 @@ img.user-picture-md { width: 48px; height: 100%; }
 .img-150 { max-height: 150px; max-width: 150px; }
 .img-200 { max-height: 200px; max-width: 200px; }
 
+.truncate {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.img-overlay {
+  position: relative;
+}
+
 /******* for comment ********/
 
 .commentList {

@@ -22,10 +22,10 @@
 
 {% block page %}
 <div class="row" id="contract-basic-view" data-contract-id="{{ contract.id }}">
-  <div class="col-sm-3 col-md-2">
+  <div class="col-xs-6 col-sm-3 col-md-2">
     {% include 'contract/includes/user_preview.html' with user=contract.initiate_user %}
   </div>
-  <div class="col-sm-3 col-md-2">
+  <div class="col-xs-6 col-sm-3 col-md-2">
     {% include 'contract/includes/match_not_found.html' %}
   </div>
   <div class="col-sm-6 col-md-8">
@@ -65,18 +65,8 @@
 <hr>
 <div class="row">
 {% for match in matches %}
-  <div class="col-xs-6 col-sm-3 col-lg-2">
-    <h5><a href="{% url 'contract:match_view' pk=match.id %}" >Match: {{ match.id }}</a></h5>
-    <p>{{ match.target_user.email }}</p>
-    {% for circle in match.circles.all %}
-      <p class="badge badge-default">{{ circle.display }}</p>
-    {% endfor %}
-    <h2><span class="label label-default">{% match-status match.status %}</span></h2>
-    <p>
-      {% if match.is_accepted and contract.is_active %}
-        <button class="btn btn-primary" name="change-status" value="confirm" data-match-id="{{ match.id }}">Confirm</button>
-      {% endif %}
-    </p>
+  <div class="col-xs-6 col-sm-3 col-md-2">
+    {% include 'contract/includes/match_preview.html' with match=match contract=contract %}
   </div>
 {% endfor %}
 </div>
