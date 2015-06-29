@@ -1,0 +1,34 @@
+{% load p2_tags %}
+{% load static %}
+{% load account_tags %}
+
+<div class="engagement panel panel-default">
+  <div class="row">
+    <div class="col-sm-4 col-xs-2">
+      <img class="img-circle img-responsive img-100 center-block" src="{% user_picture_url engagement.initiate_user %}" alt="request user" title="{% user_display engagement.initiate_user%}">
+    </div>
+
+    <div class="col-sm-4 col-xs-8">
+      <h3 class="text-center">
+        <span class="label label-default">{{ engagement.get_status }} <a href="{{ engagement.get_link }}"><i class="fa fa-link"></i></a></span>
+      </h3>
+      <p class="text-center">
+        {{ engagement.contract.event_start }}
+        <br>
+        {% if engagement.contract.price > 0 %}
+          ${{ engagement.contract.price }} (${{ engagement.contract.hourly_rate }}/hour)
+        {% else %}
+          $0 (Favor exchange)
+        {% endif %}
+      </p>
+    </div>
+
+    <div class="col-sm-4 col-xs-2">
+      {% if engagement.target_user %}
+        <img class="img-circle img-responsive img-100 center-block" src="{% user_picture_url engagement.target_user %}" alt="response user" title="{% user_display engagement.target_user %}">
+      {% else %}
+        <img class="img-circle img-responsive img-100 center-block" src="{% static 'images/question_200x200.png' %}" alt="not found">
+      {% endif %}
+    </div>
+  </div>
+</div>

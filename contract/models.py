@@ -51,6 +51,9 @@ class Contract(StatusMixin, models.Model):
     from location.models import Area
     area = models.ForeignKey(Area)
 
+    def __str__(self):
+        return 'Contract: %d' % self.id
+
     def get_absolute_url(self):
         return reverse('contract:view', kwargs={'pk': self.pk})
 
@@ -179,6 +182,51 @@ class Match(StatusMixin, models.Model):
             # non-blocking process
             tasks.after_match_engaged.delay(self)
 
+
+class Engagement(object):
+    """
+    This is a single match or a contract without a match. Shown at the homepage.
+    """
+    @staticmethod
+    def from_contract(contract):
+        assert isinstance(contract, Contract)
+        e = Engagement()
+        e.main_user = contract.initiate_user
+        e.contract = contract
+        e.initiate_user = contract.initiate_user
+        if contract.confirmed_match:
+            e.match = contract.confirmed_match
+            e.target_user = contract.confirmed_match.target_user
+        else:
+            e.match = None
+            e.target_user = None
+        return e
+
+    @staticmethod
+    def from_match(match):
+        assert isinstance(match, Match)
+        e = Engagement()
+        e.main_user = match.target_user
+        e.contract = match.contract
+        e.initiate_user = match.contract.initiate_user
+        e.match = match
+        e.target_user = match.target_user
+        return e
+
+    # todo: polish this one.
+    def get_status(self):
+        if self.main_user == self.initiate_user:
+            return Contract.Status(self.contract.status).name.capitalize()
+        else:
+            assert self.main_user == self.target_user
+            return Match.Status(self.match.status).name.capitalize()
+
+    def get_link(self):
+        if self.main_user == self.initiate_user:
+            return self.contract.get_absolute_url()
+        else:
+            assert self.main_user == self.target_user
+            return self.match.get_absolute_url()
 
 ############################ signals ###############################
 

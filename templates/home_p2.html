@@ -1,15 +1,22 @@
 {% extends "base.html" %}
 {% load staticfiles %}
 {% load bootstrap %}
+{% load account_tags %}
 
 {% block page %}
   <div class="row">
-    <aside class="col-sm-2">
-      sidebar
+    <aside class="col-sm-3 hidden-xs">
+      {% user_display user %}
     </aside>
 
-    <section class="col-sm-10">
-      main content
+    <section class="col-sm-9">
+    {% if engagements %}
+      {% for engagement in engagements %}
+        {% include 'contract/includes/engagement_home.html' with engagement=engagement %}
+      {% endfor %}
+    {% else %}
+      <p>You don't have any activities yet. To find a babysitter, click here: <a class="btn btn-primary">{% url 'contract:add' %}</a></p>
+    {% endif %}
     </section>
   </div>
 {% endblock %}
