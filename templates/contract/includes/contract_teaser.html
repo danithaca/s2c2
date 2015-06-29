@@ -1,6 +1,36 @@
-<div class="contract-teaser" data-id="{{ contract.id }}">
-  <h4><a href="{% url 'contract:view' pk=contract.id %}">Contract: {{ contract.id }}</a></h4>
-  <p>{{ contract.initiate_user.email }}</p>
-  <p>Note: {{ contract.description }}</p>
-  <p>Status: {% include 'elements/contract_status_label.html' with status=contract.status %}</p>
+{% load p2_tags %}
+{% load static %}
+{% load account_tags %}
+<div class="contract-teaser panel panel-default" data-id="{{ contract.id }}">
+  <div class="row">
+    <div class="col-sm-2">
+      <img class="img-circle img-responsive img-100 min-margin" src="{% user_picture_url contract.initiate_user %}" alt="request user" title="{% user_display contract.initiate_user%}">
+    </div>
+    <div class="col-sm-2">
+      {% if contract.confirmed_match %}
+        <img class="img-circle img-responsive img-100 min-margin" src="{% user_picture_url contract.confirmed_match.target_user %}" alt="response user" title="{% user_display contract.confirmed_match.target_user%}">
+      {% else %}
+        <img class="img-circle img-responsive img-100 min-margin" src="{% static 'images/question_200x200.png' %}" alt="not found">
+      {% endif %}
+    </div>
+    <div class="col-sm-8">
+      <p>{{ contract.description }}</p>
+      <p>
+        <a href="{% url 'contract:view' pk=contract.id %}"><i class="fa fa-link"></i></a>
+        <span class="label label-default">{{ contract.event_start }} ~ {{ contract.event_end }}</span>
+        <span class="label label-default">
+          {% if contract.price > 0 %}
+            ${{ contract.price }} (${{ contract.hourly_rate }})
+          {% else %}
+            Favor exchange
+          {% endif %}
+        </span>
+      </p>
+      <div class="contract-label-decoration">
+        <span class="label label-default contract-label-decoration-status text-large">{% contract-status contract.status %}</span>
+      </div>
+    </div>
+  </div>
+
+
 </div>

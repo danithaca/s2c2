@@ -48,8 +48,39 @@ img.user-picture-md { width: 48px; height: 100%; }
   text-overflow: ellipsis;
 }
 
-.img-overlay {
-  position: relative;
+.min-margin {
+  margin: 4px;
+}
+
+/******** for contract related *********/
+
+.contract-label-decoration {
+  position: absolute;
+  right: 0;
+  top: 0;
+  overflow: hidden;
+  width: 120px;
+  height: 120px;
+}
+
+.contract-label-decoration-status {
+  -webkit-transform: rotate(45deg);
+  -moz-transform: rotate(45deg);
+  -ms-transform: rotate(45deg);
+  -o-transform: rotate(45deg);
+  transform: rotate(45deg);
+  -webkit-transform-origin: top left;
+  -moz-transform-origin: top left;
+  -ms-transform-origin: top left;
+  -o-transform-origin: top left;
+  transform-origin: top left;
+  position: absolute;
+  *width: 120px;
+  *height: 26px;
+  *line-height: 26px;
+  text-align: center;
+  *top: -18px;
+  *right: -54px;
 }
 
 /******* for comment ********/

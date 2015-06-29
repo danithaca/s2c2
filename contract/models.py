@@ -158,6 +158,9 @@ class Match(StatusMixin, models.Model):
     def is_accepted(self):
         return self.status == Match.Status.ACCEPTED.value
 
+    def is_declined(self):
+        return self.status == Match.Status.DECLINED.value
+
     def engage(self):
         """
         shout to the targeted user and engage him/her for this match.
