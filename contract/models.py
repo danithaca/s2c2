@@ -89,8 +89,11 @@ class Contract(StatusMixin, models.Model):
         """
         From confirmed status back to active
         """
+        assert self.confirmed_match is not None, 'No confirmed match. Cannot revert.'
+        old_confirmed_match = self.confirmed_match
         self.confirmed_match = None
         self.change_status(Contract.Status.CONFIRMED.value, Contract.Status.ACTIVE.value)
+        tasks.after_contract_reverted.delay(self, old_confirmed_match)
 
     def is_active(self):
         return self.status == Contract.Status.ACTIVE.value
@@ -160,6 +163,9 @@ class Match(StatusMixin, models.Model):
 
     def is_declined(self):
         return self.status == Match.Status.DECLINED.value
+
+    def is_confirmed(self):
+        return self == self.contract.confirmed_match
 
     def engage(self):
         """

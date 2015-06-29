@@ -26,17 +26,21 @@
     {% include 'contract/includes/user_preview.html' with user=contract.initiate_user %}
   </div>
   <div class="col-xs-6 col-sm-3 col-md-2">
-    {% include 'contract/includes/match_not_found.html' %}
+    {% if contract.confirmed_match %}
+      {% include 'contract/includes/user_preview.html' with user=contract.confirmed_match.target_user %}
+    {% else %}
+      {% include 'contract/includes/match_not_found.html' %}
+    {% endif %}
   </div>
   <div class="col-sm-6 col-md-8">
     <p class="text-xx-large">
       <span class="label label-default">Status - {% contract-status contract.status %}</span>
       {% if contract.is_confirmed %}
-        <button class="btn btn-danger" name="change-status" value="revert">Revert</button>
+        <button class="btn btn-danger" name="change-status" value="revert">Undo</button>
       {% else %}
         <button class="btn btn-warning" name="change-status" value="edit">Edit</button>
+        <button class="btn btn-default" name="change-status" value="cancel">Cancel</button>
       {% endif %}
-      <button class="btn btn-default" name="change-status" value="cancel">Cancel</button>
     </p>
     <table class="table table-striped table-hover">
       <tbody>

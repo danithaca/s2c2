@@ -1,0 +1,17 @@
+{% load account_tags %}
+{% user_display initiate_user %} canceled your confirmed offer. Here are the details:
+
+When: {{ contract.event_start }} ~ {{ contract.event_end }}
+Price: {{ contract.price }}
+Note: {{ contract.description }}
+
+You can response to the email to contact {% user_display initiate_user %}. Or use the following information:
+
+Name: {{ initiate_user.get_full_name }}
+Email: {{ initiate_user.email }}
+Phone: {{ initiate_user.info.phone }}
+Address: {{ initiate_user.info.address }}
+
+Review the request here:
+
+{{ site_url}}{{ match.get_absolute_url }}

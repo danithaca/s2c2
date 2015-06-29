@@ -40,3 +40,16 @@ def after_match_accepted(match):
 def after_match_engaged(match):
     from shout.notify import notify_agent
     notify_agent.send(match.contract.initiate_user, match.target_user, 'contract/messages/match_engaged', {'match': match, 'contract': match.contract})
+
+
+@shared_task
+def after_contract_reverted(contract, match):
+    from shout.notify import notify_agent
+    from shout.notify import site_admin_user
+
+    # shout to the affected target user
+    notify_agent.send(contract.initiate_user, match.target_user, 'contract/messages/contract_reverted',
+                      {'match': match, 'contract': contract, 'initiate_user': contract.initiate_user})
+    # next, shout to the initiate user
+    # notify_agent.send(site_admin_user, contract.initiate_user, 'contract/messages/contract_reverted_review',
+    #                   {'match': match, 'contract': contract, 'target_user': match.target_user})
