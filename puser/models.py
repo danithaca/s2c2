@@ -57,6 +57,14 @@ class PUser(User):
     class Meta:
         proxy = True
 
+    # def __getattr__(self, attrib):
+    #     if self.has_info() and hasattr(self.info, attrib):
+    #         return getattr(self.info, attrib)
+    #     elif hasattr(self, attrib):
+    #         return getattr(self, attrib)
+    #     else:
+    #         raise AttributeError
+
     @staticmethod
     def from_user(user):
         return PUser.objects.get(pk=user.id)

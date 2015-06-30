@@ -40,7 +40,7 @@
   </script>
 
   <!-- hotjar -->
-  <script>
+  <!--script>
     (function(f,b){
       var c;
       f.hj=f.hj||function(){(f.hj.q=f.hj.q||[]).push(arguments)};
@@ -49,7 +49,7 @@
       c.src="//static.hotjar.com/c/hotjar-16940.js?sv=3";
       b.getElementsByTagName("head")[0].appendChild(c);
     })(window,document);
-  </script>
+  </script-->
 
   <!-- IE10 viewport hack for Surface/desktop Windows 8 bug -->
   <script src="http://getbootstrap.com/assets/js/ie10-viewport-bug-workaround.js"></script>
@@ -65,7 +65,7 @@
 </head>
 
 <body>
-
+{% if user %}<!-- logged in as {{ user.email }} -->{% endif %}
 <nav class="navbar navbar-default navbar-fixed-top" role="navigation">
   <div class="container">
     <div class="navbar-header">

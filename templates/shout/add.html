@@ -1,0 +1,27 @@
+{% extends "base_page.html" %}
+{% load staticfiles %}
+{% load bootstrap %}
+
+{% block extra_header %}
+  {{ form.media }}
+{% endblock %}
+
+{% block title %}Shout{% endblock %}
+{% block page-header %}Shout{% endblock %}
+
+{% block page-content %}
+  <div class="row">
+    <div class="col-sm-6">
+      <form class="form" method="post">
+        {% csrf_token %}
+        {{ form|bootstrap }}
+        <div class="form-group">
+          <button type="submit" class="btn btn-primary">Shout</button>
+        </div>
+      </form>
+    </div>
+    <div class="col-sm-6">
+      help
+    </div>
+  </div>
+{% endblock %}

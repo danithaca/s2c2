@@ -6,7 +6,7 @@
 {% else %}
   <li><a href="/"><i class="fa fa-eye"></i> Watch</a></li>
   <li><a href="{% url 'contract:add' %}"><i class="fa fa-child"></i> Find</a></li>
-  <li><a href="#"><i class="fa fa-envelope"></i> Shout</a></li>
+  <li><a href="{% url 'shout:add' %}"><i class="fa fa-envelope"></i> Shout</a></li>
   <li class="dropdown user-admin">
     <a class="dropdown-toggle" data-toggle="dropdown" data-target="#" href="#"><i class="fa fa-user"></i> {% user_display user %} <span class="caret"></span></a>
     <ul class="dropdown-menu" role="menu">

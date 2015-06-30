@@ -1,0 +1,5 @@
+{% load account_tags %}
+{{ body }}
+
+--
+From {% user_display from_user %} on {{ site_url }}
