@@ -29,18 +29,33 @@ Feature: password change
     Then I should see "Set your new password"
 
     When I fill in the following:
-      | New Password         | password |
-      | New Password (again) | password |
+      | New Password         | password1 |
+      | New Password (again) | password1 |
     And I press "Reset"
     Then I should see "Password successfully changed."
 
-    # check login again
+
+  Scenario: change password
     Given I am on the homepage
+    # note: using the new password.
     And I fill in the following:
       | Email    | test@servuno.com |
-      | Password | password         |
+      | Password | password1        |
     And I press "Log in"
     Then the response should contain "<!-- logged in as test@servuno.com -->"
+
+    # change password
+    When I follow "Edit account"
+    And I follow "Change password"
+    And I fill in the following:
+      | Current Password     | password1 |
+      | New Password         | password  |
+      | New Password (again) | password  |
+    And I press "Change"
+    Then I should see "Password successfully changed."
+
+    Then check email sent from "admin@servuno.com" to "test@servuno.com"
+    And check email subject contains "Change password email notification"
 
 
   Scenario: request password again

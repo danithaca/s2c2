@@ -176,4 +176,22 @@ class FeatureContext extends MinkContext implements SnippetAcceptingContext
       $this->visit($url);
   }
 
+  /**
+   * @Given I am logged in as user :user with password :password
+   */
+  public function loginAsUser($user, $password) {
+    $this->getSession()->visit($this->locatePath('/account/login'));
+    $element = $this->getSession()->getPage();
+    $element->fillField('Email', $user);
+    $element->fillField('Password', $password);
+    $submit = $element->findButton('Log in');
+    $submit->click();
+
+    try {
+      $this->assertResponseContains("<!-- logged in as $user -->");
+    } catch (\Exception $e) {
+      throw new \Exception("Failed to log in as user '$user' with password '$password'");
+    }
+  }
+
 }

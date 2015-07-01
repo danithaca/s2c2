@@ -7,7 +7,11 @@
     <a class="dropdown-toggle" data-toggle="dropdown" data-target="#" href="#"><i class="fa fa-user"></i> {% user_display user %} <span class="caret"></span></a>
     <ul class="dropdown-menu" role="menu">
       <li><a href="{% url 'account_view' %}">View account</a></li>
-      <li><a href="{% url 'account_edit' %}">Manage account</a></li>
+      <li><a href="{% url 'account_edit' %}">Edit account</a></li>
+      <li class="divider"></li>
+      <li><a href="{% url 'account_favorite' %}">Manage favorites</a></li>
+      <li><a href="{% url 'account_circle' %}">Manage circles</a></li>
+      <li class="divider"></li>
       <li><a href="{% url 'account_logout' %}">Logout</a></li>
     </ul>
   </li>
