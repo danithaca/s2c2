@@ -2,7 +2,8 @@ default:
   suites:
     default:
       contexts:
-        - FeatureContext
+        - FeatureContext:
+            email_path: %paths.base%/../emails
 
   extensions:
     Behat\MinkExtension:

@@ -23,7 +23,7 @@
         {% include 'contract/includes/engagement_home.html' with engagement=engagement %}
       {% endfor %}
     {% else %}
-      <p>You don't have any activities yet. To find a babysitter, click here: <a class="btn btn-primary">{% url 'contract:add' %}</a></p>
+      <p>You don't have any activities yet. To find a babysitter, click here: <a class="btn btn-primary" href="{% url 'contract:add' %}">Find</a></p>
     {% endif %}
     </section>
   </div>

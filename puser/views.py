@@ -28,6 +28,7 @@ def logout(request):
 
 
 class LoginView(account.views.LoginView):
+    # switching to use Email-only login form
     form_class = account.forms.LoginEmailForm
 
 

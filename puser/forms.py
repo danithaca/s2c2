@@ -7,8 +7,7 @@ from puser.models import Info
 
 class SignupBasicForm(account.views.SignupForm):
     required_css_class = 'required'
-
-    area = fields_for_model(Info, fields=['area'])['area']
+    # area = fields_for_model(Info, fields=['area'])['area']
 
     def __init__(self, *args, **kwargs):
         super(SignupBasicForm, self).__init__(*args, **kwargs)
@@ -25,7 +24,7 @@ class UserInfoForm(ModelForm):
 
     class Meta:
         model = Info
-        fields = ['first_name', 'last_name', 'phone', 'address', 'area', 'note', 'picture_original', 'picture_cropping']
+        fields = ['area', 'first_name', 'last_name', 'phone', 'address', 'note', 'picture_original', 'picture_cropping']
         # fields = ['first_name', 'last_name', 'phone', 'address', 'note']
         labels = {
             'note': 'About me',
