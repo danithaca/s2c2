@@ -1,5 +1,16 @@
+README
+======
+
 Most of the tests here are based on Behat 3
 
+Not covered in test
+-------------------
+
+    * User picture upload/change: too hard to simulate image upload and cropping.
+
+
+Steps
+-----
 
 ```
 default |  Then (I )break

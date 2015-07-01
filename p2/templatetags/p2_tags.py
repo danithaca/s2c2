@@ -28,7 +28,7 @@ def user_picture_url(context, puser, **kwargs):
     assert isinstance(puser, PUser)
     if puser.has_picture():
         try:
-            return cropped_thumbnail(context, puser.info, 'picture_cropping', **kwargs)
+            return cropped_thumbnail(context, puser.info, 'picture_cropping',upscale=True, **kwargs)
         except:
             # todo: add logging info.
             pass

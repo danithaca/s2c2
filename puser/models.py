@@ -5,7 +5,7 @@ from localflavor.us.models import PhoneNumberField
 from django.core import checks
 from circle.models import Membership, Circle
 from p2 import settings
-from s2c2.utils import auto_user_name
+from s2c2.utils import auto_user_name, deprecated
 
 
 @checks.register()
@@ -47,6 +47,15 @@ class Info(models.Model):
 
     def __str__(self):
         return self.user.get_full_name() or self.user.username
+
+    @staticmethod
+    def get_or_create_for_user(user):
+        assert isinstance(user, User)
+        from location.models import Area
+        info, created = Info.objects.get_or_create(user=user, defaults={
+            'area': Area.objects.get(pk=1)
+        })
+        return info
 
 
 class PUser(User):
@@ -121,6 +130,9 @@ class PUser(User):
             return True
         except Info.DoesNotExist:
             return False
+
+    def get_info(self):
+        return Info.get_or_create_for_user(self)
 
     def has_picture(self):
         return self.has_info() and self.info.picture_original and self.info.picture_cropping

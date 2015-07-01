@@ -9,13 +9,13 @@ from django.contrib import auth
 from django.core.files.storage import FileSystemStorage
 from django.core.urlresolvers import reverse_lazy
 from django.shortcuts import redirect
-from django.views.generic import FormView, TemplateView
+from django.views.generic import FormView, TemplateView, UpdateView
 from formtools.wizard.views import SessionWizardView
 
 from django.contrib import messages
 
 from circle.forms import SignupFavoriteForm, SignupCircleForm
-from puser.forms import SignupBasicForm, UserInfoForm, SignupConfirmForm
+from puser.forms import SignupBasicForm, UserInfoForm, SignupConfirmForm, UserPictureForm
 from puser.models import Info
 from s2c2.utils import auto_user_name
 
@@ -39,26 +39,26 @@ class SignupView(account.views.SignupView):
         return auto_user_name(form.cleaned_data['email'])
 
 
-class UserEditView(LoginRequiredMixin, FormView):
+class UserEdit(LoginRequiredMixin, FormView):
+    """
+    The view to handle user edit.
+    """
     template_name = 'account/manage/default.html'
     form_class = UserInfoForm
     success_url = reverse_lazy('account_edit')
 
     def get_initial(self):
         # this will only work for current user.
-        initial = super(UserEditView, self).get_initial()
+        initial = super().get_initial()
         user = self.request.user
         initial['first_name'] = user.first_name
         initial['last_name'] = user.last_name
         return initial
 
     def get_form_kwargs(self):
-        kwargs = super(UserEditView, self).get_form_kwargs()
-        user = self.request.user
-        try:
-            kwargs['instance'] = user.info
-        except Info.DoesNotExist:
-            pass
+        kwargs = super().get_form_kwargs()
+        puser = self.request.puser
+        kwargs['instance'] = puser.get_info()
         return kwargs
 
     def form_valid(self, form):
@@ -72,9 +72,44 @@ class UserEditView(LoginRequiredMixin, FormView):
             if form.instance.user is None or form.instance.user != user:
                 form.instance.user = user
             # if user edit profile, definitely set initiated to be True
+            # todo: think more about how to set "initiated" or just use 'active' instead.
             form.instance.initiated = True
             form.save()
-        return super(UserEditView, self).form_valid(form)
+
+            messages.success(self.request, 'Profile successfully updated.')
+        return super(UserEdit, self).form_valid(form)
+
+
+# This is obsolete in favor of the UpdateView approach.
+
+# class UserPicture(LoginRequiredMixin, FormView):
+#     """
+#     User picture change view.
+#     """
+#     template_name = 'account/manage/default.html'
+#     success_url = reverse_lazy('account_picture')
+#     form_class = UserPictureForm
+#
+#     def get_form_kwargs(self):
+#         kwargs = super().get_form_kwargs()
+#         user = self.request.user
+#         try:
+#             kwargs['instance'] = user.info
+#         except Info.DoesNotExist:
+#             pass
+#         return kwargs
+
+
+class UserPicture(LoginRequiredMixin, UpdateView):
+    template_name = 'account/manage/default.html'
+    success_url = reverse_lazy('account_picture')
+    model = Info
+    # fields = ['picture_original', 'picture_cropping']
+    form_class = UserPictureForm
+
+    def get_object(self, queryset=None):
+        puser = self.request.puser
+        return puser.get_info()
 
 
 class UserView(LoginRequiredMixin, TemplateView):
