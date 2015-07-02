@@ -1,4 +1,5 @@
 from django.contrib.auth.models import User
+from django.core.urlresolvers import reverse
 from django.db import models
 from image_cropping import ImageCropField, ImageRatioField
 from localflavor.us.models import PhoneNumberField
@@ -73,6 +74,9 @@ class PUser(User):
     #         return getattr(self, attrib)
     #     else:
     #         raise AttributeError
+
+    def get_absolute_url(self):
+        return reverse('account_view', kwargs={'pk': self.id})
 
     @staticmethod
     def from_user(user):

@@ -9,7 +9,9 @@ urlpatterns = patterns(
     url(r"^signup/$", views.OnboardWizard.as_view(), name="account_signup"),
 
     # todo: allow other people view account
-    url(r"^view/$", views.UserView.as_view(), name="account_view"),
+    url(r"^$", views.UserView.as_view(), name="account_view"),
+    url(r"^(?P<pk>\d+)/$", views.UserView.as_view(), name="account_view"),
+
     url(r"^edit/$", views.UserEdit.as_view(), name="account_edit"),
     url(r"^picture/$", views.UserPicture.as_view(), name="account_picture"),
 

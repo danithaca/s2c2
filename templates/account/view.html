@@ -5,12 +5,12 @@
 {% block page %}
 <div class="row">
 <div class="col-sm-3">
-  <div class="thumbnail" data-uid="{{ user.id }}">
-    <img src="{% user_picture_url user %}" alt="user picture" class="img-thumbnail img-responsive">
+  <div class="thumbnail" data-uid="{{ target_user.id }}">
+    <img src="{% user_picture_url target_user %}" alt="user picture" class="img-thumbnail img-responsive">
     <div class="caption">
-      <h4 class="text-center">{% user_display user %}</h4>
-      <p class="text-center"><a href="mailto:{{ user.email }}">{{ user.email }}</a></p>
-      <p class="text-center"><a href="tel:{{ user.info.phone }}">{{ user.info.phone }}</a></p>
+      <h4 class="text-center">{% user_display target_user %}</h4>
+      <p class="text-center"><a href="mailto:{{ target_user.email }}">{{ target_user.email }}</a></p>
+      <p class="text-center"><a href="tel:{{ target_user.info.phone }}">{{ target_user.info.phone }}</a></p>
     </div>
   </div>
 </div>
@@ -18,7 +18,7 @@
 <div class="col-sm-9">
   <div class="panel panel-default">
     <div class="panel-heading">About</div>
-    <div class="panel-body">{{ user.info.note|default:"Nothing." }}</div>
+    <div class="panel-body">{{ target_user.info.note|default:"Nothing." }}</div>
   </div>
 </div>
 </div>

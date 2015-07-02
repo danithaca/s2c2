@@ -9,14 +9,14 @@ from django.contrib import auth
 from django.core.files.storage import FileSystemStorage
 from django.core.urlresolvers import reverse_lazy
 from django.shortcuts import redirect
-from django.views.generic import FormView, TemplateView, UpdateView
+from django.views.generic import FormView, TemplateView, UpdateView, DetailView
 from formtools.wizard.views import SessionWizardView
 
 from django.contrib import messages
 
 from circle.forms import SignupFavoriteForm, SignupCircleForm
 from puser.forms import SignupBasicForm, UserInfoForm, SignupConfirmForm, UserPictureForm
-from puser.models import Info
+from puser.models import Info, PUser
 from s2c2.utils import auto_user_name
 
 
@@ -112,9 +112,17 @@ class UserPicture(LoginRequiredMixin, UpdateView):
         return puser.get_info()
 
 
-class UserView(LoginRequiredMixin, TemplateView):
+class UserView(LoginRequiredMixin, DetailView):
     template_name = 'account/view.html'
+    model = PUser
+    context_object_name = 'target_user'
 
+    def get_object(self, queryset=None):
+        try:
+            obj = super().get_object(queryset)
+        except AttributeError:
+            obj = self.request.puser
+        return obj
 
 # this is perhaps not needed anymore. we'll make sure email works in all environment.
 
