@@ -105,6 +105,24 @@ CELERY_RESULT_BACKEND = 'db+sqlite:///celerydb.sqlite'
 # CELERY_TASK_SERIALIZER = 'json'
 # CELERY_RESULT_SERIALIZER = 'json'
 
+
+# set up caching, only available to p2.
+
+if DEBUG:
+    CACHES = {
+        'default': {
+            'BACKEND': 'django.core.cache.backends.dummy.DummyCache',
+        }
+    }
+else:
+    CACHES = {
+        'default': {
+            'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
+            'LOCATION': 'unique-snowflake',
+            'TIMEOUT': 120,     # 2 mins
+        }
+    }
+
 # load local settings override.
 
 try:

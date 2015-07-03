@@ -10,3 +10,8 @@ class CircleAdmin(admin.ModelAdmin):
 @admin.register(models.Superset)
 class SupersetAdmin(admin.ModelAdmin):
     list_display = ('child', 'parent', 'created')
+
+
+@admin.register(models.Membership)
+class MembershipAdmin(admin.ModelAdmin):
+    list_display = ('member', 'circle', 'active', 'approved', 'type')

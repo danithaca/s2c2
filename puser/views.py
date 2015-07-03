@@ -4,6 +4,7 @@ from account.mixins import LoginRequiredMixin
 import account.views
 import account.forms
 from account.conf import settings
+from braces.views import UserPassesTestMixin
 from django.contrib.auth.decorators import login_required
 from django.contrib import auth
 from django.core.files.storage import FileSystemStorage
@@ -15,6 +16,7 @@ from formtools.wizard.views import SessionWizardView
 from django.contrib import messages
 
 from circle.forms import SignupFavoriteForm, SignupCircleForm
+from circle.models import Circle
 from puser.forms import SignupBasicForm, UserInfoForm, SignupConfirmForm, UserPictureForm
 from puser.models import Info, PUser
 from s2c2.utils import auto_user_name
@@ -101,6 +103,9 @@ class UserEdit(LoginRequiredMixin, FormView):
 
 
 class UserPicture(LoginRequiredMixin, UpdateView):
+    """
+    Handle user picture operations
+    """
     template_name = 'account/manage/default.html'
     success_url = reverse_lazy('account_picture')
     model = Info
@@ -112,7 +117,22 @@ class UserPicture(LoginRequiredMixin, UpdateView):
         return puser.get_info()
 
 
-class UserView(LoginRequiredMixin, DetailView):
+class TrustedUserMixin(UserPassesTestMixin):
+    """
+    This only works in DetailsView where PUser is the object.
+    """
+    raise_exception = True
+
+    def test_func(self, user):
+        target_user = self.get_object()
+        # the target user (whom the current user is viewing) needs to trust the current user.
+        return target_user.trusted(user)
+
+
+class UserView(LoginRequiredMixin, TrustedUserMixin, DetailView):
+    """
+    The main thing to display user profile.
+    """
     template_name = 'account/view.html'
     model = PUser
     context_object_name = 'target_user'
@@ -123,6 +143,21 @@ class UserView(LoginRequiredMixin, DetailView):
         except AttributeError:
             obj = self.request.puser
         return obj
+
+    def get_context_data(self, **kwargs):
+        u = self.get_object()
+        in_others = list(PUser.objects.filter(owner__type=Circle.Type.PERSONAL.value, owner__membership__member=u, owner__membership__active=True, owner__membership__approved=True).distinct())
+        my_listed = list(PUser.objects.filter(membership__circle__owner=u, membership__circle__type=Circle.Type.PERSONAL.value, membership__active=True, membership__approved=True).distinct())
+        my_circles = list(Circle.objects.filter(membership__member=u, membership__circle__type=Circle.Type.PUBLIC.value, membership__active=True, membership__approved=True).distinct())
+        context = {
+            'full_access': self.get_object() == self.request.puser,
+            'in_others': in_others,
+            'my_listed': my_listed,
+            'my_circles': my_circles
+        }
+        context.update(kwargs)
+        return super().get_context_data(**context)
+
 
 # this is perhaps not needed anymore. we'll make sure email works in all environment.
 

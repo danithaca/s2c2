@@ -2,25 +2,63 @@
 {% load account_tags %}
 {% load p2_tags %}
 
+{% block extra_header %}
+  <script type="text/javascript">
+    $(document).ready(function() {
+      $('[data-toggle="tooltip"]').tooltip();
+    });
+  </script>
+{% endblock %}
+
 {% block page %}
 <div class="row">
-<div class="col-sm-3">
-  <div class="thumbnail" data-uid="{{ target_user.id }}">
+  <div class="col-xs-9">
+    <h1>{% user_display target_user %} {% if full_access %}<small><a href="{% url 'account_edit' %}"><i class="fa fa-edit"></i></a></small>{% endif %}</h1>
+    <ul class="list-inline">
+      <li><i class="fa fa-envelope"></i> <a href="mailto:{{ target_user.email }}">{{ target_user.email }}</a></li>
+      <li><i class="fa fa-phone"></i> <a href="tel:{{ target_user.info.phone }}">{{ target_user.info.phone }}</a></li>
+      <li><i class="fa fa-truck"></i> <a href="https://www.google.com/maps/place/{{ target_user.info.address|urlencode }}">{{ target_user.info.address }}</a></li>
+    </ul>
+    <p class="lead">{{ target_user.info.note|default:"Nothing." }}</p>
+  </div>
+  <div class="col-xs-3">
     <img src="{% user_picture_url target_user %}" alt="user picture" class="img-thumbnail img-responsive">
-    <div class="caption">
-      <h4 class="text-center">{% user_display target_user %}</h4>
-      <p class="text-center"><a href="mailto:{{ target_user.email }}">{{ target_user.email }}</a></p>
-      <p class="text-center"><a href="tel:{{ target_user.info.phone }}">{{ target_user.info.phone }}</a></p>
-    </div>
   </div>
 </div>
 
-<div class="col-sm-9">
-  <div class="panel panel-default">
-    <div class="panel-heading">About</div>
-    <div class="panel-body">{{ target_user.info.note|default:"Nothing." }}</div>
-  </div>
-</div>
-</div>
+<hr>
+
+<h2>People who favorited me {% if full_access%}<small><a href="#"><i class="fa fa-edit"></i></a></small>{% endif %}</h2>
+{% if in_others %}
+  <ul class="list-inline">
+    {% for u in in_others %}
+      <li><a href="{% url 'account_view' u.id %}" title=" {% user_display u %}" data-toggle="tooltip"><img src="{% user_picture_url u %}" class="img-circle img-50"></a></li>
+    {% endfor %}
+  </ul>
+{% else %}
+  <p class="lead">None.</p>
+{% endif %}
+
+<h2>My favorite people {% if full_access %}<small><a href="{% url 'account_favorite' %}"><i class="fa fa-edit"></i></a></small>{% endif %}</h2>
+{% if my_listed %}
+  <ul class="list-inline">
+    {% for u in my_listed %}
+      <li><a href="{% url 'account_view' u.id %}" title=" {% user_display u %}" data-toggle="tooltip"><img src="{% user_picture_url u %}" class="img-circle img-50"></a></li>
+    {% endfor %}
+  </ul>
+{% else %}
+  <p class="lead">None.</p>
+{% endif %}
+
+<h2>My public circles {% if full_access %}<small><a href="{% url 'account_circle' %}"><i class="fa fa-edit"></i></a></small>{% endif %}</h2>
+{% if my_circles %}
+  <ul>
+  {% for c in my_circles %}
+    <li>{{ c.name }}<br><small>{{ c.description }}</small></li>
+  {% endfor %}
+  </ul>
+{% else %}
+  <p class="lead">None.</p>
+{% endif %}
 
 {% endblock %}

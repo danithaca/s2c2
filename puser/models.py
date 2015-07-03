@@ -141,5 +141,38 @@ class PUser(User):
     def has_picture(self):
         return self.has_info() and self.info.picture_original and self.info.picture_cropping
 
+    # todo: add caching mechanism here. manually deal with cache key-value pairs.
+    def trusted(self, puser):
+        """
+        Return whether the "self" user trust the puser in parameter. The relationship doesn't have to be mutual.
+        """
+        if isinstance(puser, User):
+            puser = PUser.from_user(puser)
+        assert isinstance(puser, PUser)
+
+        # always trust one's self.
+        if self == puser:
+            return True
+
+        # trust someone in my personal circle
+        my_personal_circles = Circle.objects.filter(type=Circle.Type.PERSONAL.value, owner=self)
+        if Membership.objects.filter(circle__in=my_personal_circles, member=puser, active=True).exists():
+            return True
+
+        # trust someone i'm part of her personal circle which I approved
+        their_personal_circles = Circle.objects.filter(type=Circle.Type.PERSONAL.value, owner=puser)
+        if Membership.objects.filter(circle__in=their_personal_circles, member=self, approved=True).exists():
+            return True
+
+        # trust someone in the public circles where I'm a member of.
+        my_public_circles = Circle.objects.filter(type=Circle.Type.PUBLIC.value, membership__member=self, membership__active=True, membership__approved=True)
+        if Membership.objects.filter(circle__in=my_public_circles, member=puser, active=True, approved=True).exists():
+            return True
+
+        # todo: friend's friend
+        # might need to create another type of circles for friends' friends.
+
+        return False
+
 
 site_admin_user = PUser.get_or_create(settings.DEFAULT_FROM_EMAIL)
