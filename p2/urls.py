@@ -14,6 +14,7 @@ urlpatterns = patterns(
     url(r'^account/', include('account.urls')),
     #url(r"^user/", include("puser.urls", namespace='user')),
 
+    url(r'^circle/', include('circle.urls', namespace='circle')),
     url(r'^contract/', include('contract.urls', namespace='contract')),
     url(r'^shout/', include('shout.urls', namespace='shout')),
 

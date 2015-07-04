@@ -39,7 +39,7 @@
   <p class="lead">None.</p>
 {% endif %}
 
-<h2>My favorite people {% if full_access %}<small><a href="{% url 'account_favorite' %}"><i class="fa fa-edit"></i></a></small>{% endif %}</h2>
+<h2>My favorite people {% if full_access %}<small><a href="{% url 'circle:manage_personal' %}"><i class="fa fa-edit"></i></a></small>{% endif %}</h2>
 {% if my_listed %}
   <ul class="list-inline">
     {% for u in my_listed %}
@@ -50,7 +50,7 @@
   <p class="lead">None.</p>
 {% endif %}
 
-<h2>My public circles {% if full_access %}<small><a href="{% url 'account_circle' %}"><i class="fa fa-edit"></i></a></small>{% endif %}</h2>
+<h2>My public circles {% if full_access %}<small><a href="{% url 'circle:manage_public' %}"><i class="fa fa-edit"></i></a></small>{% endif %}</h2>
 {% if my_circles %}
   <ul>
   {% for c in my_circles %}

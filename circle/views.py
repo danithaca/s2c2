@@ -1,6 +1,6 @@
 from account.mixins import LoginRequiredMixin
 from django.contrib import messages
-from django.core.urlresolvers import reverse_lazy
+from django.core.urlresolvers import reverse_lazy, reverse
 from django.shortcuts import render
 
 # Create your views here.
@@ -44,6 +44,8 @@ class ManageCircleView(LoginRequiredMixin, FormView):
         return super(ManageCircleView, self).form_valid(form)
 
 
+# obsolte in favor of ManagePersonal
+# todo: cleanup.
 class ManageFavoriteView(LoginRequiredMixin, FormView):
     template_name = 'account/manage/favorite.html'
     form_class = ManageFavoriteForm
@@ -78,6 +80,45 @@ class ManageFavoriteView(LoginRequiredMixin, FormView):
 
     def get_initial(self):
         initial = super(ManageFavoriteView, self).get_initial()
+        email_qs = self.get_old_email_qs()
+        initial['favorite'] = '\n'.join(list(email_qs))
+        return initial
+
+
+class ManagePersonal(LoginRequiredMixin, FormView):
+    template_name = 'circle/manage_personal.html'
+    form_class = ManageFavoriteForm
+    success_url = reverse_lazy('account_view')
+
+    def get_old_email_qs(self):
+        return Membership.objects.filter(circle__owner=self.request.puser, circle__type=Circle.Type.PERSONAL.value, active=True).order_by('updated').values_list('member__email', flat=True).distinct()
+
+    def form_valid(self, form):
+        if form.has_changed():
+            personal_circle = self.request.puser.get_personal_circle()
+            old_set = set(self.get_old_email_qs())
+            # we get: dedup, valid email
+            new_set = set(form.get_favorite_email_list())
+
+            # remove old users from list if not exists
+            for email in old_set - new_set:
+                target_puser = PUser.get_by_email(email)
+                membership = personal_circle.get_membership(target_puser)
+                if membership.active:
+                    membership.active = False
+                    membership.save()
+
+            for email in new_set - old_set:
+                target_puser = PUser.get_or_create(email)
+                membership = personal_circle.add_member(target_puser)
+                if not membership.active:
+                    membership.active = True
+                    membership.save()
+
+        return super().form_valid(form)
+
+    def get_initial(self):
+        initial = super().get_initial()
         email_qs = self.get_old_email_qs()
         initial['favorite'] = '\n'.join(list(email_qs))
         return initial

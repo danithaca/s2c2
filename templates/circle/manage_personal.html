@@ -1,0 +1,22 @@
+{% extends "base_page.html" %}
+{% load bootstrap %}
+
+{% block extra_header %}
+  {{ form.media }}
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/backbone-localstorage.js/1.1.16/backbone.localStorage-min.js" type="text/javascript"></script>
+{% endblock %}
+
+{% block title %}Manage{% endblock %}
+{% block page-header %}Manage personal circle{% endblock %}
+
+{% block page-content %}
+
+
+  <form class="form" method="post" autocapitalize="off" {% if form.is_multipart %}enctype="multipart/form-data"{% endif %}>
+    {% csrf_token %}
+    {{ form|bootstrap }}
+    <div class="form-group">
+      <button class="btn btn-primary" type="submit">Submit</button>
+    </div>
+  </form>
+{% endblock %}

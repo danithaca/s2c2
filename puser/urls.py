@@ -1,5 +1,5 @@
 from django.conf.urls import patterns, url
-import circle.views
+# import circle.views
 from puser import views
 
 urlpatterns = patterns(
@@ -15,6 +15,6 @@ urlpatterns = patterns(
     url(r"^edit/$", views.UserEdit.as_view(), name="account_edit"),
     url(r"^picture/$", views.UserPicture.as_view(), name="account_picture"),
 
-    url(r"^circle/$", circle.views.ManageCircleView.as_view(), name="account_circle"),
-    url(r"^favorite/$", circle.views.ManageFavoriteView.as_view(), name="account_favorite"),
+    # url(r"^circle/$", circle.views.ManageCircleView.as_view(), name="account_circle"),
+    # url(r"^favorite/$", circle.views.ManageFavoriteView.as_view(), name="account_favorite"),
 )
