@@ -53,6 +53,10 @@ img.user-picture-md { width: 48px; height: 100%; }
   margin: 4px;
 }
 
+.hover-pointer:hover {
+  cursor: pointer;
+}
+
 /******** for contract related *********/
 
 .contract-label-decoration {

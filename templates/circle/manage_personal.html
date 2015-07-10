@@ -3,14 +3,116 @@
 
 {% block extra_header %}
   {{ form.media }}
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/backbone-localstorage.js/1.1.16/backbone.localStorage-min.js" type="text/javascript"></script>
 {% endblock %}
 
 {% block title %}Manage{% endblock %}
 {% block page-header %}Manage personal circle{% endblock %}
 
 {% block page-content %}
+  <section id="contact-app">
+    <input id="new-contact" class="form-control" placeholder="Email to add" autofocus>
+    <ul id="contact-list"></ul>
+  </section>
 
+  <script type="text/template" id="item-template">
+    <span><%- email %></span>
+    <span class="text-danger destroy hover-pointer"><i class="fa fa-remove"></i></span>
+  </script>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/backbone-localstorage.js/1.1.16/backbone.localStorage-min.js" type="text/javascript"></script>
+
+  <script type="text/javascript">
+  function initialize_app() {
+    'use strict';
+    var app = {};
+    app.localStorage = new Backbone.LocalStorage("contact-app");
+
+    app.Contact = Backbone.Model.extend({
+      defaults: {
+        email: ''
+      },
+      // idAttribute: 'email',
+      localStorage: app.localStorage
+    });
+
+    app.ContactList = Backbone.Collection.extend({
+      model: app.Contact,
+      localStorage: app.localStorage
+    });
+
+    app.ContactView = Backbone.View.extend({
+      tagName: 'li',
+      template: _.template($('#item-template').html()),
+
+      render: function(){
+        this.$el.html(this.template(this.model.toJSON()));
+        return this; // enable chained calls
+      },
+      initialize: function(){
+        this.model.on('destroy', this.remove, this);
+      },
+      events: {
+        'click .destroy': 'destroy'
+      },
+      destroy: function(){
+        this.model.destroy();
+      }
+    });
+
+    app.AppView = Backbone.View.extend({
+      el: '#contact-app',
+      initialize: function () {
+        this.input = this.$('#new-contact');
+        this.collection.on('add', this.addOne, this);
+        // this.collection.reset();
+        this.collection.fetch();
+      },
+      events: {
+        'keypress #new-contact': 'createOnEnter'
+      },
+      createOnEnter: function(e){
+        if ( e.which !== 13 || !this.input.val().trim() ) { // ENTER_KEY = 13
+          return;
+        }
+        // todo: validate input
+        this.collection.create({
+          email: this.input.val().trim()
+        });
+        this.input.val(''); // clean input box
+      },
+      addOne: function(contact){
+        var view = new app.ContactView({model: contact});
+        this.$('#contact-list').append(view.render().el);
+      }
+    });
+
+    // this is the only instance
+    app.appView = new app.AppView({collection: new app.ContactList()});
+    return app;
+  }
+
+  $(document).ready(function() {
+    // trigger the whole thing
+    var app = initialize_app();
+
+    ////////// initialize list content from field.////////
+
+{#    var list = app.appView.collection;#}
+{#    var list_emails = list.map(function(m) { return m.get('email'); });#}
+{#    var initial_list = $('#id_favorite').val().split('\n');#}
+{##}
+{#    // remove stuff not in the initial list#}
+{#    list.remove(_.difference(list_emails, initial_list));#}
+{##}
+{#    // add stuff not in the list.#}
+{#    _.difference(initial_list, list_emails).forEach(function(e) {#}
+{#      list.create({#}
+{#        email: e#}
+{#      });#}
+{#    });#}
+
+  });
+  </script>
 
   <form class="form" method="post" autocapitalize="off" {% if form.is_multipart %}enctype="multipart/form-data"{% endif %}>
     {% csrf_token %}
