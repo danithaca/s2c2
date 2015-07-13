@@ -14,11 +14,13 @@ from django.views.generic import FormView, TemplateView, UpdateView, DetailView
 from formtools.wizard.views import SessionWizardView
 
 from django.contrib import messages
+from rest_framework.generics import RetrieveAPIView
 
 from circle.forms import SignupFavoriteForm, SignupCircleForm
 from circle.models import Circle
 from puser.forms import SignupBasicForm, UserInfoForm, SignupConfirmForm, UserPictureForm
 from puser.models import Info, PUser
+from puser.serializers import UserSerializer
 from s2c2.utils import auto_user_name
 
 
@@ -146,8 +148,8 @@ class UserView(LoginRequiredMixin, TrustedUserMixin, DetailView):
 
     def get_context_data(self, **kwargs):
         u = self.get_object()
-        in_others = list(PUser.objects.filter(owner__type=Circle.Type.PERSONAL.value, owner__membership__member=u, owner__membership__active=True, owner__membership__approved=True).distinct())
-        my_listed = list(PUser.objects.filter(membership__circle__owner=u, membership__circle__type=Circle.Type.PERSONAL.value, membership__active=True, membership__approved=True).distinct())
+        in_others = list(PUser.objects.filter(owner__type=Circle.Type.PERSONAL.value, owner__membership__member=u, owner__membership__active=True, owner__membership__approved=True).exclude(owner__owner=u).distinct())
+        my_listed = list(PUser.objects.filter(membership__circle__owner=u, membership__circle__type=Circle.Type.PERSONAL.value, membership__active=True, membership__approved=True).exclude(membership__member=u).distinct())
         my_circles = list(Circle.objects.filter(membership__member=u, membership__circle__type=Circle.Type.PUBLIC.value, membership__active=True, membership__approved=True).distinct())
         context = {
             'full_access': self.get_object() == self.request.puser,
@@ -249,3 +251,9 @@ class OnboardWizard(SessionWizardView):
     def done(self, form_list, form_dict, **kwargs):
         messages.success(self.request, 'Sign up successful. Please verify email.')
         return redirect('/')
+
+
+class APIGetByEmail(LoginRequiredMixin, RetrieveAPIView):
+    lookup_field = 'email'
+    serializer_class = UserSerializer
+    queryset = PUser.objects.filter(is_active=True)

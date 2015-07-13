@@ -91,6 +91,8 @@ class ManagePersonal(LoginRequiredMixin, FormView):
     success_url = reverse_lazy('account_view')
 
     def get_old_email_qs(self):
+        # return Membership.objects.filter(circle__owner=self.request.puser, circle__type=Circle.Type.PERSONAL.value, active=True).exclude(member=self.request.puser).order_by('updated').values_list('member__email', flat=True).distinct()
+        # we don't exclude "myself"
         return Membership.objects.filter(circle__owner=self.request.puser, circle__type=Circle.Type.PERSONAL.value, active=True).order_by('updated').values_list('member__email', flat=True).distinct()
 
     def form_valid(self, form):

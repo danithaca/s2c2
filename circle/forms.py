@@ -8,7 +8,8 @@ from s2c2.utils import is_valid_email, get_int
 
 
 class ManageFavoriteForm(forms.Form):
-    favorite = forms.CharField(label='Favorite', widget=forms.Textarea, required=False, help_text='One email per line.')
+    # favorite = forms.CharField(label='Favorite', widget=forms.Textarea, required=False, help_text='One email per line.')
+    favorite = forms.CharField(label='Favorite', widget=forms.HiddenInput, required=False, help_text='One email per line.')
 
     def clean(self):
         cleaned_data = super(ManageFavoriteForm, self).clean()

@@ -1,4 +1,4 @@
-{% extends "base_page.html" %}
+{% extends "base_page_lean.html" %}
 {% load bootstrap %}
 
 {% block extra_header %}
@@ -11,15 +11,14 @@
 {% block page-content %}
   <section id="contact-app">
     <input id="new-contact" class="form-control" placeholder="Email to add" autofocus>
-    <ul id="contact-list"></ul>
+    <span class="help-block">Press "Enter" to add email. Eg, somebody@gmail.com.</span>
+    <ul id="contact-list" class="list-group"></ul>
   </section>
 
   <script type="text/template" id="item-template">
-    <span><%- email %></span>
-    <span class="text-danger destroy hover-pointer"><i class="fa fa-remove"></i></span>
+    <span><%= email %><% if (display_name) { %> - <%= display_name %><% } %>{# <% if (picture) { %> <img src="<%= picture %>" class="img-circle img-50"><% } %> #}</span>
+    <span class="destroy badge text-danger hover-pointer"><i class="fa fa-remove"></i></span>
   </script>
-
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/backbone-localstorage.js/1.1.16/backbone.localStorage-min.js" type="text/javascript"></script>
 
   <script type="text/javascript">
   function initialize_app() {
@@ -29,10 +28,30 @@
 
     app.Contact = Backbone.Model.extend({
       defaults: {
-        email: ''
+        email: '',
+        display_name: '',
+        picture: ''
       },
-      // idAttribute: 'email',
-      localStorage: app.localStorage
+      idAttribute: 'email',
+      localStorage: app.localStorage,
+
+      // retrive additional data from server
+      initialize: function() {
+        $.ajax({
+          url: '/account/api/email/' + this.get('email') + '/',   // todo: this is hard coded. needs to change if url is changed.
+          context: this,
+          success: function(user_data) {
+            if (user_data) {
+              this.set('cid', user_data.id);
+              this.set('display_name', user_data.display_name);
+              this.set('picture', user_data.picture);
+            }
+          },
+          error: function() {
+            this.set('display_name', 'Not a user')
+          }
+        });
+      }
     });
 
     app.ContactList = Backbone.Collection.extend({
@@ -42,6 +61,7 @@
 
     app.ContactView = Backbone.View.extend({
       tagName: 'li',
+      className: 'list-group-item',
       template: _.template($('#item-template').html()),
 
       render: function(){
@@ -50,6 +70,7 @@
       },
       initialize: function(){
         this.model.on('destroy', this.remove, this);
+        this.model.on('change', this.render, this);
       },
       events: {
         'click .destroy': 'destroy'
@@ -64,20 +85,23 @@
       initialize: function () {
         this.input = this.$('#new-contact');
         this.collection.on('add', this.addOne, this);
-        // this.collection.reset();
-        this.collection.fetch();
+        // todo: this might pose performance issues. reuse existing data for caching.
+        this.collection.reset();
+        //this.collection.fetch();
       },
       events: {
         'keypress #new-contact': 'createOnEnter'
       },
       createOnEnter: function(e){
-        if ( e.which !== 13 || !this.input.val().trim() ) { // ENTER_KEY = 13
+        var email = this.input.val().trim();
+        if ( e.which !== 13 || !email ) { // ENTER_KEY = 13
           return;
         }
-        // todo: validate input
-        this.collection.create({
-          email: this.input.val().trim()
-        });
+        if (checkEmail(email)) {
+          this.collection.create({
+            email: email
+          });
+        }
         this.input.val(''); // clean input box
       },
       addOne: function(contact){
@@ -94,31 +118,37 @@
   $(document).ready(function() {
     // trigger the whole thing
     var app = initialize_app();
+    var $favorite = $('#id_favorite');
 
     ////////// initialize list content from field.////////
 
-{#    var list = app.appView.collection;#}
-{#    var list_emails = list.map(function(m) { return m.get('email'); });#}
-{#    var initial_list = $('#id_favorite').val().split('\n');#}
-{##}
-{#    // remove stuff not in the initial list#}
-{#    list.remove(_.difference(list_emails, initial_list));#}
-{##}
-{#    // add stuff not in the list.#}
-{#    _.difference(initial_list, list_emails).forEach(function(e) {#}
-{#      list.create({#}
-{#        email: e#}
-{#      });#}
-{#    });#}
+    var list = app.appView.collection;
+    var initial_list = $favorite.val().split('\n');
+
+    // add stuff to the list, assuming the list is reset/empty.
+    initial_list.forEach(function(e) {
+      if (checkEmail(e)) {
+        list.create({
+          email: e
+        });
+      }
+    });
+
+    // update field before submit
+    $('#contact-list-form').submit(function() {
+      var updated_list = list.map(function(m) { return m.get('email'); }).join('\n');
+      $favorite.val(updated_list);
+    });
 
   });
   </script>
 
-  <form class="form" method="post" autocapitalize="off" {% if form.is_multipart %}enctype="multipart/form-data"{% endif %}>
+  <form id="contact-list-form" class="form" method="post" autocapitalize="off" {% if form.is_multipart %}enctype="multipart/form-data"{% endif %}>
     {% csrf_token %}
     {{ form|bootstrap }}
     <div class="form-group">
       <button class="btn btn-primary" type="submit">Submit</button>
+      <span class="help-block">Changes will not be saved unless you press the "Submit" button. We will email affected contacts.</span>
     </div>
   </form>
 {% endblock %}

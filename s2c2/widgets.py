@@ -55,4 +55,4 @@ class USPhoneNumberWidget(widgets.TextInput):
         super(USPhoneNumberWidget, self).__init__(attrs)
 
     class Media:
-        js = (r'http://firstopinion.github.io/formatter.js/javascripts/formatter.min.js', 'phone_number_widget.js')
+        js = (r'http://firstopinion.github.io/formatter.js/javascripts/formatter.min.js', 'js/phone_number_widget.js')

@@ -17,4 +17,6 @@ urlpatterns = patterns(
 
     # url(r"^circle/$", circle.views.ManageCircleView.as_view(), name="account_circle"),
     # url(r"^favorite/$", circle.views.ManageFavoriteView.as_view(), name="account_favorite"),
+
+    url(r"^api/email/(?P<email>\S+@\S+)/$", views.APIGetByEmail.as_view(), name="account_api_by_email"),
 )

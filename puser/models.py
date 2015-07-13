@@ -41,7 +41,7 @@ class Info(models.Model):
     # user's home area. it doesn't necessarily mean the user will request/respond to this area only.
     area = models.ForeignKey(Area, default=1)
 
-    # note: use User.active instead.
+    # note: use User.is_active instead.
     # False:     the user has setup a password, and is able to login (not necessarily filled out anything)
     # True:    just created a user stub with email only.
     # stub = models.BooleanField()
@@ -140,6 +140,10 @@ class PUser(User):
 
     def has_picture(self):
         return self.has_info() and self.info.picture_original and self.info.picture_cropping
+
+    def picture_link(self):
+        from p2.templatetags.p2_tags import user_picture_url
+        return user_picture_url(None, self)
 
     # todo: add caching mechanism here. manually deal with cache key-value pairs.
     def trusted(self, puser):
