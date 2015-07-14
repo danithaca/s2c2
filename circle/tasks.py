@@ -1,4 +1,5 @@
 from celery import shared_task
+from puser.models import PUser
 
 
 @shared_task
@@ -10,9 +11,10 @@ def handle_publich_membership_approval(membership):
         link = '/admin/circle/membership/%d/' % membership.id
         from shout.notify import notify_agent
         from puser.models import site_admin_user
-        notify_agent.send(site_admin_user, site_admin_user, 'contract/public_membership_approval', {
+        notify_agent.send(site_admin_user, site_admin_user, 'circle/public_membership_approval', {
             'approval_link': link,
             'applicant': membership.member,
+            'applicant_link': PUser.from_user(membership.member).get_absolute_url(),
             'circle': membership.circle,
             'membership': membership
         })

@@ -1,6 +1,12 @@
 s2c2
 ====
 
+Celery command:
+
+```
+celery worker -A p2 -l info --autoreload
+```
+
 Tags:
 
   * backup-1:   before switching to a customized User model. (update: not going to switch to customized User model. use proxy instead)

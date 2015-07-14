@@ -1,0 +1,1 @@
+[{{site_name}}] Approval needed: new member signed for "{{circle.name}}"

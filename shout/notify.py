@@ -1,7 +1,7 @@
 import logging
 from celery import shared_task
 from django.contrib.auth.models import User
-from django.contrib.sites.models import Site, get_current_site
+from django.contrib.sites.models import Site
 from django.core.mail import EmailMessage, get_connection
 from django.template.loader import render_to_string
 from p2 import settings
@@ -21,7 +21,7 @@ class Notify(object):
         EMAIL_SMS = 3
 
     def default_context(self):
-        current_site = get_current_site()
+        current_site = Site.objects.get_current()
         return {
             'site_name': current_site.name,
             'site_domain': current_site.domain,
