@@ -230,8 +230,7 @@ class Engagement(object):
 
 ############################ signals ###############################
 
-# signals should be declared in AppConfig.ready() according to https://docs.djangoproject.com/en/1.8/ref/signals/
-# cannot be in signals.py because it's not loaded by django.
+# todo: signals should be declared in AppConfig.ready() according to https://docs.djangoproject.com/en/1.8/ref/signals/
 # see also http://stackoverflow.com/questions/2719038/where-should-signal-handlers-live-in-a-django-project
 
 

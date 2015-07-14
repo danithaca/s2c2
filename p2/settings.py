@@ -43,7 +43,8 @@ INSTALLED_APPS = (
 
     'p2',
     'puser',
-    'circle',
+    # this is to use the AppConfig.
+    'circle.apps.CircleConfig',
     'contract',
     'shout',
 )
