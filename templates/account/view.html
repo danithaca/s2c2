@@ -51,10 +51,10 @@
 {% endif %}
 
 <h2>My public circles {% if full_access %}<small><a href="{% url 'circle:manage_public' %}"><i class="fa fa-edit"></i></a></small>{% endif %}</h2>
-{% if my_circles %}
+{% if my_memberships %}
   <ul>
-  {% for c in my_circles %}
-    <li>{{ c.name }}<br><small>{{ c.description }}</small></li>
+  {% for m in my_memberships %}
+    <li>{{ m.circle.name }} <span class="label label-default">{{ m.approved|yesno:'Approved,Not approved' }}</span><br><small>{{ m.circle.description }}</small></li>
   {% endfor %}
   </ul>
 {% else %}

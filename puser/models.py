@@ -88,9 +88,12 @@ class PUser(User):
         except Info.DoesNotExist:
             return None
 
-    def join(self, circle):
-        membership, created = Membership.objects.update_or_create(member=self, circle=circle, defaults={'active': True})
-        return membership
+    # def join(self, circle):
+    #     """
+    #     This is very simple, doesn't handle "approval" notification, etc.
+    #     """
+    #     membership, created = Membership.objects.update_or_create(member=self, circle=circle, defaults={'active': True})
+    #     return membership
 
     # a person could have multiple personal list based on area.
     def get_personal_circle(self, area=None):

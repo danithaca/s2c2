@@ -7,7 +7,7 @@ class CircleAdmin(admin.ModelAdmin):
     list_display = ('name', 'type', 'owner', 'area')
 
 
-@admin.register(models.Superset)
+@admin.register(models.SupersetRel)
 class SupersetAdmin(admin.ModelAdmin):
     list_display = ('child', 'parent', 'created')
 

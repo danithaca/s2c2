@@ -43,18 +43,11 @@ class Circle(models.Model):
         """
         :return: if membership already exists, return it. otherwise, create the membership with default.
         """
-        try:
-            membership = Membership.objects.get(member=user, circle=self)
-            return membership
-        except Membership.DoesNotExist:
-            membership = Membership()
-            membership.member = user
-            membership.circle = self
-            membership.active = True
-            if self.type == Circle.Type.PERSONAL.value:
-                membership.approved = True
+        membership, created = Membership.objects.update_or_create(member=user, circle=self, defaults={'active': True})
+        if created and self.is_type_personal():
+            membership.approved = True
             membership.save()
-            return membership
+        return membership
 
     def get_membership(self, user):
         return Membership.objects.get(member=user, circle=self)
@@ -62,8 +55,14 @@ class Circle(models.Model):
     def get_active_member(self):
         return self.members.filter(membership__active=True)
 
+    def is_type_personal(self):
+        return self.type == Circle.Type.PERSONAL.value
 
-class Superset(models.Model):
+    def is_type_public(self):
+        return self.type == self.type == Circle.Type.PUBLIC.value
+
+
+class SupersetRel(models.Model):
     """
     Many-many to track circle inclusions.
     """
@@ -108,4 +107,6 @@ class Membership(models.Model):
     updated = models.DateTimeField(auto_now=True)
 
     class Meta:
+        # here we assume a user won't have multiple "membership" instances to the same circle.
+        # relieving the assumption will affect many existing code
         unique_together = ('member', 'circle')

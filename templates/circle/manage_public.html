@@ -1,0 +1,58 @@
+{% extends 'base_page_lean.html' %}
+{% load bootstrap %}
+
+{% block extra_header %}
+<script type="text/javascript">
+$(document).ready(function() {
+  // initialize check, do once only when document is loaded.
+  var initial_value =  $('input#id_circle').val();
+  initial_value.split(',').forEach(function(i) {
+    $('input[value="' + i + '"]').prop('checked', true);
+  });
+
+  // whenever something is clicked.
+  $('input[name="circle"]').change(function(){
+    // get all checked value
+    var checked = $('input[name="circle"]:checked').map(function(_, el) {
+      return $(el).val();
+    }).get();
+
+    // set the value
+    $('input#id_circle').val(checked.join());
+  });
+});
+</script>
+{% endblock %}
+
+{% block title %}Manage{% endblock %}
+{% block page-header %}Manage public circle{% endblock %}
+
+{% block page-content %}
+  <div>
+    {% for group in form.circle_options %}
+      <div class="panel panel-default">
+        <div class="panel-heading">
+          <h4 class="panel-title">
+            {{ group.title }}<br>
+            <small>{{ group.description }}</small>
+          </h4>
+        </div>
+        <ul class="list-group">
+          {% for circle in group.list %}
+            <li class="list-group-item">
+              <input type="checkbox" name="circle" value="{{ circle.id }}"{% if circle.active %} checked{% endif %}> {{ circle.title }} <small class="text-muted">{{ circle.description }}</small>{% if circle.active %} <span class="badge">{{ circle.approved|yesno:'Approved,Not approved' }}</span>{% endif %}
+            </li>
+          {% endfor %}
+        </ul>
+      </div>
+    {% endfor %}
+  </div>
+
+  <form class="form" method="post" autocapitalize="off">
+    {% csrf_token %}
+    {{ form|bootstrap }}
+    <div class="form-group">
+      <button class="btn btn-primary" type="submit">Submit</button>
+    </div>
+  </form>
+{% endblock %}
