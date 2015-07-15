@@ -1,9 +1,10 @@
+import json
 import re
-
 from django import forms
 
 from circle.models import Circle, SupersetRel
 from location.models import Area
+from puser.models import PUser
 from s2c2.utils import is_valid_email, get_int
 
 
@@ -117,3 +118,30 @@ class SignupCircleForm(forms.Form):
             options.append(d)
         return options
 
+# this is try to use dynamic choice field. use charfield instead.
+# class ManageLoopForm(forms.Form):
+#     # approved = forms.MultipleChoiceField(choices=(), required=False)
+#
+#     def __init__(self, puser, *args, **kwargs):
+#         super().__init__(*args, **kwargs)
+#         self.puser = puser
+#         # hit db once. this will be new data in form POST.
+#         self.membership_list = list(self.puser.membership_queryset_loop())
+#
+#         self.fields['approved'] = forms.MultipleChoiceField(
+#             # might include membership from the same personal in different circles (e.g., different area)
+#             choices=tuple([(m.id, m.circle.owner.get_name()) for m in self.membership_list]),
+#             initial=[m.id for m in self.membership_list],
+#             required=False,
+#         )
+
+class ManageLoopForm(forms.Form):
+    data = forms.CharField(label='Data', widget=forms.HiddenInput, required=False, help_text='JSON data for the form.')
+
+    def __init__(self, puser, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.puser = puser
+        from p2.templatetags.p2_tags import user_picture_url
+        data = [{'membership_id': m.id, 'name': m.circle.owner.get_name(), 'approved': m.approved, 'picture': user_picture_url(None, m.circle.owner)} for m in self.puser.membership_queryset_loop()]
+        self.membership_data = data
+        self.fields['data'].initial = json.dumps(data)

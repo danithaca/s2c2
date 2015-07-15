@@ -1,0 +1,39 @@
+{% extends "circle/manage_base.html" %}
+{% load bootstrap %}
+
+{% block more_header %}
+<link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-switch/3.3.2/css/bootstrap3/bootstrap-switch.min.css" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-switch/3.3.2/js/bootstrap-switch.min.js"></script>
+<script>
+$(document).ready(function() {
+  // change to switch
+  $('input.switch').bootstrapSwitch();
+
+  // update field before submit
+  $('#circle-loop-form').submit(function() {
+    var $data = $('#id_data');
+    var data = JSON.parse($data.val());
+    data.forEach(function(d) {
+      d.approved = $('input[name="' + d.membership_id + '"]').bootstrapSwitch('state');
+    });
+    $data.val(JSON.stringify(data));
+  });
+});
+</script>
+{% endblock %}
+
+{% block manage-block %}
+  <form id="circle-loop-form" class="form" method="post" autocapitalize="off" {% if form.is_multipart %}enctype="multipart/form-data"{% endif %}>
+    {% csrf_token %}
+    {% for membership in form.membership_data %}
+      <div class="form-group">
+        <div class="checkbox"><img src="{{ membership.picture }}" class="img-circle img-50"><label>{{ membership.name }} <input type="checkbox" name="{{ membership.membership_id }}" {{ membership.approved|yesno:"checked," }} class="switch"></label></div>
+      </div>
+    {% endfor %}
+    {{ form|bootstrap }}
+    <div class="form-group">
+      <button class="btn btn-primary" type="submit">Update</button>
+      <span class="help-block">Changes are not saved unless you press the "Update" button.</span>
+    </div>
+  </form>
+{% endblock %}

@@ -1,3 +1,4 @@
+import json
 from account.mixins import LoginRequiredMixin
 from django.contrib import messages
 from django.core.urlresolvers import reverse_lazy, reverse
@@ -5,7 +6,7 @@ from django.shortcuts import render
 
 # Create your views here.
 from django.views.generic import FormView
-from circle.forms import ManagePublicForm, ManagePersonalForm
+from circle.forms import ManagePublicForm, ManagePersonalForm, ManageLoopForm
 from circle.models import Membership, Circle
 from puser.models import PUser
 
@@ -162,4 +163,33 @@ class ManagePublic(LoginRequiredMixin, FormView):
                 # notification for membership approval is handled in signal
 
             messages.success(self.request, 'Circles updated.')
+        return super().form_valid(form)
+
+
+class ManageLoop(LoginRequiredMixin, FormView):
+    template_name = 'circle/manage_loop.html'
+    form_class = ManageLoopForm
+    success_url = reverse_lazy('account_view')
+
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        kwargs['puser'] = self.request.puser
+        return kwargs
+
+    def form_valid(self, form):
+        updated = False
+        if form.has_changed():
+            data = form.cleaned_data.get('data')
+            parsed_data = json.loads(data)
+            for m in parsed_data:
+                try:
+                    membership = Membership.objects.get(pk=m['membership_id'])
+                    if membership.approved != m['approved']:
+                        membership.approved = m['approved']
+                        membership.save()
+                        updated = True
+                except Membership.DoesNotExist:
+                    pass
+            if updated:
+                messages.success(self.request, 'Successfully updated personal circles you belong to.')
         return super().form_valid(form)

@@ -14,6 +14,7 @@ class Circle(models.Model):
         AGENCY = 3
         SUPERSET = 4
         # SUBSCRIBER = 5
+        # LOOP = 6          # the circle of people who added me as favorite.
 
     name = models.CharField(max_length=200)
     description = models.TextField(blank=True)

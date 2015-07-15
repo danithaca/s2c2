@@ -7,6 +7,7 @@ Not covered in test
 -------------------
 
     * User picture upload/change: too hard to simulate image upload and cropping.
+    * Manage circles (public/personal/loop)
 
 
 Steps

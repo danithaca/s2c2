@@ -28,7 +28,7 @@
 
 <hr>
 
-<h2>People who favorited me {% if full_access%}<small><a href="#"><i class="fa fa-edit"></i></a></small>{% endif %}</h2>
+<h2>People who favorited me {% if full_access%}<small><a href="{% url 'circle:manage_loop' %}"><i class="fa fa-edit"></i></a></small>{% endif %}</h2>
 {% if in_others %}
   <ul class="list-inline">
     {% for u in in_others %}

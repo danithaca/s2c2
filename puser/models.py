@@ -181,5 +181,11 @@ class PUser(User):
 
         return False
 
+    def membership_queryset_loop(self):
+        """
+        Return the queryset of membership where the user is a active member of regardless of approval status.
+        """
+        return self.membership_set.filter(circle__type=Circle.Type.PERSONAL.value, active=True).exclude(circle__owner=self)
+
 
 site_admin_user = PUser.get_or_create(settings.DEFAULT_FROM_EMAIL)
