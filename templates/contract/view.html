@@ -68,10 +68,14 @@
 </div>
 <hr>
 <div class="row">
+{% if matches %}
 {% for match in matches %}
   <div class="col-xs-6 col-sm-3 col-md-2">
     {% include 'contract/includes/match_preview.html' with match=match contract=contract %}
   </div>
 {% endfor %}
+{% else %}
+  <div class="col-sm-12">We will forward your request to your personal and public circles momentarily.</div>
+{% endif %}
 </div>
 {% endblock %}

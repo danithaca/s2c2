@@ -71,8 +71,10 @@ class Contract(StatusMixin, models.Model):
         new_status = Contract.Status.ACTIVE.value
         self.change_status(old_status, new_status)
 
-        # non-blocking process
-        tasks.after_contract_activated.delay(self)
+        # todo: non-blocking process
+        # tasks.after_contract_activated.delay(self)
+        # make it blocking to make sure there are some matches.
+        tasks.after_contract_activated(self)
 
     def confirm(self, match):
         assert self.confirmed_match is None, 'Confirmed match already exists.'
