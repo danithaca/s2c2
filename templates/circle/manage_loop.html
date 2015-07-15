@@ -23,6 +23,7 @@ $(document).ready(function() {
 {% endblock %}
 
 {% block manage-block %}
+  {% if form.membership_data %}
   <form id="circle-loop-form" class="form" method="post" autocapitalize="off" {% if form.is_multipart %}enctype="multipart/form-data"{% endif %}>
     {% csrf_token %}
     {% for membership in form.membership_data %}
@@ -36,4 +37,7 @@ $(document).ready(function() {
       <span class="help-block">Changes are not saved unless you press the "Update" button.</span>
     </div>
   </form>
+  {% else %}
+    <p>You are not added to anyone elses personal circle.</p>
+  {% endif %}
 {% endblock %}

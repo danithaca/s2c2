@@ -1,7 +1,7 @@
-{% extends 'base_page_lean.html' %}
+{% extends 'circle/manage_base.html' %}
 {% load bootstrap %}
 
-{% block extra_header %}
+{% block more_header %}
 <script type="text/javascript">
 $(document).ready(function() {
   // initialize check, do once only when document is loaded.
@@ -24,10 +24,7 @@ $(document).ready(function() {
 </script>
 {% endblock %}
 
-{% block title %}Manage{% endblock %}
-{% block page-header %}Manage public circle{% endblock %}
-
-{% block page-content %}
+{% block manage-block %}
   <div>
     {% for group in form.circle_options %}
       <div class="panel panel-default">

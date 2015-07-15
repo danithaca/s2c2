@@ -1,14 +1,7 @@
-{% extends "base_page_lean.html" %}
+{% extends "circle/manage_base.html" %}
 {% load bootstrap %}
 
-{% block extra_header %}
-  {{ form.media }}
-{% endblock %}
-
-{% block title %}Manage{% endblock %}
-{% block page-header %}Manage personal circle{% endblock %}
-
-{% block page-content %}
+{% block manage-block %}
   <section id="contact-app">
     <input id="new-contact" class="form-control" placeholder="Email to add" autofocus>
     <span class="help-block">Press "Enter" to add email. Eg, somebody@gmail.com.</span>
