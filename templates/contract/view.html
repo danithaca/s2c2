@@ -4,18 +4,45 @@
 {% load p2_tags %}
 
 {% block extra_header %}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/bootbox.js/4.4.0/bootbox.min.js"></script>
 <script type="text/javascript">
   $(document).ready(function() {
+    // update status
     $('button[name="change-status"]').click(function() {
       var op = $(this).val();
       var post_data = {op: op};
       if (op == 'confirm') {
         post_data['match_id'] = $(this).data('match-id');
       }
-      $.post("{% url 'contract:change_status' pk=contract.id %}", post_data, function(data) {
-        location.reload();
-      });
-    })
+
+      // for revert, do the confirmation box.
+      if (op == 'revert' || op == 'cancel') {
+        messages = {
+          revert: 'This operation will undo the confirmed request. The babysitter will be notified. You can choose another babysitter.',
+          cancel: 'This operation cannot be undone.'
+        }
+        bootbox.confirm({
+          title: 'Are you sure?',
+          message: messages[op],
+          buttons: {
+            cancel: {label: 'No'},
+            confirm: {label: 'Yes'}
+          },
+          callback: function(result) {
+            if (result) {
+              $.post("{% url 'contract:change_status' pk=contract.id %}", post_data, function(data) {
+                location.reload();
+              });
+            }
+          }
+        });
+      }
+      else {
+        $.post("{% url 'contract:change_status' pk=contract.id %}", post_data, function(data) {
+          location.reload();
+        });
+      }
+    });
   });
 </script>
 {% endblock %}
@@ -37,7 +64,8 @@
       <span class="label label-default">Status - {% contract-status contract.status %}</span>
       {% if contract.is_confirmed %}
         <button class="btn btn-danger" name="change-status" value="revert">Undo</button>
-      {% else %}
+        <button class="btn btn-default" name="change-status" value="cancel">Cancel</button>
+      {% elif contract.is_active %}
         <button class="btn btn-warning" name="change-status" value="edit">Edit</button>
         <button class="btn btn-default" name="change-status" value="cancel">Cancel</button>
       {% endif %}
