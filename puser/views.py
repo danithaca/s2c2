@@ -180,7 +180,6 @@ class OnboardWizard(SessionWizardView):
         ('info', UserInfoForm),
         ('favorite', SignupFavoriteForm),
         ('subscribe', SignupCircleForm),
-        ('confirm', SignupConfirmForm),
     ]
     # template_name = 'account/onboard/onboard_default.html'
 
@@ -207,11 +206,6 @@ class OnboardWizard(SessionWizardView):
             'description': 'Join circles of people you trust',
             'help_text': 'Subscribe to a few circles to allow peoples in the trusted circles babysit for you.',
             'template': 'account/onboard/onboard_subscribe.html',
-        },
-        'confirm': {
-            'title': 'Confirm',
-            'description': 'Review the information and sign up',
-            'help_text': 'Click the button to confirm',
         },
     }
 
