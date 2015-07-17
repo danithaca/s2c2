@@ -7,10 +7,9 @@ from puser.models import Info
 
 class SignupBasicForm(account.views.SignupForm):
     required_css_class = 'required'
-    # area = fields_for_model(Info, fields=['area'])['area']
 
     def __init__(self, *args, **kwargs):
-        super(SignupBasicForm, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         # this is suggested from the documentation
         del self.fields["username"]
         # this is "OrderedDict

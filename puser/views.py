@@ -16,7 +16,7 @@ from formtools.wizard.views import SessionWizardView
 from django.contrib import messages
 from rest_framework.generics import RetrieveAPIView
 
-from circle.forms import SignupFavoriteForm, SignupCircleForm
+from circle.forms import SignupFavoriteForm, SignupCircleForm, ManagePersonalForm
 from circle.models import Circle, Membership
 from puser.forms import SignupBasicForm, UserInfoForm, SignupConfirmForm, UserPictureForm
 from puser.models import Info, PUser
@@ -82,26 +82,6 @@ class UserEdit(LoginRequiredMixin, FormView):
 
             messages.success(self.request, 'Profile successfully updated.')
         return super(UserEdit, self).form_valid(form)
-
-
-# This is obsolete in favor of the UpdateView approach.
-
-# class UserPicture(LoginRequiredMixin, FormView):
-#     """
-#     User picture change view.
-#     """
-#     template_name = 'account/manage/default.html'
-#     success_url = reverse_lazy('account_picture')
-#     form_class = UserPictureForm
-#
-#     def get_form_kwargs(self):
-#         kwargs = super().get_form_kwargs()
-#         user = self.request.user
-#         try:
-#             kwargs['instance'] = user.info
-#         except Info.DoesNotExist:
-#             pass
-#         return kwargs
 
 
 class UserPicture(LoginRequiredMixin, UpdateView):
@@ -174,6 +154,7 @@ class UserView(LoginRequiredMixin, TrustedUserMixin, DetailView):
 #             messages.warning(self.request, 'Cannot connect to email service.')
 
 
+# deprecated in favor of multiple formviews.
 class OnboardWizard(SessionWizardView):
     form_list = [
         ('basic', SignupBasicForm),
@@ -187,7 +168,7 @@ class OnboardWizard(SessionWizardView):
 
     step_meta_data = {
         'basic': {
-            'title': 'Add basic info',
+            'title': 'Create an account',
             'description': 'Fill in basic account information',
             'help_text': 'Please fill in basic account information',
         },
