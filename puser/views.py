@@ -18,6 +18,7 @@ from rest_framework.generics import RetrieveAPIView
 
 from circle.forms import SignupFavoriteForm, SignupCircleForm, ManagePersonalForm
 from circle.models import Circle, Membership
+from circle.views import ManagePersonal, ManagePublic
 from puser.forms import SignupBasicForm, UserInfoForm, SignupConfirmForm, UserPictureForm
 from puser.models import Info, PUser
 from puser.serializers import UserSerializer
@@ -154,6 +155,40 @@ class UserView(LoginRequiredMixin, TrustedUserMixin, DetailView):
 #             messages.warning(self.request, 'Cannot connect to email service.')
 
 
+#################### views for onboarding ######################
+
+
+class MultiStepViewsMixin(object):
+    """
+    This is to help with multiple views, different from FormWizard
+    """
+
+
+class OnboardSignup(MultiStepViewsMixin, SignupView):
+    template_name = 'account/onboard/base.html'
+    success_url = reverse_lazy('onboard_profile')
+
+
+class OnboardProfile(MultiStepViewsMixin, UserEdit):
+    template_name = 'account/onboard/base.html'
+    success_url = reverse_lazy('onboard_personal')
+
+
+class OnboardPersonalCircle(MultiStepViewsMixin, ManagePersonal):
+    template_name = 'account/onboard/manage_personal.html'
+    success_url = reverse_lazy('onboard_public')
+
+
+class OnboardPublicCircle(MultiStepViewsMixin, ManagePublic):
+    template_name = 'account/onboard/manage_public.html'
+    success_url = reverse_lazy('onboard_picture')
+
+
+class OnboardPicture(MultiStepViewsMixin, UserPicture):
+    template_name = 'account/onboard/base.html'
+    success_url = reverse_lazy('account_view')
+
+
 # deprecated in favor of multiple formviews.
 class OnboardWizard(SessionWizardView):
     form_list = [
@@ -228,6 +263,9 @@ class OnboardWizard(SessionWizardView):
     def done(self, form_list, form_dict, **kwargs):
         messages.success(self.request, 'Sign up successful. Please verify email.')
         return redirect('/')
+
+
+################## views for API ########################
 
 
 class APIGetByEmail(LoginRequiredMixin, RetrieveAPIView):

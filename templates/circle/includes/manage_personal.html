@@ -1,0 +1,148 @@
+{# This needs the "form" to pass in #}
+{% load bootstrap %}
+
+<section id="contact-app">
+  <input id="new-contact" class="form-control" placeholder="Email to add" autofocus>
+  <span class="help-block">Press "Enter" to add email. Eg, somebody@gmail.com.</span>
+  <ul id="contact-list" class="list-group"></ul>
+</section>
+
+<script type="text/template" id="item-template">
+  <span><%= email %><% if (display_name) { %> - <%= display_name %><% } %>{# <% if (picture) { %> <img src="<%= picture %>" class="img-circle img-50"><% } %> #}</span>
+  <span class="destroy badge text-danger hover-pointer"><i class="fa fa-remove"></i></span>
+</script>
+
+<script type="text/javascript">
+function initialize_app() {
+  'use strict';
+  var app = {};
+  app.localStorage = new Backbone.LocalStorage("contact-app");
+
+  app.Contact = Backbone.Model.extend({
+    defaults: {
+      email: '',
+      display_name: '',
+      picture: ''
+    },
+    idAttribute: 'email',
+    localStorage: app.localStorage,
+
+    // retrive additional data from server
+    initialize: function() {
+      $.ajax({
+        url: '/account/api/email/' + this.get('email') + '/',   // todo: this is hard coded. needs to change if url is changed.
+        context: this,
+        success: function(user_data) {
+          if (user_data) {
+            this.set('cid', user_data.id);
+            this.set('display_name', user_data.display_name);
+            this.set('picture', user_data.picture);
+          }
+        },
+        error: function() {
+          this.set('display_name', 'Not a user')
+        }
+      });
+    }
+  });
+
+  app.ContactList = Backbone.Collection.extend({
+    model: app.Contact,
+    localStorage: app.localStorage
+  });
+
+  app.ContactView = Backbone.View.extend({
+    tagName: 'li',
+    className: 'list-group-item',
+    template: _.template($('#item-template').html()),
+
+    render: function(){
+      this.$el.html(this.template(this.model.toJSON()));
+      return this; // enable chained calls
+    },
+    initialize: function(){
+      this.model.on('destroy', this.remove, this);
+      this.model.on('change', this.render, this);
+    },
+    events: {
+      'click .destroy': 'destroy'
+    },
+    destroy: function(){
+      this.model.destroy();
+    }
+  });
+
+  app.AppView = Backbone.View.extend({
+    el: '#contact-app',
+    initialize: function () {
+      this.input = this.$('#new-contact');
+      this.collection.on('add', this.addOne, this);
+      // todo: this might pose performance issues. reuse existing data for caching.
+      this.collection.reset();
+      //this.collection.fetch();
+    },
+    events: {
+      'keypress #new-contact': 'createOnEnter'
+    },
+    createOnEnter: function(e){
+      var email = this.input.val().trim();
+      if ( e.which !== 13 || !email ) { // ENTER_KEY = 13
+        return;
+      }
+      if (checkEmail(email)) {
+        this.collection.create({
+          email: email
+        });
+      }
+      this.input.val(''); // clean input box
+    },
+    addOne: function(contact){
+      var view = new app.ContactView({model: contact});
+      this.$('#contact-list').append(view.render().el);
+    }
+  });
+
+  // this is the only instance
+  app.appView = new app.AppView({collection: new app.ContactList()});
+  return app;
+}
+
+$(document).ready(function() {
+  // trigger the whole thing
+  var app = initialize_app();
+  var $favorite = $('#id_favorite');
+
+  ////////// initialize list content from field.////////
+
+  var list = app.appView.collection;
+  var initial_list = $favorite.val().split('\n');
+
+  // add stuff to the list, assuming the list is reset/empty.
+  initial_list.forEach(function(e) {
+    if (checkEmail(e)) {
+      list.create({
+        email: e
+      });
+    }
+  });
+
+  // update field before submit
+  // this is different from "manage_public" where this field is always updated
+  $('#contact-list-form').submit(function() {
+    var updated_list = list.map(function(m) { return m.get('email'); }).join('\n');
+    $favorite.val(updated_list);
+  });
+
+});
+</script>
+
+<form id="contact-list-form" class="form" method="post" autocapitalize="off" {% if form.is_multipart %}enctype="multipart/form-data"{% endif %}>
+  {% csrf_token %}
+  {{ form|bootstrap }}
+  {% block submit-block %}
+  <div class="form-group">
+    <button class="btn btn-primary" type="submit">Submit</button>
+    <span class="help-block">Changes will not be saved unless you press the "Submit" button. We will email affected contacts.</span>
+  </div>
+  {% endblock %}
+</form>

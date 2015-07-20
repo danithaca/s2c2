@@ -101,9 +101,11 @@ class ManagePersonal(LoginRequiredMixin, FormView):
             old_set = set(self.get_old_email_qs())
             # we get: dedup, valid email
             new_set = set(form.get_favorite_email_list())
+            updated = False
 
             # remove old users from list if not exists
             for email in old_set - new_set:
+                updated = True
                 target_puser = PUser.get_by_email(email)
                 membership = personal_circle.get_membership(target_puser)
                 if membership.active:
@@ -111,11 +113,13 @@ class ManagePersonal(LoginRequiredMixin, FormView):
                     membership.save()
 
             for email in new_set - old_set:
+                updated = True
                 target_puser = PUser.get_or_create(email)
                 personal_circle.add_member(target_puser)
                 # notification for personal list change is handled in signal
 
-            messages.success(self.request, 'Successfully updated favorite list.')
+            if updated:
+                messages.success(self.request, 'Successfully updated favorite list.')
 
         return super().form_valid(form)
 

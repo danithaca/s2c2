@@ -1,0 +1,61 @@
+{% extends "base_page.html" %}
+{% load bootstrap %}
+
+{% block extra_header %}
+{{ form.media }}
+<script type="text/javascript">
+$(document).ready(function() {
+  var path = window.location.pathname;
+  $('div.onboard-sidebar a[href="'+ path +'"]').addClass('active');
+});
+</script>
+{% block more_header %}{% endblock %}
+{% endblock %}
+
+{% block title %}Onboard{% endblock %}
+{% block page-header %}Sign up account{% endblock %}
+
+{% block page-content %}
+  <div class="row">
+    <div class="col-sm-4">
+      <div class="list-group onboard-sidebar">
+        <a href="{% url 'onboard_signup' %}" class="list-group-item">
+          <h4 class="list-group-item-heading">Step 1</h4>
+          <p class="list-group-item-text">Create an account</p>
+        </a>
+        <a href="{% url 'onboard_profile' %}" class="list-group-item">
+          <h4 class="list-group-item-heading">Step 2</h4>
+          <p class="list-group-item-text">Update profile</p>
+        </a>
+        <a href="{% url 'onboard_personal' %}" class="list-group-item">
+          <h4 class="list-group-item-heading">Step 3</h4>
+          <p class="list-group-item-text">Add contacts to your personal circle</p>
+        </a>
+        <a href="{% url 'onboard_public' %}" class="list-group-item">
+          <h4 class="list-group-item-heading">Step 4</h4>
+          <p class="list-group-item-text">Join public circles</p>
+        </a>
+        <a href="{% url 'onboard_picture' %}" class="list-group-item">
+          <h4 class="list-group-item-heading">Step 5</h4>
+          <p class="list-group-item-text">Upload profile picture</p>
+        </a>
+      </div>
+    </div>
+
+    <div class="col-sm-8">
+      {% block step-block %}
+        <form class="form-horizontal" method="post" autocapitalize="off" {% if form.is_multipart %}enctype="multipart/form-data"{% endif %}>
+          {% csrf_token %}
+          {{ form|bootstrap_horizontal:'col-sm-3' }}
+          {% block submit-block %}
+          <div class="form-group">
+            <div class="col-sm-offset-3 col-sm-9">
+              <button class="btn btn-primary" type="submit">Next &gt;</button>
+            </div>
+          </div>
+          {% endblock %}
+        </form>
+      {% endblock %}
+    </div>
+  </div>
+{% endblock %}

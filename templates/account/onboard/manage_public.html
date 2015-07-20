@@ -1,0 +1,9 @@
+{% extends "account/onboard/base.html" %}
+
+{% block step-block %}
+  <div class="alert alert-info alert-dismissable">
+    <button type="button" class="close" data-dismiss="alert"><span>&times;</span></button>
+    Public circles are circles where each people trusts the other. Your application will be approved or disapproved upon sending.
+  </div>
+  {% include 'account/onboard/includes/manage_public.html' %}
+{% endblock %}
