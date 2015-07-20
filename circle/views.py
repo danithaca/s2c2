@@ -8,6 +8,7 @@ from django.shortcuts import render
 from django.views.generic import FormView
 from circle.forms import ManagePublicForm, ManagePersonalForm, ManageLoopForm
 from circle.models import Membership, Circle
+from circle.tasks import personal_circle_send_invitation
 from puser.models import PUser
 
 
@@ -114,9 +115,14 @@ class ManagePersonal(LoginRequiredMixin, FormView):
 
             for email in new_set - old_set:
                 updated = True
-                target_puser = PUser.get_or_create(email)
-                personal_circle.add_member(target_puser)
-                # notification for personal list change is handled in signal
+                try:
+                    target_puser = PUser.get_by_email(email)
+                except PUser.DoesNotExist:
+                    target_puser = PUser.create_dummy(email)
+                personal_circle.add_member(email)
+                # send notification
+                # if the user is a dummy user, send invitation code instead.
+                personal_circle_send_invitation.delay(personal_circle, target_puser)
 
             if updated:
                 messages.success(self.request, 'Successfully updated favorite list.')

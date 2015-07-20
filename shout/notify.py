@@ -29,10 +29,22 @@ class Notify(object):
             'current_site': current_site,
         }
 
+    def get_site_admin_user(self):
+        email = settings.DEFAULT_FROM_EMAIL
+        try:
+            puser = PUser.objects.get(email=email)
+            return puser
+        except PUser.DoesNotExist:
+            return PUser.create_dummy(email)
+
     def send(self, from_user, to_user, tpl_prefix, ctx=None, anonymous=False):
         """
         Send notification regardless of the approach.
         """
+        if from_user is None:
+            from_user = self.get_site_admin_user()
+        if to_user is None:
+            to_user = self.get_site_admin_user()
         assert isinstance(from_user, User) and (isinstance(to_user, User) or all([isinstance(u, User) for u in to_user]))
 
         subject_tpl = tpl_prefix + '_subject.txt'
@@ -99,4 +111,4 @@ class Notify(object):
 
 
 notify_agent = Notify()
-site_admin_user = PUser.get_or_create(settings.DEFAULT_FROM_EMAIL)
+

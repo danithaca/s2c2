@@ -118,13 +118,15 @@ class PUser(User):
         user.save()
         return user
 
-    @staticmethod
-    def get_or_create(email):
-        try:
-            puser = PUser.objects.get(email=email)
-            return puser
-        except PUser.DoesNotExist:
-            return PUser.create_dummy(email)
+    # this function is convenient but we still don't want to have it because "create" involves many instances
+    # (Info, Account, EmailAddress) which are very situational.
+    # @staticmethod
+    # def get_or_create(email):
+    #     try:
+    #         puser = PUser.objects.get(email=email)
+    #         return puser
+    #     except PUser.DoesNotExist:
+    #         return PUser.create_dummy(email)
 
     @staticmethod
     def get_by_email(email):
@@ -188,6 +190,3 @@ class PUser(User):
 
     def is_onboard(self):
         return self.has_info() and self.info.area and self.first_name
-
-
-site_admin_user = PUser.get_or_create(settings.DEFAULT_FROM_EMAIL)
