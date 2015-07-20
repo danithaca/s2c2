@@ -187,5 +187,8 @@ class PUser(User):
         """
         return self.membership_set.filter(circle__type=Circle.Type.PERSONAL.value, active=True).exclude(circle__owner=self)
 
+    def is_onboard(self):
+        return self.has_info() and self.info.area and self.first_name
+
 
 site_admin_user = PUser.get_or_create(settings.DEFAULT_FROM_EMAIL)

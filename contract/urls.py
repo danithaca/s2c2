@@ -9,6 +9,7 @@ urlpatterns = patterns(
     url(r'^(?P<pk>\d+)/$', login_required(views.ContractDetail.as_view()), name='view'),
     url(r'^(?P<pk>\d+)/status$', views.ContractChangeStatus.as_view(), name='change_status'),
 
+    url(r"^list/$", views.EngagementList.as_view(), name="engagement_list"),
     url(r"^add/$", login_required(views.ContractCreate.as_view()), name="add"),
 
     # only available for staff members to see all contracts.

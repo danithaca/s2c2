@@ -13,30 +13,30 @@ $(document).ready(function() {
 {% endblock %}
 
 {% block title %}Onboard{% endblock %}
-{% block page-header %}Sign up account{% endblock %}
+{% block page-header %}New user sign up{% endblock %}
 
 {% block page-content %}
   <div class="row">
     <div class="col-sm-4">
       <div class="list-group onboard-sidebar">
-        <a href="{% url 'onboard_signup' %}" class="list-group-item">
-          <h4 class="list-group-item-heading">Step 1</h4>
-          <p class="list-group-item-text">Create an account</p>
-        </a>
+{#        <a href="{% url 'onboard_signup' %}" class="list-group-item">#}
+{#          <h4 class="list-group-item-heading">Step 1</h4>#}
+{#          <p class="list-group-item-text">Create an account</p>#}
+{#        </a>#}
         <a href="{% url 'onboard_profile' %}" class="list-group-item">
-          <h4 class="list-group-item-heading">Step 2</h4>
+          <h4 class="list-group-item-heading">Step 1</h4>
           <p class="list-group-item-text">Update profile</p>
         </a>
         <a href="{% url 'onboard_personal' %}" class="list-group-item">
-          <h4 class="list-group-item-heading">Step 3</h4>
+          <h4 class="list-group-item-heading">Step 2</h4>
           <p class="list-group-item-text">Add contacts to your personal circle</p>
         </a>
         <a href="{% url 'onboard_public' %}" class="list-group-item">
-          <h4 class="list-group-item-heading">Step 4</h4>
+          <h4 class="list-group-item-heading">Step 3</h4>
           <p class="list-group-item-text">Join public circles</p>
         </a>
         <a href="{% url 'onboard_picture' %}" class="list-group-item">
-          <h4 class="list-group-item-heading">Step 5</h4>
+          <h4 class="list-group-item-heading">Step 4</h4>
           <p class="list-group-item-text">Upload profile picture</p>
         </a>
       </div>

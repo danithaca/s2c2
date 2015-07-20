@@ -3,7 +3,7 @@ from puser.models import PUser
 
 
 @shared_task
-def handle_publich_membership_approval(membership):
+def handle_public_membership_approval(membership):
     assert membership.circle.is_type_public() and membership.active
     if not membership.approved:
         # todo: do the real work with voucher

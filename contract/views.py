@@ -1,9 +1,10 @@
 from braces.views import JSONResponseMixin, AjaxResponseMixin, LoginRequiredMixin
+from django.db.models import Q
 from django.forms import modelform_factory
 from django.shortcuts import render
-from django.views.generic import CreateView, DetailView, ListView, View
+from django.views.generic import CreateView, DetailView, ListView, View, TemplateView
 from contract.forms import ContractForm
-from contract.models import Contract, Match
+from contract.models import Contract, Match, Engagement
 from datetimewidget.widgets import DateTimeWidget
 
 
@@ -89,3 +90,23 @@ class MatchStatusChange(LoginRequiredMixin, JSONResponseMixin, AjaxResponseMixin
         elif self.switch is False:
             match.decline()
         return self.render_json_response({'success': True})
+
+
+class EngagementList(LoginRequiredMixin, TemplateView):
+    template_name = 'home_p2.html'
+
+    def get_context_data(self, **kwargs):
+        user = self.request.puser
+        list_engagement = []
+        for contract in Contract.objects.filter(Q(initiate_user=user) | Q(match__target_user=user)).distinct().order_by('-event_start'):
+            if contract.initiate_user == user:
+                list_engagement.append(Engagement.from_contract(contract))
+            else:
+                match = Match.objects.get(contract=contract, target_user=user)
+                list_engagement.append(Engagement.from_match(match))
+
+        ctx = super().get_context_data(**kwargs)
+        ctx.update({
+            'user': user,
+            'engagements': list_engagement,
+        })

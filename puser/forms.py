@@ -25,6 +25,12 @@ class UserInfoForm(ModelForm):
     first_name = fields_for_model(User, fields=['first_name'])['first_name']
     last_name = fields_for_model(User, fields=['last_name'])['last_name']
 
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # todo: think about whether to require these 2 fields.
+        self.fields['first_name'].required = True
+        self.fields['last_name'].required = True
+
     class Meta:
         model = Info
         fields = ['area', 'first_name', 'last_name', 'phone', 'address', 'note']

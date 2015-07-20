@@ -9,6 +9,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib import auth
 from django.core.files.storage import FileSystemStorage
 from django.core.urlresolvers import reverse_lazy
+from django.http import HttpResponse
 from django.shortcuts import redirect
 from django.views.generic import FormView, TemplateView, UpdateView, DetailView
 from formtools.wizard.views import SessionWizardView
@@ -164,9 +165,23 @@ class MultiStepViewsMixin(object):
     """
 
 
-class OnboardSignup(MultiStepViewsMixin, SignupView):
-    template_name = 'account/onboard/base.html'
-    success_url = reverse_lazy('onboard_profile')
+# class OnboardSignup(MultiStepViewsMixin, SignupView):
+#     pass
+    # this is not used because SignupView reloaded get_success_url(). Set SIGNUP REDIRECT URL instead.
+    # success_url = reverse_lazy('onboard_profile')
+
+    # def dispatch(self, request, *args, **kwargs):
+    #     if request.user.is_authenticated():
+    #         if request.method.lower() == 'get':
+    #             return
+    #     return super().dispatch(request, *args, **kwargs)
+
+    # def get_form(self, form_class=None):
+    #     form = super().get_form(form_class)
+    #     if self.request.user.is_authenticated():
+    #         for field_name in form.fields:
+    #             form.fields[field_name].widget.attrs['readonly'] = True
+    #     return form
 
 
 class OnboardProfile(MultiStepViewsMixin, UserEdit):
