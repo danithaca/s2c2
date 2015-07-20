@@ -32,6 +32,7 @@ class UserInfoAdmin(UserAdmin):
                 return queryset.filter(info__isnull=True)
 
     list_filter = UserAdmin.list_filter + (MissingInfoFilter, )
+    list_display = UserAdmin.list_display + ('date_joined', 'last_login')
 
 # Re-register UserAdmin, GroupAdmin
 admin.site.unregister(User)

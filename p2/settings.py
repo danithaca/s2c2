@@ -86,13 +86,15 @@ AUTHENTICATION_BACKENDS = (
 ACCOUNT_EMAIL_UNIQUE = True
 ACCOUNT_EMAIL_CONFIRMATION_EMAIL = True
 ACCOUNT_EMAIL_CONFIRMATION_REQUIRED = False
-# ACCOUNT_SIGNUP_REDIRECT_URL = reverse_lazy('onboard_profile')
+ACCOUNT_SIGNUP_REDIRECT_URL = 'onboard_start'       # this is URLConf, not str.
 # ACCOUNT_LOGIN_REDIRECT_URL = '/'
 # ACCOUNT_LOGOUT_REDIRECT_URL = '/'
 ACCOUNT_PASSWORD_CHANGE_REDIRECT_URL = '/'
 ACCOUNT_REMEMBER_ME_EXPIRY = 60 * 60 * 24 * 2       # 2 days
-
+# if needed, we could override hookset to use celery for sending emails
+# ACCOUNT_HOOKSET =
 ACCOUNT_USER_DISPLAY = lambda user: user.get_full_name() or user.email
+ACCOUNT_CREATE_ON_SAVE = True                       # default. automatically create "Account" when user object is created.
 
 
 # override login urls

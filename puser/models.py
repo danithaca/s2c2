@@ -105,12 +105,11 @@ class PUser(User):
         return circle
 
     @staticmethod
-    def create_stub(email):
+    def create_dummy(email):
         """
         Create a new "stub" user
         :return: the created puser object
         """
-
         user = PUser()
         user.username = auto_user_name(email)
         user.email = email
@@ -125,7 +124,7 @@ class PUser(User):
             puser = PUser.objects.get(email=email)
             return puser
         except PUser.DoesNotExist:
-            return PUser.create_stub(email)
+            return PUser.create_dummy(email)
 
     @staticmethod
     def get_by_email(email):

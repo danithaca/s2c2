@@ -44,6 +44,11 @@ class SignupView(account.views.SignupView):
     def generate_username(self, form):
         return auto_user_name(form.cleaned_data['email'])
 
+    def send_email_confirmation(self, email_address):
+        # confirmation email is sent blocking. not through Notify.
+        # could override here, or use a different Account Hookset
+        super().send_email_confirmation(email_address)
+
 
 class UserEdit(LoginRequiredMixin, FormView):
     """

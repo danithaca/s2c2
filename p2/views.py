@@ -13,6 +13,6 @@ def home(request):
         # find engagement for the user
         user = request.puser
         if user.is_onboard():
-            return redirect(reverse('contract:list'))
+            return redirect(reverse('contract:engagement_list'))
         else:
             return redirect(reverse('onboard_start'))
