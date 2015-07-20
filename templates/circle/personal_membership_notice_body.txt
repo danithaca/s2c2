@@ -1,0 +1,6 @@
+You are added to {{circle_owner.get_name}}'s circle. To opt-out, click the link below:
+
+{{site_url}}{{review_link}}
+
+--
+{{site_name}} admins

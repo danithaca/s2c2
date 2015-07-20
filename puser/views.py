@@ -49,6 +49,40 @@ class SignupView(account.views.SignupView):
         # could override here, or use a different Account Hookset
         super().send_email_confirmation(email_address)
 
+    # this allows the default email field for Signup code not permitting user change the email address
+    def get_form(self, form_class=None):
+        form = super().get_form(form_class)
+        if self.signup_code:
+            form.fields['email'].widget.attrs = {
+                'readonly': True
+            }
+        return form
+
+    # SignupBasicForm (subclass of Account.SignupForm) checks email existence using EmailAddress
+    # a dummy user won't have "EmailAddress" and therefore should be pass form validation.
+    # we'll still have to take care of "create_user" when dummy user alreay exists.
+    def create_user(self, form, commit=True, **kwargs):
+        email = form.cleaned_data["email"].strip()
+        try:
+            user = PUser.get_by_email(email)
+            if self.signup_code:
+                self.request.session['signup_inviter_email'] = self.signup_code.inviter.email
+            # even if there's no signup_code, we still allow signup if "active" is not set.
+            # if self.signup_code and self.signup_code.email == email and not user.is_active:
+            if not user.is_active:
+                user.is_active = True
+                password = form.cleaned_data.get("password")
+                if password:
+                    user.set_password(password)
+                else:
+                    user.set_unusable_password()
+                if commit:
+                    user.save()
+                return user
+        except PUser.DoesNotExist:
+            pass
+        return super().create_user(form, commit, **kwargs)
+
 
 class UserEdit(LoginRequiredMixin, FormView):
     """
@@ -197,6 +231,12 @@ class OnboardProfile(MultiStepViewsMixin, UserEdit):
 class OnboardPersonalCircle(MultiStepViewsMixin, ManagePersonal):
     template_name = 'account/onboard/manage_personal.html'
     success_url = reverse_lazy('onboard_public')
+
+    def get_initial(self):
+        initial = super().get_initial()
+        if not initial.get('favorite', '') and self.request.session.get('signup_inviter_email', ''):
+            initial['favorite'] = self.request.session['signup_inviter_email']
+        return initial
 
 
 class OnboardPublicCircle(MultiStepViewsMixin, ManagePublic):

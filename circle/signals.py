@@ -8,4 +8,7 @@ from circle.tasks import handle_public_membership_approval
 def public_membership_approval(sender, instance=None, created=None, **kwargs):
     if instance.circle.is_type_public() and instance.active and not instance.approved:
         # send out approval link.
-        handle_public_membership_approval.delay(instance)
+        # todo: fix this
+        # using "delay" seems to generate issues related to dictionary key changes in serialization
+        #handle_public_membership_approval.delay(instance)
+        handle_public_membership_approval(instance)

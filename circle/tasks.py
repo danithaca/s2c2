@@ -1,5 +1,6 @@
 from account.models import SignupCode
 from celery import shared_task
+from django.core.urlresolvers import reverse
 from puser.models import PUser
 
 
@@ -23,14 +24,20 @@ def handle_public_membership_approval(membership):
 @shared_task
 def personal_circle_send_invitation(circle, target_user):
     if target_user.is_active:
-        pass
+        link = reverse('circle:manage_loop')
+        from shout.notify import notify_agent
+        notify_agent.send(circle.owner, target_user, 'circle/personal_membership_notice', {
+            'review_link': link,
+            'circle_owner': circle.owner,
+        })
     else:
         # user is not active. send invitation code
         expiry = 24 * 365   # a year to expire. in hours.
         try:
             signup_code = SignupCode.create(email=target_user.email, expiry=expiry, inviter=circle.owner)
-            # no extra context so far.
-            signup_code.send({})
+            signup_code.send(extra_ctx={
+                'inviter': circle.owner.get_name()
+            })
         except SignupCode.AlreadyExists:
             # todo: figure out what to do when invitation code is alreay sent.
             # current we do nothing, assuming the target user already received a invitation email

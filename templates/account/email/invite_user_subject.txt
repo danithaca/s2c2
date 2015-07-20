@@ -1,0 +1,1 @@
+[{{ current_site.name }}] {{ inviter }} invited you to join a site to help with babysitting

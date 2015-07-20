@@ -119,7 +119,7 @@ class ManagePersonal(LoginRequiredMixin, FormView):
                     target_puser = PUser.get_by_email(email)
                 except PUser.DoesNotExist:
                     target_puser = PUser.create_dummy(email)
-                personal_circle.add_member(email)
+                personal_circle.add_member(target_puser)
                 # send notification
                 # if the user is a dummy user, send invitation code instead.
                 personal_circle_send_invitation.delay(personal_circle, target_puser)

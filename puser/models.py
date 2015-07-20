@@ -110,6 +110,7 @@ class PUser(User):
         Create a new "stub" user
         :return: the created puser object
         """
+        # todo: check duplicate email
         user = PUser()
         user.username = auto_user_name(email)
         user.email = email
