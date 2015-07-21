@@ -33,6 +33,7 @@ class UserInfoAdmin(UserAdmin):
 
     list_filter = UserAdmin.list_filter + (MissingInfoFilter, )
     list_display = UserAdmin.list_display + ('date_joined', 'last_login')
+    ordering = ('-date_joined', '-last_login')
 
 # Re-register UserAdmin, GroupAdmin
 admin.site.unregister(User)

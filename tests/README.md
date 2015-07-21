@@ -1,20 +1,19 @@
 README
 ======
 
-Most of the tests here are based on Behat 3
-
-Not covered in test
--------------------
-
-    * User picture upload/change: too hard to simulate image upload and cropping.
-    * Manage circles (public/personal/loop)
-
-
 Steps
 -----
 
 ```
 default |  Then (I )break
+default |  Then show email content
+default |  Then show email parsed content
+default |  Then check email sent from :from_email to :to_email
+default |  Then check email contains :text
+default |  Then check email subject contains :text
+default |  When I follow the email link like :link_pattern
+default | Given I am logged in as user :user with password :password
+default | Given I am logged in as admin
 default | Given /^(?:|I )am on (?:|the )homepage$/
 default |  When /^(?:|I )go to (?:|the )homepage$/
 default | Given /^(?:|I )am on "(?P<page>[^"]+)"$/

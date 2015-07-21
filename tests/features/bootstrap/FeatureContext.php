@@ -194,4 +194,22 @@ class FeatureContext extends MinkContext implements SnippetAcceptingContext
     }
   }
 
+  /**
+   * @Given I am logged in as admin
+   */
+  public function loginAsAdmin() {
+    $this->getSession()->visit($this->locatePath('/admin/login'));
+    $element = $this->getSession()->getPage();
+    $element->fillField('Username', 'admin');
+    $element->fillField('Password', '0623451');
+    $submit = $element->findButton('Log in');
+    $submit->click();
+
+    try {
+      $this->assertResponseContains("Django administration");
+    } catch (\Exception $e) {
+      throw new \Exception("Failed to log in as admin.");
+    }
+  }
+
 }
