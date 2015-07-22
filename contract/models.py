@@ -18,6 +18,28 @@ class StatusMixin(object):
         self.status = new_status
         self.save()
 
+    def display_status(self):
+        if isinstance(self, Contract):
+            color_map = {
+                Contract.Status.INITIATED.value: 'default',
+                Contract.Status.ACTIVE.value: 'primary',
+                Contract.Status.CONFIRMED.value: 'success',
+                Contract.Status.SUCCESSFUL.value: 'info',
+                Contract.Status.CANCELED.value: 'warning',
+                Contract.Status.FAILED.value: 'warning',
+            }
+        elif isinstance(self, Match):
+            color_map = {
+                Match.Status.INITIALIZED.value: 'default',
+                Match.Status.ENGAGED.value: 'primary',
+                Match.Status.ACCEPTED.value: 'default',
+                Match.Status.INITIALIZED.value: 'default',
+                Match.Status.INITIALIZED.value: 'default',
+            }
+        return {
+            'color': 'default',     # possible: default (gray), primary (darkblue), info (blue), success (green), warning (yellow), danger (red),
+            'label': '',
+        }
 
 class Contract(StatusMixin, models.Model):
     """
@@ -189,6 +211,13 @@ class Engagement(object):
     """
     This is a single match or a contract without a match. Shown at the homepage.
     """
+    def __init__(self):
+        self.contract = None
+        self.match = None
+        self.initiate_user = None
+        self.target_user = None
+        self.main_user = None           # the user on whom this engagement is focused. could be either the initiate_user or the target_user
+
     @staticmethod
     def from_contract(contract):
         assert isinstance(contract, Contract)
@@ -199,9 +228,6 @@ class Engagement(object):
         if contract.confirmed_match:
             e.match = contract.confirmed_match
             e.target_user = contract.confirmed_match.target_user
-        else:
-            e.match = None
-            e.target_user = None
         return e
 
     @staticmethod
@@ -217,18 +243,24 @@ class Engagement(object):
 
     # todo: polish this one.
     def get_status(self):
-        if self.main_user == self.initiate_user:
+        if self.is_main_contract():
             return Contract.Status(self.contract.status).name.capitalize()
         else:
-            assert self.main_user == self.target_user
+            assert self.is_main_match()
             return Match.Status(self.match.status).name.capitalize()
 
     def get_link(self):
-        if self.main_user == self.initiate_user:
+        if self.is_main_contract():
             return self.contract.get_absolute_url()
         else:
-            assert self.main_user == self.target_user
+            assert self.is_main_match()
             return self.match.get_absolute_url()
+
+    def is_main_contract(self):
+        return self.main_user == self.initiate_user
+
+    def is_main_match(self):
+        return self.main_user == self.target_user
 
 ############################ signals ###############################
 
