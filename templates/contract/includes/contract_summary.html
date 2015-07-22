@@ -3,7 +3,7 @@
     <p class="text-xx-large">
       <span class="label label-{{ contract.display_status.color }}">{{ contract.display_status.label }}</span>
     </p>
-    <ul class="list-inline">
+    <ul class="list-unstyled">
       <li><i class="fa fa-clock-o"></i> <strong>{{ contract.display_event_length }}</strong> ({{ contract.display_event_range }})</li>
       <li><i class="fa fa-money"></i>
         {% if contract.price > 0 %}

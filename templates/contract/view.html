@@ -6,44 +6,47 @@
 {% block extra_header %}
 <script src="https://cdnjs.cloudflare.com/ajax/libs/bootbox.js/4.4.0/bootbox.min.js"></script>
 <script type="text/javascript">
-  $(document).ready(function() {
-    // update status
-    $('button[name="change-status"]').click(function() {
-      var op = $(this).val();
-      var post_data = {op: op};
-      if (op == 'confirm') {
-        post_data['match_id'] = $(this).data('match-id');
-      }
+$(document).ready(function() {
+  // update status
+  $('button[name="change-status"]').click(function() {
+    var op = $(this).val();
+    var post_data = {op: op};
+    if (op == 'confirm') {
+      post_data['match_id'] = $(this).data('match-id');
+    }
 
-      // for revert, do the confirmation box.
-      if (op == 'revert' || op == 'cancel') {
-        messages = {
-          revert: 'This operation will undo the confirmed request. The babysitter will be notified. You can choose another babysitter.',
-          cancel: 'This operation cannot be undone.'
-        }
-        bootbox.confirm({
-          title: 'Are you sure?',
-          message: messages[op],
-          buttons: {
-            cancel: {label: 'No'},
-            confirm: {label: 'Yes'}
-          },
-          callback: function(result) {
-            if (result) {
-              $.post("{% url 'contract:change_status' pk=contract.id %}", post_data, function(data) {
-                location.reload();
-              });
-            }
+    // for revert, do the confirmation box.
+    if (op == 'revert' || op == 'cancel') {
+      messages = {
+        revert: 'This operation will undo the confirmed request. The babysitter will be notified. You can choose another babysitter.',
+        cancel: 'This operation cannot be undone.'
+      }
+      bootbox.confirm({
+        title: 'Are you sure?',
+        message: messages[op],
+        buttons: {
+          cancel: {label: 'No'},
+          confirm: {label: 'Yes'}
+        },
+        callback: function(result) {
+          if (result) {
+            $.post("{% url 'contract:change_status' pk=contract.id %}", post_data, function(data) {
+              location.reload();
+            });
           }
-        });
-      }
-      else {
-        $.post("{% url 'contract:change_status' pk=contract.id %}", post_data, function(data) {
-          location.reload();
-        });
-      }
-    });
+        }
+      });
+    }
+    else {
+      $.post("{% url 'contract:change_status' pk=contract.id %}", post_data, function(data) {
+        location.reload();
+      });
+    }
   });
+
+  // enable tooltip
+  $('[data-toggle="tooltip"]').tooltip();
+});
 </script>
 {% endblock %}
 

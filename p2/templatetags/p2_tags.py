@@ -33,3 +33,11 @@ def user_picture_url(context, puser, **kwargs):
             # todo: add logging info.
             pass
     return static('user_200x200.png')
+
+
+# @register.simple_tag(name='formatted-user-name')
+# def p2_tag_formatted_user_name(user):
+#     if user.get_full_name():
+#         return '<span class="formatted-user-name" data-pk="%d">%s<span>' % (user.id, user.get_full_name())
+#     else:
+#         return '<span class="formatted-user-name word-break" data-pk="%d">%s<span>' % (user.id, user.email)
