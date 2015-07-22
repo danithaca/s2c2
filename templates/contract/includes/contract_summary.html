@@ -1,0 +1,30 @@
+<div class="row contract-summary" data-contract-id="{{ contract.id }}">
+  <div class="col-xs-12 col-sm-6 col-md-8">
+    <p class="text-xx-large">
+      <span class="label label-{{ contract.display_status.color }}">{{ contract.display_status.label }}</span>
+    </p>
+    <ul class="list-inline">
+      <li><i class="fa fa-clock-o"></i> <strong>{{ contract.display_event_length }}</strong> ({{ contract.display_event_range }})</li>
+      <li><i class="fa fa-money"></i>
+        {% if contract.price > 0 %}
+          <strong>${{ contract.price }}</strong> (${{ contract.hourly_rate }}/hour)
+        {% else %}
+          <strong>$0</strong> (a favor)
+        {% endif %}
+      </li>
+    </ul>
+    <p class="lead">{{ contract.description }}</p>
+  </div>
+
+  <div class="col-xs-6 col-sm-3 col-md-2">
+    {% include 'contract/includes/user_preview.html' with user=contract.initiate_user %}
+  </div>
+
+  <div class="col-xs-6 col-sm-3 col-md-2">
+    {% if contract.confirmed_match %}
+      {% include 'contract/includes/user_preview.html' with user=contract.confirmed_match.target_user %}
+    {% else %}
+      {% include 'contract/includes/match_not_found.html' %}
+    {% endif %}
+  </div>
+</div>

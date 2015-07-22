@@ -49,6 +49,14 @@ img.user-picture-md { width: 48px; height: 100%; }
   text-overflow: ellipsis;
 }
 
+.word-break {
+  -ms-word-break: break-all;
+  word-break: break-all;
+  -webkit-hyphens: auto;
+  -moz-hyphens: auto;
+  hyphens: auto;
+}
+
 .min-margin {
   margin: 4px;
 }

@@ -1,3 +1,4 @@
+from datetime import timedelta
 from django.utils import timezone
 from enum import Enum
 from decimal import Decimal
@@ -34,7 +35,7 @@ class StatusMixin(object):
 
         match_display_map = {
             Match.Status.INITIALIZED: ('default', 'Waiting'),
-            Match.Status.ENGAGED: ('info', 'Waiting'),
+            Match.Status.ENGAGED: ('info', 'Notified & Waiting'),
             Match.Status.ACCEPTED: ('primary', 'Accepted'),
             Match.Status.DECLINED: ('warning', 'Declined'),
             Match.Status.CANCELED: ('danger', 'Canceled'),
@@ -175,6 +176,40 @@ class Contract(StatusMixin, models.Model):
     def is_event_expired(self):
         # fixme: make sure tz is fine
         return timezone.now() > self.event_end
+
+    def is_event_same_day(self):
+        return self.event_start.date() == self.event_end.date()
+
+    def display_event_length(self):
+        assert self.event_end >= self.event_start
+        diff = self.event_end - self.event_start
+        result = ''
+        if diff.days:
+            result = '%d day%s' % (diff.days, 's' if diff.days > 1 else '')
+            if diff.seconds:
+                hours = round(diff.seconds / 3600)
+                if hours:
+                    result += ' %d hour%s' % (hours, 's' if hours > 1 else '')
+        elif diff.seconds:
+            total_minutes = round(diff.seconds / 60)
+            hours, minutes = divmod(total_minutes, 60)
+            if hours:
+                result += '%d hour%s ' % (hours, 's' if hours > 1 else '')
+            if minutes:
+                result += '%d minute%s' % (minutes, 's' if minutes > 1 else '')
+        if result:
+            return result.strip()
+        else:
+            return 'a few seconds'
+
+    def display_event_range(self):
+        get_time = lambda t: t.strftime('%H:%M')
+        get_fulltime = lambda t: t.strftime('%H:%M %b. %d')
+        if self.is_event_same_day():
+            return '%s~%s, %s' % (get_time(self.event_start), get_time(self.event_end), self.event_start.strftime('%b. %d'))
+        else:
+            return '%s ~ %s' % (get_fulltime(self.event_start), get_fulltime(self.event_end))
+
 
 
 class Match(StatusMixin, models.Model):
