@@ -54,7 +54,7 @@ class ContractCreate(CreateView):
         contract = form.instance
         contract.initiate_user = self.request.puser
         contract.status = Contract.Status.INITIATED.value
-        return super(ContractCreate, self).form_valid(form)
+        return super().form_valid(form)
 
 
 class ContractChangeStatus(LoginRequiredMixin, JSONResponseMixin, AjaxResponseMixin, View):

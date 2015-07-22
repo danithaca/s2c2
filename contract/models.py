@@ -1,3 +1,4 @@
+from django.utils import timezone
 from enum import Enum
 from decimal import Decimal
 from django.contrib.auth.models import User
@@ -18,28 +19,62 @@ class StatusMixin(object):
         self.status = new_status
         self.save()
 
+    # instead of polymorphism using the Contract/Match class, we want centralized handle here to make things read clear.
     def display_status(self):
-        if isinstance(self, Contract):
-            color_map = {
-                Contract.Status.INITIATED.value: 'default',
-                Contract.Status.ACTIVE.value: 'primary',
-                Contract.Status.CONFIRMED.value: 'success',
-                Contract.Status.SUCCESSFUL.value: 'info',
-                Contract.Status.CANCELED.value: 'warning',
-                Contract.Status.FAILED.value: 'warning',
-            }
-        elif isinstance(self, Match):
-            color_map = {
-                Match.Status.INITIALIZED.value: 'default',
-                Match.Status.ENGAGED.value: 'primary',
-                Match.Status.ACCEPTED.value: 'default',
-                Match.Status.INITIALIZED.value: 'default',
-                Match.Status.INITIALIZED.value: 'default',
-            }
-        return {
-            'color': 'default',     # possible: default (gray), primary (darkblue), info (blue), success (green), warning (yellow), danger (red),
-            'label': '',
+        status = self.__class__.Status(self.status)
+
+        contract_display_map = {
+            Contract.Status.INITIATED: ('default', 'Inactive'),
+            Contract.Status.ACTIVE: ('primary', 'Active'),
+            Contract.Status.CONFIRMED: ('success', 'Active - Confirmed'),
+            Contract.Status.SUCCESSFUL: ('info', 'Successful'),
+            Contract.Status.CANCELED: ('warning', 'Canceled'),
+            Contract.Status.FAILED: ('danger', 'Failed'),
         }
+
+        match_display_map = {
+            Match.Status.INITIALIZED: ('default', 'Waiting'),
+            Match.Status.ENGAGED: ('info', 'Waiting'),
+            Match.Status.ACCEPTED: ('primary', 'Accepted'),
+            Match.Status.DECLINED: ('warning', 'Declined'),
+            Match.Status.CANCELED: ('danger', 'Canceled'),
+        }
+
+        if isinstance(self, Contract):
+            color, label = contract_display_map.get(status, ('default', str(status).capitalize()))
+            # override
+            # special handle for expired stuff
+            if self.is_event_expired():
+                if status in (Contract.Status.INITIATED, Contract.Status.ACTIVE):
+                    color, label = 'warning', 'Expired'
+                if status == Contract.Status.CONFIRMED:
+                    color, label = 'info', 'Done'
+            # not expired, proceed as normal
+            else:
+                if status == Contract.Status.ACTIVE:
+                    if not self.match_set.filter(status=Match.Status.ACCEPTED.value).exists():
+                        label = 'Active - Waiting'
+                    else:
+                        label = 'Active - Found'
+
+        elif isinstance(self, Match):
+            color, label = match_display_map.get(status, ('default', str(status).capitalize()))
+            # override
+            if self.contract.is_event_expired() and status in (Match.Status.INITIALIZED, Match.Status.ENGAGED):
+                    color, label = 'warning', 'Expired'
+            elif status == Match.Status.ACCEPTED:
+                if self.contract.confirmed_match == self:
+                    color, label = 'success', 'Accepted & Confirmed'
+                elif self.contract.is_confirmed():
+                    color, label = 'info', 'Not engaged'
+                elif not self.contract.is_event_expired() and not self.contract.is_confirmed():
+                    color, label = 'primary', 'Accepted & Waiting'
+
+        else:
+            assert False
+
+        return {'color': color, 'label': label}
+
 
 class Contract(StatusMixin, models.Model):
     """
@@ -136,6 +171,10 @@ class Contract(StatusMixin, models.Model):
 
     def event_length(self):
         return self.event_end - self.event_start
+
+    def is_event_expired(self):
+        # fixme: make sure tz is fine
+        return timezone.now() > self.event_end
 
 
 class Match(StatusMixin, models.Model):
@@ -248,6 +287,13 @@ class Engagement(object):
         else:
             assert self.is_main_match()
             return Match.Status(self.match.status).name.capitalize()
+
+    def display_status(self):
+        if self.is_main_contract():
+            return self.contract.display_status()
+        else:
+            assert self.is_main_match()
+            return self.match.display_status()
 
     def get_link(self):
         if self.is_main_contract():

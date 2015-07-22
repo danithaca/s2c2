@@ -2,7 +2,7 @@
 {% load static %}
 {% load account_tags %}
 
-<div class="engagement panel panel-default">
+<div class="engagement panel panel-default{% if engagement.contract.is_event_expired %} pale{% endif %}">
   <div class="row">
     <div class="col-sm-4 col-xs-2">
       <img class="img-circle img-responsive img-100 center-block" src="{% user_picture_url engagement.initiate_user %}" alt="request user" title="{% user_display engagement.initiate_user%}">
@@ -10,7 +10,8 @@
 
     <div class="col-sm-4 col-xs-8">
       <h3 class="text-center">
-        <span class="label label-default">{{ engagement.get_status }} <a href="{{ engagement.get_link }}"><i class="fa fa-link"></i></a></span>
+        <span class="label label-{{ engagement.display_status.color }}">{{ engagement.display_status.label }}</span>
+        <small><a href="{{ engagement.get_link }}"><i class="fa fa-link"></i></a></small>
       </h3>
       <p class="text-center">
         {{ engagement.contract.event_start }}

@@ -57,6 +57,10 @@ img.user-picture-md { width: 48px; height: 100%; }
   cursor: pointer;
 }
 
+.pale {
+  opacity: 0.5;
+}
+
 /******** for contract related *********/
 
 .contract-label-decoration {

@@ -2,7 +2,7 @@
 {% load p2_tags %}
 <div class="thumbnail" data-match-id="{{ match.id }}">
   <img src="{% user_picture_url match.target_user %}" alt="user picture" class="img-thumbnail img-responsive">
-  <p class="text-center text-large" style="position: absolute; top: 3px;"><span class="label label-default">{% match-status match.status %}</span></p>
+  <p class="text-center text-large" style="position: absolute; top: 3px;"><span class="label label-{{ match.display_status.color }}">{{ match.display_status.label }}</span></p>
   <div class="caption">
     <h4 class="text-center truncate"><a href="{% url 'contract:match_view' pk=match.id %}"><i class="fa fa-link"></i></a> {% user_display match.target_user %}</h4>
     {#    <div class="text-center"><span class="label label-default">{{ user.email }}</span></div>#}

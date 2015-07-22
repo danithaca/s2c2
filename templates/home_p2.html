@@ -1,19 +1,11 @@
-{% extends "base.html" %}
-{% load staticfiles %}
-{% load bootstrap %}
-{% load account_tags %}
-{% load p2_tags %}
+{% extends "base_lean.html" %}
 
-{% block page %}
-  <div class="row">
-    <section class="col-sm-9">
-    {% if engagements %}
-      {% for engagement in engagements %}
-        {% include 'contract/includes/engagement_home.html' with engagement=engagement %}
-      {% endfor %}
-    {% else %}
-      <p>You don't have any activities yet. To find a babysitter, click here: <a class="btn btn-primary" href="{% url 'contract:add' %}">Find</a></p>
-    {% endif %}
-    </section>
-  </div>
+{% block page-content %}
+  {% if engagements %}
+    {% for engagement in engagements %}
+      {% include 'contract/includes/engagement_home.html' with engagement=engagement %}
+    {% endfor %}
+  {% else %}
+    <p>You don't have any activities yet. To find a babysitter, click here: <a class="btn btn-primary" href="{% url 'contract:add' %}">Find</a></p>
+  {% endif %}
 {% endblock %}
