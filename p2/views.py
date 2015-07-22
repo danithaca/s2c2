@@ -11,8 +11,10 @@ def home(request):
         return render(request, 'landing_p2.html', {'form': LoginEmailForm()})
     else:
         # find engagement for the user
-        user = request.puser
-        if user.is_onboard():
+        puser = request.puser
+        if not puser.is_onboard():
+            return redirect(reverse('onboard_start'))
+        elif puser.engagement_queryset().exists():
             return redirect(reverse('contract:engagement_list'))
         else:
-            return redirect(reverse('onboard_start'))
+            return redirect(reverse('contract:add'))

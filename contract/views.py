@@ -110,3 +110,4 @@ class EngagementList(LoginRequiredMixin, TemplateView):
             'user': user,
             'engagements': list_engagement,
         })
+        return ctx

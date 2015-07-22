@@ -12,53 +12,60 @@
 
 {% block page %}
 <div class="row">
-  <div class="col-xs-9">
-    <h1>{% user_display target_user %} {% if full_access %}<small><a href="{% url 'account_edit' %}"><i class="fa fa-edit"></i></a></small>{% endif %}</h1>
-    <ul class="list-inline">
-      <li><i class="fa fa-envelope"></i> <a href="mailto:{{ target_user.email }}">{{ target_user.email }}</a></li>
-      <li><i class="fa fa-phone"></i> <a href="tel:{{ target_user.info.phone }}">{{ target_user.info.phone }}</a></li>
-      <li><i class="fa fa-truck"></i> <a href="https://www.google.com/maps/place/{{ target_user.info.address|urlencode }}">{{ target_user.info.address }}</a></li>
-    </ul>
-    <p class="lead">{{ target_user.info.note|default:"Nothing." }}</p>
-  </div>
-  <div class="col-xs-3">
-    <img src="{% user_picture_url target_user %}" alt="user picture" class="img-thumbnail img-responsive">
+  <aside class="col-sm-3">
+    <div class="thumbnail" data-uid="{{ target_user.id }}">
+      <img src="{% user_picture_url target_user %}" alt="user picture" class="img-thumbnail img-responsive">
+      <div class="caption">
+        <h3 class="text-center">{% user_display target_user %} {% if full_access %}<small><a href="{% url 'account_edit' %}"><i class="fa fa-edit"></i></a></small>{% endif %}</h3>
+        <div class="well-sm">
+          <p class="text-center"><i class="fa fa-envelope"></i> <a href="mailto:{{ target_user.email }}">{{ target_user.email }}</a></p>
+          {% if target_user.info.phone %}
+            <p class="text-center"><i class="fa fa-phone"></i> <a href="tel:{{ target_user.info.phone }}">{{ target_user.info.phone }}</a></p>
+          {% endif %}
+          {% if target_user.info.address %}
+            <p class="text-center"><i class="fa fa-truck"></i> <a href="https://www.google.com/maps/place/{{ target_user.info.address|urlencode }}">{{ target_user.info.address }}</a></p>
+          {% endif %}
+        </div>
+        {% if target_user.info.note %}
+          <p>{{ target_user.info.note|default:"Nothing." }}</p>
+        {% endif %}
+      </div>
+    </div>
+  </aside>
+
+  <div class="col-sm-9">
+    <h2>People who favorited me {% if full_access%}<small><a href="{% url 'circle:manage_loop' %}"><i class="fa fa-edit"></i></a></small>{% endif %}</h2>
+    {% if in_others %}
+      <ul class="list-inline">
+        {% for u in in_others %}
+          <li><a href="{% url 'account_view' u.id %}" title=" {% user_display u %}" data-toggle="tooltip"><img src="{% user_picture_url u %}" class="img-circle img-50"></a></li>
+        {% endfor %}
+      </ul>
+    {% else %}
+      <p class="lead">None.</p>
+    {% endif %}
+
+    <h2>My favorite people {% if full_access %}<small><a href="{% url 'circle:manage_personal' %}"><i class="fa fa-edit"></i></a></small>{% endif %}</h2>
+    {% if my_listed %}
+      <ul class="list-inline">
+        {% for u in my_listed %}
+          <li><a href="{% url 'account_view' u.id %}" title=" {% user_display u %}" data-toggle="tooltip"><img src="{% user_picture_url u %}" class="img-circle img-50"></a></li>
+        {% endfor %}
+      </ul>
+    {% else %}
+      <p class="lead">None.</p>
+    {% endif %}
+
+    <h2>My public circles {% if full_access %}<small><a href="{% url 'circle:manage_public' %}"><i class="fa fa-edit"></i></a></small>{% endif %}</h2>
+    {% if my_memberships %}
+      <ul>
+      {% for m in my_memberships %}
+        <li>{{ m.circle.name }} <span class="label label-default">{{ m.approved|yesno:'Approved,Not approved' }}</span><br><small>{{ m.circle.description }}</small></li>
+      {% endfor %}
+      </ul>
+    {% else %}
+      <p class="lead">None.</p>
+    {% endif %}
   </div>
 </div>
-
-<hr>
-
-<h2>People who favorited me {% if full_access%}<small><a href="{% url 'circle:manage_loop' %}"><i class="fa fa-edit"></i></a></small>{% endif %}</h2>
-{% if in_others %}
-  <ul class="list-inline">
-    {% for u in in_others %}
-      <li><a href="{% url 'account_view' u.id %}" title=" {% user_display u %}" data-toggle="tooltip"><img src="{% user_picture_url u %}" class="img-circle img-50"></a></li>
-    {% endfor %}
-  </ul>
-{% else %}
-  <p class="lead">None.</p>
-{% endif %}
-
-<h2>My favorite people {% if full_access %}<small><a href="{% url 'circle:manage_personal' %}"><i class="fa fa-edit"></i></a></small>{% endif %}</h2>
-{% if my_listed %}
-  <ul class="list-inline">
-    {% for u in my_listed %}
-      <li><a href="{% url 'account_view' u.id %}" title=" {% user_display u %}" data-toggle="tooltip"><img src="{% user_picture_url u %}" class="img-circle img-50"></a></li>
-    {% endfor %}
-  </ul>
-{% else %}
-  <p class="lead">None.</p>
-{% endif %}
-
-<h2>My public circles {% if full_access %}<small><a href="{% url 'circle:manage_public' %}"><i class="fa fa-edit"></i></a></small>{% endif %}</h2>
-{% if my_memberships %}
-  <ul>
-  {% for m in my_memberships %}
-    <li>{{ m.circle.name }} <span class="label label-default">{{ m.approved|yesno:'Approved,Not approved' }}</span><br><small>{{ m.circle.description }}</small></li>
-  {% endfor %}
-  </ul>
-{% else %}
-  <p class="lead">None.</p>
-{% endif %}
-
 {% endblock %}

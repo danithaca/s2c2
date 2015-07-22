@@ -1,10 +1,12 @@
 from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse
 from django.db import models
+from django.db.models import Q
 from image_cropping import ImageCropField, ImageRatioField
 from localflavor.us.models import PhoneNumberField
 from django.core import checks
 from circle.models import Membership, Circle
+from contract.models import Contract
 from p2 import settings
 from s2c2.utils import auto_user_name, deprecated
 
@@ -191,3 +193,6 @@ class PUser(User):
 
     def is_onboard(self):
         return self.has_info() and self.info.area and self.first_name
+
+    def engagement_queryset(self):
+        return Contract.objects.filter(Q(initiate_user=self) | Q(match__target_user=self)).distinct()

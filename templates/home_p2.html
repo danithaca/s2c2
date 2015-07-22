@@ -6,17 +6,6 @@
 
 {% block page %}
   <div class="row">
-    <aside class="col-sm-3 hidden-xs">
-      <div class="thumbnail" data-uid="{{ user.id }}">
-        <img src="{% user_picture_url user %}" alt="user picture" class="img-thumbnail img-responsive">
-        <div class="caption">
-          <h4 class="text-center">{% user_display user %}</h4>
-          <p class="text-center"><a href="mailto:{{ user.email }}">{{ user.email }}</a></p>
-          <p class="text-center"><a href="tel:{{ user.info.phone }}">{{ user.info.phone }}</a></p>
-        </div>
-      </div>
-    </aside>
-
     <section class="col-sm-9">
     {% if engagements %}
       {% for engagement in engagements %}
