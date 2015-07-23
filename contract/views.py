@@ -26,16 +26,7 @@ class ContractList(ListView):
 class ContractCreate(CreateView):
     model = Contract
     form_class = ContractForm
-    # fields = ['event_start', 'event_end', 'price', 'description', 'area']
     template_name = 'contract/add.html'
-
-    # this doesn't work with CreateView
-    # class Meta:
-    #     date_time_widget = DateTimeWidget(bootstrap_version=3)
-    #     widgets = {
-    #         'event_start': date_time_widget,
-    #         'event_end': date_time_widget,
-    #     }
 
     # override widget.
     # def get_form_class(self):
@@ -49,6 +40,17 @@ class ContractCreate(CreateView):
     #         'event_start': w,
     #         'event_end': w
     #     })
+
+    def get_initial(self):
+        initial = super().get_initial()
+        from location.models import Area
+        initial['area'] = Area.default()
+        return initial
+
+    def get_form(self, form_class=None):
+        form = super().get_form(form_class)
+        form.fields['area'].widget.attrs['disabled'] = True
+        return form
 
     def form_valid(self, form):
         contract = form.instance

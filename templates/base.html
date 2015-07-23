@@ -33,11 +33,15 @@
   <script src="{% static 'js/utils.js' %}"></script>
 
   <script>
-    /*$(document).ready(function() {
-      $('nav.navbar a.dropdown-toggle').each(function() {
+    $(document).ready(function() {
+      /*$('nav.navbar a.dropdown-toggle').each(function() {
         $(this).hover()
-      });
-    });*/
+      });*/
+
+      // add active to menu mbar
+      var path = window.location.pathname;
+      $('ul.nav>li>a[href="'+ path +'"]').parent().addClass('active');
+    });
   </script>
 
   <!-- hotjar -->

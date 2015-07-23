@@ -21,9 +21,9 @@ class Area(models.Model):
     def __str__(self):
         return '%s - %s' % (self.name, self.state)
 
-    # @staticmethod
-    # def default():
-    #     return Area.objects.get(pk=1)
+    @staticmethod
+    def default():
+        return Area.objects.get(pk=1)
 
 
 class Location(models.Model):

@@ -8,15 +8,15 @@ class ContractForm(forms.ModelForm):
 
     class Meta:
         model = Contract
-        fields = ['event_start', 'event_end', 'price', 'description', 'area']
+        fields = ['event_start', 'event_end', 'price', 'area', 'description']
         w = DateTimeWidget(bootstrap_version=3, options={
-            'format': 'yyyy-mm-dd hh:ii:ss',
+            'format': 'yyyy-mm-dd hh:ii',
             'minuteStep': 15,
             'showMeridian': True,
         })
         widgets = {
             'event_start': w,
-            'event_end': w
+            'event_end': w,
         }
 
     def clean(self):

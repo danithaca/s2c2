@@ -1,4 +1,4 @@
-{% extends "base_page_lean.html" %}
+{% extends "base_lean.html" %}
 {% load staticfiles %}
 {% load bootstrap %}
 
@@ -7,14 +7,13 @@
 {% endblock %}
 
 {% block title %}Find help{% endblock %}
-{% block page-header %}Find help{% endblock %}
 
 {% block page-content %}
-    <form class="form" method="post">
-      {% csrf_token %}
-      {{ form|bootstrap }}
-      <div class="form-group">
-        <button type="submit" class="btn btn-primary">Submit</button>
-      </div>
-    </form>
+  <form class="form" method="post">
+    {% csrf_token %}
+    {{ form|bootstrap }}
+    <div class="form-group">
+      <button type="submit" class="btn btn-primary">Submit</button>
+    </div>
+  </form>
 {% endblock %}
