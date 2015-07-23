@@ -1,0 +1,34 @@
+{% load account_tags %}
+{% load p2_tags %}
+<div class="row match-summary" data-match-id="{{ match.id }}">
+  <div class="col-xs-4">
+    <img src="{% user_picture_url match.target_user %}" alt="user picture" class="img-thumbnail img-circle img-responsive">
+  </div>
+  <div class="col-xs-8">
+    {# make tooltip in "p" to prevent getting truncated. but then it shows funny in match_view #}
+    <p class="text-large truncate" title="{{ match.display_status.label }}. {{ match.display_status.explanation }}" data-toggle="tooltip">
+      <span class="label label-{{ match.display_status.color }}">{{ match.display_status.label }}</span>
+      {% url 'contract:match_view' pk=match.id as match_view_url %}
+      {% if request.path != match_view_url and user.is_staff %}<a href="{{ match_view_url }}"><i class="fa fa-rocket"></i></a>{% endif %}
+    </p>
+    {% if extended %}<div style="height: 10px;"></div>{% endif %}
+    <h4 class="{% if not match.target_user.get_full_name %}word-break{% endif %}">
+      <a href="{% url 'account_view' pk=user.id %}">{% user_display match.target_user %}</a>
+    </h4>
+    <p>
+      {% for circle in match.circles.all %}
+        <span class="badge badge-default" title="{{ circle.display }}" data-toggle="tooltip">{{ circle.display|truncatechars:25 }}</span>
+      {% endfor %}
+    </p>
+    {% if extended %}
+      <p>
+      {% with count=match.count_served client=contract.initiate_user server=match.target_user %}
+        {% if count %}<span class="label label-success">{% user-short-name server %} served {% user-short-name client %} <em>{{ count }}</em> time{{ count|pluralize }}</span>{% endif %}
+      {% endwith %}
+      {% with count=match.count_served_reverse server=contract.initiate_user client=match.target_user %}
+        {% if count %}<span class="label label-danger">{% user-short-name server %} served {% user-short-name client %} <em>{{ count }}</em> time{{ count|pluralize }}</span>{% endif %}
+      {% endwith %}
+      </p>
+    {% endif %}
+  </div>
+</div>

@@ -206,4 +206,4 @@ class PUser(User):
         Count how many times the current puser (as "server") has served the client.
         """
         assert isinstance(client, User)     # PUser is also an instance of user.
-        return Match.objects.filter(target_user=self, contract__initiate_user=client, contract__status=Contract.Status.SUCCESSFUL.value).count()
+        return Contract.objects.filter(confirmed_match__target_user=self, initiate_user=client, status=Contract.Status.SUCCESSFUL.value).count()

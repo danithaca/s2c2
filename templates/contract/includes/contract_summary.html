@@ -1,7 +1,12 @@
 <div class="row contract-summary well" data-contract-id="{{ contract.id }}">
   <div class="col-xs-12 col-sm-6 col-md-8 panel panel-default"><div class="panel-body">
     <p class="text-xx-large">
-      <span class="label label-{{ contract.display_status.color }}">{{ contract.display_status.label }}</span>
+      {# use tooltip in span to make it show in the correct location. #}
+      <span class="label label-{{ contract.display_status.color }}" title="{{ contract.display_status.label }}. {{ contract.display_status.explanation }}" data-toggle="tooltip">{{ contract.display_status.label }}</span>
+      {% url 'contract:view' pk=contract.id as contract_view_url %}
+      {% if request.path != contract_view_url and user.is_staff %}
+        <a href="{{ contract_view_url }}"><i class="fa fa-rocket"></i></a>
+      {% endif %}
     </p>
     <ul class="list-unstyled">
       <li><i class="fa fa-clock-o"></i> <strong>{{ contract.display_event_length }}</strong> ({{ contract.display_event_range }})</li>

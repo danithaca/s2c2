@@ -1,30 +1,11 @@
 {% load account_tags %}
 {% load p2_tags %}
-<div class="match-preview panel panel-default" data-match-id="{{ match.id }}">
-  <div class="row panel-body">
-    <div class="col-xs-4">
-      <img src="{% user_picture_url match.target_user %}" alt="user picture" class="img-thumbnail img-circle img-responsive">
-    </div>
-    <div class="col-xs-8">
-      <p class="text-large truncate" title="{{ match.display_status.label }}. {{ match.display_status.explanation }}" data-toggle="tooltip">
-        <span class="label label-{{ match.display_status.color }}">{{ match.display_status.label }}</span>
-        {% if user.is_staff %}<a href="{% url 'contract:match_view' pk=match.id %}"><i class="fa fa-rocket"></i></a>{% endif %}
-      </p>
-      <p class="{% if not match.target_user.get_full_name %}word-break{% endif %}">
-        <a href="{% url 'account_view' pk=user.id %}">{% user_display match.target_user %}</a>
-      </p>
-      <p>
-        {% for circle in match.circles.all %}
-          <span class="badge badge-default" title="{{ circle.display }}" data-toggle="tooltip">{{ circle.display|truncatechars:25 }}</span>
-        {% endfor %}
-      </p>
-{#      {% with count=match.count_served client=contract.initiated_user server=match.target_user %}#}
-{#        {% if count %}<p class="text-small"><span class="label label-success">{% user-short-name server %} served {% user-short-name client %} {{ count }} time{{ count|pluralize }}</span></p>{% endif %}#}
-{#      {% endwith %}#}
-    </div>
+<div class="match-preview panel panel-default">
+  <div class="panel-body">
+    {% include 'contract/includes/match_summary.html' with match=match contract=contract %}
   </div>
 
-  {% if match.is_accepted and contract.is_active %}
+  {% if match.is_accepted and contract.is_active and contract.initiate_user == user %}
     <div class="panel-footer text-center">
       <button class="btn btn-lg btn-primary" name="change-status" value="confirm" data-match-id="{{ match.id }}">Confirm</button>
     </div>

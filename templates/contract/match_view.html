@@ -18,61 +18,11 @@ $(document).ready(function() {
 {% endblock %}
 
 {% block page %}
-<div class="row" data-contract-id="{{ contract.id }}" data-match-id="{{ match.id }}">
-  <div class="col-sm-6 col-md-8">
-    <p class="text-xx-large">
-      <span class="label label-default">Response: {% match-status match.status %}</span>
-    </p>
-    <table class="table table-striped table-hover">
-      <tbody>
-      <tr>
-        <th scope="row">Time</th>
-        <td>Start: {{ contract.event_start }}, End: {{ contract.event_end }}</td>
-      </tr>
-      <tr>
-        <th scope="row">Compensation</th>
-        <td>
-          {% if contract.price > 0 %}
-            ${{ contract.price }} <small>(${{ contract.hourly_rate }}/hour)</small>
-          {% else %}
-            No monetary compensation. This will be based on exchange of favors.
-          {% endif %}
-        </td>
-      </tr>
-      <tr>
-        <th scope="row">Note</th>
-        <td>{{ contract.description }}</td>
-      </tr>
-      <tr>
-        <th scope="row">Status</th>
-        <td>{% contract-status contract.status %}. {{ contract.count_total_match }} contacted; {{ contract.count_accepted_match }} accepted</td>
-      </tr>
-      </tbody>
-    </table>
-  </div>
-
-  <div class="col-xs-6 col-sm-3 col-md-2">
-    {% include 'contract/includes/match_initiate_user.html' with user=contract.initiate_user match=match%}
-  </div>
-  <div class="col-xs-6 col-sm-3 col-md-2">
-    {% include 'contract/includes/match_target_user.html' with user=match.target_user match=match %}
-  </div>
-
+  {% include 'contract/includes/contract_summary.html' with contract=contract %}
+  <hr>
   <div class="row">
-    <div class="col-sm-12">
-      <div class="well text-center">
-      {% if not match.is_accepted %}
-        <button class="btn btn-primary btn-lg" name="match" data-url="{% url 'contract:match_accept' pk=match.id %}">Accept</button>
-      {% endif %}
-      {% if not match.is_declined %}
-        {% if match.is_confirmed %}
-          <div data-toggle="tooltip" title="This engagement is confirmed and you cannot decline it on your end. If you need to make a change, please contact the person directly and ask him or her to change the engagement on their end."><button class="btn btn-warning btn-lg disabled" name="match" data-url="{% url 'contract:match_decline' pk=match.id %}">Decline</button></div>
-        {% else %}
-          <button class="btn btn-warning btn-lg" name="match" data-url="{% url 'contract:match_decline' pk=match.id %}">Decline</button>
-        {% endif %}
-      {% endif %}
-      </div>
+    <div class="col-xs-12">
+      {% include 'contract/includes/match_view_include.html' with match=match contract=contract %}
     </div>
   </div>
-</div>
 {% endblock %}

@@ -27,7 +27,7 @@ class StatusMixin(object):
 
         contract_display_map = {
             Contract.Status.INITIATED: ('default', 'Inactive', ''),
-            Contract.Status.ACTIVE: ('primary', 'Active', ),
+            Contract.Status.ACTIVE: ('primary', 'Active', ''),
             Contract.Status.CONFIRMED: ('success', 'Active - Confirmed', ''),
             Contract.Status.SUCCESSFUL: ('info', 'Successful', ''),
             Contract.Status.CANCELED: ('warning', 'Canceled', ''),
@@ -57,7 +57,7 @@ class StatusMixin(object):
                     if not self.match_set.filter(status=Match.Status.ACCEPTED.value).exists():
                         label = 'Active - Waiting'
                     else:
-                        label = 'Active - Found'
+                        label, explanation = 'Active - Found', 'The client has found at least 1 person who agreed to be a server. The client has not confirmed yet.'
 
         elif isinstance(self, Match):
             color, label, explanation = match_display_map.get(status, ('default', str(status).capitalize(), ''))
