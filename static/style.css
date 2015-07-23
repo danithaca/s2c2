@@ -69,6 +69,11 @@ img.user-picture-md { width: 48px; height: 100%; }
   opacity: 0.5;
 }
 
+.upper-corner {
+  position: absolute;
+  top: 3px;
+}
+
 /******** for contract related *********/
 
 .contract-label-decoration {

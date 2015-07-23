@@ -3,7 +3,7 @@
 <div class="thumbnail" data-uid="{{ user.id }}">
   <img src="{% user_picture_url user %}" alt="user picture" class="img-thumbnail img-responsive">
   {% if label %}
-  <p class="user-preview-label">
+  <p class="upper-corner">
     <span class="label label-{{ color|default:'default' }}">{{ label }}</span>
   </p>
   {% endif %}

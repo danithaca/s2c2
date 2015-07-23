@@ -99,7 +99,7 @@ class MatchStatusChange(LoginRequiredMixin, JSONResponseMixin, AjaxResponseMixin
 
 
 class EngagementList(LoginRequiredMixin, TemplateView):
-    template_name = 'home_p2.html'
+    template_name = 'contract/engagement_list.html'
 
     def get_context_data(self, **kwargs):
         user = self.request.puser
