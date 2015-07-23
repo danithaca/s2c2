@@ -6,7 +6,7 @@ from image_cropping import ImageCropField, ImageRatioField
 from localflavor.us.models import PhoneNumberField
 from django.core import checks
 from circle.models import Membership, Circle
-from contract.models import Contract
+from contract.models import Contract, Match
 from p2 import settings
 from s2c2.utils import auto_user_name, deprecated
 
@@ -82,7 +82,11 @@ class PUser(User):
 
     @staticmethod
     def from_user(user):
-        return PUser.objects.get(pk=user.id)
+        assert isinstance(user, User)
+        if isinstance(user, PUser):
+            return user
+        else:
+            return PUser.objects.get(pk=user.id)
 
     def get_area(self):
         try:
@@ -196,3 +200,10 @@ class PUser(User):
 
     def engagement_queryset(self):
         return Contract.objects.filter(Q(initiate_user=self) | Q(match__target_user=self)).distinct()
+
+    def count_served(self, client):
+        """
+        Count how many times the current puser (as "server") has served the client.
+        """
+        assert isinstance(client, User)     # PUser is also an instance of user.
+        return Match.objects.filter(target_user=self, contract__initiate_user=client, contract__status=Contract.Status.SUCCESSFUL.value).count()

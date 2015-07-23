@@ -41,3 +41,15 @@ def user_picture_url(context, puser, **kwargs):
 #         return '<span class="formatted-user-name" data-pk="%d">%s<span>' % (user.id, user.get_full_name())
 #     else:
 #         return '<span class="formatted-user-name word-break" data-pk="%d">%s<span>' % (user.id, user.email)
+
+
+@register.simple_tag(name='count-serves')
+def p2_tag_count_serves(u1, u2):
+    pu1, pu2 = PUser.from_user(u1), PUser.from_user(u2)
+    return pu1.count_served(pu2)
+
+
+@register.simple_tag(name='user-short-name')
+def p2_tag_user_short_name(user):
+    assert isinstance(user, User)
+    return user.first_name or user.last_name or user.email

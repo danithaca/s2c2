@@ -9,6 +9,7 @@ from django.db.models.signals import post_save
 from django.dispatch import receiver
 from contract import tasks
 
+
 class StatusMixin(object):
     """
     We assume the subclass has a 'Status' class and a 'status' field that initiate the Status class
@@ -25,24 +26,24 @@ class StatusMixin(object):
         status = self.__class__.Status(self.status)
 
         contract_display_map = {
-            Contract.Status.INITIATED: ('default', 'Inactive'),
-            Contract.Status.ACTIVE: ('primary', 'Active'),
-            Contract.Status.CONFIRMED: ('success', 'Active - Confirmed'),
-            Contract.Status.SUCCESSFUL: ('info', 'Successful'),
-            Contract.Status.CANCELED: ('warning', 'Canceled'),
-            Contract.Status.FAILED: ('danger', 'Failed'),
+            Contract.Status.INITIATED: ('default', 'Inactive', ''),
+            Contract.Status.ACTIVE: ('primary', 'Active', ),
+            Contract.Status.CONFIRMED: ('success', 'Active - Confirmed', ''),
+            Contract.Status.SUCCESSFUL: ('info', 'Successful', ''),
+            Contract.Status.CANCELED: ('warning', 'Canceled', ''),
+            Contract.Status.FAILED: ('danger', 'Failed', ''),
         }
 
         match_display_map = {
-            Match.Status.INITIALIZED: ('default', 'Waiting'),
-            Match.Status.ENGAGED: ('info', 'Notified & Waiting'),
-            Match.Status.ACCEPTED: ('primary', 'Accepted'),
-            Match.Status.DECLINED: ('warning', 'Declined'),
-            Match.Status.CANCELED: ('danger', 'Canceled'),
+            Match.Status.INITIALIZED: ('default', 'Waiting', ''),
+            Match.Status.ENGAGED: ('info', 'Notified & Waiting', ''),
+            Match.Status.ACCEPTED: ('primary', 'Accepted', ''),
+            Match.Status.DECLINED: ('warning', 'Declined', ''),
+            Match.Status.CANCELED: ('danger', 'Canceled', ''),
         }
 
         if isinstance(self, Contract):
-            color, label = contract_display_map.get(status, ('default', str(status).capitalize()))
+            color, label, explanation = contract_display_map.get(status, ('default', str(status).capitalize(), ''))
             # override
             # special handle for expired stuff
             if self.is_event_expired():
@@ -59,7 +60,7 @@ class StatusMixin(object):
                         label = 'Active - Found'
 
         elif isinstance(self, Match):
-            color, label = match_display_map.get(status, ('default', str(status).capitalize()))
+            color, label, explanation = match_display_map.get(status, ('default', str(status).capitalize(), ''))
             # override
             if self.contract.is_event_expired() and status in (Match.Status.INITIALIZED, Match.Status.ENGAGED):
                     color, label = 'warning', 'Expired'
@@ -67,14 +68,14 @@ class StatusMixin(object):
                 if self.contract.confirmed_match == self:
                     color, label = 'success', 'Accepted & Confirmed'
                 elif self.contract.is_confirmed():
-                    color, label = 'info', 'Not engaged'
+                    color, label, explanation = 'primary', 'Not chosen', 'The server accepted your request but you did not choose him/her to serve you.'
                 elif not self.contract.is_event_expired() and not self.contract.is_confirmed():
                     color, label = 'primary', 'Accepted & Pending'
 
         else:
             assert False
 
-        return {'color': color, 'label': label}
+        return {'color': color, 'label': label, 'explanation': explanation}
 
 
 class Contract(StatusMixin, models.Model):
@@ -292,6 +293,18 @@ class Match(StatusMixin, models.Model):
 
             # non-blocking process
             tasks.after_match_engaged.delay(self)
+
+    # def get_puser_pair(self):
+    #     from puser.models import PUser
+    #     return PUser.from_user(self.contract.initiate_user), PUser.from_user(self.target_user)
+
+    def count_served(self):
+        from puser.models import PUser
+        return PUser.from_user(self.target_user).count_served(self.contract.initiate_user)
+
+    def count_served_reverse(self):
+        from puser.models import PUser
+        return PUser.from_user(self.contract.initiate_user).count_served(self.target_user)
 
 
 class Engagement(object):

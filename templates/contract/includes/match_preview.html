@@ -6,8 +6,8 @@
       <img src="{% user_picture_url match.target_user %}" alt="user picture" class="img-thumbnail img-circle img-responsive">
     </div>
     <div class="col-xs-8">
-      <p class="text-large truncate">
-        <span class="label label-{{ match.display_status.color }}" title="{{ match.display_status.label }}" data-toggle="toggle">{{ match.display_status.label }}</span>
+      <p class="text-large truncate" title="{{ match.display_status.label }}. {{ match.display_status.explanation }}" data-toggle="tooltip">
+        <span class="label label-{{ match.display_status.color }}">{{ match.display_status.label }}</span>
         {% if user.is_staff %}<a href="{% url 'contract:match_view' pk=match.id %}"><i class="fa fa-rocket"></i></a>{% endif %}
       </p>
       <p class="{% if not match.target_user.get_full_name %}word-break{% endif %}">
@@ -15,14 +15,18 @@
       </p>
       <p>
         {% for circle in match.circles.all %}
-          <span class="badge badge-default">{{ circle.display }}</span>
+          <span class="badge badge-default" title="{{ circle.display }}" data-toggle="tooltip">{{ circle.display|truncatechars:25 }}</span>
         {% endfor %}
       </p>
-      <p>
-        {% if match.is_accepted and contract.is_active %}
-          <button class="btn btn-primary" name="change-status" value="confirm" data-match-id="{{ match.id }}">Confirm</button>
-        {% endif %}
-      </p>
+{#      {% with count=match.count_served client=contract.initiated_user server=match.target_user %}#}
+{#        {% if count %}<p class="text-small"><span class="label label-success">{% user-short-name server %} served {% user-short-name client %} {{ count }} time{{ count|pluralize }}</span></p>{% endif %}#}
+{#      {% endwith %}#}
     </div>
   </div>
+
+  {% if match.is_accepted and contract.is_active %}
+    <div class="panel-footer text-center">
+      <button class="btn btn-lg btn-primary" name="change-status" value="confirm" data-match-id="{{ match.id }}">Confirm</button>
+    </div>
+  {% endif %}
 </div>

@@ -33,7 +33,7 @@ class Circle(models.Model):
 
     def display(self):
         if self.type == Circle.Type.PERSONAL.value:
-            return '%s\'s favorites' % self.owner.first_name or self.ower.email
+            return '%s\'s circle' % self.owner.get_full_name() or self.ower.email
         else:
             return self.name
 
