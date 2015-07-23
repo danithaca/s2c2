@@ -69,7 +69,7 @@ class StatusMixin(object):
                 elif self.contract.is_confirmed():
                     color, label = 'info', 'Not engaged'
                 elif not self.contract.is_event_expired() and not self.contract.is_confirmed():
-                    color, label = 'primary', 'Accepted & Waiting'
+                    color, label = 'primary', 'Accepted & Pending'
 
         else:
             assert False
@@ -148,6 +148,16 @@ class Contract(StatusMixin, models.Model):
         old_status = self.status
         self.change_status(old_status, Contract.Status.CANCELED.value)
 
+    def succeed(self):
+        assert self.status == Contract.Status.CONFIRMED.value, 'Contract not in confirmed status.'
+        old_status = self.status
+        self.change_status(old_status, Contract.Status.SUCCESSFUL.value)
+
+    def fail(self):
+        assert self.status == Contract.Status.CONFIRMED.value, 'Contract not in confirmed status.'
+        old_status = self.status
+        self.change_status(old_status, Contract.Status.FAILED.value)
+
     def revert(self):
         """
         From confirmed status back to active
@@ -176,6 +186,9 @@ class Contract(StatusMixin, models.Model):
     def is_event_expired(self):
         # fixme: make sure tz is fine
         return timezone.now() > self.event_end
+
+    def is_event_happening(self):
+        return self.event_start <= timezone.now() <= self.event_end
 
     def is_event_same_day(self):
         return self.event_start.date() == self.event_end.date()

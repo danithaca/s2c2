@@ -8,6 +8,7 @@
     <div class="col-xs-8">
       <p class="text-large truncate">
         <span class="label label-{{ match.display_status.color }}" title="{{ match.display_status.label }}" data-toggle="toggle">{{ match.display_status.label }}</span>
+        {% if user.is_staff %}<a href="{% url 'contract:match_view' pk=match.id %}"><i class="fa fa-rocket"></i></a>{% endif %}
       </p>
       <p class="{% if not match.target_user.get_full_name %}word-break{% endif %}">
         <a href="{% url 'account_view' pk=user.id %}">{% user_display match.target_user %}</a>

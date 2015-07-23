@@ -68,6 +68,12 @@ class ContractChangeStatus(LoginRequiredMixin, JSONResponseMixin, AjaxResponseMi
             contract.cancel()
         elif op == 'revert':
             contract.revert()
+        elif op == 'succeed':
+            contract.succeed()
+        elif op == 'fail':
+            contract.fail()
+        else:
+            assert False
         return self.render_json_response({'success': True, 'op': op})
 
 

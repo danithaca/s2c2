@@ -1,5 +1,5 @@
-<div class="row contract-summary" data-contract-id="{{ contract.id }}">
-  <div class="col-xs-12 col-sm-6 col-md-8">
+<div class="row contract-summary well" data-contract-id="{{ contract.id }}">
+  <div class="col-xs-12 col-sm-6 col-md-8 panel panel-default"><div class="panel-body">
     <p class="text-xx-large">
       <span class="label label-{{ contract.display_status.color }}">{{ contract.display_status.label }}</span>
     </p>
@@ -14,15 +14,15 @@
       </li>
     </ul>
     <p class="lead">{{ contract.description }}</p>
-  </div>
+  </div></div>
 
   <div class="col-xs-6 col-sm-3 col-md-2">
-    {% include 'contract/includes/user_preview.html' with user=contract.initiate_user label='Parent' color='primary' %}
+    {% include 'contract/includes/user_preview.html' with user=contract.initiate_user label='Client' color='primary' %}
   </div>
 
   <div class="col-xs-6 col-sm-3 col-md-2">
     {% if contract.confirmed_match %}
-      {% include 'contract/includes/user_preview.html' with user=contract.confirmed_match.target_user label='Babysitter' color='primary' %}
+      {% include 'contract/includes/user_preview.html' with user=contract.confirmed_match.target_user label='Server' color='primary' %}
     {% else %}
       {% include 'contract/includes/match_not_found.html' %}
     {% endif %}
