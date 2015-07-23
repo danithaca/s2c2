@@ -1,20 +1,27 @@
 {% load account_tags %}
 {% load p2_tags %}
-<div class="thumbnail" data-match-id="{{ match.id }}">
-  <img src="{% user_picture_url match.target_user %}" alt="user picture" class="img-thumbnail img-responsive">
-  <p class="text-center text-large" style="position: absolute; top: 3px;"><span class="label label-{{ match.display_status.color }}">{{ match.display_status.label }}</span></p>
-  <div class="caption">
-    <h4 class="text-center"><a href="{% url 'contract:match_view' pk=match.id %}"><i class="fa fa-link"></i></a> {% user_display match.target_user %}</h4>
-    {#    <div class="text-center"><span class="label label-default">{{ user.email }}</span></div>#}
-    <p class="text-center">
-      {% for circle in match.circles.all %}
-        <span class="badge badge-default">{{ circle.display }}</span>
-      {% endfor %}
-    </p>
-    <p class="text-center">
-      {% if match.is_accepted and contract.is_active %}
-        <button class="btn btn-primary" name="change-status" value="confirm" data-match-id="{{ match.id }}">Confirm</button>
-      {% endif %}
-    </p>
+<div class="match-preview panel panel-default" data-match-id="{{ match.id }}">
+  <div class="row panel-body">
+    <div class="col-xs-4">
+      <img src="{% user_picture_url match.target_user %}" alt="user picture" class="img-thumbnail img-circle img-responsive">
+    </div>
+    <div class="col-xs-8">
+      <p class="text-large truncate">
+        <span class="label label-{{ match.display_status.color }}" title="{{ match.display_status.label }}" data-toggle="toggle">{{ match.display_status.label }}</span>
+      </p>
+      <p class="{% if not match.target_user.get_full_name %}word-break{% endif %}">
+        <a href="{% url 'account_view' pk=user.id %}">{% user_display match.target_user %}</a>
+      </p>
+      <p>
+        {% for circle in match.circles.all %}
+          <span class="badge badge-default">{{ circle.display }}</span>
+        {% endfor %}
+      </p>
+      <p>
+        {% if match.is_accepted and contract.is_active %}
+          <button class="btn btn-primary" name="change-status" value="confirm" data-match-id="{{ match.id }}">Confirm</button>
+        {% endif %}
+      </p>
+    </div>
   </div>
 </div>

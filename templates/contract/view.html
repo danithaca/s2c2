@@ -56,7 +56,7 @@ $(document).ready(function() {
 <div class="row">
 {% if matches %}
 {% for match in matches %}
-  <div class="col-xs-6 col-sm-3 col-md-2">
+  <div class="col-xs-12 col-sm-6 col-md-4">
     {% include 'contract/includes/match_preview.html' with match=match contract=contract %}
   </div>
 {% endfor %}
