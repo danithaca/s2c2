@@ -1,0 +1,13 @@
+{% load account_tags %}
+{% load p2_tags %}
+<div data-uid="{{ user.id }}">
+  <img class="img-thumbnail img-circle img-responsive" src="{% user_picture_url user %}" alt="user" title="{% user_display user %}">
+  {% if label %}
+    <p class="upper-corner">
+      <span class="label label-{{ color|default:'default' }}">{{ label }}</span>
+    </p>
+  {% endif %}
+  <div class="text-center truncate lower-center">
+    <a href="{% url 'account_view' pk=user.id %}"><span class="label label-primary">{% user_display user %}</span></a>
+  </div>
+</div>

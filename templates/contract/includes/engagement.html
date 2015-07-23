@@ -4,29 +4,37 @@
 
 <div class="engagement panel panel-default{% if engagement.contract.is_event_expired %} pale{% endif %}">
   <div class="row">
-    <div class="col-sm-4 col-xs-2">
-      <img class="img-circle img-responsive img-100 center-block" src="{% user_picture_url engagement.initiate_user %}" alt="request user" title="{% user_display engagement.initiate_user%}">
+    <div class="col-sm-3 col-xs-4 center-block">
+      <div class="min-margin">
+        {% include 'account/user/compact.html' with user=engagement.initiate_user only %}
+      </div>
     </div>
 
-    <div class="col-sm-4 col-xs-8">
+    <div class="col-sm-6 col-xs-4">
       <h3 class="text-center">
         <span class="label label-{{ engagement.display_status.color }}">{{ engagement.display_status.label }}</span>
-        <small><a href="{{ engagement.get_link }}"><i class="fa fa-link"></i></a></small>
+{#        <small><a href="{{ engagement.get_link }}"><i class="fa fa-link"></i></a></small>#}
       </h3>
-      <p class="text-center">
-        {{ engagement.contract.event_start }}
-        <br>
-        {% if engagement.contract.price > 0 %}
-          ${{ engagement.contract.price }} (${{ engagement.contract.hourly_rate }}/hour)
-        {% else %}
-          $0 (Favor exchange)
-        {% endif %}
-      </p>
+      {% if user.is_staff %}<p class="text-center"><a href="{{ engagement.get_link }}"><i class="fa fa-rocket"></i></a></p>{% endif %}
+      <ul class="list-unstyled text-center">
+        <li><i class="fa fa-clock-o"></i> <strong>{{ engagement.contract.display_event_length }}</strong> ({{ engagement.contract.display_event_range }})</li>
+        <li><i class="fa fa-money"></i>
+          {% if engagement.contract.price > 0 %}
+            <strong>${{ engagement.contract.price }}</strong>
+          {% else %}
+            <strong>$0</strong> (a favor)
+          {% endif %}
+        </li>
+      </ul>
     </div>
 
-    <div class="col-sm-4 col-xs-2">
+    <div class="col-sm-3 col-xs-4">
       {% if engagement.target_user %}
-        <img class="img-circle img-responsive img-100 center-block" src="{% user_picture_url engagement.target_user %}" alt="response user" title="{% user_display engagement.target_user %}">
+        {% if engagement.is_match_confirmed %}
+          {% include 'account/user/compact.html' with user=engagement.target_user only %}
+        {% else %}
+          {% include 'account/user/compact.html' with user=engagement.target_user only %}
+        {% endif %}
       {% else %}
         <img class="img-circle img-responsive img-100 center-block" src="{% static 'images/question_200x200.png' %}" alt="not found">
       {% endif %}

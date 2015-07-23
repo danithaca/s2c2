@@ -22,10 +22,8 @@ def p2_tag_match_status(status_code):
 
 @register.simple_tag(takes_context=True)
 def user_picture_url(context, puser, **kwargs):
-    if isinstance(puser, User):
-        puser = PUser.from_user(puser)
-
-    assert isinstance(puser, PUser)
+    assert isinstance(puser, User), 'Wrong type: %s' % type(puser)
+    puser = PUser.from_user(puser)
     if puser.has_picture():
         try:
             return cropped_thumbnail(context, puser.info, 'picture_cropping',upscale=True, **kwargs)
