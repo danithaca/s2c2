@@ -19,6 +19,11 @@
       </li>
     </ul>
     <p class="lead">{{ contract.description }}</p>
+    <ul class="list-inline">
+      <li><i class="fa fa-users"></i> <em>{{ contract.count_total_match }}</em> notified</li>
+      <li><i class="fa fa-check"></i> <em>{{ contract.count_accepted_match }}</em> accepted</li>
+      <li><i class="fa fa-times"></i> <em>{{ contract.count_declined_match }}</em> declined</li>
+    </ul>
   </div></div>
 
   <div class="col-xs-6 col-sm-3 col-md-2">

@@ -178,6 +178,9 @@ class Contract(StatusMixin, models.Model):
     def count_accepted_match(self):
         return Match.objects.filter(contract=self, status=Match.Status.ACCEPTED.value).count()
 
+    def count_declined_match(self):
+        return Match.objects.filter(contract=self, status=Match.Status.DECLINED.value).count()
+
     def count_total_match(self):
         return Match.objects.filter(contract=self).count()
 
