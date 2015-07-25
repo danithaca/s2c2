@@ -3,17 +3,99 @@
 {% load bootstrap %}
 
 {% block extra_header %}
-  {{ form.media }}
+{{ form.media }}
+<script type="text/javascript">
+  $(document).ready(function() {
+    // enable datetimepicker
+    $('.datetimepicker-control').datetimepicker({
+      format: 'MM/DD/YYYY HH:mm',
+      minDate: moment().subtract(1, 'hours'),
+      stepping: 10,
+      useCurrent: true,
+      //sideBySide: true,
+      //showTodayButton: true,
+      keepInvalid: true,
+      allowInputToggle: true,
+      showClose: true,
+    });
+
+    // sync end date if start date is changed.
+    var $event_start = $('#id_event_start');
+    var $event_end = $('#id_event_end');
+    $event_start.focusout(function () {
+      if ($event_start.val() && !$event_end.val()) {
+        $event_end.val($event_start.val());
+      }
+    });
+    $event_end.focusout(function () {
+      if ($event_end.val() && !$event_start.val()) {
+        $event_start.val($event_end.val());
+      }
+    });
+
+  });
+</script>
 {% endblock %}
 
 {% block title %}Find help{% endblock %}
 
 {% block page-content %}
-  <form class="form" method="post">
+  <form class="form form-horizontal" method="post">
     {% csrf_token %}
-    {{ form|bootstrap }}
+{#    {{ form|bootstrap_horizontal }}#}
+
+    {% include 'form_includes/form_errors.html' %}
+    {% include 'form_includes/hidden_fields.html' %}
+
+    <div class="form-group{% if form.event_start.errors or form.event_end.errors %} has-error{% endif %}">
+      <label class="control-label required col-sm-2">Date &amp; Time</label>
+      {% with field=form.event_start %}
+      <div class="col-sm-5">
+        <div class="input-group date datetimepicker-control">
+          {{ field }}
+          <span class="input-group-addon"><i class="fa fa-calendar"></i></span>
+        </div>
+        {% include 'form_includes/field_errors.html' %}
+        {% include 'form_includes/field_help_text.html' %}
+      </div>
+      {% endwith %}
+      {% with field=form.event_end %}
+      <div class="col-sm-5">
+        <div class="input-group date datetimepicker-control">
+          {{ field }}
+          <span class="input-group-addon"><i class="fa fa-calendar"></i></span>
+        </div>
+        {% include 'form_includes/field_errors.html' %}
+        {% include 'form_includes/field_help_text.html' %}
+      </div>
+      {% endwith %}
+      <div class="col-sm-offset-2 col-sm-10">
+        <p class="help-block">Specify the start and end date/time when you need to be served.</p>
+      </div>
+    </div>
+
+    {% with field=form.price %}
+      <div class="form-group{% include 'form_includes/field_container_error_class.html' %}">
+        <label class="control-label required col-sm-2" for="{{ field.id_for_label }}">{{ field.label }}</label>
+        <div class="col-sm-3">
+          <div class="input-group">
+            <span class="input-group-addon">$</span>
+            {{ field }}
+          </div>
+        </div>
+        <div class="col-sm-offset-2 col-sm-10">
+          {% include 'form_includes/field_errors.html' %}
+          {% include 'form_includes/field_help_text.html' %}
+        </div>
+      </div>
+    {% endwith %}
+
+    {{ form.description|bootstrap_horizontal }}
+
     <div class="form-group">
-      <button type="submit" class="btn btn-primary">Submit</button>
+      <div class="col-sm-offset-2 col-sm-10">
+        <button type="submit" class="btn btn-primary">Submit</button>
+      </div>
     </div>
   </form>
 {% endblock %}

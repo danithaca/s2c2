@@ -34,6 +34,7 @@ INSTALLED_APPS = (
     'rest_framework',
     'autocomplete_light',
     #'debug_toolbar',
+    #'bootstrap3_datetime',
 
     # customized
     's2c2',
@@ -127,6 +128,9 @@ else:
             'TIMEOUT': 120,     # 2 mins
         }
     }
+
+# overrides s2c2/settings.py
+USE_L10N = True
 
 # load local settings override.
 

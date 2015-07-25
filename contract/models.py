@@ -195,6 +195,7 @@ class Contract(StatusMixin, models.Model):
         return self.event_start <= timezone.now() <= self.event_end
 
     def is_event_same_day(self):
+        # todo: might not work for tz
         return self.event_start.date() == self.event_end.date()
 
     def display_event_length(self):
@@ -220,12 +221,15 @@ class Contract(StatusMixin, models.Model):
             return 'a few seconds'
 
     def display_event_range(self):
-        get_time = lambda t: t.strftime('%H:%M')
-        get_fulltime = lambda t: t.strftime('%H:%M %b. %d')
+        from django.utils.dateformat import format as f
+        from django.utils.timezone import localtime as l
+        get_time = lambda t: f(l(t), 'H:i')
+        get_date = lambda t: f(l(t), 'M. j')
+        get_datetime = lambda t: f(l(t), 'H:i M. j')
         if self.is_event_same_day():
-            return '%s~%s, %s' % (get_time(self.event_start), get_time(self.event_end), self.event_start.strftime('%b. %d'))
+            return '%s~%s, %s' % (get_time(self.event_start), get_time(self.event_end), get_date(self.event_start))
         else:
-            return '%s ~ %s' % (get_fulltime(self.event_start), get_fulltime(self.event_end))
+            return '%s ~ %s' % (get_datetime(self.event_start), get_datetime(self.event_end))
 
 
 

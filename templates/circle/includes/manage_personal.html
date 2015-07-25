@@ -2,7 +2,10 @@
 {% load bootstrap %}
 
 <section id="contact-app">
-  <input id="new-contact" class="form-control" placeholder="Email to add" autofocus>
+  <div class="input-group">
+    <input id="new-contact" class="form-control" placeholder="Email to add" autofocus>
+    <span class="input-group-btn"><button class="btn btn-primary">Add</button></span>
+  </div>
   <span class="help-block">Press "Enter" to add email. Eg, somebody@gmail.com.</span>
   <ul id="contact-list" class="list-group"></ul>
 </section>

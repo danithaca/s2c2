@@ -47,10 +47,10 @@ class ContractCreate(CreateView):
         initial['area'] = Area.default()
         return initial
 
-    def get_form(self, form_class=None):
-        form = super().get_form(form_class)
-        form.fields['area'].widget.attrs['disabled'] = True
-        return form
+    # def get_form(self, form_class=None):
+    #     form = super().get_form(form_class)
+    #     form.fields['area'].widget.attrs['disabled'] = True
+    #     return form
 
     def form_valid(self, form):
         contract = form.instance
