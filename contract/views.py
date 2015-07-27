@@ -1,3 +1,4 @@
+from collections import defaultdict
 from datetime import datetime, timedelta
 from braces.views import JSONResponseMixin, AjaxResponseMixin, LoginRequiredMixin
 from django.db.models import Q
@@ -153,6 +154,7 @@ class APIMyEngagementList(LoginRequiredMixin, JSONResponseMixin, AjaxResponseMix
             start, end = timezone.now().date(), (timezone.now() + timedelta(days=30)).date()
 
         event_list = []
+        all_day = set([])
         for contract in puser.engagement_queryset().filter(Q(event_start__range=(start, end)) | Q(event_end__range=(start, end))).distinct():
             if contract.initiate_user == puser:
                 engagement = Engagement.from_contract(contract)
@@ -167,7 +169,7 @@ class APIMyEngagementList(LoginRequiredMixin, JSONResponseMixin, AjaxResponseMix
             #     title = '%s <-> %s (%s)' % (engagement.initiate_user.get_name(), engagement.target_user.get_name(), status.label)
             # else:
             #     title = '%s (%s)' % (engagement.initiate_user.get_name(), status['label'])
-            title = '%s: %s' % ('Client' if engagement.is_main_contract() else 'Server', status['label'])
+            title = '%s: %s' % ('<i class="fa fa-child"></i>' if engagement.is_main_contract() else '<i class="fa fa-bus"></i>', status['label'])
             event = {
                 'start': to_date(engagement.contract.event_start),
                 'end': to_date(engagement.contract.event_end),
@@ -177,6 +179,20 @@ class APIMyEngagementList(LoginRequiredMixin, JSONResponseMixin, AjaxResponseMix
                 'url': engagement.get_link(),
             }
             event_list.append(event)
+            all_day.add(timezone.localtime(engagement.contract.event_start).date())
+            all_day.add(timezone.localtime(engagement.contract.event_end).date())
+
+        # for now, we don't show "allDay" event. the "headline" will do the trick.
+        # also disabled allDay event in fullcalendar options. need to turn it on to display the allDay events.
+
+        # for d in all_day:
+        #     event_list.append({
+        #         'allDay': True,
+        #         'start': d.isoformat(),
+        #         'end': d.isoformat(),
+        #         'title': '<i class="fa fa-exclamation-circle"></i>',
+        #         'color': self.color_mapping['danger'],
+        #     })
 
         return self.render_json_response(event_list)
         #return self.get(request, *args, **kwargs)

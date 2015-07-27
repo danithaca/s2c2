@@ -15,16 +15,17 @@ $(document).ready(function() {
     header: {
       left: 'title',
       center: '',
-      right: 'agendaWeek,month today prev,next'
+      right: 'agendaDay,agendaWeek,month today prev,next'
     },
     defaultDate: day,
     defaultView: 'agendaWeek',
 
     fixedWeekCount: false,
-    allDaySlot: true,
-    allDayText: '',
+    allDaySlot: false,
+    // allDaySlot: true,
+    // allDayText: '',
 
-    scrollTime: '14:00',
+    scrollTime: '13:00',
     weekends: true,
 
     //firstDay: 0,
@@ -36,6 +37,12 @@ $(document).ready(function() {
 
     // get events from API
     events: '{% url "contract:my_list" %}',
+
+    // event render to allow html
+    // see: https://code.google.com/p/fullcalendar/issues/detail?id=152 or https://github.com/arshaw/fullcalendar/pull/83
+    eventRender: function(event, element) {
+      element.find('.fc-title').html(event.title);
+    },
 
     // redirect to find view
     select: function(start, end, jsEvent, view) {
