@@ -1,0 +1,2 @@
+{% load p2_tags %}
+[{{ site_name }}] Reminder: {% user-short-name server %} is about to help you

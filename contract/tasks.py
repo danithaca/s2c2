@@ -1,4 +1,6 @@
 from celery import shared_task
+from datetime import datetime, timedelta
+from django.utils.timezone import localtime
 
 
 @shared_task
@@ -27,6 +29,56 @@ def after_contract_confirmed(contract):
     # next, shout to the initiate user
     notify_agent.send(confirmed_match.target_user, contract.initiate_user, 'contract/messages/contract_confirmed_review',
                       {'match': confirmed_match, 'contract': contract, 'target_user': confirmed_match.target_user})
+    # schedule reminder tasks
+    # fixme: if contract is confirmed and then undo and then confirmed again. we want to make sure it doesn't have problems
+    before_contract_starts.delay(contract, eta=contract.event_start-timedelta(hours=1))
+    after_contract_ends.delay(contract, eta=contract.event_end+timedelta(hours=6))
+    handle_expired_contract(contract, eta=contract.event_end+timedelta(days=2))
+
+
+@shared_task
+def before_contract_starts(contract):
+    from shout.notify import notify_agent
+    from puser.models import PUser
+    # make sure contract is not canceled at the moment and within 2 hours of time.
+    if contract.is_confirmed() and contract.is_event_upcoming() and contract.event_start - timedelta(hours=2) < datetime.now():
+        client = contract.initiate_user
+        server = contract.confirmed_match.target_user
+        ctx = {
+            'client': PUser.from_user(client),
+            'server': PUser.from_user(server),
+            # todo: make sure timezone is correct.
+            'event_start': localtime(contract.event_start),
+            'contract': contract,
+            'match': contract.confirmed_match,
+        }
+        notify_agent(client, server, 'contract/messages/start_reminder_server', ctx)
+        notify_agent(server, client, 'contract/messages/start_reminder_client', ctx)
+
+
+@shared_task
+def after_contract_ends(contract):
+    from shout.notify import notify_agent
+    from puser.models import PUser
+    # make sure contract is not canceled at the moment and contract is expired.
+    if contract.is_confirmed() and contract.is_event_expired():
+        client = contract.initiate_user
+        server = contract.confirmed_match.target_user
+        ctx = {
+            'client': PUser.from_user(client),
+            'server': PUser.from_user(server),
+            # todo: make sure timezone is correct.
+            'event_start': localtime(contract.event_start),
+            'contract': contract,
+        }
+        notify_agent(None, client, 'contract/messages/end_reminder_client', ctx)
+
+
+@shared_task
+def handle_expired_contract(contract):
+    # make sure it's at least 1 day after it expired.
+    if contract.is_confirmed() and contract.is_event_expired() and datetime.now() > contract.event_end + timedelta(days=1):
+        contract.succeed()
 
 
 @shared_task
@@ -51,3 +103,9 @@ def after_contract_reverted(contract, match):
     # next, shout to the initiate user
     # notify_agent.send(site_admin_user, contract.initiate_user, 'contract/messages/contract_reverted_review',
     #                   {'match': match, 'contract': contract, 'target_user': match.target_user})
+
+
+@shared_task
+def after_contract_failed(contract):
+    from shout.notify import notify_agent
+    notify_agent.send(None, None, 'contract/messages/contract_failed', {'contract': contract})

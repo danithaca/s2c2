@@ -1,0 +1,11 @@
+{% load p2_tags %}
+Hi {% user-short-name client %},
+
+We hope {% user-full-name server %} delivered the service successfully. Please make sure you have compensated {% user-short-name server %} as promised, and mark whether it was a success or failure at:
+
+{{ site_url}}{{ contract.get_absolute_url }}
+
+The system will automatically mark it as "Success" if we don't hear from you in a few days.
+
+--
+{{ site_name }} admins

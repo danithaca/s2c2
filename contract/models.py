@@ -140,7 +140,6 @@ class Contract(StatusMixin, models.Model):
         assert self == match.contract, 'Match object does not link to contract object.'
         self.confirmed_match = match
         self.change_status(Contract.Status.ACTIVE.value, Contract.Status.CONFIRMED.value)
-
         # non-blocking: send messages
         tasks.after_contract_confirmed.delay(self)
 
@@ -158,6 +157,7 @@ class Contract(StatusMixin, models.Model):
         assert self.status == Contract.Status.CONFIRMED.value, 'Contract not in confirmed status.'
         old_status = self.status
         self.change_status(old_status, Contract.Status.FAILED.value)
+        tasks.after_contract_failed.delay(self)
 
     def revert(self):
         """
@@ -173,7 +173,10 @@ class Contract(StatusMixin, models.Model):
         return self.status == Contract.Status.ACTIVE.value
 
     def is_confirmed(self):
-        return self.status == Contract.Status.CONFIRMED.value
+        result = (self.status == Contract.Status.CONFIRMED.value)
+        if result:
+            assert self.confirmed_match is not None
+        return result
 
     def count_accepted_match(self):
         return Match.objects.filter(contract=self, status=Match.Status.ACCEPTED.value).count()
@@ -193,6 +196,9 @@ class Contract(StatusMixin, models.Model):
 
     def is_event_happening(self):
         return self.event_start <= timezone.now() <= self.event_end
+
+    def is_event_upcoming(self):
+        return timezone.now() < self.event_start
 
     def is_event_same_day(self):
         # todo: might not work for tz

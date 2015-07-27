@@ -51,3 +51,9 @@ def p2_tag_count_serves(u1, u2):
 def p2_tag_user_short_name(user):
     assert isinstance(user, User)
     return user.first_name or user.last_name or user.email
+
+
+@register.simple_tag(name='user-full-name')
+def p2_tag_user_full_name(user):
+    assert isinstance(user, User)
+    return user.get_full_name() or user.email

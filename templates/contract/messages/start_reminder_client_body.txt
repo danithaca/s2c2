@@ -1,0 +1,6 @@
+{% load p2_tags %}
+Hi {% user-short-name client %},
+
+This is a friendly reminder that {% user-full-name server %} is about to help you at {{ event_start }}. Please don't forget to pay ${{ contract.price }} after the service is completed. Check the details at:
+
+{{ site_url}}{{ contract.get_absolute_url }}
