@@ -48,7 +48,7 @@ class StatusMixin(object):
             # special handle for expired stuff
             if self.is_event_expired():
                 if status in (Contract.Status.INITIATED, Contract.Status.ACTIVE):
-                    color, label = 'warning', 'Expired'
+                    color, label = 'default', 'Expired'
                 if status == Contract.Status.CONFIRMED:
                     color, label = 'info', 'Done'
             # not expired, proceed as normal
@@ -63,7 +63,7 @@ class StatusMixin(object):
             color, label, explanation = match_display_map.get(status, ('default', str(status).capitalize(), ''))
             # override
             if self.contract.is_event_expired() and status in (Match.Status.INITIALIZED, Match.Status.ENGAGED):
-                    color, label = 'warning', 'Expired'
+                    color, label = 'default', 'Expired'
             elif status == Match.Status.ACCEPTED:
                 if self.contract.confirmed_match == self:
                     color, label = 'success', 'Accepted & Confirmed'
@@ -375,6 +375,13 @@ class Engagement(object):
         else:
             assert self.is_main_match()
             return self.match.get_absolute_url()
+
+    def get_id(self):
+        if self.is_main_contract():
+            return 'contract-%d' % self.contract.id
+        else:
+            assert self.is_main_match()
+            return 'match-%d' % self.match.id
 
     def is_main_contract(self):
         return self.main_user == self.initiate_user

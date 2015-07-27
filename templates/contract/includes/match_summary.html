@@ -3,7 +3,8 @@
 <div class="row match-summary" data-match-id="{{ match.id }}">
   <div class="col-xs-4">
     <img src="{% user_picture_url match.target_user %}" alt="user picture" class="img-thumbnail img-circle img-responsive">
-    <div class="upper-corner"><span class="label label-default">{{ match.is_confirmed|yesno:'Server,Candidate' }}</span></div>
+    {# If not confirmed, maybe show "Candiate" instead of Server? #}
+    <div class="upper-corner"><span class="label label-default">{{ match.is_confirmed|yesno:'Server,Server' }}</span></div>
   </div>
   <div class="col-xs-8">
     {# make tooltip in "p" to prevent getting truncated. but then it shows funny in match_view #}

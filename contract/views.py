@@ -1,3 +1,4 @@
+from datetime import datetime, timedelta
 from braces.views import JSONResponseMixin, AjaxResponseMixin, LoginRequiredMixin
 from django.db.models import Q
 from django.forms import modelform_factory
@@ -6,6 +7,7 @@ from django.views.generic import CreateView, DetailView, ListView, View, Templat
 from contract.forms import ContractForm
 from contract.models import Contract, Match, Engagement
 from datetimewidget.widgets import DateTimeWidget
+from django.utils import timezone
 
 
 class ContractDetail(DetailView):
@@ -43,8 +45,14 @@ class ContractCreate(CreateView):
 
     def get_initial(self):
         initial = super().get_initial()
+        # process area code.
         from location.models import Area
         initial['area'] = Area.default()
+        # process start/end
+        for token in ('start', 'end'):
+            token_value =  self.request.GET.get(token, None)
+            if token_value:
+                initial['event_' + token] = token_value
         return initial
 
     # def get_form(self, form_class=None):
@@ -121,6 +129,54 @@ class EngagementList(LoginRequiredMixin, TemplateView):
         return ctx
 
 
+# note: this is not through REST_FRAMEWORK, therefore cannot use browser to view results.
 class APIMyEngagementList(LoginRequiredMixin, JSONResponseMixin, AjaxResponseMixin, View):
+    # this is mapped from bootstrap cerulean theme: https://bootswatch.com/cerulean/
+    color_mapping = {
+        'default': '#999',
+        'primary': '#2FA4E7',
+        'success': '#73A839',
+        'warning': '#DD5600',
+        'danger': '#C71C22',
+        'info': '#033C73'
+    }
+
     def get_ajax(self, request, *args, **kwargs):
-        return self.get(request, *args, **kwargs)
+        # super().get_ajax(request, *args, **kwargs)      # might not be needed.
+        get_date = lambda s: datetime.strptime(s, '%Y-%m-%d').date()
+        to_date = lambda d: timezone.localtime(d).isoformat()
+        puser = request.puser
+        start, end = request.GET.get('start', None), request.GET.get('end', None)
+        if start and end:
+            start, end = get_date(start), get_date(end)
+        else:
+            start, end = timezone.now().date(), (timezone.now() + timedelta(days=30)).date()
+
+        event_list = []
+        for contract in puser.engagement_queryset().filter(Q(event_start__range=(start, end)) | Q(event_end__range=(start, end))).distinct():
+            if contract.initiate_user == puser:
+                engagement = Engagement.from_contract(contract)
+            else:
+                try:
+                    match = Match.objects.get(contract=contract, target_user=puser)
+                except:
+                    continue
+                engagement = Engagement.from_match(match)
+            status = engagement.display_status()
+            # if engagement.target_user:
+            #     title = '%s <-> %s (%s)' % (engagement.initiate_user.get_name(), engagement.target_user.get_name(), status.label)
+            # else:
+            #     title = '%s (%s)' % (engagement.initiate_user.get_name(), status['label'])
+            title = '%s: %s' % ('Client' if engagement.is_main_contract() else 'Server', status['label'])
+            event = {
+                'start': to_date(engagement.contract.event_start),
+                'end': to_date(engagement.contract.event_end),
+                'id': engagement.get_id(),
+                'title': title,
+                'color': self.color_mapping.get(status['color'], 'gray'),
+                'url': engagement.get_link(),
+            }
+            event_list.append(event)
+
+        return self.render_json_response(event_list)
+        #return self.get(request, *args, **kwargs)

@@ -8,13 +8,16 @@
 <script src='{% static 'fullcalendar/fullcalendar.js' %}'></script>
 <script type="text/javascript">
 $(document).ready(function() {
+  var param_day = getParameterByName('day');
+  var day = param_day ? moment(param_day, 'YYYY-MM-DD') : moment();
+
   $('#calendar').fullCalendar({
     header: {
       left: 'title',
       center: '',
       right: 'agendaWeek,month today prev,next'
     },
-    defaultDate: moment().format('YYYY-MM-DD'),
+    defaultDate: day,
     defaultView: 'agendaWeek',
 
     fixedWeekCount: false,
@@ -26,7 +29,18 @@ $(document).ready(function() {
 
     //firstDay: 0,
     editable: false,
-    eventLimit: true,
+    //eventLimit: true,
+
+    selectable: true,
+    selectHelper: true,
+
+    // get events from API
+    events: '{% url "contract:my_list" %}',
+
+    // redirect to find view
+    select: function(start, end, jsEvent, view) {
+      window.location = "{% url 'contract:add' %}?start=" + encodeURIComponent(start.format('YYYY-MM-DD HH:mm')) + '&end=' + encodeURIComponent(end.format('YYYY-MM-DD HH:mm'));
+    }
   });
 });
 </script>

@@ -20,4 +20,6 @@ urlpatterns = patterns(
     # here we use braces mixins.
     url(r'^match/(?P<pk>\d+)/accept/$', views.MatchStatusChange.as_view(switch=True), name='match_accept'),
     url(r'^match/(?P<pk>\d+)/decline/$', views.MatchStatusChange.as_view(switch=False), name='match_decline'),
+
+    url(r'^api/my_list/$', views.APIMyEngagementList.as_view(), name='my_list'),
 )
