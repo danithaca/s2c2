@@ -119,3 +119,8 @@ class EngagementList(LoginRequiredMixin, TemplateView):
             'engagements': list_engagement,
         })
         return ctx
+
+
+class APIMyEngagementList(LoginRequiredMixin, JSONResponseMixin, AjaxResponseMixin, View):
+    def get_ajax(self, request, *args, **kwargs):
+        return self.get(request, *args, **kwargs)

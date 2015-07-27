@@ -8,6 +8,7 @@ from s2c2 import utils
 urlpatterns = patterns(
     '',
     url(r'^$', views.home, name='home'),
+    url(r'^calendar/$', views.CalendarView.as_view(), name='calendar'),
 
     # first occurance takes priority
     url(r"^account/", include("puser.urls")),

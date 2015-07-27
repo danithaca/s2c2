@@ -1,0 +1,66 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block extra_header %}
+<link href='{% static 'fullcalendar/fullcalendar.css' %}' rel='stylesheet' />
+<link href='{% static 'fullcalendar/fullcalendar.print.css' %}' rel='stylesheet' media='print' />
+<script src='{% static 'fullcalendar/lib/moment.min.js' %}'></script>
+<script src='{% static 'fullcalendar/fullcalendar.js' %}'></script>
+<script type="text/javascript">
+$(document).ready(function() {
+  $('#calendar').fullCalendar({
+    header: {
+      left: 'title',
+      center: '',
+      right: 'agendaWeek,month today prev,next'
+    },
+    defaultDate: moment().format('YYYY-MM-DD'),
+    defaultView: 'agendaWeek',
+
+    fixedWeekCount: false,
+    allDaySlot: true,
+    allDayText: '',
+
+    scrollTime: '14:00',
+    weekends: true,
+
+    //firstDay: 0,
+    editable: false,
+    eventLimit: true,
+  });
+});
+</script>
+{% endblock %}
+
+{% block title %}Calendar{% endblock %}
+
+{% block page %}
+{% if engagement_headline %}
+<div class="row">
+  <div class="col-sm-12">
+    <div class="jumbotron">next event</div>
+  </div>
+</div>
+{% endif %}
+
+<div class="row">
+  <div class="col-sm-4">
+    <div class="panel panel-primary">
+      <div class="panel-heading panel-title">Find a babysitter</div>
+      <div class="panel-body"><a href="{% url 'contract:add' %}">Click here</a> or select a time period in the calendar.</div>
+    </div>
+    <div class="panel panel-success">
+      <div class="panel-heading panel-title">Upcoming</div>
+      <div class="panel-body">Find</div>
+    </div>
+    <div class="panel panel-info">
+      <div class="panel-heading panel-title">Past</div>
+      <div class="panel-body">Find</div>
+    </div>
+  </div>
+
+  <div class="col-sm-8">
+    <div id="calendar"></div>
+  </div>
+</div>
+{% endblock %}
