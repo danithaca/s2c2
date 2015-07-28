@@ -1,7 +1,8 @@
 from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse
 from django.db import models
-from django.db.models import Q
+from django.db.models import Q, F
+from django.utils import timezone
 from image_cropping import ImageCropField, ImageRatioField
 from localflavor.us.models import PhoneNumberField
 from django.core import checks
@@ -213,6 +214,24 @@ class PUser(User):
                 except:
                     continue
         return list_engagement
+
+    def engagement_headline(self):
+        # headline logic:
+        # if i have an active "find" engagement in the future, always show that
+        # otherwise, show the most recent confirmed engagement
+        # else, show nothing.
+
+        active_contract = Contract.objects.filter(initiate_user=self, status__in=(Contract.Status.ACTIVE.value, Contract.Status.INITIATED.value), event_start__gt=timezone.now()).order_by('event_start').first()
+        if active_contract:
+            return Engagement.from_contract(active_contract)
+
+        # now try to find the next confirmed engagement
+        engagement_list = self.engagement_list(lambda qs: qs.filter(status=Contract.Status.CONFIRMED.value).filter(Q(initiate_user=self) | (Q(match__target_user=self) & Q(match=F('confirmed_match')))).order_by('event_start')[:1])
+        if engagement_list:
+            return engagement_list[0]
+
+        # if not found, then return None
+        return None
 
     def count_served(self, client):
         """

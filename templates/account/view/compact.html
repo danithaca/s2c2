@@ -9,7 +9,7 @@
     </p>
   {% endif %}
   {% if not hide_name %}
-  <div class="text-center truncate lower-center" title="{% user-full-name user %}" data-toggle="tooltip">
+  <div class="text-center lower-center" title="{% user-full-name user %}" data-toggle="tooltip">
     <a href="{% url 'account_view' pk=user.id %}"><span class="label label-primary">{% user-short-name user %}</span></a>
   </div>
   {% endif %}

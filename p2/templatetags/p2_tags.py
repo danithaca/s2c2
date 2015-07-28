@@ -1,5 +1,6 @@
 from django import template
 from django.contrib.auth.models import User
+from django.template.defaultfilters import truncatechars
 from django.templatetags.static import static
 from image_cropping.templatetags.cropping import cropped_thumbnail
 from contract.models import Contract, Match
@@ -38,7 +39,8 @@ def user_picture_url(context, puser, **kwargs):
 @register.simple_tag(name='user-short-name')
 def p2_tag_user_short_name(user):
     assert isinstance(user, User)
-    return user.first_name or user.last_name or user.email
+    name = user.first_name or user.last_name or user.username
+    return truncatechars(name, 10)
 
 
 @register.simple_tag(name='user-full-name')

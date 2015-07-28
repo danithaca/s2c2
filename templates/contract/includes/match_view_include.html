@@ -7,7 +7,7 @@
     {% include 'contract/includes/match_summary.html' with match=match contract=contract extended=True %}
   </div>
 
-  {% if match.target_user == user %}
+  {% if match.target_user == user or user.is_staff%}
   <div class="panel-footer text-center">
     {% if not match.is_accepted %}
       <button class="btn btn-primary btn-lg" name="match" data-url="{% url 'contract:match_accept' pk=match.id %}">Accept</button>

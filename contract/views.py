@@ -171,7 +171,7 @@ class APIMyEngagementList(LoginRequiredMixin, JSONResponseMixin, AjaxResponseMix
             # else:
             #     title = '%s (%s)' % (engagement.initiate_user.get_name(), status['label'])
             title_icon = render_to_string('elements/icon_find.html') if engagement.is_main_contract() else render_to_string('elements/icon_serve.html')
-            title_label = engagement.passive_user().get_name() if engagement.passive_user() else 'not found'
+            title_label = engagement.passive_user().get_name() if engagement.passive_user() else ''
             title = '%s: %s' % (title_icon, title_label)
             event = {
                 'start': to_date(engagement.contract.event_start),

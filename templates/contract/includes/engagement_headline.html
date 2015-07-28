@@ -2,8 +2,10 @@
 {% load static %}
 {% load account_tags %}
 
-<div class="engagement panel panel-default{% if engagement.contract.is_event_expired %} pale{% endif %} hover-pointer" data-href="{{ engagement.get_link }}">
+<div class="engagement panel panel-success hover-pointer" data-href="{{ engagement.get_link }}">
+  <div class="panel-heading panel-title">Upcoming</div>
   <div class="panel-body">
+
   <div class="row vertical-align">
     <div class="col-sm-4 col-xs-5 center-block">
     {# only show "client" if the main user is "server", and vice versa #}
@@ -19,10 +21,7 @@
     </div>
 
     <div class="col-sm-8 col-xs-7">
-{#      <p class="">#}
-{#        <span class="label label-{{ engagement.display_status.color }}">{{ engagement.display_status.label }}</span>#}
-{#        {% if user.is_staff %}<a href="{{ engagement.get_link }}"><i class="fa fa-rocket"></i></a>{% endif %}#}
-{#      </p>#}
+      <p class="text-large"><strong>{{ engagement.contract.event_start|timeuntil }}</strong></p>
       <ul class="list-inline text-small">
         <li><i class="fa fa-clock-o"></i> <strong>{{ engagement.contract.event_start|date:'H:i, M. j' }}</strong></li>
         <li><i class="fa fa-money"></i>
@@ -34,8 +33,8 @@
         </li>
       </ul>
       <p>{{ engagement.contract.description|truncatechars:50 }}</p>
-      <p class="text-muted pull-right"><small>{{ engagement.updated|timesince }} ago</small></p>
     </div>
   </div>
+
   </div>
 </div>
