@@ -1,3 +1,4 @@
+from braces.views import LoginRequiredMixin
 from django.core.urlresolvers import reverse
 from django.db.models import Q
 from django.shortcuts import render, redirect
@@ -23,9 +24,13 @@ def home(request):
             return redirect(reverse('calendar'))
 
 
-class CalendarView(TemplateView):
+class CalendarView(LoginRequiredMixin, TemplateView):
     template_name = 'calendar.html'
 
     def get_context_data(self, **kwargs):
         ctx = super().get_context_data(**kwargs)
+        # assume this is only valid for current user
+        puser = self.request.puser
+        engagement_list = puser.engagement_list(lambda qs: qs.order_by('-updated')[:5])
+        ctx['engagement_recent'] = engagement_list
         return ctx

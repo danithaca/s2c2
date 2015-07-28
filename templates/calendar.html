@@ -19,6 +19,7 @@ $(document).ready(function() {
     },
     defaultDate: day,
     defaultView: 'agendaWeek',
+    aspectRatio: '1.1',
 
     fixedWeekCount: false,
     allDaySlot: false,
@@ -66,17 +67,24 @@ $(document).ready(function() {
 
 <div class="row">
   <div class="col-sm-4">
-    <div class="panel panel-primary">
+
+    <div class="panel panel-success">
       <div class="panel-heading panel-title">Find a babysitter</div>
       <div class="panel-body"><a href="{% url 'contract:add' %}">Click here</a> or select a time period in the calendar.</div>
     </div>
-    <div class="panel panel-success">
-      <div class="panel-heading panel-title">Upcoming</div>
-      <div class="panel-body">Find</div>
-    </div>
-    <div class="panel panel-info">
-      <div class="panel-heading panel-title">Past</div>
-      <div class="panel-body">Find</div>
+
+    <div class="panel panel-primary">
+      <div class="panel-heading panel-title">Recent activities</div>
+      <div class="panel-body">
+        {% if  engagement_recent %}
+        <div class="help-block"><small>Ordered by created date</small></div>
+        {% for engagement in engagement_recent %}
+          {% include 'contract/includes/engagement_teaser.html' with engagement=engagement %}
+        {% endfor %}
+        {% else %}
+        <p>No activity yet.</p>
+        {% endif %}
+      </div>
     </div>
   </div>
 

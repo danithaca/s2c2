@@ -6,7 +6,7 @@ from image_cropping import ImageCropField, ImageRatioField
 from localflavor.us.models import PhoneNumberField
 from django.core import checks
 from circle.models import Membership, Circle
-from contract.models import Contract, Match
+from contract.models import Contract, Match, Engagement
 from p2 import settings
 from s2c2.utils import auto_user_name, deprecated
 
@@ -200,6 +200,19 @@ class PUser(User):
 
     def engagement_queryset(self):
         return Contract.objects.filter(Q(initiate_user=self) | Q(match__target_user=self)).distinct()
+
+    def engagement_list(self, extra_query = lambda qs: qs):
+        list_engagement = []
+        for contract in extra_query(self.engagement_queryset()):
+            if contract.initiate_user == self:
+                list_engagement.append(Engagement.from_contract(contract))
+            else:
+                try:
+                    match = Match.objects.get(contract=contract, target_user=self)
+                    list_engagement.append(Engagement.from_match(match))
+                except:
+                    continue
+        return list_engagement
 
     def count_served(self, client):
         """

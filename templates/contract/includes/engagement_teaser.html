@@ -1,0 +1,41 @@
+{% load p2_tags %}
+{% load static %}
+{% load account_tags %}
+
+<div class="engagement panel panel-default{% if engagement.contract.is_event_expired %} pale{% endif %}"><div class="">
+  <div class="row">
+    <div class="col-sm-4 col-xs-5 center-block">
+    {# only show "client" if the main user is "server", and vice versa #}
+    {% if engagement.is_main_match %}
+      {% include 'account/user/compact.html' with user=engagement.initiate_user label="<span class='fa fa-child'></span>" only %}
+    {% else %}
+      {% if engagement.target_user %}
+        {% if engagement.is_match_confirmed %}
+          {% include 'account/user/compact.html' with user=engagement.target_user label="<span class='fa fa-bus'></span>" only %}
+        {% else %}
+          {% include 'account/user/compact.html' with user=engagement.target_user label="<span class='fa fa-bus'></span>" only %}
+        {% endif %}
+      {% else %}
+        {% include 'account/user/compact.html' with user=None hide_name=True label="<span class='fa fa-bus'></span>" only %}
+      {% endif %}
+    {% endif %}
+    </div>
+
+    <div class="col-sm-8 col-xs-7">
+      <p class="">
+        <span class="label label-{{ engagement.display_status.color }}">{{ engagement.display_status.label }}</span>
+        {% if user.is_staff %}<a href="{{ engagement.get_link }}"><i class="fa fa-rocket"></i></a>{% endif %}
+      </p>
+      <ul class="list-unstyled">
+        <li><i class="fa fa-clock-o"></i> <strong>{{ engagement.contract.event_start|date:'H:i, M. j' }}</strong></li>
+        <li><i class="fa fa-money"></i>
+          {% if engagement.contract.price > 0 %}
+            <strong>${{ engagement.contract.price }}</strong>
+          {% else %}
+            <strong>$0</strong> (a favor)
+          {% endif %}
+        </li>
+      </ul>
+    </div>
+  </div>
+</div></div>

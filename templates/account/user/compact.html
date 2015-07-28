@@ -1,13 +1,31 @@
-{% load account_tags %}
 {% load p2_tags %}
+{% load static %}
+{% if user %}
 <div data-uid="{{ user.id }}">
-  <img class="img-thumbnail img-circle img-responsive" src="{% user_picture_url user %}" alt="user" title="{% user_display user %}">
+  <img class="img-circle img-responsive" src="{% user_picture_url user %}" alt="user" title="{% user-full-name user %}">
   {% if label %}
-    <p class="upper-corner">
+    <p class="hidden-xs upper-corner">
       <span class="label label-{{ color|default:'default' }}">{{ label }}</span>
     </p>
   {% endif %}
-  <div class="text-center truncate lower-center">
-    <a href="{% url 'account_view' pk=user.id %}"><span class="label label-primary">{% user_display user %}</span></a>
+  {% if not hide_name %}
+  <div class="text-center truncate lower-center" title="{% user-full-name user %}" data-toggle="tooltip">
+    <a href="{% url 'account_view' pk=user.id %}"><span class="label label-primary">{% user-short-name user %}</span></a>
   </div>
+  {% endif %}
 </div>
+{% else %}
+<div>
+  <img class="img-circle img-responsive" src="{% static 'images/question_200x200.png' %}" alt="user" title="Not found">
+  {% if label %}
+    <p class="hidden-xs upper-corner">
+      <span class="label label-{{ color|default:'default' }}">{{ label }}</span>
+    </p>
+  {% endif %}
+  {% if not hide_name %}
+    <div class="text-center truncate lower-center" title="Not found" data-toggle="tooltip">
+      <span class="label label-primary">Not found</span>
+    </div>
+  {% endif %}
+</div>
+{% endif %}
