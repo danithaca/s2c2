@@ -15,7 +15,7 @@
     </p>
     {% if extended %}<div style="height: 10px;"></div>{% endif %}
     <h4 class="{% if not match.target_user.get_full_name %}word-break{% endif %}">
-      <a href="{% url 'account_view' pk=user.id %}">{% user_display match.target_user %}</a>
+      <a href="{% url 'account_view' pk=match.target_user.id %}">{% user_display match.target_user %}</a>
     </h4>
     <p>
       {% for circle in match.circles.all %}

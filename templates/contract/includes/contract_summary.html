@@ -32,7 +32,7 @@
 
   <div class="col-xs-6 col-sm-3 col-md-2">
     {% if contract.confirmed_match %}
-      {% include 'contract/includes/user_preview.html' with user=contract.confirmed_match.target_user label='Server' color='primary' %}
+      {% include 'contract/includes/user_preview.html' with user=contract.confirmed_match.target_user label='Server' color='primary'%}
     {% else %}
       {% include 'contract/includes/match_not_found.html' %}
     {% endif %}

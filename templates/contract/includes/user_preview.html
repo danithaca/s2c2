@@ -2,7 +2,7 @@
 {% load p2_tags %}
 <div class="thumbnail" data-uid="{{ user.id }}">
   <img src="{% user_picture_url user %}" alt="user picture" class="img-thumbnail img-responsive">
-  {% if label %}
+  {% if label or icon %}
   <p class="upper-corner">
     <span class="label label-{{ color|default:'default' }}">{{ label }}</span>
   </p>
@@ -10,8 +10,6 @@
   <div class="caption">
     <h4 class="text-center{% if not user.get_full_name %} word-break{% endif %}">
       <a href="{% url 'account_view' pk=user.id %}">{% user_display user %}</a>
-{#      <span><i class="fa fa-info-circle"></i></span>#}
     </h4>
-{#    <div class="text-center"><span class="label label-default">{{ user.email }}</span></div>#}
   </div>
 </div>
