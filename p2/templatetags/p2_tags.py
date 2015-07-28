@@ -8,18 +8,6 @@ from puser.models import PUser
 register = template.Library()
 
 
-@register.simple_tag(name='contract-status')
-def p2_tag_contract_status(status_code):
-    status = Contract.Status(status_code)
-    return status.name.capitalize()
-
-
-@register.simple_tag(name='match-status')
-def p2_tag_match_status(status_code):
-    status = Match.Status(status_code)
-    return status.name.capitalize()
-
-
 @register.simple_tag(takes_context=True)
 def user_picture_url(context, puser, **kwargs):
     assert isinstance(puser, User), 'Wrong type: %s' % type(puser)
@@ -41,10 +29,10 @@ def user_picture_url(context, puser, **kwargs):
 #         return '<span class="formatted-user-name word-break" data-pk="%d">%s<span>' % (user.id, user.email)
 
 
-@register.simple_tag(name='count-serves')
-def p2_tag_count_serves(u1, u2):
-    pu1, pu2 = PUser.from_user(u1), PUser.from_user(u2)
-    return pu1.count_served(pu2)
+# @register.simple_tag(name='count-serves')
+# def p2_tag_count_serves(u1, u2):
+#     pu1, pu2 = PUser.from_user(u1), PUser.from_user(u2)
+#     return pu1.count_served(pu2)
 
 
 @register.simple_tag(name='user-short-name')

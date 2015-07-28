@@ -392,6 +392,18 @@ class Engagement(object):
     def is_match_confirmed(self):
         return self.contract.confirmed_match == self.match
 
+    def updated(self):
+        if self.is_main_contract():
+            return self.contract.updated
+        else:
+            return self.match.updated
+
+    def passive_user(self):
+        if self.is_main_contract():
+            return self.target_user
+        else:
+            return self.initiate_user
+
 ############################ signals ###############################
 
 # todo: signals should be declared in AppConfig.ready() according to https://docs.djangoproject.com/en/1.8/ref/signals/

@@ -50,6 +50,15 @@ $(document).ready(function() {
       window.location = "{% url 'contract:add' %}?start=" + encodeURIComponent(start.format('YYYY-MM-DD HH:mm')) + '&end=' + encodeURIComponent(end.format('YYYY-MM-DD HH:mm'));
     }
   });
+
+  // click to calendar
+  $('.engagement').click(function() {
+    var href = $(this).data('href');
+    console.log(href);
+    if (href) {
+      window.location = href;
+    }
+  })
 });
 </script>
 {% endblock %}

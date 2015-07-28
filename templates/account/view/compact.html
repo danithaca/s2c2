@@ -2,10 +2,10 @@
 {% load static %}
 {% if user %}
 <div data-uid="{{ user.id }}">
-  <img class="img-circle img-responsive" src="{% user_picture_url user %}" alt="user" title="{% user-full-name user %}">
-  {% if label %}
-    <p class="hidden-xs upper-corner">
-      <span class="label label-{{ color|default:'default' }}">{{ label }}</span>
+  <a href="{% url 'account_view' pk=user.id %}"><img class="img-circle img-responsive" src="{% user_picture_url user %}" alt="user" title="{% user-full-name user %}"></a>
+  {% if icon or label %}
+    <p class=" upper-corner">
+      <span class="label label-{{ color|default:'default' }}">{% if icon %}{% include icon %}{% else %}{{ label }}{% endif %}</span>
     </p>
   {% endif %}
   {% if not hide_name %}
@@ -17,9 +17,9 @@
 {% else %}
 <div>
   <img class="img-circle img-responsive" src="{% static 'images/question_200x200.png' %}" alt="user" title="Not found">
-  {% if label %}
-    <p class="hidden-xs upper-corner">
-      <span class="label label-{{ color|default:'default' }}">{{ label }}</span>
+  {% if icon or label %}
+    <p class="upper-corner">
+      <span class="label label-{{ color|default:'default' }}">{% if icon %}{% include icon %}{% else %}{{ label }}{% endif %}</span>
     </p>
   {% endif %}
   {% if not hide_name %}

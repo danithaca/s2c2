@@ -6,7 +6,7 @@
   <div class="row">
     <div class="col-sm-3 col-xs-4 center-block">
       <div class="min-margin">
-        {% include 'account/user/compact.html' with user=engagement.initiate_user only %}
+        {% include 'account/view/compact.html' with user=engagement.initiate_user only %}
       </div>
     </div>
 
@@ -31,9 +31,9 @@
     <div class="col-sm-3 col-xs-4">
       {% if engagement.target_user %}
         {% if engagement.is_match_confirmed %}
-          {% include 'account/user/compact.html' with user=engagement.target_user only %}
+          {% include 'account/view/compact.html' with user=engagement.target_user only %}
         {% else %}
-          {% include 'account/user/compact.html' with user=engagement.target_user only %}
+          {% include 'account/view/compact.html' with user=engagement.target_user only %}
         {% endif %}
       {% else %}
         <img class="img-circle img-responsive img-100 center-block" src="{% static 'images/question_200x200.png' %}" alt="not found">
