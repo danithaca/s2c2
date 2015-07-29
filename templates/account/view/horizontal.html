@@ -1,0 +1,16 @@
+{% load account_tags %}
+{% load p2_tags %}
+{% load static %}
+<div class="panel panel-default" data-uid="{{ user.id }}"><div class="panel-body"><div class="vertical-align">
+  <div class="">
+    <img src="{% if user %}{% user_picture_url user %}{% else %}{% static 'images/question_200x200.png' %}{% endif %}" alt="user picture" class="img-50 img-circle min-margin">
+    {% if label or icon %}
+    <p class="upper-corner">
+      <span class="label label-{{ color|default:'default' }}">{% if icon %}{% include icon %}{% else %}{{ label }}{% endif %}</span>
+    </p>
+    {% endif %}
+  </div>
+  <div class="text-center{% if not user.get_full_name %} word-break{% endif %}">
+    <a href="{% url 'account_view' pk=user.id %}">{% user_display user %}</a>
+  </div>
+</div></div></div>

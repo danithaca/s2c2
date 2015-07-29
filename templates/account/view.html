@@ -33,40 +33,67 @@
 
   <div class="col-sm-8">
 
-    <h2>My favorite people {% if full_access %}<small><a href="{% url 'circle:manage_personal' %}"><i class="fa fa-edit"></i></a></small>{% endif %}</h2>
-    {% if my_listed %}
-      <ul class="list-inline">
+  <div class="panel panel-default">
+    <div class="panel-heading panel-title">My favorite people {% if full_access %}<small><a href="{% url 'circle:manage_personal' %}"><i class="fa fa-edit"></i></a></small>{% endif %}</div>
+    <div class="panel-body">
+      {% if my_listed %}
+      <div class="row">
         {% for u in my_listed %}
-          <li><a href="{% url 'account_view' u.id %}" title=" {% user_display u %}" data-toggle="tooltip"><img src="{% user_picture_url u %}" class="img-circle img-50"></a></li>
+          <div class="col-xs-12 col-sm-6 col-md-4 col-lg-3">
+            {% include 'account/view/horizontal.html' with user=u %}
+          </div>
         {% endfor %}
-      </ul>
-    {% else %}
-      <p class="">None.</p>
-{#      <p class="">None. <a href="{% url 'circle:manage_personal' %}">Click here</a> to manage your personal circle.</p>#}
-    {% endif %}
+      </div>
+      {% else %}
+        <p class="">None.</p>
+  {#      <p class="">None. <a href="{% url 'circle:manage_personal' %}">Click here</a> to manage your personal circle.</p>#}
+      {% endif %}
+    </div>
+  </div>
 
-    <h2>My public circles {% if full_access %}<small><a href="{% url 'circle:manage_public' %}"><i class="fa fa-edit"></i></a></small>{% endif %}</h2>
+  <div class="panel panel-default">
+    <div class="panel-heading panel-title">My public circles {% if full_access %}<small><a href="{% url 'circle:manage_public' %}"><i class="fa fa-edit"></i></a></small>{% endif %}</div>
+    <div class="panel-body">
     {% if my_memberships %}
-      <ul>
+      <div class="row">
       {% for m in my_memberships %}
-        <li>{{ m.circle.name }} <span class="label label-default">{{ m.approved|yesno:'Approved,Not approved' }}</span><br><small>{{ m.circle.description }}</small></li>
+        <div class="col-xs-12 col-sm-6 col-md-4 col-lg-3">
+          <div class="panel panel-default">
+            <div class="panel-body">
+            {% if m.approved %}
+              <span class="label label-success" title="Approved" data-toggle="tooltip"><i class="fa fa-check"></i></span>
+            {% else %}
+              <span class="label label-default" title="Not approved" data-toggle="tooltip"><i class="fa fa-minus"></i></span>
+            {% endif %}
+            {{ m.circle.name }}<br><small>{{ m.circle.description }}</small>
+            </div>
+          </div>
+        </div>
       {% endfor %}
-      </ul>
+      </div>
     {% else %}
       <p class="">None.</p>
-{#      <p class="">None. <a href="{% url 'circle:manage_public' %}">Click here</a> to manage your public circle.</p>#}
     {% endif %}
+    </div>
+  </div>
 
-    <h2>People who favorited me {% if full_access%}<small><a href="{% url 'circle:manage_loop' %}"><i class="fa fa-edit"></i></a></small>{% endif %}</h2>
-    {% if in_others %}
-      <ul class="list-inline">
+  <div class="panel panel-default">
+    <div class="panel-heading panel-title">People who favorited me {% if full_access%}<small><a href="{% url 'circle:manage_loop' %}"><i class="fa fa-edit"></i></a></small>{% endif %}</div>
+    <div class="panel-body">
+      {% if my_listed %}
+      <div class="row">
         {% for u in in_others %}
-          <li><a href="{% url 'account_view' u.id %}" title=" {% user_display u %}" data-toggle="tooltip"><img src="{% user_picture_url u %}" class="img-circle img-50"></a></li>
+          <div class="col-xs-12 col-sm-6 col-md-4 col-lg-3">
+            {% include 'account/view/horizontal.html' with user=u %}
+          </div>
         {% endfor %}
-      </ul>
-    {% else %}
-      <p class="">None.</p>
-    {% endif %}
+      </div>
+      {% else %}
+        <p class="">None.</p>
+  {#      <p class="">None. <a href="{% url 'circle:manage_personal' %}">Click here</a> to manage your personal circle.</p>#}
+      {% endif %}
+    </div>
+  </div>
 
   </div>
 </div>
