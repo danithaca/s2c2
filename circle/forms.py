@@ -4,6 +4,7 @@ from django import forms
 
 from circle.models import Circle, SupersetRel
 from location.models import Area
+from p2.templatetags.p2_tags import p2_tag_user_full_name
 from puser.models import PUser
 from s2c2.utils import is_valid_email, get_int
 
@@ -142,6 +143,6 @@ class ManageLoopForm(forms.Form):
         super().__init__(*args, **kwargs)
         self.puser = puser
         from p2.templatetags.p2_tags import user_picture_url
-        data = [{'membership_id': m.id, 'name': m.circle.owner.get_name(), 'approved': m.approved, 'picture': user_picture_url(None, m.circle.owner)} for m in self.puser.membership_queryset_loop()]
+        data = [{'membership_id': m.id, 'name': p2_tag_user_full_name(m.circle.owner), 'approved': m.approved, 'picture': user_picture_url(None, m.circle.owner)} for m in self.puser.membership_queryset_loop()]
         self.membership_data = data
         self.fields['data'].initial = json.dumps(data)

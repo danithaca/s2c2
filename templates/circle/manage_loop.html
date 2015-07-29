@@ -7,7 +7,8 @@
 <script>
 $(document).ready(function() {
   // change to switch
-  $('input.switch').bootstrapSwitch();
+  var bsOptions = defaultBootstrapSwitchOptions();
+  $('input.switch').bootstrapSwitch(bsOptions);
 
   // update field before submit
   $('#circle-loop-form').submit(function() {
@@ -24,20 +25,29 @@ $(document).ready(function() {
 
 {% block manage-block %}
   {% if form.membership_data %}
+
   <form id="circle-loop-form" class="form" method="post" autocapitalize="off" {% if form.is_multipart %}enctype="multipart/form-data"{% endif %}>
     {% csrf_token %}
-    {% for membership in form.membership_data %}
-      <div class="form-group">
-        <div class="checkbox"><img src="{{ membership.picture }}" class="img-circle img-50"><label>{{ membership.name }} <input type="checkbox" name="{{ membership.membership_id }}" {{ membership.approved|yesno:"checked," }} class="switch"></label></div>
-      </div>
-    {% endfor %}
+    <ul class="list-group">
+      {% for membership in form.membership_data %}
+{#      <div class="form-group">#}
+{#        <div class="checkbox"><img src="{{ membership.picture }}" class="img-circle img-50"><label>{{ membership.name }} <input type="checkbox" name="{{ membership.membership_id }}" {{ membership.approved|yesno:"checked," }} class="switch"></label></div>#}
+{#      </div>#}
+        <li class="list-group-item">
+          <input type="checkbox" name="{{ membership.membership_id }}" {{ membership.approved|yesno:"checked," }} class="switch">
+          <img src="{{ membership.picture }}" class="img-circle img-18"> {{ membership.name }}
+        </li>
+      {% endfor %}
+    </ul>
+
     {{ form|bootstrap }}
     <div class="form-group">
       <button class="btn btn-primary" type="submit">Update</button>
       <span class="help-block">Changes are not saved unless you press the "Update" button.</span>
     </div>
   </form>
+
   {% else %}
-    <p>You are not added to anyone elses personal circle.</p>
+    <p>You are not added to anyone else's personal circle.</p>
   {% endif %}
 {% endblock %}

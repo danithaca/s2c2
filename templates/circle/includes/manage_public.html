@@ -25,15 +25,14 @@
   {% for group in form.circle_options %}
     <div class="panel panel-default">
       <div class="panel-heading">
-        <h4 class="panel-title">
-          {{ group.title }}<br>
-          <small>{{ group.description }}</small>
-        </h4>
+        <small class="text-small text-muted" title="{{ group.description }}" data-toggle="tooltip">{{ group.title }}</small>
       </div>
       <ul class="list-group">
         {% for circle in group.list %}
           <li class="list-group-item">
-            <input type="checkbox" name="circle" value="{{ circle.id }}"{% if circle.active %} checked{% endif %}> {{ circle.title }} <small class="text-muted">{{ circle.description }}</small>{% if circle.active %} <span class="badge">{{ circle.approved|yesno:'Approved,Not approved' }}</span>{% endif %}
+            <input type="checkbox" class="switch" name="circle" value="{{ circle.id }}"{% if circle.active %} checked{% endif %}>
+            {{ circle.title }} <small class="text-muted">{{ circle.description }}</small>
+{#            {% if circle.active %} <span class="badge">{{ circle.approved|yesno:'Approved,Not approved' }}</span>{% endif %}#}
           </li>
         {% endfor %}
       </ul>

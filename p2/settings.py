@@ -70,6 +70,7 @@ MIDDLEWARE_CLASSES = (
 
 TEMPLATE_CONTEXT_PROCESSORS += (
     "account.context_processors.account",
+    'p2.context_processors.global_templates_vars',
 )
 
 # perhaps not needed for now.
@@ -128,6 +129,16 @@ else:
             'TIMEOUT': 120,     # 2 mins
         }
     }
+
+# this is mapped from bootstrap cerulean theme: https://bootswatch.com/cerulean/
+bootstrap_color_mapping = {
+    'default': '#999',
+    'primary': '#2FA4E7',
+    'success': '#73A839',
+    'warning': '#DD5600',
+    'danger': '#C71C22',
+    'info': '#033C73'
+}
 
 # overrides s2c2/settings.py
 USE_L10N = True

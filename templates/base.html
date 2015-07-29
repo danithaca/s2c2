@@ -41,6 +41,9 @@
       // add active to menu mbar
       var path = window.location.pathname;
       $('ul.nav>li>a[href="'+ path +'"]').parent().addClass('active');
+
+      // turn on tooltip
+      $('[data-toggle="tooltip"]').tooltip();
     });
   </script>
 

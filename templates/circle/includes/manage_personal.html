@@ -11,8 +11,8 @@
 </section>
 
 <script type="text/template" id="item-template">
+  <span class="label label-danger destroy hover-pointer" title="Click to remove" data-toggle="tooltip"><i class="fa fa-remove"></i></span>
   <span><%= email %><% if (display_name) { %> - <%= display_name %><% } %>{# <% if (picture) { %> <img src="<%= picture %>" class="img-circle img-50"><% } %> #}</span>
-  <span class="destroy badge text-danger hover-pointer"><i class="fa fa-remove"></i></span>
 </script>
 
 <script type="text/javascript">

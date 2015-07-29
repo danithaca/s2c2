@@ -1,11 +1,18 @@
 {% extends "base_page.html" %}
 
 {% block extra_header %}
+<link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-switch/3.3.2/css/bootstrap3/bootstrap-switch.min.css" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-switch/3.3.2/js/bootstrap-switch.min.js"></script>
+
 {{ form.media }}
 <script type="text/javascript">
 $(document).ready(function() {
   var path = window.location.pathname;
   $('div.circle-manage-sidebar a[href="'+ path +'"]').addClass('active');
+
+  // change to switch
+  var bsOptions = defaultBootstrapSwitchOptions();
+  $('input.switch').bootstrapSwitch(bsOptions);
 });
 </script>
 {% block more_header %}{% endblock %}

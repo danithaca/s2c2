@@ -135,3 +135,13 @@ function calendarChangeBookmark(view) {
     window.history.pushState(current_day, null, './?day=' + current_day_token + '&view=' + view.calendar.getView().type);
   }
 }
+
+function defaultBootstrapSwitchOptions() {
+  return {
+    size: 'mini',
+    onColor: 'success',
+    // offColor: 'danger',
+    onText: '<i class="fa fa-check"></i>',
+    offText: '<i class="fa fa-minus"></i>',
+  }
+}

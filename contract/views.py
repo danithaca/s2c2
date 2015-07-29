@@ -10,6 +10,7 @@ from contract.models import Contract, Match, Engagement
 from datetimewidget.widgets import DateTimeWidget
 from django.utils import timezone
 from django.template.loader import get_template, render_to_string
+from django.conf import settings
 
 
 class ContractDetail(DetailView):
@@ -133,15 +134,6 @@ class EngagementList(LoginRequiredMixin, TemplateView):
 
 # note: this is not through REST_FRAMEWORK, therefore cannot use browser to view results.
 class APIMyEngagementList(LoginRequiredMixin, JSONResponseMixin, AjaxResponseMixin, View):
-    # this is mapped from bootstrap cerulean theme: https://bootswatch.com/cerulean/
-    color_mapping = {
-        'default': '#999',
-        'primary': '#2FA4E7',
-        'success': '#73A839',
-        'warning': '#DD5600',
-        'danger': '#C71C22',
-        'info': '#033C73'
-    }
 
     def get_ajax(self, request, *args, **kwargs):
         # super().get_ajax(request, *args, **kwargs)      # might not be needed.
@@ -178,7 +170,7 @@ class APIMyEngagementList(LoginRequiredMixin, JSONResponseMixin, AjaxResponseMix
                 'end': to_date(engagement.contract.event_end),
                 'id': engagement.get_id(),
                 'title': title,
-                'color': self.color_mapping.get(status['color'], 'gray'),
+                'color': settings.bootstrap_color_mapping.get(status['color'], 'gray'),
                 'url': engagement.get_link(),
             }
             event_list.append(event)
