@@ -32,16 +32,6 @@
   </aside>
 
   <div class="col-sm-8">
-    <h2>People who favorited me {% if full_access%}<small><a href="{% url 'circle:manage_loop' %}"><i class="fa fa-edit"></i></a></small>{% endif %}</h2>
-    {% if in_others %}
-      <ul class="list-inline">
-        {% for u in in_others %}
-          <li><a href="{% url 'account_view' u.id %}" title=" {% user_display u %}" data-toggle="tooltip"><img src="{% user_picture_url u %}" class="img-circle img-50"></a></li>
-        {% endfor %}
-      </ul>
-    {% else %}
-      <p class="lead">None.</p>
-    {% endif %}
 
     <h2>My favorite people {% if full_access %}<small><a href="{% url 'circle:manage_personal' %}"><i class="fa fa-edit"></i></a></small>{% endif %}</h2>
     {% if my_listed %}
@@ -51,7 +41,8 @@
         {% endfor %}
       </ul>
     {% else %}
-      <p class="lead">None.</p>
+      <p class="">None.</p>
+{#      <p class="">None. <a href="{% url 'circle:manage_personal' %}">Click here</a> to manage your personal circle.</p>#}
     {% endif %}
 
     <h2>My public circles {% if full_access %}<small><a href="{% url 'circle:manage_public' %}"><i class="fa fa-edit"></i></a></small>{% endif %}</h2>
@@ -62,8 +53,21 @@
       {% endfor %}
       </ul>
     {% else %}
-      <p class="lead">None.</p>
+      <p class="">None.</p>
+{#      <p class="">None. <a href="{% url 'circle:manage_public' %}">Click here</a> to manage your public circle.</p>#}
     {% endif %}
+
+    <h2>People who favorited me {% if full_access%}<small><a href="{% url 'circle:manage_loop' %}"><i class="fa fa-edit"></i></a></small>{% endif %}</h2>
+    {% if in_others %}
+      <ul class="list-inline">
+        {% for u in in_others %}
+          <li><a href="{% url 'account_view' u.id %}" title=" {% user_display u %}" data-toggle="tooltip"><img src="{% user_picture_url u %}" class="img-circle img-50"></a></li>
+        {% endfor %}
+      </ul>
+    {% else %}
+      <p class="">None.</p>
+    {% endif %}
+
   </div>
 </div>
 {% endblock %}
