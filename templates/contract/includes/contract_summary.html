@@ -27,14 +27,14 @@
   </div></div>
 
   <div class="col-xs-6 col-sm-3 col-md-2">
-    {% include 'contract/includes/user_preview.html' with user=contract.initiate_user label='Client' color='primary' %}
+    {% include 'account/view/preview.html' with user=contract.initiate_user icon='elements/icon_client.html' color=contract.display_status.color %}
   </div>
 
   <div class="col-xs-6 col-sm-3 col-md-2">
     {% if contract.confirmed_match %}
-      {% include 'contract/includes/user_preview.html' with user=contract.confirmed_match.target_user label='Server' color='primary'%}
+      {% include 'account/view/preview.html' with user=contract.confirmed_match.target_user icon='elements/icon_server.html' color=contract.display_status.color %}
     {% else %}
-      {% include 'contract/includes/match_not_found.html' %}
+      {% include 'account/view/preview.html' with user=None %}
     {% endif %}
   </div>
 </div>

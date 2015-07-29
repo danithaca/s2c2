@@ -226,7 +226,7 @@ class PUser(User):
             return Engagement.from_contract(active_contract)
 
         # now try to find the next confirmed engagement
-        engagement_list = self.engagement_list(lambda qs: qs.filter(status=Contract.Status.CONFIRMED.value).filter(Q(initiate_user=self) | (Q(match__target_user=self) & Q(match=F('confirmed_match')))).order_by('event_start')[:1])
+        engagement_list = self.engagement_list(lambda qs: qs.filter(status=Contract.Status.CONFIRMED.value, event_start__gt=timezone.now()).filter(Q(initiate_user=self) | (Q(match__target_user=self) & Q(match=F('confirmed_match')))).order_by('event_start')[:1])
         if engagement_list:
             return engagement_list[0]
 

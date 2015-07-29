@@ -1,15 +1,18 @@
 {% load account_tags %}
 {% load p2_tags %}
+{% load static %}
 <div class="thumbnail" data-uid="{{ user.id }}">
-  <img src="{% user_picture_url user %}" alt="user picture" class="img-thumbnail img-responsive">
+  <img src="{% if user %}{% user_picture_url user %}{% else %}{% static 'images/question_200x200.png' %}{% endif %}" alt="user picture" class="img-thumbnail img-responsive img-circle">
   {% if label or icon %}
   <p class="upper-corner">
-    <span class="label label-{{ color|default:'default' }}">{{ label }}</span>
+    <span class="label label-{{ color|default:'default' }}">{% if icon %}{% include icon %}{% else %}{{ label }}{% endif %}</span>
   </p>
   {% endif %}
+  {% if user %}
   <div class="caption">
     <h4 class="text-center{% if not user.get_full_name %} word-break{% endif %}">
       <a href="{% url 'account_view' pk=user.id %}">{% user_display user %}</a>
     </h4>
   </div>
+  {% endif %}
 </div>
