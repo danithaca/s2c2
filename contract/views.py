@@ -170,7 +170,7 @@ class APIMyEngagementList(LoginRequiredMixin, JSONResponseMixin, AjaxResponseMix
                 'end': to_date(engagement.contract.event_end),
                 'id': engagement.get_id(),
                 'title': title,
-                'color': settings.bootstrap_color_mapping.get(status['color'], 'gray'),
+                'color': settings.BOOTSTRAP_COLOR_MAPPING.get(status['color'], 'gray'),
                 'url': engagement.get_link(),
             }
             event_list.append(event)

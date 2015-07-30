@@ -3,6 +3,6 @@ from django.conf import settings
 
 def global_templates_vars(request):
     ctx = {
-        # 'COLOR_MAPPING': settings.bootstrap_color_mapping,
+        # 'BOOTSTRAP_COLOR_MAPPING': settings.BOOTSTRAP_COLOR_MAPPING,
     }
     return ctx

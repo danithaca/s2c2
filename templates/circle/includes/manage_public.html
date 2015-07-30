@@ -9,7 +9,7 @@
     });
 
     // whenever something is clicked.
-    $('input[name="circle"]').change(function(){
+    $('input[name="circle"]').on('switchChange.bootstrapSwitch', function(e, s){
       // get all checked value
       var checked = $('input[name="circle"]:checked').map(function(_, el) {
         return $(el).val();
