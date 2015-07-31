@@ -19,7 +19,7 @@ $(document).ready(function() {
     if (op == 'revert' || op == 'cancel' || op == 'confirm') {
       messages = {
         revert: 'This operation will undo the confirmed request. The babysitter will be notified. You can choose another babysitter.',
-        cancel: 'This operation cannot be undone.',
+        cancel: 'This operation will cancel the request, and cannot be undone.',
         confirm: 'This will bind you with the babysitter. The babysitter will be notified.'
       }
       bootbox.confirm({
@@ -64,11 +64,10 @@ $(document).ready(function() {
     {% if contract.initiate_user == user or user.is_staff %}
       <div class="panel-footer text-center">
         {% if contract.is_confirmed and not contract.is_event_expired %}
-          <button class="btn btn-lg btn-warning" name="change-status" value="revert">Undo</button>
-          <button class="btn btn-lg btn-default" name="change-status" value="cancel">Cancel</button>
+          <button class="btn btn-lg btn-danger" name="change-status" value="revert">Undo</button>
         {% elif contract.is_active and not contract.is_event_expired %}
           <button class="btn btn-lg btn-warning" name="change-status" value="edit">Edit</button>
-          <button class="btn btn-lg btn-default" name="change-status" value="cancel">Cancel</button>
+          <button class="btn btn-lg btn-danger" name="change-status" value="cancel">Cancel</button>
         {% elif contract.is_event_expired and contract.is_confirmed %}
           <button class="btn btn-lg btn-success" name="change-status" value="succeed">Successful</button>
           <button class="btn btn-lg btn-danger" name="change-status" value="fail">Failed</button>
