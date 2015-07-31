@@ -55,7 +55,7 @@ class StatusMixin(object):
             else:
                 if status == Contract.Status.ACTIVE:
                     if not self.match_set.filter(status=Match.Status.ACCEPTED.value).exists():
-                        label = 'Active - Waiting'
+                        label = 'Active - Searching'
                     else:
                         label, explanation = 'Active - Found', 'The client has found at least 1 person who agreed to be a server. The client has not confirmed yet.'
 

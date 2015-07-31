@@ -16,10 +16,11 @@ $(document).ready(function() {
     }
 
     // for revert, do the confirmation box.
-    if (op == 'revert' || op == 'cancel') {
+    if (op == 'revert' || op == 'cancel' || op == 'confirm') {
       messages = {
         revert: 'This operation will undo the confirmed request. The babysitter will be notified. You can choose another babysitter.',
-        cancel: 'This operation cannot be undone.'
+        cancel: 'This operation cannot be undone.',
+        confirm: 'This will bind you with the babysitter. The babysitter will be notified.'
       }
       bootbox.confirm({
         title: 'Are you sure?',
@@ -43,38 +44,62 @@ $(document).ready(function() {
       });
     }
   });
+
+  {% if user.is_staff %}
+    // for staff member, allow create and preview match.
+    $('.match-summary').addClass('hover-pointer');
+    $('.match-summary').click(function () {
+      window.location = '/contract/match/' + $(this).data('match-id');
+    });
+  {% endif %}
 });
 </script>
 {% endblock %}
 
 {% block page %}
-  {% include 'contract/contract_view/summary.html' with contract=contract %}
-<hr>
+  <div class="panel panel-default">
+    <div class="panel-body">
+      {% include 'contract/contract_view/summary.html' with contract=contract %}
+    </div>
+    {% if contract.initiate_user == user or user.is_staff %}
+      <div class="panel-footer text-center">
+        {% if contract.is_confirmed and not contract.is_event_expired %}
+          <button class="btn btn-lg btn-warning" name="change-status" value="revert">Undo</button>
+          <button class="btn btn-lg btn-default" name="change-status" value="cancel">Cancel</button>
+        {% elif contract.is_active and not contract.is_event_expired %}
+          <button class="btn btn-lg btn-warning" name="change-status" value="edit">Edit</button>
+          <button class="btn btn-lg btn-default" name="change-status" value="cancel">Cancel</button>
+        {% elif contract.is_event_expired and contract.is_confirmed %}
+          <button class="btn btn-lg btn-success" name="change-status" value="succeed">Successful</button>
+          <button class="btn btn-lg btn-danger" name="change-status" value="fail">Failed</button>
+        {% else %}
+          <a class="btn btn-default" href="/">Back</a>
+        {% endif %}
+      </div>
+    {% endif %}
+  </div>
+
 <div class="row">
 {% if matches %}
 {% for match in matches %}
   <div class="col-xs-12 col-sm-6 col-md-4">
-    {% include 'contract/match_view/teaser.html' with match=match contract=contract %}
+    <div class="match-preview panel panel-default">
+      <div class="panel-body">
+        {% include 'contract/match_view/summary.html' with match=match contract=contract %}
+      </div>
+      {% if match.is_accepted and contract.is_active and contract.initiate_user == user %}
+        <div class="panel-footer text-center">
+          <button class="btn btn-lg btn-success" name="change-status" value="confirm" data-match-id="{{ match.id }}">
+            Confirm
+          </button>
+        </div>
+      {% endif %}
+    </div>
   </div>
 {% endfor %}
 {% else %}
   <div class="col-sm-12">We will forward your request to your personal and public circles momentarily.</div>
 {% endif %}
-</div>
-
-<div class="well text-center">
-  {% if contract.is_confirmed and not contract.is_event_expired %}
-    <button class="btn btn-lg btn-warning" name="change-status" value="revert">Undo</button>
-    <button class="btn btn-lg btn-default" name="change-status" value="cancel">Cancel</button>
-  {% elif contract.is_active and not contract.is_event_expired %}
-    <button class="btn btn-lg btn-warning" name="change-status" value="edit">Edit</button>
-    <button class="btn btn-lg btn-default" name="change-status" value="cancel">Cancel</button>
-  {% elif contract.is_event_expired and contract.is_confirmed %}
-    <button class="btn btn-lg btn-success" name="change-status" value="succeed">Successful</button>
-    <button class="btn btn-lg btn-danger" name="change-status" value="fail">Failed</button>
-  {% else %}
-    <a class="btn btn-default" href="/">Back</a>
-  {% endif %}
 </div>
 
 {% endblock %}

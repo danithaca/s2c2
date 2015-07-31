@@ -1,0 +1,20 @@
+{% extends 'contract/match_view/summary.html' %}
+{% load p2_tags %}
+
+{% block first-line %}
+  <p class="text-x-large" title="{{ match.display_status.explanation }}" data-toggle="tooltip">
+    <span class="label label-{{ match.display_status.color }}">{{ match.display_status.label }}</span>
+    {% url 'contract:match_view' pk=match.id as match_view_url %}
+  </p>
+{% endblock %}
+
+{% block extended-info %}
+  <p>
+    {% with count=match.count_served client=contract.initiate_user server=match.target_user %}
+      {% user-short-name server %} served {% user-short-name client %} <em>{{ count }}</em> time{{ count|pluralize }};
+    {% endwith %}
+    {% with count=match.count_served_reverse server=contract.initiate_user client=match.target_user %}
+      {% user-short-name server %} served {% user-short-name client %} <em>{{ count }}</em> time{{ count|pluralize }}
+    {% endwith %}
+  </p>
+{% endblock %}

@@ -127,6 +127,11 @@ img.user-picture-md { width: 48px; height: 100%; }
   padding-bottom: 6px;
 }*/
 
+.contract-summary .title {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+}
 
 /******* for comment ********/
 

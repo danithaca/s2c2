@@ -1,14 +1,19 @@
-<div class="row contract-summary well" data-contract-id="{{ contract.id }}">
-  <div class="col-xs-12 col-sm-6 col-md-8 panel panel-default"><div class="panel-body">
-    <p class="text-xx-large">
-      {# use tooltip in span to make it show in the correct location. #}
-      <span class="label label-{{ contract.display_status.color }}" title="{{ contract.display_status.label }}. {{ contract.display_status.explanation }}" data-toggle="tooltip">{{ contract.display_status.label }}</span>
-      {% url 'contract:view' pk=contract.id as contract_view_url %}
-      {% if request.path != contract_view_url and user.is_staff %}
-        <a href="{{ contract_view_url }}"><i class="fa fa-rocket"></i></a>
-      {% endif %}
-      <small class="pull-right text-muted text-small">Last updated: {{ contract.updated|timesince }} ago</small>
-    </p>
+<div class="row contract-summary" data-contract-id="{{ contract.id }}">
+  <div class="col-xs-12 col-sm-6 col-md-8">
+    <div class="title">
+      <p class="text-xx-large">
+        {# use tooltip in span to make it show in the correct location. #}
+        <span class="label label-{{ contract.display_status.color }}"
+              title="{{ contract.display_status.label }}. {{ contract.display_status.explanation }}"
+              data-toggle="tooltip">{{ contract.display_status.label }}</span>
+        {#        {% url 'contract:view' pk=contract.id as contract_view_url %}#}
+        {#        {% if request.path != contract_view_url and user.is_staff %}#}
+        {#          <a href="{{ contract_view_url }}"><i class="fa fa-rocket"></i></a>#}
+        {#        {% endif %}#}
+      </p>
+
+      <p class="text-muted text-small">Last updated: {{ contract.updated|timesince }} ago</p>
+    </div>
     <ul class="list-unstyled">
       <li><i class="fa fa-clock-o"></i> <strong>{{ contract.display_event_length }}</strong> ({{ contract.display_event_range }})</li>
       <li><i class="fa fa-money"></i>
@@ -25,7 +30,7 @@
       <li><i class="fa fa-check"></i> <em>{{ contract.count_accepted_match }}</em> accepted</li>
       <li><i class="fa fa-times"></i> <em>{{ contract.count_declined_match }}</em> declined</li>
     </ul>
-  </div></div>
+  </div>
 
   <div class="col-xs-6 col-sm-3 col-md-2">
     {% include 'account/view/preview.html' with user=contract.initiate_user icon='elements/icon_client.html' color=contract.display_status.color %}
