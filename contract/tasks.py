@@ -31,9 +31,9 @@ def after_contract_confirmed(contract):
                       {'match': confirmed_match, 'contract': contract, 'target_user': confirmed_match.target_user})
     # schedule reminder tasks
     # fixme: if contract is confirmed and then undo and then confirmed again. we want to make sure it doesn't have problems
-    before_contract_starts.delay(contract, eta=contract.event_start-timedelta(hours=1))
-    after_contract_ends.delay(contract, eta=contract.event_end+timedelta(hours=6))
-    handle_expired_contract(contract, eta=contract.event_end+timedelta(days=2))
+    before_contract_starts.apply_async((contract,), eta=contract.event_start - timedelta(hours=1))
+    after_contract_ends.apply_async((contract,), eta=contract.event_end + timedelta(hours=6))
+    handle_expired_contract.apply_async((contract,), eta=contract.event_end + timedelta(days=2))
 
 
 @shared_task
@@ -109,3 +109,13 @@ def after_contract_reverted(contract, match):
 def after_contract_failed(contract):
     from shout.notify import notify_agent
     notify_agent.send(None, None, 'contract/messages/contract_failed', {'contract': contract})
+
+
+@shared_task
+def after_contract_updated(contract):
+    # send all "accepted" servers the updated info notes.
+    from shout.notify import notify_agent
+    from contract.models import Match
+    for match in contract.match_set.filter(status=Match.Status.ACCEPTED.value):
+        notify_agent.send(contract.initiate_user, match.target_user, 'contract/messages/contract_updated',
+                          {'contract': contract, 'match': match})

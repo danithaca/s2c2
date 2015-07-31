@@ -41,12 +41,12 @@ $(document).ready(function() {
 
         {% if match.target_user == user or user.is_staff %}
           <div class="panel-footer text-center">
-            <button class="btn btn-lg btn-success{% if match.is_accepted %} disabled{% endif %}" name="match"
+            <button class="btn btn-success{% if match.is_accepted %} disabled{% endif %}" name="match"
                     data-url="{% url 'contract:match_accept' pk=match.id %}"
                     title="You agree to do this job. The client might not choose you though." data-toggle="tooltip">
               Accept
             </button>
-            <button class="btn btn-lg btn-danger{% if match.is_confirmed or match.is_declined %} disabled{% endif %}"
+            <button class="btn btn-danger{% if match.is_confirmed or match.is_declined %} disabled{% endif %}"
                     name="match" data-url="{% url 'contract:match_decline' pk=match.id %}"
                     title="You will not help this time and will not receive further notice about this job."
                     data-toggle="tooltip">Decline

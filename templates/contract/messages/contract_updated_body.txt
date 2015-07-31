@@ -1,0 +1,8 @@
+{% load p2_tags %}
+{% user-short-name contract.initiate_user %} updated note:
+
+{{ contract.description }}
+
+Review details here:
+
+{{ site_url }}{{ match.get_absolute_url }}

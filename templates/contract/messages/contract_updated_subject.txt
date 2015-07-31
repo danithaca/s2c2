@@ -1,0 +1,2 @@
+{% load p2_tags %}
+[{{ site_name }}] {% user-short-name contract.initiate_user %} updated note

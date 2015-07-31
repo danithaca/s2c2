@@ -94,7 +94,8 @@
 
     <div class="form-group">
       <div class="col-sm-offset-2 col-sm-10">
-        <button type="submit" class="btn btn-primary">Submit</button>
+        <button type="submit" class="btn btn-primary">{{ form.instance.id|yesno:'Update,Submit' }}</button>
+        <a href="javascript:history.back();" class="btn btn-default">Back</a>
       </div>
     </div>
   </form>

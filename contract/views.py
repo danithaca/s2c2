@@ -1,10 +1,11 @@
 from collections import defaultdict
 from datetime import datetime, timedelta
-from braces.views import JSONResponseMixin, AjaxResponseMixin, LoginRequiredMixin
+from braces.views import JSONResponseMixin, AjaxResponseMixin, LoginRequiredMixin, FormValidMessageMixin
+from django.contrib import messages
 from django.db.models import Q
-from django.forms import modelform_factory
+from django.forms import modelform_factory, Form
 from django.shortcuts import render
-from django.views.generic import CreateView, DetailView, ListView, View, TemplateView
+from django.views.generic import CreateView, DetailView, ListView, View, TemplateView, UpdateView
 from contract.forms import ContractForm
 from contract.models import Contract, Match, Engagement
 from datetimewidget.widgets import DateTimeWidget
@@ -31,7 +32,7 @@ class ContractList(ListView):
 class ContractCreate(CreateView):
     model = Contract
     form_class = ContractForm
-    template_name = 'contract/add.html'
+    template_name = 'contract/contract_update.html'
 
     # override widget.
     # def get_form_class(self):
@@ -70,6 +71,31 @@ class ContractCreate(CreateView):
         return super().form_valid(form)
 
 
+class ContractEdit(LoginRequiredMixin, FormValidMessageMixin, UpdateView):
+    model = Contract
+    form_class = ContractForm
+    template_name = 'contract/contract_update.html'
+    form_valid_message = 'Note successfully updated.'
+
+    def get_form(self, form_class=None):
+        form = super().get_form(form_class)
+        if not form.is_bound:
+            messages.warning(self.request,
+                             'You can only change the note. To change the other fields, cancel the request and create a new one.')
+        # todo: double check security issue
+        form.fields['event_start'].widget.attrs['readonly'] = True
+        form.fields['event_end'].widget.attrs['readonly'] = True
+        form.fields['price'].widget.attrs['readonly'] = True
+        return form
+
+    def form_valid(self, form):
+        result = super().form_valid(form)
+        if form.has_changed():
+            from contract.tasks import after_contract_updated
+            after_contract_updated.delay(form.instance)
+        return result
+
+
 class ContractChangeStatus(LoginRequiredMixin, JSONResponseMixin, AjaxResponseMixin, View):
     def post_ajax(self, request, pk):
         contract = Contract.objects.get(pk=pk)
@@ -86,7 +112,7 @@ class ContractChangeStatus(LoginRequiredMixin, JSONResponseMixin, AjaxResponseMi
         elif op == 'fail':
             contract.fail()
         else:
-            assert False
+            assert False, 'Operation not recognized: "%s"' % op
         return self.render_json_response({'success': True, 'op': op})
 
 
