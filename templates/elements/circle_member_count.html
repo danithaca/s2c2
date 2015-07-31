@@ -1,0 +1,10 @@
+<i class="fa fa-users"></i>
+{% if count < 5 %}
+  &lt; 5
+{% elif count < 10 %}
+  5~10
+{% elif count < 20 %}
+  10~20
+{% elif count >= 20 %}
+  20+
+{% endif %}

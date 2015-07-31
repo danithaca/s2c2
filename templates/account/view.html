@@ -60,12 +60,10 @@
         <div class="col-xs-12 col-sm-6 col-md-4 col-lg-3">
           <div class="panel panel-default">
             <div class="panel-body">
-            {% if m.approved %}
-              <span class="label label-success" title="Approved" data-toggle="tooltip"><i class="fa fa-check"></i></span>
-            {% else %}
-              <span class="label label-default" title="Not approved" data-toggle="tooltip"><i class="fa fa-minus"></i></span>
-            {% endif %}
-            {{ m.circle.name }}<br><small>{{ m.circle.description }}</small>
+              <span title="{{ m.approved|yesno:'Approved,Not approved' }}. {{ m.circle.description }}" data-toggle="tooltip" class="{% if not m.approved %}text-muted{% endif %}">
+                {{ m.circle.name }}<br>
+                <small class="pull-right">{% include 'elements/circle_member_count.html' with count=m.circle.count %}</small>
+              </span>
             </div>
           </div>
         </div>

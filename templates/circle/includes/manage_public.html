@@ -31,7 +31,7 @@
         {% for circle in group.list %}
           <li class="list-group-item">
             <input type="checkbox" class="switch" name="circle" value="{{ circle.id }}"{% if circle.active %} checked{% endif %}>
-            {{ circle.title }} <small class="text-muted">{{ circle.description }}</small>
+            {{ circle.title }} <small class="text-muted">{{ circle.description }}</small> <small class="pull-right">{% include 'elements/circle_member_count.html' with count=circle.count %}</small>
 {#            {% if circle.active %} <span class="badge">{{ circle.approved|yesno:'Approved,Not approved' }}</span>{% endif %}#}
           </li>
         {% endfor %}

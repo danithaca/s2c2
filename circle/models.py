@@ -62,6 +62,9 @@ class Circle(models.Model):
     def is_type_public(self):
         return self.type == self.type == Circle.Type.PUBLIC.value
 
+    def count(self):
+        return self.membership_set.filter(active=True, approved=True).count()
+
 
 class SupersetRel(models.Model):
     """

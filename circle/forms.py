@@ -75,6 +75,7 @@ class ManagePublicForm(forms.Form):
                     'title': c.name,
                     'description': c.description,
                     'id': c.pk,
+                    'count': c.count,
                 }
                 if c.id in membership:
                     m = membership[c.id]
