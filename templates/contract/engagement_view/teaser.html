@@ -2,8 +2,8 @@
 {% load static %}
 {% load account_tags %}
 
-<div class="engagement panel panel-default{% if engagement.contract.is_event_expired %} pale{% endif %} hover-pointer" data-href="{{ engagement.get_link }}">
-  <div class="panel-body">
+<div class="engagement {% if engagement.contract.is_event_expired %} pale{% endif %} hover-pointer"
+     data-href="{{ engagement.get_link }}">
   <div class="row vertical-align">
     <div class="col-sm-4 col-xs-5 center-block">
     {# only show "client" if the main user is "server", and vice versa #}
@@ -24,7 +24,7 @@
 {#        {% if user.is_staff %}<a href="{{ engagement.get_link }}"><i class="fa fa-rocket"></i></a>{% endif %}#}
 {#      </p>#}
       <ul class="list-inline text-small">
-        <li><i class="fa fa-clock-o"></i> <strong>{{ engagement.contract.event_start|date:'H:i, M. j' }}</strong></li>
+        <li><i class="fa fa-clock-o"></i> <strong>{{ engagement.contract.event_start|date:'n/j H:i' }}</strong></li>
         <li><i class="fa fa-money"></i>
           {% if engagement.contract.price > 0 %}
             <strong>${{ engagement.contract.price }}</strong>
@@ -34,8 +34,11 @@
         </li>
       </ul>
       <p>{{ engagement.contract.description|truncatechars:50 }}</p>
-      <p class="text-muted pull-right"><small>{{ engagement.updated|timesince }} ago</small></p>
     </div>
   </div>
+  <div class="row">
+    <div class="col-xs-12">
+      <small class="text-muted pull-right">{{ engagement.updated|timesince }} ago</small>
+    </div>
   </div>
 </div>

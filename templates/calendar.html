@@ -73,21 +73,23 @@ $(document).ready(function() {
       {% include 'contract/engagement_view/headline.html' with engagement=engagement_headline %}
     {% endif %}
 
-    <div class="panel panel-info">
+    <div class="panel panel-success">
       <div class="panel-heading panel-title">Find a babysitter</div>
       <div class="panel-body"><a href="{% url 'contract:add' %}">Click here</a> or select a time period in the calendar.</div>
     </div>
 
-    <div class="panel panel-primary">
+    <div class="panel panel-info">
       <div class="panel-heading panel-title">Recent activities</div>
-      <div class="panel-body">
         <div class="help-block"><small>Ordered by last updated</small></div>
-        {% for engagement in engagement_recent %}
-          {% include 'contract/engagement_view/teaser.html' with engagement=engagement %}
-        {% empty %}
+      {% if engagement_recent %}
+        <ul class="list-group">
+          {% for engagement in engagement_recent %}
+            <li class="list-group-item">{% include 'contract/engagement_view/teaser.html' with engagement=engagement %}</li>
+          {% endfor %}
+        </ul>
+      {% else %}
           <p>No activity yet.</p>
-        {% endfor %}
-      </div>
+      {% endif %}
     </div>
   </div>
 

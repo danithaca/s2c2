@@ -3,27 +3,26 @@
 {% load account_tags %}
 {% load tz %}
 
-<div class="engagement panel panel-success hover-pointer" data-href="{{ engagement.get_link }}">
+<div class="engagement panel panel-warning hover-pointer" data-href="{{ engagement.get_link }}">
   <div class="panel-heading panel-title">Upcoming</div>
   <div class="panel-body">
-
   <div class="row vertical-align">
-    <div class="col-sm-4 col-xs-5 center-block">
+    <div class="col-xs-4 center-block">
     {# only show "client" if the main user is "server", and vice versa #}
     {% if engagement.is_main_match %}
-      {% include 'account/view/compact.html' with user=engagement.initiate_user icon='elements/icon_serve.html' color=engagement.display_status.color only %}
+      {% include 'account/view/compact.html' with user=engagement.initiate_user icon='elements/icon_serve.html' color=engagement.display_status.color hide_name=True only %}
     {% else %}
       {% if engagement.target_user %}
-        {% include 'account/view/compact.html' with user=engagement.target_user icon='elements/icon_find.html' color=engagement.display_status.color only %}
+        {% include 'account/view/compact.html' with user=engagement.target_user icon='elements/icon_find.html' color=engagement.display_status.color hide_name=True only %}
       {% else %}
         {% include 'account/view/compact.html' with user=None hide_name=True icon='elements/icon_find.html' color=engagement.display_status.color only %}
       {% endif %}
     {% endif %}
     </div>
 
-    <div class="col-sm-8 col-xs-7">
-      <p class="text-large"><strong>{{ engagement.contract.event_start|timeuntil }}</strong></p>
-      <ul class="list-inline text-small">
+    <div class="col-xs-8">
+      <p class="text-large text-center"><strong>{{ engagement.contract.event_start|timeuntil }}</strong></p>
+      <ul class="list-inline text-small text-center">
         <li><i class="fa fa-clock-o"></i> <strong>{{ engagement.contract.event_start|date:'H:i, M. j' }}</strong></li>
         <li><i class="fa fa-money"></i>
           {% if engagement.contract.price > 0 %}
@@ -33,9 +32,19 @@
           {% endif %}
         </li>
       </ul>
-      <p>{{ engagement.contract.description|truncatechars:50 }}</p>
+      {#      {% if engagement.target_user %}#}
+      {#      <p class="truncate">#}
+      {#        <a href="{% url 'account_view' pk=engagement.target_user.id %}">{% user-full-name engagement.target_user %}</a>#}
+      {#      </p>#}
+      {#      {% endif %}#}
     </div>
   </div>
+
+    <div class="row">
+      <div class="col-xs-12">
+        <p>{{ engagement.contract.description|truncatechars:100 }}</p>
+      </div>
+    </div>
 
   </div>
 </div>
