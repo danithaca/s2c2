@@ -7,6 +7,7 @@
       {% if request.path != contract_view_url and user.is_staff %}
         <a href="{{ contract_view_url }}"><i class="fa fa-rocket"></i></a>
       {% endif %}
+      <small class="pull-right text-muted text-small">Last updated: {{ contract.updated|timesince }} ago</small>
     </p>
     <ul class="list-unstyled">
       <li><i class="fa fa-clock-o"></i> <strong>{{ contract.display_event_length }}</strong> ({{ contract.display_event_range }})</li>

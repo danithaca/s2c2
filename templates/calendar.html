@@ -8,6 +8,7 @@
 <script src='{% static 'fullcalendar/fullcalendar.js' %}'></script>
 <script type="text/javascript">
 $(document).ready(function() {
+  var defaultView = $('#viewport-xs-detector').is(':hidden') ? 'agendaDay' : 'agendaWeek';
   var param_day = getParameterByName('day');
   var day = param_day ? moment(param_day, 'YYYY-MM-DD') : moment();
 
@@ -18,7 +19,7 @@ $(document).ready(function() {
       right: 'agendaDay,agendaWeek,month today prev,next'
     },
     defaultDate: day,
-    defaultView: 'agendaWeek',
+    defaultView: defaultView,
     aspectRatio: '1.1',
 
     fixedWeekCount: false,
@@ -92,6 +93,7 @@ $(document).ready(function() {
 
   <div class="col-sm-8">
     <div id="calendar"></div>
+    <div class="hidden-xs" id="viewport-xs-detector"></div>
   </div>
 </div>
 {% endblock %}

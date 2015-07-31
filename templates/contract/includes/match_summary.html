@@ -2,7 +2,9 @@
 {% load p2_tags %}
 <div class="row match-summary vertical-align" data-match-id="{{ match.id }}">
   <div class="col-xs-4">
-    <img src="{% user_picture_url match.target_user %}" alt="user picture" class="img-thumbnail img-circle img-responsive">
+    <a href="{% url 'account_view' pk=match.target_user.id %}">
+      <img src="{% user_picture_url match.target_user %}" alt="user picture" class="img-rounded img-responsive">
+    </a>
     {# If not confirmed, maybe show "Candiate" instead of Server? #}
     <div class="upper-corner"><span class="label label-{{ match.display_status.color }}">{% include 'elements/icon_server.html' %}</span></div>
   </div>
