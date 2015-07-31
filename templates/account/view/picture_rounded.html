@@ -1,0 +1,8 @@
+{% load static %}
+{% load p2_tags %}
+{% if user %}
+  <a href="{% url 'account_view' pk=user.id %}"><img src="{% user_picture_url user %}" alt="user picture"
+                                                     class="img-responsive img-rounded"></a>
+{% else %}
+  <img src="{% static 'images/question_200x200.png' %}" alt="not found user" class="img-responsive img-rounded">
+{% endif %}

@@ -2,7 +2,7 @@
 {% load p2_tags %}
 <div class="match-preview panel panel-default">
   <div class="panel-body">
-    {% include 'contract/includes/match_summary.html' with match=match contract=contract %}
+    {% include 'contract/match_view/summary.html' with match=match contract=contract %}
   </div>
 
   {% if match.is_accepted and contract.is_active and contract.initiate_user == user %}

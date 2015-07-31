@@ -19,7 +19,7 @@
         {% endif %}
       </li>
     </ul>
-    <p class="lead">{{ contract.description }}</p>
+    <p class="{% if contract.description|length < 200 %}lead{% endif %}">{{ contract.description }}</p>
     <ul class="list-inline">
       <li><i class="fa fa-users"></i> <em>{{ contract.count_total_match }}</em> notified</li>
       <li><i class="fa fa-check"></i> <em>{{ contract.count_accepted_match }}</em> accepted</li>

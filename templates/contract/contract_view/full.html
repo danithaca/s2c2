@@ -48,13 +48,13 @@ $(document).ready(function() {
 {% endblock %}
 
 {% block page %}
-{% include 'contract/includes/contract_summary.html' with contract=contract %}
+  {% include 'contract/contract_view/summary.html' with contract=contract %}
 <hr>
 <div class="row">
 {% if matches %}
 {% for match in matches %}
   <div class="col-xs-12 col-sm-6 col-md-4">
-    {% include 'contract/includes/match_preview.html' with match=match contract=contract %}
+    {% include 'contract/match_view/teaser.html' with match=match contract=contract %}
   </div>
 {% endfor %}
 {% else %}

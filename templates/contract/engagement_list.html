@@ -3,7 +3,7 @@
 {% block page-content %}
   {% if engagements %}
     {% for engagement in engagements %}
-      {% include 'contract/includes/engagement.html' with engagement=engagement %}
+      {% include 'contract/engagement_view/full.html' with engagement=engagement %}
     {% endfor %}
   {% else %}
     <p>You don't have any activities yet. To find a babysitter, click here: <a class="btn btn-primary" href="{% url 'contract:add' %}">Find</a></p>

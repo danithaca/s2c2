@@ -1,0 +1,56 @@
+{% extends "base.html" %}
+{% load staticfiles %}
+{% load bootstrap %}
+{% load p2_tags %}
+
+{% block extra_header %}
+<script type="text/javascript">
+$(document).ready(function() {
+  $('button[name="match"]').click(function() {
+    $.post($(this).data('url'), function(data) {
+      location.reload();
+    });
+  });
+});
+</script>
+{% endblock %}
+
+{% block page %}
+  {% include 'contract/contract_view/summary.html' with contract=contract %}
+  <hr>
+  <div class="row">
+    <div class="col-xs-12">
+      <div class="match-details panel panel-default">
+        <div class="panel-heading panel-title">Your response?</div>
+
+        <div class="panel-body">
+          {% include 'contract/match_view/summary.html' with match=match contract=contract extended=True %}
+        </div>
+
+        {% if match.target_user == user or user.is_staff %}
+          <div class="panel-footer text-center">
+            {% if not match.is_accepted %}
+              <button class="btn btn-primary btn-lg" name="match"
+                      data-url="{% url 'contract:match_accept' pk=match.id %}">Accept
+              </button>
+            {% endif %}
+            {% if not match.is_declined %}
+              {% if match.is_confirmed %}
+                <div data-toggle="tooltip"
+                     title="This engagement is confirmed and you cannot decline it on your end. If you need to make a change, please contact the person directly and ask him or her to change the engagement on their end.">
+                  <button class="btn btn-warning btn-lg disabled" name="match"
+                          data-url="{% url 'contract:match_decline' pk=match.id %}">Decline
+                  </button>
+                </div>
+              {% else %}
+                <button class="btn btn-warning btn-lg" name="match"
+                        data-url="{% url 'contract:match_decline' pk=match.id %}">Decline
+                </button>
+              {% endif %}
+            {% endif %}
+          </div>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+{% endblock %}

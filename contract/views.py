@@ -15,7 +15,7 @@ from django.conf import settings
 
 class ContractDetail(DetailView):
     model = Contract
-    template_name = 'contract/view.html'
+    template_name = 'contract/contract_view/full.html'
 
     def get_context_data(self, **kwargs):
         kwargs['matches'] = self.object.match_set.all().order_by('-score')
@@ -92,7 +92,7 @@ class ContractChangeStatus(LoginRequiredMixin, JSONResponseMixin, AjaxResponseMi
 
 class MatchDetail(DetailView):
     model = Match
-    template_name = 'contract/match_view.html'
+    template_name = 'contract/match_view/full.html'
 
     def get_context_data(self, **kwargs):
         kwargs['contract'] = self.object.contract

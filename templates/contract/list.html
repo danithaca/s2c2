@@ -1,11 +1,10 @@
 {% extends "base.html" %}
 {% load staticfiles %}
-
 {% block page %}
   {% for contract in object_list %}
     <div class="row">
       <div class="col-sm-12">
-        {% include 'contract/includes/contract_teaser.html' with contract=contract %}
+        {% include 'contract/contract_view/teaser.html' with contract=contract %}
       </div>
     </div>
   {% endfor %}

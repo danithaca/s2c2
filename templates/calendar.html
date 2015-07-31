@@ -70,7 +70,7 @@ $(document).ready(function() {
 <div class="row">
   <div class="col-sm-4">
     {% if engagement_headline %}
-      {% include 'contract/includes/engagement_headline.html' with engagement=engagement_headline %}
+      {% include 'contract/engagement_view/headline.html' with engagement=engagement_headline %}
     {% endif %}
 
     <div class="panel panel-info">
@@ -83,7 +83,7 @@ $(document).ready(function() {
       <div class="panel-body">
         <div class="help-block"><small>Ordered by last updated</small></div>
         {% for engagement in engagement_recent %}
-          {% include 'contract/includes/engagement_teaser.html' with engagement=engagement %}
+          {% include 'contract/engagement_view/teaser.html' with engagement=engagement %}
         {% empty %}
           <p>No activity yet.</p>
         {% endfor %}
