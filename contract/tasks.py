@@ -119,3 +119,13 @@ def after_contract_updated(contract):
     for match in contract.match_set.filter(status=Match.Status.ACCEPTED.value):
         notify_agent.send(contract.initiate_user, match.target_user, 'contract/messages/contract_updated',
                           {'contract': contract, 'match': match})
+
+
+@shared_task
+def after_contract_canceled(contract):
+    if not contract.is_event_expired():
+        from shout.notify import notify_agent
+        from contract.models import Match
+        for match in contract.match_set.filter(status=Match.Status.ACCEPTED.value):
+            notify_agent.send(contract.initiate_user, match.target_user, 'contract/messages/contract_canceled',
+                              {'contract': contract, 'match': match})

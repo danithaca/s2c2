@@ -147,6 +147,7 @@ class Contract(StatusMixin, models.Model):
         assert self.status != Contract.Status.CANCELED.value, 'Contract already canceled.'
         old_status = self.status
         self.change_status(old_status, Contract.Status.CANCELED.value)
+        tasks.after_contract_canceled.delay(self)
 
     def succeed(self):
         assert self.status == Contract.Status.CONFIRMED.value, 'Contract not in confirmed status.'

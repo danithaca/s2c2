@@ -1,0 +1,2 @@
+{% load p2_tags %}
+[{{ site_name }}] Request canceled by {% user-short-name contract.initiate_user %}
