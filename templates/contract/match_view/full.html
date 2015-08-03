@@ -38,6 +38,9 @@ $(document).ready(function() {
         <div class="panel-body">
           {% include 'contract/match_view/extended.html' with match=match contract=contract %}
         </div>
+        <div class="panel-body">
+          <textarea class="form-control" rows="3" placeholder="Optional note"></textarea>
+        </div>
 
         {% if match.target_user == user or user.is_staff %}
           <div class="panel-footer text-center">
