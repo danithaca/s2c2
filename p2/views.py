@@ -35,3 +35,7 @@ class CalendarView(LoginRequiredMixin, TemplateView):
         ctx['engagement_recent'] = engagement_list
         ctx['engagement_headline'] = puser.engagement_headline()
         return ctx
+
+
+class HelpView(TemplateView):
+    template_name = 'pages/help.html'
