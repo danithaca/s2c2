@@ -1,26 +1,25 @@
 {% load account_tags %}
 {% load p2_tags %}
-<div class="row match-summary vertical-align" data-match-id="{{ match.id }}">
-
-  <div class="col-xs-4">
-    {% include 'account/view/compact.html' with user=match.target_user icon='elements/icon_server.html' color=match.display_status.color only %}
+<div class="match-summary" data-match-id="{{ match.id }}">
+  <div class="row vertical-align">
+    <div class="col-xs-4">
+      {% include 'account/view/compact.html' with user=match.target_user icon='elements/icon_server.html' color=match.display_status.color only %}
+    </div>
+    <div class="col-xs-8">
+      {# make tooltip in "p" to prevent getting truncated. but then it shows funny in match_view #}
+      {% block first-line %}
+        <p class="text-large truncate" title="{{ match.display_status.label }}. {{ match.display_status.explanation }}" data-toggle="tooltip">
+          <span class="label label-{{ match.display_status.color }}">{{ match.display_status.label }}</span>
+          {#      {% url 'contract:match_view' pk=match.id as match_view_url %}#}
+          {#      {% if user.is_staff %}<a href="{{ match_view_url }}"><i class="fa fa-rocket"></i></a>{% endif %}#}
+        </p>
+      {% endblock %}
+      <p>
+        {% for circle in match.circles.all %}
+          <span class="badge badge-default" title="{{ circle.display }}" data-toggle="tooltip">{{ circle.display|truncatechars:25 }}</span>
+        {% endfor %}
+      </p>
+      {% block extended-info %}{% endblock %}
+    </div>
   </div>
-
-  <div class="col-xs-8">
-    {# make tooltip in "p" to prevent getting truncated. but then it shows funny in match_view #}
-    {% block first-line %}
-    <p class="text-large truncate" title="{{ match.display_status.label }}. {{ match.display_status.explanation }}" data-toggle="tooltip">
-      <span class="label label-{{ match.display_status.color }}">{{ match.display_status.label }}</span>
-      {#      {% url 'contract:match_view' pk=match.id as match_view_url %}#}
-      {#      {% if user.is_staff %}<a href="{{ match_view_url }}"><i class="fa fa-rocket"></i></a>{% endif %}#}
-    </p>
-    {% endblock %}
-    <p>
-      {% for circle in match.circles.all %}
-        <span class="badge badge-default" title="{{ circle.display }}" data-toggle="tooltip">{{ circle.display|truncatechars:25 }}</span>
-      {% endfor %}
-    </p>
-    {% block extended-info %}{% endblock %}
-  </div>
-
 </div>

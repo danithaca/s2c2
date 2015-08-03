@@ -7,9 +7,15 @@
 <script type="text/javascript">
 $(document).ready(function() {
   $('button[name="match"]').click(function() {
-    $.post($(this).data('url'), function(data) {
+    var $match_response = $('#match-response');
+    var post_data = $match_response.data('changed') ? {response: $match_response.val()} : {};
+    $.post($(this).data('url'), post_data, function(data) {
       location.reload();
     });
+  });
+
+  $('#match-response').change(function() {
+    $(this).data('changed', true);
   });
 
   {% if user.is_staff %}
@@ -39,7 +45,7 @@ $(document).ready(function() {
           {% include 'contract/match_view/extended.html' with match=match contract=contract %}
         </div>
         <div class="panel-body">
-          <textarea class="form-control" rows="3" placeholder="Optional note"></textarea>
+          <textarea class="form-control" rows="3" placeholder="Optional note" id="match-response">{{ match.response  }}</textarea>
         </div>
 
         {% if match.target_user == user or user.is_staff %}

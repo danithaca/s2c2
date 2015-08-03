@@ -267,6 +267,9 @@ class Match(StatusMixin, models.Model):
     from circle.models import Circle
     circles = models.ManyToManyField(to=Circle)
 
+    # response to the contract.
+    response = models.TextField(blank=True)
+
     class Meta:
         unique_together = ('contract', 'target_user')
 

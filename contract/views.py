@@ -130,6 +130,10 @@ class MatchStatusChange(LoginRequiredMixin, JSONResponseMixin, AjaxResponseMixin
 
     def post_ajax(self, request, pk):
         match = Match.objects.get(pk=pk)
+        response = request.POST.get('response', None)
+        if response is not None:
+            # no need to save because it'll be saved below.
+            match.response = response
         if self.switch is True:
             match.accept()
         elif self.switch is False:
