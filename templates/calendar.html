@@ -49,13 +49,40 @@ $(document).ready(function() {
     // redirect to find view
     select: function(start, end, jsEvent, view) {
       window.location = "{% url 'contract:add' %}?start=" + encodeURIComponent(start.format('YYYY-MM-DD HH:mm')) + '&end=' + encodeURIComponent(end.format('YYYY-MM-DD HH:mm'));
+    },
+
+{# NOTE: this runs before getting events, thus clientEvents() returns nothing. #}
+{#    viewRender: function(view, element) {#}
+{#      console.log(view.calendar);#}
+{#      //console.log(element);#}
+{#      if (view.name == 'agendaWeek') {#}
+{#        view.calendar.clientEvents().forEach(function(event) {#}
+{#          console.log(event);#}
+{#          element.find(event['fc-header-class']).append(' *');#}
+{#        });#}
+{#      }#}
+{#      else if (view.name == 'agendaDay') {#}
+{##}
+{#      }#}
+{#    },#}
+
+    eventAfterAllRender: function(view) {
+      if (view.name == 'agendaDay' || view.name == 'agendaWeek') {
+        view.calendar.clientEvents().forEach(function (event) {
+          console.log(event['fc-header-class']);
+          var $header = $(event['fc-header-class']);
+          if (!$header.data('processed')) {
+            $header.append(' <span class="text-danger">*</span>');
+            $header.data('processed', true);
+          }
+        });
+      } // end of eventAfterAllRender
     }
   });
 
   // click to calendar
   $('.engagement').click(function() {
     var href = $(this).data('href');
-    console.log(href);
     if (href) {
       window.location = href;
     }

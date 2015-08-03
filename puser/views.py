@@ -4,7 +4,7 @@ from account.mixins import LoginRequiredMixin
 import account.views
 import account.forms
 from account.conf import settings
-from braces.views import UserPassesTestMixin
+from braces.views import UserPassesTestMixin, FormValidMessageMixin
 from django.contrib.auth.decorators import login_required
 from django.contrib import auth
 from django.core.files.storage import FileSystemStorage
@@ -125,7 +125,7 @@ class UserEdit(LoginRequiredMixin, FormView):
         return super(UserEdit, self).form_valid(form)
 
 
-class UserPicture(LoginRequiredMixin, UpdateView):
+class UserPicture(LoginRequiredMixin, FormValidMessageMixin, UpdateView):
     """
     Handle user picture operations
     """
@@ -134,6 +134,7 @@ class UserPicture(LoginRequiredMixin, UpdateView):
     model = Info
     # fields = ['picture_original', 'picture_cropping']
     form_class = UserPictureForm
+    form_valid_message = 'Picture updated.'
 
     def get_object(self, queryset=None):
         puser = self.request.puser

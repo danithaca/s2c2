@@ -202,6 +202,7 @@ class APIMyEngagementList(LoginRequiredMixin, JSONResponseMixin, AjaxResponseMix
                 'title': title,
                 'color': settings.BOOTSTRAP_COLOR_MAPPING.get(status['color'], 'gray'),
                 'url': engagement.get_link(),
+                'fc-header-class': '.fc-%s' % timezone.localtime(engagement.contract.event_start).strftime('%a').lower()
             }
             event_list.append(event)
             all_day.add(timezone.localtime(engagement.contract.event_start).date())
