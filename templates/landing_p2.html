@@ -13,26 +13,48 @@
 {#    <p>A Uber-like app to help you find one time babysitters your trust</p>#}
     <p>Find <em>one-time</em>, <em>on-demand</em> babysitters from people you trust. Return the favors by babysitting their kids.</p>
     <p>
-      <a class="btn btn-primary btn-lg" href="{% url 'account_signup' %}" role="button">Sign Up</a>
+{#      <a class="btn btn-primary btn-lg" href="{% url 'account_signup' %}" role="button">Sign Up</a>#}
       {#      <a class="btn btn-primary btn-lg" href="{% url 'user:login' %}" role="button">Login</a>#}
     </p>
   </div>
   <div class="col-sm-5">
     <div class="panel panel-default">
-{#      <div class="panel-heading">Existing users? Login here</div>#}
-      <div class="panel-body">
-        <form class="form-horizontal" role="form" method="post" action="{% url 'account_login' %}">
-          {% csrf_token %}
-          {{ form|bootstrap_horizontal:'col-sm-4' }}
-          <div class="form-group">
-            <div class="col-sm-offset-4 col-sm-8">
-              <button type="submit" class="btn btn-primary">Log in</button>
-            </div>
-          </div>
-        </form>
+      <div class="panel-heading">
+        <ul class="nav nav-pills">
+          <li class="active"><a href="#tab-login" data-toggle="tab">Log in</a></li>
+          <li><a href="#tab-signup" data-toggle="tab">Sign up</a></li>
+        </ul>
       </div>
-      <div class="panel-footer">
-        <a href="{% url 'account_password_reset' %}">Forget password?</a>
+      <div class="tab-content">
+        <div class="tab-pane active" id="tab-login">
+          <div class="panel-body">
+            <form class="form-horizontal" role="form" method="post" action="{% url 'account_login' %}">
+              {% csrf_token %}
+              {{ form_login|bootstrap_horizontal:'col-sm-4' }}
+              <div class="form-group">
+                <div class="col-sm-offset-4 col-sm-8">
+                  <button type="submit" class="btn btn-success">Log in</button>
+                </div>
+              </div>
+            </form>
+          </div>
+          <div class="panel-footer">
+            <a href="{% url 'account_password_reset' %}">Forget password?</a>
+          </div>
+        </div>
+        <div class="tab-pane" id="tab-signup">
+          <div class="panel-body">
+            <form class="form-horizontal" role="form" method="post" action="{% url 'account_signup' %}">
+              {% csrf_token %}
+              {{ form_signup|bootstrap_horizontal:'col-sm-4' }}
+              <div class="form-group">
+                <div class="col-sm-offset-4 col-sm-8">
+                  <button type="submit" class="btn btn-success">Sign up</button>
+                </div>
+              </div>
+            </form>
+          </div>
+        </div>
       </div>
     </div>
   </div>

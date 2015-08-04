@@ -5,12 +5,13 @@ from django.shortcuts import render, redirect
 from account.forms import LoginEmailForm
 from django.views.generic import TemplateView
 from contract.models import Contract, Engagement, Match
+from puser.forms import SignupBasicForm
 from s2c2.utils import dummy
 
 
 def home(request):
     if request.user.is_anonymous():
-        return render(request, 'landing_p2.html', {'form': LoginEmailForm()})
+        return render(request, 'landing_p2.html', {'form_login': LoginEmailForm(), 'form_signup': SignupBasicForm})
     else:
         # find engagement for the user
         puser = request.puser
