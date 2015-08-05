@@ -261,16 +261,16 @@ if DEBUG:
     # use dummy email
     EMAIL_BACKEND = 'django.core.mail.backends.filebased.EmailBackend'
     EMAIL_FILE_PATH = os.path.join(BASE_DIR, 'emails')
-
 else:
+    # this doesn't work because DEBUG is False now, and only get set in local settings.
+    # override in settings_local.py
     EMAIL_BACKEND = 'django_ses_backend.SESBackend'
     AWS_ACCESS_KEY_ID = 'AKIAIK5B54SZPOMAKGMA,'
     AWS_SECRET_ACCESS_KEY = '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'
-
-# AWS_SES_ACCESS_KEY_ID = 'AKIAJEETWEVXBZAUCAHA'
-# AWS_SES_SECRET_ACCESS_KEY = 'AmcSdbDZUrYduXOFnvtn+NfUNNKr+DZahbfugNIOwaXx'
-# AWS_SES_REGION_NAME = 'us-east-1'
-# AWS_SES_REGION_ENDPOINT = 'email.us-east-1.amazonaws.com'
+    # AWS_SES_ACCESS_KEY_ID = 'AKIAJEETWEVXBZAUCAHA'
+    # AWS_SES_SECRET_ACCESS_KEY = 'AmcSdbDZUrYduXOFnvtn+NfUNNKr+DZahbfugNIOwaXx'
+    # AWS_SES_REGION_NAME = 'us-east-1'
+    # AWS_SES_REGION_ENDPOINT = 'email.us-east-1.amazonaws.com'
 
 
 # load local settings override.
