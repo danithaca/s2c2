@@ -102,7 +102,7 @@ $(document).ready(function() {
 
     <div class="panel panel-success">
       <div class="panel-heading panel-title">Find a babysitter</div>
-      <div class="panel-body"><a href="{% url 'contract:add' %}">Click here</a> or select a time period in the calendar.</div>
+      <div class="panel-body"><span><a href="{% url 'contract:add' %}">Click here</a> or select a time period in the calendar.</span></div>
     </div>
 
     <div class="panel panel-info">
@@ -115,7 +115,7 @@ $(document).ready(function() {
           {% endfor %}
         </ul>
       {% else %}
-          <p>No activity yet.</p>
+        <div class="panel-body"><span class="text-muted">No activity yet.</span></div>
       {% endif %}
     </div>
   </div>

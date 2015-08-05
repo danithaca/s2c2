@@ -106,6 +106,7 @@ LOGOUT_URL = reverse_lazy('account_logout')
 
 
 # celery related settings
+
 BROKER_URL = 'sqla+sqlite:///celerydb.sqlite'
 CELERY_RESULT_BACKEND = 'db+sqlite:///celerydb.sqlite'
 # CELERY_ACCEPT_CONTENT = ['json']
