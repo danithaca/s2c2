@@ -26,20 +26,22 @@ class StatusMixin(object):
         status = self.__class__.Status(self.status)
 
         contract_display_map = {
-            Contract.Status.INITIATED: ('default', 'Inactive', ''),
-            Contract.Status.ACTIVE: ('primary', 'Active', ''),
-            Contract.Status.CONFIRMED: ('success', 'Active - Confirmed', ''),
-            Contract.Status.SUCCESSFUL: ('info', 'Successful', ''),
-            Contract.Status.CANCELED: ('warning', 'Canceled', ''),
-            Contract.Status.FAILED: ('danger', 'Failed', ''),
+            Contract.Status.INITIATED: ('default', 'Inactive', 'Not activated.'),
+            Contract.Status.ACTIVE: ('primary', 'Active', 'Actively finding a server.'),
+            Contract.Status.CONFIRMED: (
+            'success', 'Active - Confirmed', 'You have confirmed with a server to serve you.'),
+            Contract.Status.SUCCESSFUL: ('info', 'Successful', 'The service was successfully delivered.'),
+            Contract.Status.CANCELED: ('warning', 'Canceled', 'The request was canceled.'),
+            Contract.Status.FAILED: ('danger', 'Failed', 'The service was confirmed but ultimately failed.'),
         }
 
         match_display_map = {
-            Match.Status.INITIALIZED: ('default', 'Waiting', ''),
-            Match.Status.ENGAGED: ('info', 'Notified & Waiting', ''),
-            Match.Status.ACCEPTED: ('primary', 'Accepted', ''),
-            Match.Status.DECLINED: ('warning', 'Declined', ''),
-            Match.Status.CANCELED: ('danger', 'Canceled', ''),
+            Match.Status.INITIALIZED: ('default', 'Waiting', 'Not yet notified the potential server.'),
+            Match.Status.ENGAGED: (
+            'info', 'Notified & Waiting', 'The person was notified, and we are waiting for the response.'),
+            Match.Status.ACCEPTED: ('primary', 'Accepted', 'The person agreed to serve the client.'),
+            Match.Status.DECLINED: ('warning', 'Declined', 'The person declined to serve the client.'),
+            Match.Status.CANCELED: ('danger', 'Canceled', 'The engagement was canceled.'),
         }
 
         if isinstance(self, Contract):
@@ -48,14 +50,14 @@ class StatusMixin(object):
             # special handle for expired stuff
             if self.is_event_expired():
                 if status in (Contract.Status.INITIATED, Contract.Status.ACTIVE):
-                    color, label = 'default', 'Expired'
+                    color, label, explanation = 'default', 'Expired', 'The request was expired.'
                 if status == Contract.Status.CONFIRMED:
-                    color, label = 'info', 'Done'
+                    color, label, explanation = 'info', 'Done', 'The request was confirmed and expired.'
             # not expired, proceed as normal
             else:
                 if status == Contract.Status.ACTIVE:
                     if not self.match_set.filter(status=Match.Status.ACCEPTED.value).exists():
-                        label = 'Active - Searching'
+                        label, explanation = 'Active - Searching', 'Searching for a server. No one has agreed to serve yet.'
                     else:
                         label, explanation = 'Active - Found', 'The client has found at least 1 person who agreed to be a server. The client has not confirmed yet.'
 
@@ -63,14 +65,14 @@ class StatusMixin(object):
             color, label, explanation = match_display_map.get(status, ('default', str(status).capitalize(), ''))
             # override
             if self.contract.is_event_expired() and status in (Match.Status.INITIALIZED, Match.Status.ENGAGED):
-                    color, label = 'default', 'Expired'
+                color, label, explanation = 'default', 'Expired', 'The engagement was expired.'
             elif status == Match.Status.ACCEPTED:
                 if self.contract.confirmed_match == self:
-                    color, label = 'success', 'Accepted & Confirmed'
+                    color, label, explanation = 'success', 'Accepted & Confirmed', 'The engagement was confirmed.'
                 elif self.contract.is_confirmed():
-                    color, label, explanation = 'primary', 'Not chosen', 'The server accepted your request but you did not choose him/her to serve you.'
+                    color, label, explanation = 'primary', 'Not chosen', 'The server accepted the request but not chosen to serve.'
                 elif not self.contract.is_event_expired() and not self.contract.is_confirmed():
-                    color, label = 'primary', 'Accepted & Pending'
+                    color, label, explanation = 'primary', 'Accepted & Pending', 'The server accepted the request, but the client has not made a confirmation yet.'
 
         else:
             assert False
