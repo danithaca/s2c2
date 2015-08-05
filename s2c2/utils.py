@@ -100,7 +100,7 @@ def auto_user_name(email):
     """
     name = email.split('@')[0]
     from django.contrib.auth.models import User
-    existing = set([e.split('@')[0] for e in User.objects.filter(email__startswith=name).values_list('email', flat=True)])
+    existing = set(User.objects.filter(username__startswith=name).values_list('username', flat=True))
     if name not in existing:
         return name
     for i in range(1000):
