@@ -4,7 +4,7 @@
 <section id="contact-app">
   <div class="input-group">
     <input id="new-contact" class="form-control" placeholder="Email to add" autofocus>
-    <span class="input-group-btn"><button class="btn btn-primary">Add</button></span>
+    <span class="input-group-btn"><button class="btn btn-primary" id="new-contact-add-btn">Add</button></span>
   </div>
   <span class="help-block">Press "Enter" to add email. Eg, somebody@gmail.com.</span>
   <ul id="contact-list" class="list-group"></ul>
@@ -85,19 +85,19 @@ function initialize_app() {
       //this.collection.fetch();
     },
     events: {
-      'keypress #new-contact': 'createOnEnter'
+      'keypress #new-contact': 'createOnEvent',
+      'click #new-contact-add-btn': 'createOnEvent'
     },
-    createOnEnter: function(e){
+    createOnEvent: function(e){
       var email = this.input.val().trim();
-      if ( e.which !== 13 || !email ) { // ENTER_KEY = 13
-        return;
+      if ((e.type == 'click' || (e.type == 'keypress' && e.which == 13)) && email) { // ENTER_KEY = 13
+        if (checkEmail(email)) {
+          this.collection.create({
+            email: email
+          });
+        }
+        this.input.val(''); // clean input box
       }
-      if (checkEmail(email)) {
-        this.collection.create({
-          email: email
-        });
-      }
-      this.input.val(''); // clean input box
     },
     addOne: function(contact){
       var view = new app.ContactView({model: contact});
