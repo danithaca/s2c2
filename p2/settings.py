@@ -107,11 +107,16 @@ LOGOUT_URL = reverse_lazy('account_logout')
 
 # celery related settings
 
-BROKER_URL = 'sqla+sqlite:///celerydb.sqlite'
-CELERY_RESULT_BACKEND = 'db+sqlite:///celerydb.sqlite'
-# CELERY_ACCEPT_CONTENT = ['json']
-# CELERY_TASK_SERIALIZER = 'json'
-# CELERY_RESULT_SERIALIZER = 'json'
+if DEBUG:
+    BROKER_URL = 'sqla+sqlite:///celerydb.sqlite'
+    CELERY_RESULT_BACKEND = 'db+sqlite:///celerydb.sqlite'
+    # CELERY_ACCEPT_CONTENT = ['json']
+    # CELERY_TASK_SERIALIZER = 'json'
+    # CELERY_RESULT_SERIALIZER = 'json'
+else:
+    # use django for this purpose
+    BROKER_URL = 'django://'
+    INSTALLED_APPS = INSTALLED_APPS + ('kombu.transport.django',)
 
 
 # set up caching, only available to p2.
