@@ -4,8 +4,8 @@ Feature: Check link
   I need to view the links correctly
 
   Scenario: check help link
-    Given I am at the homepage
+    Given I am on the homepage
     Then I should see "Help"
-    When I click "Help"
-    Then I should be at "/help"
+    When I follow "Help"
+    Then I should be on "/help/"
     And I should see "Care.com"
