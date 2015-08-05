@@ -63,6 +63,8 @@ class ManagePublicForm(forms.Form):
     def build_circle_options(self, area):
         membership = {m.circle_id: m for m in self.puser.membership_set.filter(circle__type=Circle.Type.PUBLIC.value, active=True)}
         options = []
+
+        # for all circles with superset
         for superset in Circle.objects.filter(type=Circle.Type.SUPERSET.value, area=area):
             d = {
                 'title': superset.name,
@@ -83,6 +85,28 @@ class ManagePublicForm(forms.Form):
                     cd['approved'] = m.approved
                 d['list'].append(cd)
             options.append(d)
+
+        # for other circles that don't have superset.
+        leftover = {
+            'title': 'Other',
+            'description': 'Other public circles you can join.',
+            'list': []
+        }
+        for c in Circle.objects.filter(type=Circle.Type.SUPERSET.value, area=area, child__isnull=True):
+            cd = {
+                'title': c.name,
+                'description': c.description,
+                'id': c.pk,
+                'count': c.count,
+            }
+            if c.id in membership:
+                m = membership[c.id]
+                cd['active'] = m.active
+                cd['approved'] = m.approved
+            leftover['list'].append(cd)
+        if leftover['list']:
+            options.append(leftover)
+
         return options
 
 

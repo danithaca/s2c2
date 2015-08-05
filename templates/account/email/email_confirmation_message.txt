@@ -1,4 +1,4 @@
-A user on {{ current_site.name }} has created an account using this email address.
+A user has created an account using this email address.
 
 To confirm this email address, go to:
 {{ activate_url }}
