@@ -5,12 +5,14 @@ from contract.tasks import dummy
 from location.models import Area
 from puser.models import PUser
 from datetime import datetime, timedelta
+from django.core.mail import send_mail
 
 
 class Command(BaseCommand):
     help = 'Arbitrary script run.'
 
     def handle(self, *args, **options):
+        print('Running on the fly script.')
         # result = dummy.delay(3, 4)
         # print(result.ready())
         # try:
@@ -30,6 +32,7 @@ class Command(BaseCommand):
         #     for c in m.circles.all():
         #         print(c.name)
 
-        u = PUser.get_by_email('mrzhou@umich.edu')
-        Contract.objects.create(buyer=u, event_start=datetime.now(), event_end=datetime.now()+timedelta(hours=1), price=10, area=Area.objects.get(pk=1))
+        # u = PUser.get_by_email('mrzhou@umich.edu')
+        # Contract.objects.create(buyer=u, event_start=datetime.now(), event_end=datetime.now()+timedelta(hours=1), price=10, area=Area.objects.get(pk=1))
         # this should be automatically activated.
+        send_mail('test subject', 'test message', 'admin@servuno.com', ['admin@knowsun.com'], False)

@@ -261,7 +261,6 @@ if DEBUG:
     # use dummy email
     EMAIL_BACKEND = 'django.core.mail.backends.filebased.EmailBackend'
     EMAIL_FILE_PATH = os.path.join(BASE_DIR, 'emails')
-
 else:
     EMAIL_BACKEND = 'django_ses_backend.SESBackend'
     AWS_ACCESS_KEY_ID = 'AKIAIK5B54SZPOMAKGMA,'
