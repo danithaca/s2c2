@@ -1,6 +1,6 @@
-body {
+/*body {
   padding-top: 64px;
-}
+}*/
 
 .form-group .control-label.required:after {
   content: " *";

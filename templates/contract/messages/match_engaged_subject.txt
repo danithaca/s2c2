@@ -1,2 +1,2 @@
-{% load account_tags %}
-[{{ site_name }}] {% user_display contract.initiate_user %} needs your help babysitting
+{% load p2_tags %}
+[{{ site_name }}] {% user-full-name contract.initiate_user %} needs your help

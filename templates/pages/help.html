@@ -1,10 +1,88 @@
-{% extends "base_page.html" %}
+{% extends "base.html" %}
 {% load staticfiles %}
 {% load bootstrap %}
 
 {% block title %}Help{% endblock %}
 
-{% block page-header %}Help{% endblock %}
+{% block extra_header %}
+  <style>
+    #toc-container.affix {
+      top: 10px;
+    }
+  </style>
+  <script>
+    $(function () {
+      var $ul = $('#toc');
+      $('#help-content h3').each(function (i, e) {
+        var $e = $(e);
+        $ul.append('<li><a href="#' + $e.attr('id') + '">' + $e.text() + '</a></li>');
+        $e.append(' <small class="text-x-small"><a href="#" class="text-muted"><i class="fa fa-long-arrow-up"></i> top</a></small>');
+      });
+    });
+  </script>
+{% endblock %}
 
-{% block page-content %}
+{% block page %}
+  <div class="row">
+
+    <div class="col-sm-9">
+      <div class="page-header">
+        <h1>Help</h1>
+      </div>
+
+      <div id="help-content">
+        <h3 id="how-it-works">How does it work?</h3>
+        <ol>
+          <li><strong>Add</strong> trusted people to your personal circles and join trusted public circles.</li>
+          <li><strong>Submit</strong> a babysitter request to the circles.</li>
+          <li><strong>Pick</strong> a babysitter from those who agreed to help.</li>
+          <li><strong>Return</strong> the favor by babysitting for them.</li>
+        </ol>
+        <p>After signed up, you will receive emails when someone could help you babysit or they need your help.</p>
+
+        <h3 id="find">How to find a babysitter?</h3>
+
+        <p>On your <a href="{% url 'calendar' %}">calendar</a> page, navigate to the particular date and drag a time
+          period you need help with. Then specify the details and press the "Submit" button. Or <a
+              href="{% url 'contract:add' %}">click here</a> to submit a request directly.</p>
+
+        <h3 id="match">What happens when I submit a babysitter request?</h3>
+
+        <p>We will use the <em>Servuno SmartMatch <i class="fa fa-registered"></i></em> algorithm to find the best
+          candidates from your personal circles, the public circles you joined, and the personal circles of people you
+          trusted. Those candidates will receive email notifications to help you. We will also "nudge" the people you
+          have helped before to return your favor.</p>
+
+        <h3 id="manage-circles">How do I manage my circles?</h3>
+
+        <p><a href="{% url 'circle:manage_personal' %}">Click here.</a></p>
+
+        <h3 id="comparison">Comparison to Care.com?</h3>
+
+        <p>First, Servuno.com focuses on finding short-term babysitters for special occasions, whereas Care.com is to
+          find long-term caregivers to help on a regular basis. Second, Servuno.com is free (well, you still need to pay
+          the babysitter), whereas Care.com you have to pay before you find a babysitter.</p>
+
+        <h3 id="trust">Can I trust the babysitters?</h3>
+
+        <p>Servuno.com is a convenient tool to help you find babysitters from YOUR social circles and from circles of
+          people you trust. Ultimately you are the one responsible to make sure the chosen babysitters are
+          trustworthy.</p>
+
+        <h3 id="questions">More questions?</h3>
+
+        <p>Please direct your questions to <a mailto="admin@servuno.com">admin@servuno.com</a></p>
+      </div>
+    </div>
+
+    <div class="col-sm-3 hidden-xs">
+      <div id="toc-container" data-spy="affix" data-offset-top="74">
+        {# data-offset-top is 74 because the navbar is 64px and .affix top is 10px; 74=64+10 #}
+        <ul class="nav nav-pills nav-stacked" id="toc">
+        </ul>
+        {#    <a href="#" class="text-muted pull-right text-small"><i class="fa fa-long-arrow-up"></i> Top</a>#}
+      </div>
+    </div>
+
+  </div>
 {% endblock %}
