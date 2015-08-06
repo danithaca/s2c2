@@ -165,8 +165,6 @@ LOGOUT_URL = reverse_lazy('user:logout')
 
 TIME_FORMAT = 'h:iA'
 
-ADMINS = (('admin', 'danithaca@gmail.com'), )
-
 LOGGING = {
     'version': 1,
     'disable_existing_loggers': False,
@@ -256,6 +254,9 @@ SITE_ID = 1
 # Email SES settings
 
 DEFAULT_FROM_EMAIL = 'admin@servuno.com'
+# this will send 500 error report
+ADMINS = (('admin', 'danithaca@gmail.com'), )
+SERVER_EMAIL = 'admin@servuno.com'
 
 EMAIL_FILE_PATH = os.path.join(BASE_DIR, 'logfiles/emails')
 AWS_ACCESS_KEY_ID = 'AKIAIK5B54SZPOMAKGMA,'
