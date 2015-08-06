@@ -3,6 +3,7 @@ Feature: development
   As a developer
   I need to run ad-hoc tests
 
+  @dev
   Scenario: Test email
     Then show email content
     Then show email parsed content
@@ -20,7 +21,17 @@ Feature: development
 
     When I follow the email link like "/account/password/reset/"
 
-  @javascript
-  Scenario: Test fail
-    Given I am on "http://google.com"
-    Then I should see "hello, world"
+#  @javascript
+#  Scenario: Test fail
+#    Given I am on "http://google.com"
+#    Then I should see "hello, world"
+
+  @dev
+  Scenario: test new email
+    When I navigate to the latest email
+    When I navigate to the recent email: 1
+
+  @dev
+  Scenario: print setting
+    Then pause 5 seconds
+    Then print the setting "contexts"

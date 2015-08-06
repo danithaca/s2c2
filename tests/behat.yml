@@ -2,8 +2,8 @@ default:
   suites:
     default:
       contexts:
-        - FeatureContext:
-            logfiles_path: %paths.base%/../logfiles
+        - FeatureContext
+      logfiles_path: %paths.base%/../logfiles
       # filters:
       #   tags: "@core"
 
@@ -30,6 +30,11 @@ default:
 
 
 live:
+  suites:
+    default:
+      filters:
+        tags: "~@dev"
+      disable_emails: true
   extensions:
     Behat\MinkExtension:
       base_url: http://servuno.com

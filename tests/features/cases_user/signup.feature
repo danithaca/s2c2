@@ -19,6 +19,7 @@ Feature: sign up
 
 
   Scenario: check confirmation email
+    When I open the latest email
     Then check email subject contains "Confirm email address"
     When I follow the email link like "/account/confirm_email"
     Then I should see "Confirm email address to-be-deleted@servuno.com?"

@@ -13,12 +13,15 @@ Tags
   * `@core`: the absolute essential things to test on all conditions
   * `@local`: make sure to test on local environment
   * `@live`: make sure to test on live environment
+  * `@dev`: for development purpose only, should use ~@dev when do real testing. 
   
 
 Steps
 ---------------
 
 ```
+default |  When I open the recent email: :index
+default |  When I open the latest email
 default |  Then (I )break
 default |  Then show email content
 default |  Then show email parsed content
@@ -28,6 +31,10 @@ default |  Then check email subject contains :text
 default |  When I follow the email link like :link_pattern
 default | Given I am logged in as user :user with password :password
 default | Given I am logged in as admin
+default |  Then /^take a screenshot$/
+default |  Then /^save last response$/
+default |  Then print the setting :key
+default |  Then /^pause (?P<seconds>\d+) second(s?)$/
 default | Given /^(?:|I )am on (?:|the )homepage$/
 default |  When /^(?:|I )go to (?:|the )homepage$/
 default | Given /^(?:|I )am on "(?P<page>[^"]+)"$/

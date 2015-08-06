@@ -16,15 +16,19 @@ class FeatureContext extends MinkContext implements SnippetAcceptingContext
 {
 
   protected $emailsPath;
-  private $screenshotsPath;
+  protected $screenshotsPath;
+  protected $disableEmails = FALSE;
+  protected $currentEmailFileName;
 
-  static private $sessionTimestamp;
+  static protected $sessionTimestamp;
+  static protected $suite;
 
   /**
    * @BeforeSuite
    */
   public static function prepare(BeforeSuiteScope $scope) {
     self::$sessionTimestamp = time();
+    self::$suite = $scope->getSuite();
   }
 
   /**
@@ -34,31 +38,47 @@ class FeatureContext extends MinkContext implements SnippetAcceptingContext
    * You can also pass arbitrary arguments to the
    * context constructor through behat.yml.
    */
-  public function __construct($logfiles_path)
+  public function __construct()
   {
+    $logfiles_path = self::$suite->hasSetting('logfiles_path') ? self::$suite->getSetting('logfiles_path') : '.';
     $this->emailsPath = $logfiles_path . DIRECTORY_SEPARATOR . 'emails';
     $this->screenshotsPath = $logfiles_path . DIRECTORY_SEPARATOR . 'screenshots';
-  }
-
-  protected function getLastEmailFilename() {
-    $files = scandir($this->emailsPath , SCANDIR_SORT_DESCENDING);
-    if ($files) {
-      return $files[0];
-    } else {
-      return FALSE;
+    if (self::$suite->hasSetting('disable_emails')) {
+      $this->disableEmails = @self::$suite->getSetting('disable_emails');
     }
   }
 
-  protected function readLastEmail() {
-    if ($fn = $this->getLastEmailFilename())
-      return file_get_contents($this->emailsPath . DIRECTORY_SEPARATOR . $fn);
-    else
-      return FALSE;
+  /**
+   * @When I open the recent email: :index
+   */
+  public function navigateRecentEmail($index)
+  {
+    $files = scandir($this->emailsPath , SCANDIR_SORT_DESCENDING);
+    if ($files && isset($files[$index - 1])) {
+      $this->currentEmailFileName = $files[$index - 1];
+    } else {
+      throw new Exception("Email not found at index: $index");
+    }
   }
 
-  protected function parseLastEmail() {
-    $fn = $this->getLastEmailFilename();
-    if (!$fn || !($handle = @fopen($this->emailsPath . DIRECTORY_SEPARATOR . $fn, "r"))) return FALSE;
+  /**
+   * @When I open the latest email
+   */
+  public function navigateLatestEmail()
+  {
+    return $this->navigateRecentEmail(1);
+  }
+
+  protected function readCurrentEmail() {
+    if ($this->currentEmailFileName)
+      return file_get_contents($this->emailsPath . DIRECTORY_SEPARATOR . $this->currentEmailFileName);
+    else
+      throw new Exception("Email not set.");
+  }
+
+  protected function parseCurrentEmail() {
+    if (!$this->currentEmailFileName || !($handle = @fopen($this->emailsPath . DIRECTORY_SEPARATOR . $this->currentEmailFileName, "r")))
+      throw new Exception('Email not set, or cannot read email.');
 
     $result = array();
 
@@ -97,7 +117,7 @@ class FeatureContext extends MinkContext implements SnippetAcceptingContext
    *
    * @Then (I )break
   */
-  public function iPutABreakpoint()
+  public function breakPoint()
   {
     fwrite(STDOUT, "\033[s \033[93m[Breakpoint] Press \033[1;93m[RETURN]\033[0;93m to continue...\033[0m");
     while (fgets(STDIN, 1024) == '') {}
@@ -110,12 +130,7 @@ class FeatureContext extends MinkContext implements SnippetAcceptingContext
    */
   public function showEmailContent()
   {
-    $content = $this->readLastEmail();
-    if ($content) {
-      echo $content;
-    } else {
-      echo 'No email found.';
-    }
+    echo $this->readCurrentEmail();
   }
 
   /**
@@ -123,12 +138,7 @@ class FeatureContext extends MinkContext implements SnippetAcceptingContext
    */
   public function showEmailParsedContent()
   {
-    $content = $this->parseLastEmail();
-    if ($content) {
-      print_r($content);
-    } else {
-      echo 'No email found.';
-    }
+    print_r($this->parseCurrentEmail());
   }
 
   /**
@@ -136,10 +146,9 @@ class FeatureContext extends MinkContext implements SnippetAcceptingContext
    */
   public function checkEmailAddress($from_email, $to_email)
   {
-      $email = $this->parseLastEmail();
+      $email = $this->parseCurrentEmail();
       if ($from_email != @$email['from'] || $to_email != @$email['to']) {
-        $fn = $this->getLastEmailFilename();
-        throw new Exception("Expected emails and actual emails do not match. In file '{$fn}': {$email['from']} (from), {$email['to']} (to).");
+        throw new Exception("Expected emails and actual emails do not match. In file '{$this->currentEmailFileName}': {$email['from']} (from), {$email['to']} (to).");
       }
   }
 
@@ -148,10 +157,9 @@ class FeatureContext extends MinkContext implements SnippetAcceptingContext
    */
   public function checkEmailText($text)
   {
-    $email = $this->parseLastEmail();
+    $email = $this->parseCurrentEmail();
     if (stripos(@$email['body'], $text) === FALSE) {
-      $fn = $this->getLastEmailFilename();
-      throw new Exception("Cannot find text in email file '{$fn}'");
+      throw new Exception("Cannot find text in email file '{$this->currentEmailFileName}'");
     }
   }
 
@@ -160,10 +168,9 @@ class FeatureContext extends MinkContext implements SnippetAcceptingContext
    */
   public function checkEmailSubject($text)
   {
-    $email = $this->parseLastEmail();
+    $email = $this->parseCurrentEmail();
     if (stripos(@$email['subject'], $text) === FALSE) {
-      $fn = $this->getLastEmailFilename();
-      throw new Exception("Cannot find subject text in email file '{$fn}'");
+      throw new Exception("Cannot find subject text in email file '{$this->currentEmailFileName}'");
     }
   }
 
@@ -172,8 +179,8 @@ class FeatureContext extends MinkContext implements SnippetAcceptingContext
    */
   public function followEmailLink($link_pattern)
   {
-      $email = $this->parseLastEmail();
-      $fn = $this->getLastEmailFilename();
+      $email = $this->parseCurrentEmail();
+      $fn = $this->currentEmailFileName;
       if (!@$email['body']) {
         throw new Exception("Cannot parse email body in '$fn''.");
       }
@@ -272,6 +279,27 @@ class FeatureContext extends MinkContext implements SnippetAcceptingContext
 //      $step = $scope->getStep();
 //      $step->screenshotUrl = date('Y-m-d') . '-' . self::$sessionTimestamp . '/' . $raw_filename;
     }
+  }
+
+  /**
+   * @Then print the setting :key
+   */
+  public function printSetting($key)
+  {
+    if (self::$suite->hasSetting($key)) {
+      print_r(self::$suite->getSetting($key));
+    }
+    else {
+      echo "Key '$key' not found in settings.";
+    }
+  }
+
+  /**
+   * @Then /^pause (?P<seconds>\d+) second(s?)$/
+   */
+  public function pauseSeconds($seconds)
+  {
+    sleep($seconds);
   }
 
 }
