@@ -3,7 +3,7 @@ default:
     default:
       contexts:
         - FeatureContext:
-            email_path: %paths.base%/../emails
+            email_path: %paths.base%/../logfiles/emails
 
   extensions:
     Behat\MinkExtension:
