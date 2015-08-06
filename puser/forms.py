@@ -40,9 +40,9 @@ class UserInfoForm(ModelForm):
             'note': 'About me',
         }
         help_texts = {
-            'area': 'This is where most of the babysitting activities you are associated take place. It does not have to agree with your address.',
-            'phone': 'People in your circles will see this number and contact you with it.',
-            'address': 'This will help people find you for babysitting related activities.',
+            'area': 'This is where most of the babysitting activities take place.',
+            'phone': 'People in your circles will see this number.',
+            'address': 'This will help people find you for babysitting activities.',
             'note': 'Tell people a little bit about yourself.'
         }
 
@@ -51,7 +51,8 @@ class UserPictureForm(ModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         if not self.instance.picture_original:
-            self.fields['picture_cropping'].help_text = 'N/A. Please upload picture first.'
+            # self.fields['picture_cropping'].help_text = 'N/A. Please upload picture first.'
+            del self.fields['picture_cropping']
 
     class Meta:
         model = Info
