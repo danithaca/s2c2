@@ -92,7 +92,7 @@ class ManagePublicForm(forms.Form):
             'description': 'Other public circles you can join.',
             'list': []
         }
-        for c in Circle.objects.filter(type=Circle.Type.SUPERSET.value, area=area, child__isnull=True):
+        for c in Circle.objects.filter(type=Circle.Type.PUBLIC.value, area=area, child__isnull=True):
             cd = {
                 'title': c.name,
                 'description': c.description,
