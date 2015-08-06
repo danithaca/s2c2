@@ -19,3 +19,8 @@ Feature: development
 #    Then I should see "Login"
 
     When I follow the email link like "/account/password/reset/"
+
+  @javascript
+  Scenario: Test fail
+    Given I am on "http://google.com"
+    Then I should see "hello, world"

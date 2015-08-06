@@ -4,11 +4,11 @@ Feature: sign up
   I need to be able to signup
 
   Scenario: basic sign up
-    Given I am on the homepage
-    When I press "Sign Up"
+#    Given I am on the homepage
+#    When I press "Sign Up"
 
     # first sign up page
-    Then I should be on "/account/signup/"
+    Given I am on "/account/signup/"
     When I fill in the following:
       | Email            | to-be-deleted@servuno.com |
       | Password         | password                  |

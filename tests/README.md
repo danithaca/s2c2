@@ -1,8 +1,22 @@
 README
 ======
 
+Notes
+---------------
+
+Unfulfilled tests are documented on Workflowy. Make sure to manually test those as well. Some of them are documented in the test cases with "todo" comment.
+
+
+Tags
+---------------
+
+  * `@core`: the absolute essential things to test on all conditions
+  * `@local`: make sure to test on local environment
+  * `@live`: make sure to test on live environment
+  
+
 Steps
------
+---------------
 
 ```
 default |  Then (I )break

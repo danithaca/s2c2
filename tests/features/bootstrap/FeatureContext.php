@@ -2,9 +2,12 @@
 
 use Behat\Behat\Context\Context;
 use Behat\Behat\Context\SnippetAcceptingContext;
+use Behat\Behat\Hook\Scope\AfterStepScope;
 use Behat\Gherkin\Node\PyStringNode;
 use Behat\Gherkin\Node\TableNode;
+use Behat\Mink\Exception\UnsupportedDriverActionException;
 use Behat\MinkExtension\Context\MinkContext;
+use Behat\Testwork\Hook\Scope\BeforeSuiteScope;
 
 /**
  * Defines application features from the specific context.
@@ -12,7 +15,17 @@ use Behat\MinkExtension\Context\MinkContext;
 class FeatureContext extends MinkContext implements SnippetAcceptingContext
 {
 
-  protected $email_path;
+  protected $emailsPath;
+  private $screenshotsPath;
+
+  static private $sessionTimestamp;
+
+  /**
+   * @BeforeSuite
+   */
+  public static function prepare(BeforeSuiteScope $scope) {
+    self::$sessionTimestamp = time();
+  }
 
   /**
    * Initializes context.
@@ -21,13 +34,14 @@ class FeatureContext extends MinkContext implements SnippetAcceptingContext
    * You can also pass arbitrary arguments to the
    * context constructor through behat.yml.
    */
-  public function __construct($email_path)
+  public function __construct($logfiles_path)
   {
-    $this->email_path = $email_path;
+    $this->emailsPath = $logfiles_path . DIRECTORY_SEPARATOR . 'emails';
+    $this->screenshotsPath = $logfiles_path . DIRECTORY_SEPARATOR . 'screenshots';
   }
 
   protected function getLastEmailFilename() {
-    $files = scandir($this->email_path , SCANDIR_SORT_DESCENDING);
+    $files = scandir($this->emailsPath , SCANDIR_SORT_DESCENDING);
     if ($files) {
       return $files[0];
     } else {
@@ -37,14 +51,14 @@ class FeatureContext extends MinkContext implements SnippetAcceptingContext
 
   protected function readLastEmail() {
     if ($fn = $this->getLastEmailFilename())
-      return file_get_contents($this->email_path . DIRECTORY_SEPARATOR . $fn);
+      return file_get_contents($this->emailsPath . DIRECTORY_SEPARATOR . $fn);
     else
       return FALSE;
   }
 
   protected function parseLastEmail() {
     $fn = $this->getLastEmailFilename();
-    if (!$fn || !($handle = @fopen($this->email_path . DIRECTORY_SEPARATOR . $fn, "r"))) return FALSE;
+    if (!$fn || !($handle = @fopen($this->emailsPath . DIRECTORY_SEPARATOR . $fn, "r"))) return FALSE;
 
     $result = array();
 
@@ -209,6 +223,54 @@ class FeatureContext extends MinkContext implements SnippetAcceptingContext
       $this->assertResponseContains("Django administration");
     } catch (\Exception $e) {
       throw new \Exception("Failed to log in as admin.");
+    }
+  }
+
+  protected function _saveFile($raw_filename, $content) {
+    $raw_filename = $raw_filename ?: sprintf('%s_%s.%s', date('c'), uniqid('', true), 'png');
+    if ($this->screenshotsPath && !file_exists($this->screenshotsPath)) {
+      mkdir($this->screenshotsPath);
+    }
+    $raw_pathname = $this->screenshotsPath . DIRECTORY_SEPARATOR . date('Y-m-d') . '-' . self::$sessionTimestamp;
+    if (!file_exists($raw_pathname)) {
+      mkdir($raw_pathname);
+    }
+    $filename = $raw_pathname . DIRECTORY_SEPARATOR . $raw_filename;
+    file_put_contents($filename, $content);
+  }
+
+  /**
+   * @Then /^take a screenshot$/
+   */
+  public function takeScreenshot($raw_filename = null) {
+    $raw_filename = $raw_filename ?: sprintf('%s_%s_%s.%s', $this->getMinkParameter('browser_name'), date('c'), uniqid('', true), 'png');
+    $this->_saveFile($raw_filename, $this->getSession()->getScreenshot());
+  }
+
+  /**
+   * @Then /^save last response$/
+   */
+  public function savePage($raw_filename = null) {
+    $raw_filename = $raw_filename ?: sprintf('page_%s_%s.%s', date('c'), uniqid('', true), 'html');
+    $this->_saveFile($raw_filename, $this->getSession()->getPage()->getContent());
+  }
+
+  /**
+   * @AfterStep
+   */
+  public function takeScreenshotAfterFailedStep(AfterStepScope $scope)
+  {
+    if (99 === $scope->getTestResult()->getResultCode()) {
+      $raw_filename_prefix = sprintf('%s_%s_%d_%s', date('His'), preg_replace('/\W+/', '', $scope->getFeature()->getTitle()), $scope->getStep()->getLine(), preg_replace('/\W+/', '', $scope->getStep()->getText()));
+      try {
+        $raw_filename = sprintf('%s_%s.png', $raw_filename_prefix, $this->getMinkParameter('browser_name'));
+        $this->takeScreenshot($raw_filename);
+      } catch(UnsupportedDriverActionException $e) {
+        $raw_filename = sprintf('%s_page.html', $raw_filename_prefix);
+        $this->savePage($raw_filename);
+      }
+//      $step = $scope->getStep();
+//      $step->screenshotUrl = date('Y-m-d') . '-' . self::$sessionTimestamp . '/' . $raw_filename;
     }
   }
 

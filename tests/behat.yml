@@ -3,7 +3,14 @@ default:
     default:
       contexts:
         - FeatureContext:
-            email_path: %paths.base%/../logfiles/emails
+            logfiles_path: %paths.base%/../logfiles
+      # filters:
+      #   tags: "@core"
+
+  formatters:
+    pretty: ~
+    html:
+      output_path: %paths.base%/../logfiles/reports
 
   extensions:
     Behat\MinkExtension:
@@ -12,6 +19,14 @@ default:
       show_cmd: 'firefox %s'
       show_tmp_dir: '/tmp'
       base_url: http://localhost:8001
+
+    emuse\BehatHTMLFormatter\BehatHTMLFormatterExtension:
+      name: html
+      renderer: Twig,Behat2
+      file_name: default
+      print_args: true
+      print_outp: true
+      loop_break: true
 
 
 live:
