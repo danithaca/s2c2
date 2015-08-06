@@ -3,6 +3,7 @@ Feature: Check link
   As an anonymous user
   I need to view the links correctly
 
+  @core
   Scenario: check help link
     Given I am on the homepage
     Then I should see "Help"

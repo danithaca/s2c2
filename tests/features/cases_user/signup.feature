@@ -3,6 +3,7 @@ Feature: sign up
   As an anonymous user
   I need to be able to signup
 
+  @core
   Scenario: basic sign up
 #    Given I am on the homepage
 #    When I press "Sign Up"
@@ -18,6 +19,7 @@ Feature: sign up
     And I should see "Confirmation email sent to to-be-deleted@servuno.com"
 
 
+  @core
   Scenario: check confirmation email
     When I open the latest email
     Then check email subject contains "Confirm email address"
@@ -27,6 +29,7 @@ Feature: sign up
     Then I should see "You have confirmed to-be-deleted@servuno.com."
 
 
+  @core
   Scenario: Clean up
     Given I am logged in as admin
     And I am on "/admin/auth/user"

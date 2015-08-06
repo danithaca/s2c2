@@ -3,6 +3,7 @@ Feature: Edit account
   As a logged in user
   I need to update my account info
 
+  @core
   Scenario: edit account
     Given I am logged in as user "test@servuno.com" with password "password"
     When I follow "Edit account"

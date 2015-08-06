@@ -3,7 +3,7 @@ Feature: password change
   As anonymous user
   I need to be able to reset my password
 
-
+  @core
   Scenario: check link on homepage
     Given I am on the homepage
     Then I should see "Forget password?"

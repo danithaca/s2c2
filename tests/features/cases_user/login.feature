@@ -3,6 +3,7 @@ Feature: user login
   As anonymous user
   I need to be able to login and logout
 
+  @core
   Scenario: Login on login page and logout
     Given I am on "/account/login"
     When I fill in the following:
@@ -15,7 +16,7 @@ Feature: user login
     Then I should be on the homepage
     And the response should not contain "<!-- logged in as test@servuno.com -->"
 
-
+  @core
   Scenario: login from homepage
     Given I am on the homepage
     Then I should see "Servuno"
