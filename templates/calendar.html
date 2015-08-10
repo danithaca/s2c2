@@ -36,6 +36,7 @@ $(document).ready(function() {
 
     selectable: true,
     selectHelper: true,
+    unselectAuto: true,
 
     // get events from API
     events: '{% url "contract:my_list" %}',
@@ -100,9 +101,9 @@ $(document).ready(function() {
       {% include 'contract/engagement_view/headline.html' with engagement=engagement_headline %}
     {% endif %}
 
-    <div class="panel panel-success">
-      <div class="panel-heading panel-title">Find a babysitter</div>
-      <div class="panel-body"><span><a href="{% url 'contract:add' %}">Click here</a> or select a time period in the calendar.</span></div>
+    <div id="find-btn" style="margin-bottom: 20px;">
+      <a class="btn btn-lg btn-block btn-success" href="{% url 'contract:add' %}">Find a Babysitter</a>
+      <div class="help-block">Or select a time period on the calendar</div>
     </div>
 
     <div class="panel panel-info">

@@ -21,8 +21,8 @@ class ContractForm(forms.ModelForm):
         #     'showMeridian': True,
         # })
         widgets = {
-            'event_start': forms.DateTimeInput(attrs={'class': 'form-control', 'placeholder': 'Start'}),
-            'event_end': forms.DateTimeInput(attrs={'class': 'form-control', 'placeholder': 'End'}),
+            'event_start': forms.DateTimeInput(attrs={'class': 'form-control', 'placeholder': 'E.g. 2014/12/20 18:00'}),
+            'event_end': forms.DateTimeInput(attrs={'class': 'form-control', 'placeholder': 'E.g. 2014/12/21 19:00'}),
             'area': forms.HiddenInput(),
             'description': forms.Textarea(attrs={'placeholder': 'Optional note', 'rows': 3})
         }
@@ -30,6 +30,10 @@ class ContractForm(forms.ModelForm):
             'description': 'Note',
         }
         localized_fields = ['event_start', 'event_end']
+        help_texts = {
+            'event_start': 'Start date/time',
+            'event_end': 'End date/time',
+        }
 
     class Media:
         js = (
@@ -53,7 +57,7 @@ class ContractForm(forms.ModelForm):
         event_end = cleaned_data.get("event_end")
 
         if event_start is not None and event_end is not None and event_start >= event_end:
-            raise forms.ValidationError('End time must be later than start time.')
+            raise forms.ValidationError('End date/time must be later than start date/time.')
 
         return cleaned_data
 
