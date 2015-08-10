@@ -1,6 +1,6 @@
 from celery import shared_task
 from datetime import datetime, timedelta
-from django.utils.timezone import localtime
+from django.utils.timezone import localtime, now
 
 
 @shared_task
@@ -41,7 +41,7 @@ def before_contract_starts(contract):
     from shout.notify import notify_agent
     from puser.models import PUser
     # make sure contract is not canceled at the moment and within 2 hours of time.
-    if contract.is_confirmed() and contract.is_event_upcoming() and contract.event_start - timedelta(hours=2) < datetime.now():
+    if contract.is_confirmed() and contract.is_event_upcoming() and contract.event_start - timedelta(hours=2) < now():
         client = contract.initiate_user
         server = contract.confirmed_match.target_user
         ctx = {
@@ -77,7 +77,7 @@ def after_contract_ends(contract):
 @shared_task
 def handle_expired_contract(contract):
     # make sure it's at least 1 day after it expired.
-    if contract.is_confirmed() and contract.is_event_expired() and datetime.now() > contract.event_end + timedelta(days=1):
+    if contract.is_confirmed() and contract.is_event_expired() and now() > contract.event_end + timedelta(days=1):
         contract.succeed()
 
 

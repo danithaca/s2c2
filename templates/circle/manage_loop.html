@@ -25,7 +25,7 @@ $(document).ready(function() {
 
 {% block manage-block %}
   {% if form.membership_data %}
-
+  <p class="help-block">Turn off the switch to opt out from the list your were added.</p>
   <form id="circle-loop-form" class="form" method="post" autocapitalize="off" {% if form.is_multipart %}enctype="multipart/form-data"{% endif %}>
     {% csrf_token %}
     <ul class="list-group">
@@ -48,6 +48,6 @@ $(document).ready(function() {
   </form>
 
   {% else %}
-    <p>You are not added to anyone else's personal circle.</p>
+    <p>You are not added to anyone's personal list.</p>
   {% endif %}
 {% endblock %}

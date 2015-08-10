@@ -11,7 +11,7 @@ from s2c2.utils import is_valid_email, get_int
 
 class ManagePersonalForm(forms.Form):
     # favorite = forms.CharField(label='Favorite', widget=forms.Textarea, required=False, help_text='One email per line.')
-    favorite = forms.CharField(label='Favorite', widget=forms.HiddenInput, required=False, help_text='One email per line.')
+    favorite = forms.CharField(label='Contacts', widget=forms.HiddenInput, required=False, help_text='One email per line.')
 
     def clean(self):
         cleaned_data = super().clean()
@@ -23,7 +23,7 @@ class ManagePersonalForm(forms.Form):
 
     def get_favorite_email_list(self):
         l = list(set(self.cleaned_data['favorite_list']))
-        assert isinstance(l, list), 'Favorite email list is not initialized. Call only after cleaned form.'
+        assert isinstance(l, list), 'Personal circle email list is not initialized. Call only after cleaned form.'
         return l
 
 
@@ -32,7 +32,7 @@ class SignupFavoriteForm(forms.Form):
     favorite = forms.CharField(label='Favorite', widget=forms.Textarea, required=False, help_text='One email per line.')
 
     def clean(self):
-        cleaned_data = super(SignupFavoriteForm, self).clean()
+        cleaned_data = super().clean()
         favorite = cleaned_data.get('favorite')
         cleaned_data['favorite_list'] = [e.strip() for e in re.split(r'[\s,;]+', favorite) if is_valid_email(e.strip())]
         # we don't validate for now
@@ -89,7 +89,7 @@ class ManagePublicForm(forms.Form):
         # for other circles that don't have superset.
         leftover = {
             'title': 'Other',
-            'description': 'Other public circles you can join.',
+            'description': 'Other parents circles you can join.',
             'list': []
         }
         for c in Circle.objects.filter(type=Circle.Type.PUBLIC.value, area=area, child__isnull=True):

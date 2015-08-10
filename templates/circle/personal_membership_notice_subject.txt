@@ -1,1 +1,1 @@
-[{{site_name}}] You are added to {{circle_owner.get_name}}'s circle
+[{{site_name}}] You are added to {{circle_owner.get_name}}'s list

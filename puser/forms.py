@@ -41,7 +41,7 @@ class UserInfoForm(ModelForm):
         }
         help_texts = {
             'area': 'This is where most of the babysitting activities take place.',
-            'phone': 'People in your circles will see this number.',
+            'phone': 'This number will be shown to people your trust.',
             'address': 'This will help people find you for babysitting activities.',
             'note': 'Tell people a little bit about yourself.'
         }

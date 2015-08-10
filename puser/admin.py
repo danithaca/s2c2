@@ -14,6 +14,13 @@ class UserInfoAdmin(UserAdmin):
 
     inlines = (InfoInline, )
 
+    add_fieldsets = (
+        (None, {
+            'classes': ('wide',),
+            'fields': ('username', 'password1', 'password2', 'email', 'first_name', 'last_name'),
+        }),
+    )
+
     def full_name(self, user):
         return user.get_full_name()
     full_name.short_description = 'Name'

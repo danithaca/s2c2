@@ -248,7 +248,7 @@ class OnboardPublicCircle(MultiStepViewsMixin, ManagePublic):
 class OnboardPicture(MultiStepViewsMixin, UserPicture):
     template_name = 'account/onboard/base.html'
     success_url = '/'
-    form_valid_message = "Welcome! You can find a babysitter or wait for others to find help from you. Manage your contacts and circles by following the link on the top right corner."
+    form_valid_message = "Welcome! You can find a babysitter or wait for others to find help from you. Manage your contacts and circles by following your account link on the top right corner."
 
 
 # deprecated in favor of multiple formviews.

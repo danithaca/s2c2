@@ -125,7 +125,7 @@ class ManagePersonal(LoginRequiredMixin, FormView):
                 personal_circle_send_invitation.delay(personal_circle, target_puser)
 
             if updated:
-                messages.success(self.request, 'Successfully updated favorite list.')
+                messages.success(self.request, 'Successfully updated your personal favorite list.')
 
         return super().form_valid(form)
 
@@ -201,5 +201,5 @@ class ManageLoop(LoginRequiredMixin, FormView):
                 except Membership.DoesNotExist:
                     pass
             if updated:
-                messages.success(self.request, 'Successfully updated personal circles you belong to.')
+                messages.success(self.request, 'Successfully updated.')
         return super().form_valid(form)
