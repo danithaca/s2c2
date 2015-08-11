@@ -1,6 +1,7 @@
 {% load p2_tags %}
-{% user-short-name contract.initiate_user %} updated note:
+{% user-short-name contract.initiate_user %} updated request:
 
+Payment: ${{ contract.price }}
 {{ contract.description }}
 
 Review details here:

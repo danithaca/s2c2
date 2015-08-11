@@ -2,6 +2,7 @@ from collections import defaultdict
 from datetime import datetime, timedelta
 from braces.views import JSONResponseMixin, AjaxResponseMixin, LoginRequiredMixin, FormValidMessageMixin
 from django.contrib import messages
+from django.core.validators import MinValueValidator
 from django.db.models import Q
 from django.forms import modelform_factory, Form
 from django.shortcuts import render
@@ -75,17 +76,20 @@ class ContractEdit(LoginRequiredMixin, FormValidMessageMixin, UpdateView):
     model = Contract
     form_class = ContractForm
     template_name = 'contract/contract_update.html'
-    form_valid_message = 'Note successfully updated.'
+    form_valid_message = 'Request successfully updated.'
 
     def get_form(self, form_class=None):
         form = super().get_form(form_class)
         if not form.is_bound:
             messages.warning(self.request,
-                             'You can only change the note. To change the other fields, cancel the request and create a new one.')
+                             'You can only change the note and/or increase payment. To make other changes, cancel the request and create a new one.')
         # todo: double check security issue
         form.fields['event_start'].widget.attrs['readonly'] = True
         form.fields['event_end'].widget.attrs['readonly'] = True
-        form.fields['price'].widget.attrs['readonly'] = True
+        # form.fields['price'].widget.attrs['readonly'] = True
+        form.fields['price'].min_value = self.object.price
+        form.fields['price'].validators.append(MinValueValidator(self.object.price))
+        # form.base_price = self.object.price
         return form
 
     def form_valid(self, form):

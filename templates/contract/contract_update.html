@@ -4,6 +4,7 @@
 
 {% block extra_header %}
 {{ form.media }}
+<script src='{% static 'fullcalendar/lib/moment.min.js' %}'></script>
 <script type="text/javascript">
   $(document).ready(function() {
     // enable datetimepicker
@@ -32,6 +33,14 @@
         $event_start.val($event_end.val());
       }
     });
+
+{#    var handlePriceInfo = function() {#}
+{#      var start = moment($event_start.val());#}
+{#      var end = moment($event_end.val());#}
+{#      if ($event_start.val() && $event_end.val() && start && end ) {#}
+{##}
+{#      }#}
+{#    }#}
 
   });
 </script>
@@ -83,6 +92,9 @@
             {{ field }}
           </div>
         </div>
+{#        <div class="col-sm-7">#}
+{#          <p class="text-x-large pull-right"><span class="label label-default" id="price-info"></span></p>#}
+{#        </div>#}
         <div class="col-sm-offset-2 col-sm-10">
           {% include 'form_includes/field_errors.html' %}
           {% include 'form_includes/field_help_text.html' %}
