@@ -253,7 +253,7 @@ SITE_ID = 1
 
 # Email SES settings
 
-DEFAULT_FROM_EMAIL = 'admin@servuno.com'
+DEFAULT_FROM_EMAIL = 'Servuno.com <admin@servuno.com>'
 # this will send 500 error report
 ADMINS = (('admin', 'danithaca@gmail.com'), )
 SERVER_EMAIL = 'admin@servuno.com'
