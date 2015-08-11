@@ -12,6 +12,8 @@ from s2c2.utils import is_valid_email, get_int
 class ManagePersonalForm(forms.Form):
     # favorite = forms.CharField(label='Favorite', widget=forms.Textarea, required=False, help_text='One email per line.')
     favorite = forms.CharField(label='Contacts', widget=forms.HiddenInput, required=False, help_text='One email per line.')
+    # if force_save, then save in form_valid() regardless of whether the form has changed or not.
+    force_save = forms.BooleanField(widget=forms.HiddenInput, initial=False, required=False)
 
     def clean(self):
         cleaned_data = super().clean()

@@ -235,8 +235,10 @@ class OnboardPersonalCircle(MultiStepViewsMixin, ManagePersonal):
 
     def get_initial(self):
         initial = super().get_initial()
+        # if initial['faovorite'] already exists, we don't override it.
         if not initial.get('favorite', '') and self.request.session.get('signup_inviter_email', ''):
             initial['favorite'] = self.request.session['signup_inviter_email']
+            initial['force_save'] = True
         return initial
 
 

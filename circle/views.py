@@ -97,7 +97,7 @@ class ManagePersonal(LoginRequiredMixin, FormView):
         return Membership.objects.filter(circle__owner=self.request.puser, circle__type=Circle.Type.PERSONAL.value, active=True).order_by('updated').values_list('member__email', flat=True).distinct()
 
     def form_valid(self, form):
-        if form.has_changed():
+        if form.has_changed() or form.cleaned_data.get('force_save', False):
             personal_circle = self.request.puser.get_personal_circle()
             old_set = set(self.get_old_email_qs())
             # we get: dedup, valid email

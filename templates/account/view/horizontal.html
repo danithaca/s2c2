@@ -1,7 +1,7 @@
 {% load account_tags %}
 {% load p2_tags %}
 {% load static %}
-<div class="panel panel-default" data-uid="{{ user.id }}"><div class="panel-body"><div class="vertical-align">
+<div class="panel panel-default" data-uid="{{ user.id }}" data-email="{{ user.email }}"><div class="panel-body"><div class="vertical-align">
   <div class="">
     <img src="{% if user %}{% user_picture_url user %}{% else %}{% static 'images/question_200x200.png' %}{% endif %}" alt="user picture" class="img-50 img-circle min-margin">
     {% if label or icon %}

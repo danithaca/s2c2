@@ -59,6 +59,13 @@ function initialize_app() {
     className: 'list-group-item',
     template: _.template($('#item-template').html()),
 
+    // this renders the data attributes. see https://github.com/jashkenas/backbone/issues/1703
+    attributes: function() {
+      return {
+        "data-email": this.model.get('email')
+      };
+    },
+
     render: function(){
       this.$el.html(this.template(this.model.toJSON()));
       return this; // enable chained calls
