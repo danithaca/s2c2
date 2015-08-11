@@ -89,12 +89,16 @@ function initialize_app() {
       'click #new-contact-add-btn': 'createOnEvent'
     },
     createOnEvent: function(e){
-      var email = this.input.val().trim();
-      if ((e.type == 'click' || (e.type == 'keypress' && e.which == 13)) && email) { // ENTER_KEY = 13
-        if (checkEmail(email)) {
-          this.collection.create({
-            email: email
-          });
+      var email_str = this.input.val().trim();
+      if ((!e || e.type == 'click' || (e.type == 'keypress' && e.which == 13)) && email_str) { // ENTER_KEY = 13
+        var email_list = email_str.split(/[,;: /]/);
+        for (var i = 0; i < email_list.length; i++) {
+          var email = email_list[i].trim();
+          if (email && checkEmail(email)) {
+            this.collection.create({
+              email: email
+            });
+          }
         }
         this.input.val(''); // clean input box
       }
@@ -132,6 +136,9 @@ $(document).ready(function() {
   // update field before submit
   // this is different from "manage_public" where this field is always updated
   $('#contact-list-form').submit(function() {
+    // do create one more time.
+    app.appView.createOnEvent();
+    // update the field.
     var updated_list = list.map(function(m) { return m.get('email'); }).join('\n');
     $favorite.val(updated_list);
   });
