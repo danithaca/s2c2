@@ -40,8 +40,8 @@
       if (start && end && price) {
         $.get('{% url "contract:preview_query" %}', {start: start, end: end, price: price}, function(result){
           if (result['success']) {
-            var extra = result['rate'] == 0 ? ' (favor exchange)' : '';
-            $('#price-info').text('$' + result['rate'] + '/hour' + extra + ', ' + result['length']);
+            var rate = result['rate'] == 0 ? 'favor exchange' : '$' + result['rate'] + '/hour';
+            $('#price-info').text(rate + ', ' + result['length']);
           } else {
             $('#price-info').text('');
             console.log(result);
