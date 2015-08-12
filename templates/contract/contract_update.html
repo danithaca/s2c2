@@ -121,8 +121,15 @@
 
     <div class="form-group">
       <div class="col-sm-offset-2 col-sm-10">
-        <button type="submit" class="btn btn-primary">{{ form.instance.id|yesno:'Update,Send to My Contacts' }}</button>
-        <a href="javascript:history.back();" class="btn btn-default">Back</a>
+        {% if not form.instance.id %}
+          <button type="submit" class="btn btn-primary">Send to My Contacts</button>
+          <a href="javascript:history.back();" class="btn btn-default">Back</a>
+          <div class="help-block">By clicking the button, your contacts (in your personal list and parents circles) will be notified by email.</div>
+        {% else %}
+          <button type="submit" class="btn btn-primary">Update</button>
+          <a href="javascript:history.back();" class="btn btn-default">Back</a>
+          <div class="help-block">People who agreed to help will receive notifications about the update.</div>
+        {% endif %}
       </div>
     </div>
   </form>

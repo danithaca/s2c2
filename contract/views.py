@@ -195,7 +195,7 @@ class APIMyEngagementList(LoginRequiredMixin, JSONResponseMixin, AjaxResponseMix
 
         event_list = []
         all_day = set([])
-        for contract in puser.engagement_queryset().filter(Q(event_start__range=(start, end)) | Q(event_end__range=(start, end))).distinct():
+        for contract in puser.engagement_queryset().filter(Q(event_start__range=(start, end)) | Q(event_end__range=(start, end))).exclude(status=Contract.Status.CANCELED.value).distinct():
             if contract.initiate_user == puser:
                 engagement = Engagement.from_contract(contract)
             else:
