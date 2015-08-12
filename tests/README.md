@@ -35,6 +35,7 @@ default |  Then /^take a screenshot$/
 default |  Then /^save last response$/
 default |  Then print the setting :key
 default |  Then /^pause (?P<seconds>\d+) second(s?)$/
+default |  When I run the following Javascript:
 default | Given /^(?:|I )am on (?:|the )homepage$/
 default |  When /^(?:|I )go to (?:|the )homepage$/
 default | Given /^(?:|I )am on "(?P<page>[^"]+)"$/

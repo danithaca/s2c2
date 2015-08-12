@@ -51,11 +51,17 @@
     };
 
     // enable handle. datetimepicker "change" event doesn't seem to work.
+    // keypress doesn't to seem work well
+
+    handlePriceInfo();
     //$event_start.change(handlePriceInfo);
     $event_start.parent().on('dp.change', handlePriceInfo);
+    $event_start.keyup(handlePriceInfo);
     //$event_end.change(handlePriceInfo);
     $event_end.parent().on('dp.change', handlePriceInfo);
+    $event_end.keyup(handlePriceInfo);
     $price.change(handlePriceInfo);
+    $price.keyup(handlePriceInfo);
 
   });
 </script>
@@ -122,11 +128,11 @@
     <div class="form-group">
       <div class="col-sm-offset-2 col-sm-10">
         {% if not form.instance.id %}
-          <button type="submit" class="btn btn-primary">Send to My Contacts</button>
+          <button type="submit" name="submit" class="btn btn-primary">Send to My Contacts</button>
           <a href="javascript:history.back();" class="btn btn-default">Back</a>
           <div class="help-block">By clicking the button, your contacts (in your personal list and parents circles) will be notified by email.</div>
         {% else %}
-          <button type="submit" class="btn btn-primary">Update</button>
+          <button type="submit" name="submit" class="btn btn-primary">Update</button>
           <a href="javascript:history.back();" class="btn btn-default">Back</a>
           <div class="help-block">People who agreed to help will receive notifications about the update.</div>
         {% endif %}

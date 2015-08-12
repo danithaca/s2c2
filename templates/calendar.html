@@ -49,7 +49,7 @@ $(document).ready(function() {
 
     // redirect to find view
     select: function(start, end, jsEvent, view) {
-      window.location = "{% url 'contract:add' %}?start=" + encodeURIComponent(start.format('YYYY-MM-DD HH:mm')) + '&end=' + encodeURIComponent(end.format('YYYY-MM-DD HH:mm'));
+      window.location = "{% url 'contract:add' %}?start=" + encodeURIComponent(start.format('MM/DD/YYYY HH:mm')) + '&end=' + encodeURIComponent(end.format('MM/DD/YYYY HH:mm'));
     },
 
 {# NOTE: this runs before getting events, thus clientEvents() returns nothing. #}

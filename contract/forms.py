@@ -21,8 +21,8 @@ class ContractForm(forms.ModelForm):
         #     'showMeridian': True,
         # })
         widgets = {
-            'event_start': forms.DateTimeInput(attrs={'class': 'form-control', 'placeholder': 'E.g. 2014/12/20 18:00'}),
-            'event_end': forms.DateTimeInput(attrs={'class': 'form-control', 'placeholder': 'E.g. 2014/12/21 19:00'}),
+            'event_start': forms.DateTimeInput(attrs={'class': 'form-control', 'placeholder': 'E.g. 12/20/2014 18:00'}),
+            'event_end': forms.DateTimeInput(attrs={'class': 'form-control', 'placeholder': 'E.g. 12/21/2014 19:00'}),
             'area': forms.HiddenInput(),
             'description': forms.Textarea(attrs={'placeholder': 'Optional note', 'rows': 3})
         }

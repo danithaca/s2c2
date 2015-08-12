@@ -32,10 +32,11 @@ class ContractList(ListView):
     ordering = '-updated'
 
 
-class ContractCreate(LoginRequiredMixin, CreateView):
+class ContractCreate(LoginRequiredMixin, FormValidMessageMixin, CreateView):
     model = Contract
     form_class = ContractForm
     template_name = 'contract/contract_update.html'
+    form_valid_message = 'Request successfully created.'
 
     # override widget.
     # def get_form_class(self):
