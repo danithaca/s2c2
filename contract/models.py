@@ -1,5 +1,5 @@
-from datetime import timedelta
-from django.utils import timezone
+from datetime import timedelta, datetime
+from django.utils import timezone, dateparse
 from enum import Enum
 from decimal import Decimal
 from django.contrib.auth.models import User
@@ -119,6 +119,7 @@ class Contract(StatusMixin, models.Model):
         return reverse('contract:view', kwargs={'pk': self.pk})
 
     def hourly_rate(self):
+        assert self.event_end > self.event_start and self.price >= 0, 'Incorrect event setting.'
         hours = (self.event_end - self.event_start).total_seconds() / 3600
         rate = float(self.price) / hours if hours > 0 else 0
         return round(Decimal(rate), 2)
@@ -240,6 +241,16 @@ class Contract(StatusMixin, models.Model):
         else:
             return '%s ~ %s' % (get_datetime(self.event_start), get_datetime(self.event_end))
 
+    @staticmethod
+    def parse_event_datetime_str(dt):
+        """
+        This is to parse the given date/time string from UI.
+        """
+        try:
+            parsed = datetime.strptime(dt, '%m/%d/%Y %H:%M')
+            return timezone.make_aware(parsed)
+        except:
+            return None
 
 
 class Match(StatusMixin, models.Model):

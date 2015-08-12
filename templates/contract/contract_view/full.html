@@ -17,11 +17,11 @@ $(document).ready(function() {
 
     // for revert, do the confirmation box.
     if (op == 'revert' || op == 'cancel' || op == 'confirm') {
-      messages = {
+      var messages = {
         revert: 'This operation will undo the confirmed request. The babysitter will be notified. You can choose another babysitter.',
         cancel: 'This operation will cancel the request, and cannot be undone.',
         confirm: 'This will bind you with the babysitter. The babysitter will be notified.'
-      }
+      };
       bootbox.confirm({
         title: 'Are you sure?',
         message: messages[op],
@@ -66,7 +66,7 @@ $(document).ready(function() {
         {% if contract.is_confirmed and not contract.is_event_expired %}
           <button class="btn btn-danger" name="change-status" value="revert">Undo</button>
         {% elif contract.is_active and not contract.is_event_expired %}
-          <a class="btn btn-primary" href="{% url 'contract:edit' pk=contract.id %}">Update</a>
+          <a class="btn btn-primary" href="{% url 'contract:edit' pk=contract.id %}">Edit</a>
           <button class="btn btn-danger" name="change-status" value="cancel">Cancel</button>
         {% elif contract.is_event_expired and contract.is_confirmed %}
           <button class="btn btn-success" name="change-status" value="succeed">Successful</button>

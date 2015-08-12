@@ -34,13 +34,28 @@
       }
     });
 
-{#    var handlePriceInfo = function() {#}
-{#      var start = moment($event_start.val());#}
-{#      var end = moment($event_end.val());#}
-{#      if ($event_start.val() && $event_end.val() && start && end ) {#}
-{##}
-{#      }#}
-{#    }#}
+    var $price = $('#id_price');
+    var handlePriceInfo = function() {
+      var start = $event_start.val(), end = $event_end.val(), price = $price.val();
+      if (start && end && price) {
+        $.get('{% url "contract:preview_query" %}', {start: start, end: end, price: price}, function(result){
+          if (result['success']) {
+            var extra = result['rate'] == 0 ? ' (favor exchange)' : '';
+            $('#price-info').text('$' + result['rate'] + '/hour' + extra + ', ' + result['length']);
+          } else {
+            $('#price-info').text('');
+            console.log(result);
+          }
+        });
+      }
+    };
+
+    // enable handle. datetimepicker "change" event doesn't seem to work.
+    //$event_start.change(handlePriceInfo);
+    $event_start.parent().on('dp.change', handlePriceInfo);
+    //$event_end.change(handlePriceInfo);
+    $event_end.parent().on('dp.change', handlePriceInfo);
+    $price.change(handlePriceInfo);
 
   });
 </script>
@@ -92,9 +107,9 @@
             {{ field }}
           </div>
         </div>
-{#        <div class="col-sm-7">#}
-{#          <p class="text-x-large pull-right"><span class="label label-default" id="price-info"></span></p>#}
-{#        </div>#}
+        <div class="col-sm-7">
+          <p class="text-x-large pull-right"><span class="label label-default" id="price-info"></span></p>
+        </div>
         <div class="col-sm-offset-2 col-sm-10">
           {% include 'form_includes/field_errors.html' %}
           {% include 'form_includes/field_help_text.html' %}
@@ -106,7 +121,7 @@
 
     <div class="form-group">
       <div class="col-sm-offset-2 col-sm-10">
-        <button type="submit" class="btn btn-primary">{{ form.instance.id|yesno:'Update,Submit' }}</button>
+        <button type="submit" class="btn btn-primary">{{ form.instance.id|yesno:'Update,Send to My Contacts' }}</button>
         <a href="javascript:history.back();" class="btn btn-default">Back</a>
       </div>
     </div>

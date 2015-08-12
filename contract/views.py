@@ -1,5 +1,6 @@
 from collections import defaultdict
 from datetime import datetime, timedelta
+from decimal import Decimal
 from braces.views import JSONResponseMixin, AjaxResponseMixin, LoginRequiredMixin, FormValidMessageMixin
 from django.contrib import messages
 from django.core.validators import MinValueValidator
@@ -7,6 +8,7 @@ from django.db.models import Q
 from django.forms import modelform_factory, Form
 from django.shortcuts import render
 from django.views.generic import CreateView, DetailView, ListView, View, TemplateView, UpdateView
+from formtools.preview import FormPreview
 from contract.forms import ContractForm
 from contract.models import Contract, Match, Engagement
 from datetimewidget.widgets import DateTimeWidget
@@ -30,7 +32,7 @@ class ContractList(ListView):
     ordering = '-updated'
 
 
-class ContractCreate(CreateView):
+class ContractCreate(LoginRequiredMixin, CreateView):
     model = Contract
     form_class = ContractForm
     template_name = 'contract/contract_update.html'
@@ -70,6 +72,17 @@ class ContractCreate(CreateView):
         contract.initiate_user = self.request.puser
         contract.status = Contract.Status.INITIATED.value
         return super().form_valid(form)
+
+# this is hard to implement because the preview doesn't handle cbv well, unless perhaps use mixins.
+# class ContractCreatePreview(FormPreview, ContractCreate):
+#     form_template = 'contract/contract_update.html'
+#
+#     def get_initial(self):
+#         initial = super().get_initial()
+#         return initial
+#
+#     def done(self, request, cleaned_data):
+#         pass
 
 
 class ContractEdit(LoginRequiredMixin, FormValidMessageMixin, UpdateView):
@@ -171,14 +184,14 @@ class APIMyEngagementList(LoginRequiredMixin, JSONResponseMixin, AjaxResponseMix
 
     def get_ajax(self, request, *args, **kwargs):
         # super().get_ajax(request, *args, **kwargs)      # might not be needed.
-        get_date = lambda s: datetime.strptime(s, '%Y-%m-%d').date()
+        get_date = lambda s: timezone.make_aware(datetime.strptime(s, '%Y-%m-%d'))
         to_date = lambda d: timezone.localtime(d).isoformat()
         puser = request.puser
         start, end = request.GET.get('start', None), request.GET.get('end', None)
         if start and end:
             start, end = get_date(start), get_date(end)
         else:
-            start, end = timezone.now().date(), (timezone.now() + timedelta(days=30)).date()
+            start, end = timezone.now(), (timezone.now() + timedelta(days=30))
 
         event_list = []
         all_day = set([])
@@ -226,3 +239,21 @@ class APIMyEngagementList(LoginRequiredMixin, JSONResponseMixin, AjaxResponseMix
 
         return self.render_json_response(event_list)
         #return self.get(request, *args, **kwargs)
+
+
+class ContractPreviewQuery(LoginRequiredMixin, JSONResponseMixin, AjaxResponseMixin, View):
+    def get_ajax(self, request, *args, **kwargs):
+        result = {'success': False}
+        l = lambda v: Contract.parse_event_datetime_str(v)
+        start, end, price = l(request.GET.get('start', None)), l(request.GET.get('end', None)), request.GET.get('price', None)
+        if start and end and price:
+            price = Decimal(price)
+            dummy_contract = Contract(event_start=start, event_end=end, price=price)
+            try:
+                result['length'] = dummy_contract.display_event_length()
+                result['rate'] = dummy_contract.hourly_rate()
+                result['success'] = True
+            except BaseException as e:
+                # catch everything. fail silently
+                result['message'] = str(e)
+        return self.render_json_response(result)
