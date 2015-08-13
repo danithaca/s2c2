@@ -14,13 +14,13 @@ Feature: Test Find (contract add)
     When I fill in the following:
       | event_start | 12/01/2010 18:00 |
       | event_end   | 12/01/2010 19:00 |
-      | price       | 20               |
+      | price       | 8                |
     Then pause 2 seconds
-    Then I should see "$20.00/hour, 1 hour"
+    Then I should see "$8.00/hour, 1 hour"
 
     When I fill in "event_end" with "12/01/2010 20:00"
     Then pause 2 seconds
-    Then I should see "$10.00/hour, 2 hour"
+    Then I should see "$4.00/hour, 2 hour"
 
     When I fill in "price" with "2"
     Then pause 2 seconds

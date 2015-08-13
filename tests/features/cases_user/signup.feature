@@ -19,7 +19,6 @@ Feature: sign up
     And I should see "Confirmation email sent to to-be-deleted@servuno.com"
 
 
-  @core
   Scenario: check confirmation email
     When I open the latest email
     Then check email subject contains "Confirm email address"
