@@ -7,7 +7,7 @@ Feature: development
   Scenario: Test email
     Then show email content
     Then show email parsed content
-    Then check email sent from "admin@servuno.com" to "test@servuno.com"
+    Then check email sent to "test@servuno.com"
     # Then check email sent from "admin@servuno.co" to "test@servuno.co"
 
     Then check email contains "because you or someone else"
@@ -28,8 +28,10 @@ Feature: development
 
   @dev
   Scenario: test new email
-    When I navigate to the latest email
-    When I navigate to the recent email: 1
+    # When I open the latest email
+    When I open the recent email: 2
+    Then show email parsed content
+    Then check email sent from "to-be-deleted-referral@servuno.com" to "test@servuno.com"
 
   @dev
   Scenario: print setting

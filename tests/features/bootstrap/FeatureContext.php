@@ -86,6 +86,9 @@ class FeatureContext extends MinkContext implements SnippetAcceptingContext
       if (strpos($buffer, 'From: ') === 0) {
         $result['from'] = trim(substr($buffer, 6));
       }
+      else if (strpos($buffer, 'Reply-To: ') === 0) {
+        $result['reply-to'] = trim(substr($buffer, 10));
+      }
       else if (strpos($buffer, 'To: ') === 0) {
         $result['to'] = trim(substr($buffer, 4));
       }
@@ -147,8 +150,19 @@ class FeatureContext extends MinkContext implements SnippetAcceptingContext
   public function checkEmailAddress($from_email, $to_email)
   {
       $email = $this->parseCurrentEmail();
-      if ($from_email != @$email['from'] || $to_email != @$email['to']) {
-        throw new Exception("Expected emails and actual emails do not match. In file '{$this->currentEmailFileName}': {$email['from']} (from), {$email['to']} (to).");
+      if ((stripos(@$email['from'], $from_email) === FALSE && stripos(@$email['reply-to'], $from_email) === FALSE) || stripos(@$email['to'], $to_email) === FALSE) {
+        throw new Exception("Expected emails and actual emails do not match. In file '{$this->currentEmailFileName}': {$email['from']} (from), {$email['reply-to']} (reply-to), {$email['to']} (to).");
+      }
+  }
+
+  /**
+   * @Then check email sent to :to_email
+   */
+  public function checkEmailTo($to_email)
+  {
+      $email = $this->parseCurrentEmail();
+      if (stripos(@$email['to'], $to_email) === FALSE) {
+        throw new Exception("Expected email '{$to_email}' and actual email '{$email['to']}' do not match. In file '{$this->currentEmailFileName}");
       }
   }
 

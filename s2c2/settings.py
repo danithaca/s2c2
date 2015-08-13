@@ -256,7 +256,7 @@ SITE_ID = 1
 DEFAULT_FROM_EMAIL = 'Servuno.com <admin@servuno.com>'
 # this will send 500 error report
 ADMINS = (('admin', 'danithaca@gmail.com'), )
-SERVER_EMAIL = 'admin@servuno.com'
+SERVER_EMAIL = 'Servuno.com <admin@servuno.com>'
 
 EMAIL_FILE_PATH = os.path.join(BASE_DIR, 'logfiles/emails')
 AWS_ACCESS_KEY_ID = 'AKIAIK5B54SZPOMAKGMA,'

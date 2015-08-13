@@ -22,9 +22,9 @@ Feature: Test Find (contract add)
     Then pause 2 seconds
     Then I should see "$10.00/hour, 2 hour"
 
-    When I fill in "price" with "10"
+    When I fill in "price" with "2"
     Then pause 2 seconds
-    Then I should see "$5.00/hour, 2 hour"
+    Then I should see "$1.00/hour, 2 hour"
 
     When I fill in "price" with "0"
     Then pause 2 second
