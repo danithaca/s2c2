@@ -8,9 +8,10 @@
 <script src='{% static 'fullcalendar/fullcalendar.js' %}'></script>
 <script type="text/javascript">
 $(document).ready(function() {
+  var current_timestamp = moment();
   var defaultView = $('#viewport-xs-detector').is(':hidden') ? 'agendaDay' : 'agendaWeek';
   var param_day = getParameterByName('day');
-  var day = param_day ? moment(param_day, 'YYYY-MM-DD') : moment();
+  var day = param_day ? moment(param_day, 'YYYY-MM-DD') : current_timestamp;
 
   $('#calendar').fullCalendar({
     header: {
@@ -27,7 +28,7 @@ $(document).ready(function() {
     // allDaySlot: true,
     // allDayText: '',
 
-    scrollTime: '13:00',
+    scrollTime: current_timestamp,
     weekends: true,
 
     //firstDay: 0,
