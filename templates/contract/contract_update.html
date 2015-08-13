@@ -7,13 +7,14 @@
 <script src='{% static 'fullcalendar/lib/moment.min.js' %}'></script>
 <script type="text/javascript">
   $(document).ready(function() {
+    var widget_separate = $('#viewport-xs-detector').is(':hidden') ? false : true;
     // enable datetimepicker
     $('.datetimepicker-control').datetimepicker({
       format: 'MM/DD/YYYY HH:mm',
       minDate: moment().subtract(1, 'hours'),
       stepping: 10,
       useCurrent: true,
-      //sideBySide: true,
+      sideBySide: widget_separate,
       //showTodayButton: true,
       keepInvalid: true,
       //allowInputToggle: true,
