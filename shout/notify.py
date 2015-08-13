@@ -7,6 +7,7 @@ from django.template.loader import render_to_string
 from p2 import settings
 from enum import Enum
 from puser.models import PUser
+import re
 
 
 class Notify(object):
@@ -31,6 +32,9 @@ class Notify(object):
 
     def get_site_admin_user(self):
         email = settings.DEFAULT_FROM_EMAIL
+        matched = re.match(r'.+<(.+@.+)>')
+        if matched:
+            email = matched.group(1)
         try:
             puser = PUser.objects.get(email=email)
             return puser
