@@ -32,7 +32,7 @@ class Notify(object):
 
     def get_site_admin_user(self):
         email = settings.DEFAULT_FROM_EMAIL
-        matched = re.match(r'.+<(.+@.+)>')
+        matched = re.match(r'.+<(.+@.+)>', email)
         if matched:
             email = matched.group(1)
         try:

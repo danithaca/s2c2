@@ -1,6 +1,10 @@
 You just created a request:
 
-When: {{ contract.event_start }} ~ {{ contract.event_end }}
-Price: {{ contract.price }}
-Note: {{ contract.description }}
+When: {{ contract.display_event_range }}
+Compensation: ${{ contract.price }}
+Note: {{ contract.description|default:'- None -' }}
 Initial contacts: {{ contract.count_total_match }}
+
+Review here:
+
+{{ site_url}}{{ contract.get_absolute_url }}

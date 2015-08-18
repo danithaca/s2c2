@@ -20,7 +20,7 @@ from rest_framework.generics import RetrieveAPIView
 from circle.forms import SignupFavoriteForm, SignupCircleForm, ManagePersonalForm
 from circle.models import Circle, Membership
 from circle.views import ManagePersonal, ManagePublic
-from puser.forms import SignupBasicForm, UserInfoForm, SignupConfirmForm, UserPictureForm
+from puser.forms import SignupBasicForm, UserInfoForm, SignupConfirmForm, UserPictureForm, LoginEmailAdvForm
 from puser.models import Info, PUser
 from puser.serializers import UserSerializer
 from s2c2.utils import auto_user_name
@@ -35,7 +35,7 @@ def logout(request):
 
 class LoginView(account.views.LoginView):
     # switching to use Email-only login form
-    form_class = account.forms.LoginEmailForm
+    form_class = LoginEmailAdvForm
 
 
 class SignupView(account.views.SignupView):

@@ -1,3 +1,4 @@
+from account.forms import LoginEmailForm
 import account.views
 from django import forms
 from django.contrib.auth.models import User
@@ -66,3 +67,7 @@ class UserPictureForm(ModelForm):
             'picture_original': 'Picture upload',
             'picture_cropping': 'Picture preview'
         }
+
+
+class LoginEmailAdvForm(LoginEmailForm):
+    authentication_fail_message = "The email address and/or password you specified are not correct. Please sign up if you do not have an existing account."
