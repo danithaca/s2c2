@@ -52,13 +52,14 @@ class UserPictureForm(ModelForm):
         super().__init__(*args, **kwargs)
         if not self.instance.picture_original:
             # self.fields['picture_cropping'].help_text = 'N/A. Please upload picture first.'
+            self.fields['picture_original'].help_text = ''
             del self.fields['picture_cropping']
 
     class Meta:
         model = Info
         fields = ('picture_original', 'picture_cropping')
         help_texts = {
-            'picture_original': 'After uploading, please choose which part of the picture to show.',
+            # 'picture_original': 'Please choose which part of the picture to show.',
             'picture_cropping': 'Drag to choose which part of the picture to use as your avatar.',
         }
         labels = {
