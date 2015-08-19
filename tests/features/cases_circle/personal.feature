@@ -54,7 +54,7 @@ Feature: Test manage personal feature
     When I press "Submit"
     Then I should see "Successfully updated"
     And I should be on "/account/"
-    And I should see "test1@servuno.com"
+    And I should see "Test1 Bot"
 
     # note: test1 should be "active", otherwise the email is "referral", tested in the other scenario
     When I open the last email

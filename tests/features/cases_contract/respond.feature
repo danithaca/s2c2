@@ -104,7 +104,7 @@ Feature: test users interactions between the client and the server
 
     # check email
     When I open the last email from "test@servuno.com" to "test1@servuno.com"
-    Then check the email subject contains "John Smith canceled your confirmed offer"
+    Then check email subject contains "John Smith canceled your confirmed offer"
 
     When I press "Cancel"
     Then pause 1 second
@@ -115,4 +115,4 @@ Feature: test users interactions between the client and the server
     Then I should see "Canceled"
 
     When I open the last email from "test@servuno.com" to "test1@servuno.com"
-    Then check the email subject contains "Request canceled"
+    Then check email subject contains "Request canceled"
