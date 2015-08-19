@@ -60,6 +60,7 @@ $(document).ready(function() {
                     title="You will not help this time and will not receive further notice about this job."
                     data-toggle="tooltip">Decline
             </button>
+            <div class="help-block">Choose "Accept" if you might help <em>{% user-short-name contract.initiate_user %}</em>. Specify your conditions (if any) in the text box above. Choose "Decline" if you are sure you cannot help.</div>
           </div>
         {% endif %}
       </div>
