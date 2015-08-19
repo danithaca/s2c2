@@ -26,3 +26,10 @@ Feature: user login
     And I press "Log in"
     Then the response status code should be 200
     And the response should contain "<!-- logged in as test@servuno.com -->"
+
+  @core
+  Scenario: logout
+    Given I am logged in as user "test@servuno.com" with password "password"
+    When I follow "Logout"
+    Then the response status code should be 200
+    And the response should not contain "<!-- logged in as test@servuno.com -->"

@@ -23,3 +23,10 @@ Feature: Check link
     And I should see a "button.fc-month-button" element
     And I should see a "button.fc-prev-button" element
     And I should see a "button.fc-next-button" element
+
+  @core @javascript
+  Scenario: check jotform
+    Given I am on the homepage
+    Then pause 5 seconds
+    And I should see a ".jotform-feedback-link" element
+    And I should see "Send Feedback"

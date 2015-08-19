@@ -45,6 +45,24 @@
 
       // turn on tooltip
       $('[data-toggle="tooltip"]').tooltip();
+
+      // load jotForm
+      $.getScript('http://www.jotform.com/min/?g=feedback2', function() {
+        new JotformFeedback({
+          formId      : "52174001683145",
+          buttonText  : "Send Feedback",
+          windowTitle : "Mark up the screenshot to describe a problem or suggestion",
+          base        : "http://jotform.us/",
+          background  : "#F59202",
+          fontColor   : "#FFFFFF",
+          buttonSide  : "bottom",
+          buttonAlign : "right",
+          type        : false,
+          width       : 280,
+          height      : 420,
+          instant     : true
+        });
+      });
     });
   </script>
 
@@ -150,26 +168,5 @@
     });
   });
 </script>
-
-{#<script type="text/javascript">#}
-{#  $(document).ready(function() {#}
-{#    $.getScript('http://www.jotform.com/min/?g=feedback2', function() {#}
-{#      new JotformFeedback({#}
-{#        formId      : "50475438204150",#}
-{#        buttonText  : "Send Feedback",#}
-{#        windowTitle : "Mark up the screenshot to describe a problem or suggestion",#}
-{#        base        : "http://jotform.us/",#}
-{#        background  : "#F59202",#}
-{#        fontColor   : "#FFFFFF",#}
-{#        buttonSide  : "bottom",#}
-{#        buttonAlign : "right",#}
-{#        type        : false,#}
-{#        width       : 280,#}
-{#        height      : 420,#}
-{#        instant     : true#}
-{#      });#}
-{#    });#}
-{#  });#}
-{#</script>#}
 </body>
 </html>

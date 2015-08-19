@@ -31,3 +31,32 @@ Feature: Edit account
     And I press "Submit"
     Then I should see "Profile successfully updated."
     And the "First name" field should contain "John"
+
+
+  @core
+  Scenario: view account
+    Given I am logged in as user "test@servuno.com" with password "password"
+    When I follow "View account"
+    Then I should be on "/account/"
+    And I should see "John Smith"
+    And I should see "John's List"
+    And I should see "John's Circles"
+    And I should see "Listed By"
+    And I should see "test@servuno.com"
+    And I should see "555-555-5555"
+    And I should see "This is a test account."
+
+    When I follow "link_account_edit"
+    Then I should be on "/account/edit/"
+
+    When I move backward one page
+    When I follow "link_manage_personal"
+    Then I should be on "/circle/manage/personal/"
+
+    When I move backward one page
+    When I follow "link_manage_public"
+    Then I should be on "/circle/manage/public/"
+
+    When I move backward one page
+    When I follow "link_manage_loop"
+    Then I should be on "/circle/manage/loop/"

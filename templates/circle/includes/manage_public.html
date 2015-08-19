@@ -23,13 +23,13 @@
 
 <div>
   {% for group in form.circle_options %}
-    <div class="panel panel-default">
+    <div class="panel panel-default public-circle-superset">
       <div class="panel-heading">
         <small class="text-small text-muted" title="{{ group.description }}" data-toggle="tooltip">{{ group.title }}</small>
       </div>
       <ul class="list-group">
         {% for circle in group.list %}
-          <li class="list-group-item">
+          <li class="list-group-item public-circle-entity" data-slug="{{ circle.title|slugify }}">
             <input type="checkbox" class="switch" name="circle" value="{{ circle.id }}"{% if circle.active %} checked{% endif %}>
             {{ circle.title }} <small class="text-muted">{{ circle.description }}</small> <small class="pull-right">{% include 'elements/circle_member_count.html' with count=circle.count %}</small>
 {#            {% if circle.active %} <span class="badge">{{ circle.approved|yesno:'Approved,Not approved' }}</span>{% endif %}#}

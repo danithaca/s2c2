@@ -33,7 +33,7 @@ $(document).ready(function() {
 {#      <div class="form-group">#}
 {#        <div class="checkbox"><img src="{{ membership.picture }}" class="img-circle img-50"><label>{{ membership.name }} <input type="checkbox" name="{{ membership.membership_id }}" {{ membership.approved|yesno:"checked," }} class="switch"></label></div>#}
 {#      </div>#}
-        <li class="list-group-item">
+        <li class="list-group-item circle-loop" data-slug="{{ membership.name|slugify }}">
           <input type="checkbox" name="{{ membership.membership_id }}" {{ membership.approved|yesno:"checked," }} class="switch">
           <img src="{{ membership.picture }}" class="img-circle img-18"> {{ membership.name }}
         </li>
