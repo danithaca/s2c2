@@ -62,11 +62,35 @@ class FeatureContext extends MinkContext implements SnippetAcceptingContext
   }
 
   /**
-   * @When I open the latest email
+   * @When I open the last email
    */
   public function navigateLatestEmail()
   {
     return $this->navigateRecentEmail(1);
+  }
+
+  /**
+   * @When I open the last email from :from_email to :to_email
+   */
+  public function navigateLatestEmailAddress($from_email, $to_email)
+  {
+    $i = 0;
+    while (TRUE) {
+      $i++;
+      try {
+        $this->navigateRecentEmail($i);
+        try {
+          $this->checkEmailAddress($from_email, $to_email);
+          // found the email. break here.
+          break;
+        } catch (Exception $e) {
+          // do nothing, this is not the right email.
+        }
+      } catch (Exception $e) {
+        throw new Exception("Cannot find the latest email from $from_email to $to_email");
+        // break;
+      }
+    }
   }
 
   protected function readCurrentEmail() {

@@ -21,7 +21,7 @@ Steps
 
 ```
 default |  When I open the recent email: :index
-default |  When I open the latest email
+default |  When I open the last email
 default |  Then (I )break
 default |  Then show email content
 default |  Then show email parsed content

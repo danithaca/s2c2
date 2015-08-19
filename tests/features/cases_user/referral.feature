@@ -17,7 +17,7 @@ Feature: Test referral user
 
   @javascript
   Scenario: follow sign up step
-    When I open the latest email
+    When I open the last email
     Then show email content
     And check email subject contains "invited"
     And check email sent from "admin@servuno.com" to "to-be-deleted-referral@servuno.com"

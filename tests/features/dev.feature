@@ -28,7 +28,7 @@ Feature: development
 
   @dev
   Scenario: test new email
-    # When I open the latest email
+    # When I open the last email
     When I open the recent email: 2
     Then show email parsed content
     Then check email sent from "to-be-deleted-referral@servuno.com" to "test@servuno.com"

@@ -21,7 +21,7 @@ Feature: password change
     Then I should see "We have sent you an email."
 
     # check email
-    When I open the latest email
+    When I open the last email
     Then check email sent to "test@servuno.com"
     And check email contains "You're receiving this email because you or someone else has requested a password"
     And check email contains "/account/password/reset/"
@@ -55,7 +55,7 @@ Feature: password change
     And I press "Change"
     Then I should see "Password successfully changed."
 
-    When I open the latest email
+    When I open the last email
     Then check email sent to "test@servuno.com"
     And check email subject contains "Change password email notification"
 
