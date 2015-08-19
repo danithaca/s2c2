@@ -52,10 +52,13 @@ class SignupView(account.views.SignupView):
     # this allows the default email field for Signup code not permitting user change the email address
     def get_form(self, form_class=None):
         form = super().get_form(form_class)
+
         if self.signup_code:
             form.fields['email'].widget.attrs = {
                 'readonly': True
             }
+        elif 'email' in self.request.GET:
+            form.fields['email'].initial = self.request.GET['email']
         return form
 
     # SignupBasicForm (subclass of Account.SignupForm) checks email existence using EmailAddress

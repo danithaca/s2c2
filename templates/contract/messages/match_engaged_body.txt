@@ -1,4 +1,6 @@
+{% extends 'email_body.txt' %}
 {% load p2_tags %}
+{% block body %}
 {% user-full-name contract.initiate_user %} needs your help. Here are the details:
 
 When: {{ contract.display_event_range }}
@@ -7,4 +9,5 @@ Note: {{ contract.description|default:'- None -' }}
 
 Please respond here:
 
-{{ site_url}}{{ match.get_absolute_url }}
+{{ site_url }}{{ match.get_absolute_url }}
+{%endblock%}

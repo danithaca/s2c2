@@ -1,0 +1,1 @@
+{# this is the email subject template for all outgoing emails. not implemented yet. #}

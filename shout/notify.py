@@ -55,6 +55,8 @@ class Notify(object):
         body_tpl = tpl_prefix + '_body.txt'
 
         context = self.default_context()
+        context['from_user'] = from_user
+        context['to_user'] = to_user
         context.update(ctx)
 
         subject = render_to_string(subject_tpl, context)

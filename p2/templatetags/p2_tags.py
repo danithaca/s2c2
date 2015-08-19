@@ -1,10 +1,14 @@
+from account.models import SignupCode
 from django import template
 from django.contrib.auth.models import User
-from django.template.defaultfilters import truncatechars
+from django.contrib.sites.models import Site
+from django.core.urlresolvers import reverse
+from django.template.defaultfilters import truncatechars, urlencode
 from django.templatetags.static import static
 from image_cropping.templatetags.cropping import cropped_thumbnail
 from contract.models import Contract, Match
 from puser.models import PUser
+from django.conf import settings
 
 register = template.Library()
 
@@ -47,3 +51,24 @@ def p2_tag_user_short_name(user):
 def p2_tag_user_full_name(user):
     assert isinstance(user, User)
     return user.get_full_name() or user.email
+
+
+# @register.simple_tag(name='user-signup-url')
+# def p2_tag_user_signup_url(user):
+#     assert isinstance(user, User) and not user.is_active
+#     code = SignupCode.objects.filter(email=user.email).order_by('-id').first()
+#     protocol = getattr(settings, "DEFAULT_HTTP_PROTOCOL", "http")
+#     current_site = Site.objects.get_current()
+#     if code:
+#         return "{0}://{1}{2}?{3}".format(
+#             protocol,
+#             current_site.domain,
+#             reverse("account_signup"),
+#             urlencode({"code": code.code})
+#         )
+#     else:
+#         return "{0}://{1}{2}".format(
+#             protocol,
+#             current_site.domain,
+#             reverse("account_signup")
+#         )
