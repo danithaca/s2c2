@@ -144,6 +144,7 @@ class MatchDetail(DetailView):
 
 
 class MatchStatusChange(LoginRequiredMixin, JSONResponseMixin, AjaxResponseMixin, View):
+    # in urls.py, "switch" controls whether to do accept or do decline.
     switch = None
 
     def post_ajax(self, request, pk):
@@ -152,9 +153,9 @@ class MatchStatusChange(LoginRequiredMixin, JSONResponseMixin, AjaxResponseMixin
         if response is not None:
             # no need to save because it'll be saved below.
             match.response = response
-        if self.switch is True:
+        if self.switch is True and not match.is_accepted():
             match.accept()
-        elif self.switch is False:
+        elif self.switch is False and not match.is_declined():
             match.decline()
         return self.render_json_response({'success': True})
 

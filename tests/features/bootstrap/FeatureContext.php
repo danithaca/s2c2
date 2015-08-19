@@ -19,6 +19,7 @@ class FeatureContext extends MinkContext implements SnippetAcceptingContext
   protected $screenshotsPath;
   protected $disableEmails = FALSE;
   protected $currentEmailFileName;
+  protected $javascriptResult;
 
   static protected $sessionTimestamp;
   static protected $suite;
@@ -348,11 +349,28 @@ class FeatureContext extends MinkContext implements SnippetAcceptingContext
     // $this->getSession()->executeScript() only execute a single line of code.
     // we'll preprocess it to allow multiple lines of execution
     $js = $jsBlock->getRaw();
-    $this->_runJavascriptSnippet($js);
-  }
-
-  private function _runJavascriptSnippet($js) {
     $js = "(function () {\n  $js  \n})();";
     $this->getSession()->executeScript($js);
+  }
+
+  /**
+   * @When I evaluate the following Javascript:
+   */
+  public function evaluateLongJavascript(PyStringNode $jsBlock)
+  {
+    // $this->getSession()->executeScript() only execute a single line of code.
+    // we'll preprocess it to allow multiple lines of execution
+    $js = $jsBlock->getRaw();
+    $this->javascriptResult = $this->getSession()->evaluateScript($js);
+  }
+
+  /**
+   * @Then check Javascript result is true
+   */
+  public function checkJavascriptResultBoolean()
+  {
+    if (!$this->javascriptResult) {
+      throw new Exception("Javascript is not true.");
+    }
   }
 }

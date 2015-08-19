@@ -1,9 +1,9 @@
 {% load account_tags %}
 {% user_display initiate_user %} confirmed your offer. Here are the details:
 
-When: {{ contract.event_start }} ~ {{ contract.event_end }}
-Price: {{ contract.price }}
-Note: {{ contract.description }}
+When: {{ contract.display_event_range }}
+Compensation: ${{ contract.price }}
+Note: {{ contract.description|default:"- None -" }}
 
 You can response to the email to contact {% user_display initiate_user %}. Or use the following information:
 

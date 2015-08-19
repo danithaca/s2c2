@@ -20,7 +20,7 @@ $(document).ready(function() {
       var messages = {
         revert: 'This operation will undo the confirmed request. The babysitter will be notified. You can choose another babysitter.',
         cancel: 'This operation will cancel the request, and cannot be undone.',
-        confirm: 'This will bind you with the babysitter. The babysitter will be notified.'
+        confirm: 'The babysitter will be notified after you confirm.'
       };
       bootbox.confirm({
         title: 'Are you sure?',
@@ -82,7 +82,7 @@ $(document).ready(function() {
 {% if matches %}
 {% for match in matches %}
   <div class="col-xs-12 col-sm-6 col-md-4">
-    <div class="match-preview panel panel-default">
+    <div class="match-preview panel panel-default" data-slug="{{ match.target_user.get_name|slugify }}">
       <div class="panel-body">
         {% include 'contract/match_view/summary.html' with match=match contract=contract %}
         {% if match.response %}

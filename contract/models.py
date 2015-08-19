@@ -73,6 +73,8 @@ class StatusMixin(object):
                     color, label, explanation = 'primary', 'Not chosen', 'The server accepted the request but not chosen to serve.'
                 elif not self.contract.is_event_expired() and not self.contract.is_confirmed():
                     color, label, explanation = 'primary', 'Accepted & Pending', 'The server accepted the request, but the client has not made a confirmation yet.'
+            elif status in (Match.Status.INITIALIZED, Match.Status.ENGAGED) and self.contract.is_confirmed():
+                color, label, explanation = 'default', 'Expired', 'The client has found a server.'
 
         else:
             assert False

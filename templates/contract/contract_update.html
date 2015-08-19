@@ -36,18 +36,21 @@
     });
 
     var $price = $('#id_price');
+    var $price_info = $('#price-info');
     var handlePriceInfo = function() {
       var start = $event_start.val(), end = $event_end.val(), price = $price.val();
       if (start && end && price) {
         $.get('{% url "contract:preview_query" %}', {start: start, end: end, price: price}, function(result){
           if (result['success']) {
             var rate = result['rate'] == 0 ? 'favor exchange' : '$' + result['rate'] + '/hour';
-            $('#price-info').text(rate + ', ' + result['length']);
+            $price_info.text(rate + ', ' + result['length']);
           } else {
-            $('#price-info').text('');
+            $price_info.text('');
             console.log(result);
           }
         });
+      } else {
+        $price_info.text('');
       }
     };
 
@@ -58,9 +61,11 @@
     //$event_start.change(handlePriceInfo);
     $event_start.parent().on('dp.change', handlePriceInfo);
     $event_start.keyup(handlePriceInfo);
+    //$event_start.focusout(handlePriceInfo);
     //$event_end.change(handlePriceInfo);
     $event_end.parent().on('dp.change', handlePriceInfo);
     $event_end.keyup(handlePriceInfo);
+    //$event_end.focusout(handlePriceInfo);
     $price.change(handlePriceInfo);
     $price.keyup(handlePriceInfo);
 

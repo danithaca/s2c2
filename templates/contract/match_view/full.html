@@ -40,8 +40,9 @@ $(document).ready(function() {
     <div class="col-xs-12 col-sm-offset-2 col-sm-8 col-md-offset-3 col-md-6">
       <div class="match-details panel panel-primary">
         <div class="panel-heading panel-title">Your response?</div>
-
         <div class="panel-body">
+          {% if match.is_accepted %}<div class="alert alert-success">You have accepted the request.</div>{% endif %}
+          {% if match.is_declined %}<div class="alert alert-warning">You have declined the request.</div>{% endif %}
           {% include 'contract/match_view/extended.html' with match=match contract=contract %}
         </div>
         <div class="panel-body">
@@ -50,12 +51,10 @@ $(document).ready(function() {
 
         {% if match.target_user == user or user.is_staff %}
           <div class="panel-footer text-center">
-            <button class="btn btn-success{% if match.is_accepted %} disabled{% endif %}" name="match"
-                    data-url="{% url 'contract:match_accept' pk=match.id %}"
-                    title="You agree to do this job. The client might not choose you though." data-toggle="tooltip">
-              Accept
-            </button>
-            <button class="btn btn-danger{% if match.is_confirmed or match.is_declined %} disabled{% endif %}"
+            {# we always want the "accept" button available so people can update the note. #}
+            <button class="btn btn-success" name="match" data-url="{% url 'contract:match_accept' pk=match.id %}" title="You agree to do this job. The client might not choose you though." data-toggle="tooltip">Accept</button>
+            {# disable "decline" button if the match is already confirmed. #}
+            <button class="btn btn-danger{% if match.is_confirmed %} disabled{% endif %}"
                     name="match" data-url="{% url 'contract:match_decline' pk=match.id %}"
                     title="You will not help this time and will not receive further notice about this job."
                     data-toggle="tooltip">Decline
