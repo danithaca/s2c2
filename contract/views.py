@@ -151,8 +151,8 @@ class MatchStatusChange(LoginRequiredMixin, JSONResponseMixin, AjaxResponseMixin
         match = Match.objects.get(pk=pk)
         response = request.POST.get('response', None)
         if response is not None:
-            # no need to save because it'll be saved below.
             match.response = response
+            match.save()
         if self.switch is True and not match.is_accepted():
             match.accept()
         elif self.switch is False and not match.is_declined():
