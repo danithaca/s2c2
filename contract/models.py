@@ -27,21 +27,20 @@ class StatusMixin(object):
 
         contract_display_map = {
             Contract.Status.INITIATED: ('default', 'Inactive', 'Not activated.'),
-            Contract.Status.ACTIVE: ('primary', 'Active', 'Actively finding a server.'),
+            Contract.Status.ACTIVE: ('primary', 'Active', 'Actively finding a babysitter.'),
             Contract.Status.CONFIRMED: (
-            'success', 'Active - Confirmed', 'You have confirmed with a server to serve you.'),
-            Contract.Status.SUCCESSFUL: ('info', 'Successful', 'The service was successfully delivered.'),
-            Contract.Status.CANCELED: ('warning', 'Canceled', 'The request was canceled.'),
-            Contract.Status.FAILED: ('danger', 'Failed', 'The service was confirmed but ultimately failed.'),
+            'success', 'Active - Confirmed', 'You have confirmed with a babysitter.'),
+            Contract.Status.SUCCESSFUL: ('info', 'Successful', 'Service was successfully delivered.'),
+            Contract.Status.CANCELED: ('warning', 'Canceled', 'Request was canceled.'),
+            Contract.Status.FAILED: ('danger', 'Failed', 'Service was confirmed but eventually failed.'),
         }
 
         match_display_map = {
-            Match.Status.INITIALIZED: ('default', 'Waiting', 'Not yet notified the potential server.'),
-            Match.Status.ENGAGED: (
-            'info', 'Notified & Waiting', 'The person was notified, and we are waiting for the response.'),
-            Match.Status.ACCEPTED: ('primary', 'Accepted', 'The person agreed to serve the client.'),
-            Match.Status.DECLINED: ('warning', 'Declined', 'The person declined to serve the client.'),
-            Match.Status.CANCELED: ('danger', 'Canceled', 'The engagement was canceled.'),
+            Match.Status.INITIALIZED: ('default', 'Waiting', 'Not yet notified the potential babysitter.'),
+            Match.Status.ENGAGED: ('info', 'Notified & Waiting', 'The user was notified; waiting for response.'),
+            Match.Status.ACCEPTED: ('primary', 'Accepted', 'The user agreed to help babysit.'),
+            Match.Status.DECLINED: ('warning', 'Declined', 'The user declined to help babysit.'),
+            Match.Status.CANCELED: ('danger', 'Canceled', 'Request was canceled.'),
         }
 
         if isinstance(self, Contract):
@@ -50,31 +49,31 @@ class StatusMixin(object):
             # special handle for expired stuff
             if self.is_event_expired():
                 if status in (Contract.Status.INITIATED, Contract.Status.ACTIVE):
-                    color, label, explanation = 'default', 'Expired', 'The request was expired.'
+                    color, label, explanation = 'default', 'Expired', 'Request expired.'
                 if status == Contract.Status.CONFIRMED:
-                    color, label, explanation = 'info', 'Done', 'The request was confirmed and expired.'
+                    color, label, explanation = 'info', 'Done', 'Request confirmed and expired.'
             # not expired, proceed as normal
             else:
                 if status == Contract.Status.ACTIVE:
                     if not self.match_set.filter(status=Match.Status.ACCEPTED.value).exists():
-                        label, explanation = 'Active - Searching', 'Searching for a server. No one has agreed to serve yet.'
+                        label, explanation = 'Active - Searching', 'Searching for a babysitter. No one has agreed to help yet.'
                     else:
-                        label, explanation = 'Active - Found', 'The client has found at least 1 person who agreed to be a server. The client has not confirmed yet.'
+                        label, explanation = 'Active - Found', 'Found at least 1 user agreed to babysit. The parent has not confirmed yet.'
 
         elif isinstance(self, Match):
             color, label, explanation = match_display_map.get(status, ('default', str(status).capitalize(), ''))
             # override
             if self.contract.is_event_expired() and status in (Match.Status.INITIALIZED, Match.Status.ENGAGED):
-                color, label, explanation = 'default', 'Expired', 'The engagement was expired.'
+                color, label, explanation = 'default', 'Expired', 'Request expired.'
             elif status == Match.Status.ACCEPTED:
                 if self.contract.confirmed_match == self:
-                    color, label, explanation = 'success', 'Accepted & Confirmed', 'The engagement was confirmed.'
+                    color, label, explanation = 'success', 'Accepted & Confirmed', 'Request was confirmed.'
                 elif self.contract.is_confirmed():
-                    color, label, explanation = 'primary', 'Not chosen', 'The server accepted the request but not chosen to serve.'
+                    color, label, explanation = 'primary', 'Not chosen', 'The user accepted to help but not chosen to babysit.'
                 elif not self.contract.is_event_expired() and not self.contract.is_confirmed():
-                    color, label, explanation = 'primary', 'Accepted & Pending', 'The server accepted the request, but the client has not made a confirmation yet.'
+                    color, label, explanation = 'primary', 'Accepted & Pending', 'User accepted the request to babysit, but the requesting parent has not made a confirmation yet.'
             elif status in (Match.Status.INITIALIZED, Match.Status.ENGAGED) and self.contract.is_confirmed():
-                color, label, explanation = 'default', 'Expired', 'The client has found a server.'
+                color, label, explanation = 'default', 'Expired', 'Another babysitter was confirmed. Request expired.'
 
         else:
             assert False

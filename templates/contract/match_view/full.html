@@ -52,7 +52,7 @@ $(document).ready(function() {
         {% if match.target_user == user or user.is_staff %}
           <div class="panel-footer text-center">
             {# we always want the "accept" button available so people can update the note. #}
-            <button class="btn btn-success" name="match" data-url="{% url 'contract:match_accept' pk=match.id %}" title="You agree to do this job. The client might not choose you though." data-toggle="tooltip">Accept</button>
+            <button class="btn btn-success" name="match" data-url="{% url 'contract:match_accept' pk=match.id %}" title="You agree to do this job, although the requesting parent might not choose you." data-toggle="tooltip">Accept</button>
             {# disable "decline" button if the match is already confirmed. #}
             <button class="btn btn-danger{% if match.is_confirmed %} disabled{% endif %}"
                     name="match" data-url="{% url 'contract:match_decline' pk=match.id %}"

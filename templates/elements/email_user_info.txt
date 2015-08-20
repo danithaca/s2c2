@@ -1,0 +1,5 @@
+{% autoescape off %}Name: {{ user.get_full_name|default:'N/A' }}
+Email: {{ user.email|default:'N/A' }}
+Phone: {{ user.info.phone|default:'N/A' }}
+Address: {{ user.info.address|default:'N/A' }}
+About: {{ user.info.note|default:'- None -' }}{% endautoescape %}
