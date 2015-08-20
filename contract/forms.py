@@ -7,7 +7,7 @@ from contract.models import Contract
 # note: this form is highly customized in html template. this Form class doesn't control much of how it actually shows.
 class ContractForm(forms.ModelForm):
     required_css_class = 'required'
-    price = forms.DecimalField(min_value=0, decimal_places=2, initial=10, label='Payment', help_text='You agree to pay the server this amount after the service is done.', widget=forms.NumberInput(attrs={'class': 'form-control', 'step': 1}))
+    price = forms.DecimalField(min_value=0, decimal_places=2, initial=10, label='Payment', help_text='You pay the babysitter offline once job is done. $0 would be "favor exchange". Servuno will keep track of the owed favors.', widget=forms.NumberInput(attrs={'class': 'form-control', 'step': 1}))
     # it seems "localize" by default is True if USE_TZ (or USE_L10N?) is turned on.
     # event_start = forms.DateTimeField(localize=True)
     # event_end = forms.DateTimeField(localize=True)

@@ -254,6 +254,9 @@ class Contract(StatusMixin, models.Model):
         except:
             return None
 
+    def is_favor(self):
+        return self.price <= 0.1 or self.hourly_rate() <= 0.1
+
 
 class Match(StatusMixin, models.Model):
     """
