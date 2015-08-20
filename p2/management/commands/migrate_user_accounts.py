@@ -9,7 +9,7 @@ class Command(BaseCommand):
     help = 'Support s2c2 users to be with p2 users'
 
     def handle(self, *args, **options):
-        to_add_users = User.objects.exclude(emailaddress__email=F('email'))
+        to_add_users = User.objects.exclude(emailaddress__email=F('email')).filter(active=True)
         logging.info('Total users to add: %s' % to_add_users.count())
         for user in to_add_users:
             EmailAddress.objects.add_email(user, user.email)
