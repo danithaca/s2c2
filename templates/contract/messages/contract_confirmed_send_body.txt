@@ -1,16 +1,12 @@
 {% load account_tags %}
-{% user_display initiate_user %} confirmed your offer. Here are the details:
+{% load p2_tags %}
+{% user-full-name initiate_user %} confirmed your offer. Here are the details:
 
-When: {{ contract.display_event_range }}
-Compensation: ${{ contract.price }}
-Note: {{ contract.description|default:"- None -" }}
+{% include 'elements/email_contract.txt' with contract=contract %}
 
-You can response to the email to contact {% user_display initiate_user %}. Or use the following information:
+You can response to the email to contact {% user-short-name initiate_user %}. Or use the following information:
 
-Name: {{ initiate_user.get_full_name }}
-Email: {{ initiate_user.email }}
-Phone: {{ initiate_user.info.phone }}
-Address: {{ initiate_user.info.address }}
+{% include 'elements/email_user_info.txt' with user=initiate_user %}
 
 Review the request here:
 

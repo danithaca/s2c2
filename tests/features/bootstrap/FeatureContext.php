@@ -351,6 +351,9 @@ class FeatureContext extends MinkContext implements SnippetAcceptingContext
     $js = $jsBlock->getRaw();
     $js = "(function () {\n  $js  \n})();";
     $this->getSession()->executeScript($js);
+
+    // wait 1 second for selenium to catch up on the browser side.
+    $this->pauseSeconds(1);
   }
 
   /**

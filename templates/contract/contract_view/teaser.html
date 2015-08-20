@@ -20,7 +20,7 @@
         <a href="{% url 'contract:view' pk=contract.id %}"><i class="fa fa-link"></i></a>
         <span class="label label-default">{{ contract.event_start }} ~ {{ contract.event_end }}</span>
         <span class="label label-default">
-          {% if contract.price > 0 %}
+          {% if contract.is_favor %}
             ${{ contract.price }} (${{ contract.hourly_rate }})
           {% else %}
             Favor exchange

@@ -17,10 +17,10 @@
     <ul class="list-unstyled">
       <li><i class="fa fa-clock-o"></i> <strong>{{ contract.display_event_length }}</strong> ({{ contract.display_event_range }})</li>
       <li><i class="fa fa-money"></i>
-        {% if contract.price > 0 %}
+        {% if not contract.is_favor %}
           <strong>${{ contract.price }}</strong> (${{ contract.hourly_rate }}/hour)
         {% else %}
-          <strong>$0</strong> (a favor)
+          <strong>$0</strong> (favor exchange <span class="fa fa-info-circle" data-toggle="tooltip" title="Servuno will keep track of the number of favors done and remind people to repay the owed favors."></span>)
         {% endif %}
       </li>
     </ul>

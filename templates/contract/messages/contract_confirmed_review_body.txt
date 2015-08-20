@@ -1,12 +1,9 @@
 {% load account_tags %}
-You have confirmed the offer from {% user_display target_user %}. You can response to the email to contact {% user_display target_user %}. Or use the following information:
+You have confirmed the offer from {% user_display target_user %}. You can response to the email to contact {% user_display target_user %}. Or use the following contact:
 
-Name: {{ target_user.get_full_name }}
-Email: {{ target_user.email }}
-Phone: {{ target_user.info.phone }}
-Address: {{ target_user.info.address }}
+{% include 'elements/email_user_info.txt' with user=target_user %}
 
-{% if contract.price > 0 %}
+{% if not contract.is_favor %}
 You agreed to pay {% user_display target_user %} ${{ contract.price }}. Don't forget to pay after the service is delivered.
 {% endif %}
 

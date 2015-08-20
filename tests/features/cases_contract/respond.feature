@@ -57,34 +57,36 @@ Feature: test users interactions between the client and the server
     When I follow the email link like "/contract/"
     Then the URL should match "/contract/\d+/"
 
-    Then I should see a "div[data-slug='test1']" element
-    And I should see a "div[data-slug='test1'] button.btn-success" element
+    Then I should see a "div[data-slug='test1-bot']" element
+    And I should see a "div[data-slug='test1-bot'] button.btn-success" element
     And I should see "message-i-accepted"
 
     When I run the following Javascript:
       """
-      $('div[data-slug="test1"] button.btn-success').click();
+      $('div[data-slug="test1-bot"] button.btn-success').click();
       """
     Then pause 1 second
     When I run the following Javascript:
       """
       $('button[data-bb-handler="confirm"]').click();
       """
-
+    Then pause 1 second
     Then I should see "Active - Confirmed"
-    And I should see a "div[data-slug='test1'] .label-success" element
+    And I should see a "div[data-slug='test1-bot'] .label-success" element
     And I should see "Expired"
     And I should see "Undo"
 
 
   Scenario: check confirmation email
+    # give some time for celery to catch up.
+    Then pause 5 seconds
     When I open the last email from "test@servuno.com" to "test1@servuno.com"
     Then check email subject contains "John Smith confirmed your offer"
     And check email contains "John Smith confirmed your offer. Here are the details"
 
     When I open the last email from "test1@servuno.com" to "test@servuno.com"
     Then check email subject contains "Review the confirmed"
-    And check email contains "You have confirmed the offer from test1@servuno.com."
+    And check email contains "You have confirmed the offer from Test1 Bot."
 
 
   @core @javascript
@@ -104,10 +106,9 @@ Feature: test users interactions between the client and the server
 
     # check email
     When I open the last email from "test@servuno.com" to "test1@servuno.com"
-    Then check the email subject contains "John Smith canceled your confirmed offer"
+    Then check email subject contains "John Smith canceled your confirmed offer"
 
     When I press "Cancel"
-    Then pause 1 second
     When I run the following Javascript:
       """
       $('button[data-bb-handler="confirm"]').click();
@@ -115,4 +116,4 @@ Feature: test users interactions between the client and the server
     Then I should see "Canceled"
 
     When I open the last email from "test@servuno.com" to "test1@servuno.com"
-    Then check the email subject contains "Request canceled"
+    Then check email subject contains "Request canceled"

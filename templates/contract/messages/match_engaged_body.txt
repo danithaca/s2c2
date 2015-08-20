@@ -3,9 +3,11 @@
 {% block body %}
 {% user-full-name contract.initiate_user %} needs your help. Here are the details:
 
-When: {{ contract.display_event_range }}
-Compensation: ${{ contract.price }}
-Note: {{ contract.description|default:'- None -' }}
+{% include 'elements/email_contract.txt' with contract=contract %}
+
+{% user-short-name contract.initiate_user %}'s contact info:
+
+{% include 'elements/email_user_info.txt' with user=contract.initiate_user %}
 
 Please respond here:
 

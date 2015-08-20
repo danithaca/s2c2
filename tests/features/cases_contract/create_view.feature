@@ -15,20 +15,20 @@ Feature: Test Find (contract add)
       | event_start | 12/01/2010 18:00 |
       | event_end   | 12/01/2010 19:00 |
       | price       | 8                |
-    # need 5+ seconds for javascript to catch up
-    Then pause 5 seconds
+    # need 10+ seconds for javascript to catch up
+    Then pause 3 seconds
     Then I should see "$8.00/hour, 1 hour"
 
     When I fill in "event_end" with "12/01/2010 20:00"
-    Then pause 1 seconds
+    Then pause 3 seconds
     Then I should see "$4.00/hour, 2 hour"
 
     When I fill in "price" with "2"
-    Then pause 1 seconds
+    Then pause 3 seconds
     Then I should see "$1.00/hour, 2 hour"
 
     When I fill in "price" with "0"
-    Then pause 1 second
+    Then pause 3 second
     Then I should see "favor exchange, 2 hour"
 
 

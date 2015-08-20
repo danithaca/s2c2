@@ -71,8 +71,7 @@ $(document).ready(function() {
     eventAfterAllRender: function(view) {
       if (view.name == 'agendaDay' || view.name == 'agendaWeek') {
         view.calendar.clientEvents().forEach(function (event) {
-          console.log(event['fc-header-class']);
-          var $header = $(event['fc-header-class']);
+          var $header = $('.fc-widget-header' + event['fc-header-class']);
           if (!$header.data('processed')) {
             $header.append(' <span class="text-danger">*</span>');
             $header.data('processed', true);
