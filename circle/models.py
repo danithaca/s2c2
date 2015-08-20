@@ -114,3 +114,6 @@ class Membership(models.Model):
         # here we assume a user won't have multiple "membership" instances to the same circle.
         # relieving the assumption will affect many existing code
         unique_together = ('member', 'circle')
+
+    def __str__(self):
+        return '%s (%s)' % (self.member.get_name(), self.circle.display())
