@@ -44,7 +44,7 @@ class UserInfoForm(ModelForm):
             'area': 'This is where most of the babysitting activities take place.',
             'phone': 'This number will be shown to people your trust.',
             'address': 'This will help people find you for babysitting activities.',
-            'note': 'Tell people a little bit about yourself.'
+            'note': 'Tell people a little bit about yourself and the kids to be taken care of.'
         }
 
 
