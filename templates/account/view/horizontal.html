@@ -5,9 +5,9 @@
   <div class="">
     <img src="{% if user %}{% user_picture_url user %}{% else %}{% static 'images/question_200x200.png' %}{% endif %}" alt="user picture" class="img-50 img-circle min-margin">
     {% if label or icon %}
-    <p class="upper-corner">
-      <span class="label label-{{ color|default:'default' }}">{% if icon %}{% include icon %}{% else %}{{ label }}{% endif %}</span>
-    </p>
+    <p class="upper-corner"><span class="label label-{{ color|default:'default' }}">
+      {% if icon %}{% include icon %}{% else %}{{ label }}{% endif %}
+    </span></p>
     {% endif %}
   </div>
   <div class="text-center{% if not user.get_full_name %} word-break{% endif %}">

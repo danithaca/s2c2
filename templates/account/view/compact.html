@@ -6,9 +6,9 @@
                                                      src="{% user_picture_url user %}" alt="user"
                                                      title="{% user-full-name user %}"></a>
   {% if icon or label %}
-    <p class=" upper-corner">
-      <span class="label label-{{ color|default:'default' }}">{% if icon %}{% include icon %}{% else %}{{ label }}{% endif %}</span>
-    </p>
+    <p class=" upper-corner"><span class="label label-{{ color|default:'default' }}">
+      {% if icon %}{% include icon %}{% else %}{{ label }}{% endif %}
+    </span></p>
   {% endif %}
   {% if not hide_name %}
   <div class="text-center lower-center" title="{% user-full-name user %}" data-toggle="tooltip">
@@ -20,9 +20,9 @@
 <div>
   <img class="img-rounded img-responsive" src="{% static 'images/question_200x200.png' %}" alt="user" title="Not found">
   {% if icon or label %}
-    <p class="upper-corner">
-      <span class="label label-{{ color|default:'default' }}">{% if icon %}{% include icon %}{% else %}{{ label }}{% endif %}</span>
-    </p>
+    <p class="upper-corner"><span class="label label-{{ color|default:'default' }}">
+      {% if icon %}{% include icon %}{% else %}{{ label }}{% endif %}
+    </span></p>
   {% endif %}
   {% if not hide_name %}
     <div class="text-center truncate lower-center" title="Not found" data-toggle="tooltip">
