@@ -1,5 +1,8 @@
-s2c2
-====
+Servuno Documentation
+=================================
+
+Important info
+---------------------------------
 
 Celery command:
 
@@ -7,7 +10,105 @@ Celery command:
 celery worker -A p2 -l info --autoreload
 ```
 
-Tags:
+Deploy to Production Checklist:
+
+1. git pull (on production)
+2. . /opt/python34/bin/activate
+3. ./manage.py collectstatic
+4. touch wsgi.py
+
+
+Production deployment
+---------------------
+
+In settings_local.py:
+
+  * New database settings
+  * DEBUG=FALSE, ALLOWED_HOST=...
+  * (new SECRET_KEY)
+
+
+WSGI Settings
+-------------
+
+In http.conf:
+
+    LoadModule wsgi_module modules/mod_wsgi.so
+    WSGIPythonHome /opt/python34
+    WSGISocketPrefix run/wsgi
+
+In VirtualHost:
+
+    <VirtualHost *:80>
+            ServerName s2c2.knowsun.com
+            ServerAdmin knowsun@localhost
+
+            WSGIScriptAlias / /home/knowsun/s2c2-prod/s2c2/wsgi.py
+            WSGIDaemonProcess s2c2.knowsun.com python-path=/home/knowsun/s2c2-prod:/opt/python34/lib/python3.4/site-packages
+            WSGIProcessGroup s2c2.knowsun.com
+
+            Alias /favicon.ico /home/knowsun/s2c2-prod/assets/static
+
+            <Directory /home/knowsun/s2c2-prod/s2c2>
+                    <Files wsgi.py>
+                            Order allow,deny
+                            Allow from all
+                    </Files>
+            </Directory>
+
+            # note: need trailing slash
+            Alias /static/ /home/knowsun/s2c2-prod/assets/static/
+            <Directory /home/knowsun/s2c2-prod/assets/static>
+                    Order allow,deny
+                    Allow from all
+            </Directory>
+
+            Alias /media/ /home/knowsun/s2c2-prod/assets/media/
+            <Directory /home/knowsun/s2c2-prod/assets/media>
+                    Order allow,deny
+                    Allow from all
+            </Directory>
+
+    </VirtualHost>
+
+
+Timezone concerns
+-----------------
+
+Each user/location is associated with one and only one "area". The area has timezone information.
+
+DayToken/TimeToken do *NOT* care about timezone. They are assumed to be exchangible to textual "tokens", and always agrees with the user's local time. They don't change when Daylight Saving Time changes.
+
+Any DateTimeField needs to care about timezone. They save the exact time something happends.
+
+We use America/Detroit as the default timezone for the backend. In MVP, we don't need to care.
+
+
+Locations, Classrooms, Centers, Areas, Staff, Managers
+------------------------------------------------------
+
+"Area" is like Drupal's organic group. Everything belongs to an area (directly or indirectly).
+Centers belong to a single area.
+Classrooms belong to a single center.
+Managers/Staff belong to one or multiple centers.
+Managers have access to all classrooms of the centers they belong to.
+Staff are shown in classrooms of all centers.
+
+
+GIT Branches
+----------------------------------
+
+s2c2 related branches:
+    * master: the main branch for s2c2 related code in dev (stopped active dev on 2015-08-24, see log)
+    * production: the main branch for s2c2 code in production (stopped active dev on 2015-08-24, see log)
+
+p2 related branches:
+    * p2dev: the main dev branch for p2 (or servuno)
+    * p2prod: the main prod branch for p2
+
+
+GIT Tags (outdated)
+----------------------------------
 
   * backup-1:   before switching to a customized User model. (update: not going to switch to customized User model. use proxy instead)
   * backup-2:   before switching from customized User model, FullUser, back to Profile pattern. Also not using inheritance for "Group".
@@ -19,3 +120,13 @@ Tags:
   * rel-0.2.1:  a few fixes before adding "message" system.
   * rel-0.3:    added message system
   * rel-0.4:    better assignment (arbitrary assignment)
+
+
+Log
+-----------------------------------
+
+*** 2015-08-24 ***
+
+The project started with __s2c2__ (scheduling software for children's center), but gradually moved focus to __p2__ (parents portal) for servuno. The original decision was to keep both s2c2 and p2 codes together in order to reuse code. Now it looks like keeping s2c2 code is more of a liability (preventing code change). The decision now is to remove s2c2 code, but keep the option open to add it back (i.e., keep the SITE_ID structure). This will make p2 more agile to move forward.
+
+Even after code branch break up, both s2c2 and p2 are and will be sharing the same database.
