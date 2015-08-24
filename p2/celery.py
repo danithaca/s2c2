@@ -3,7 +3,7 @@ from celery import Celery
 
 # set the default Django settings module for the 'celery' program.
 # this is necessary to run celery independently to be associated with settings defined in p2.
-# see servuno.py as well.
+# see manage.py as well.
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'p2.settings')
 
 from django.conf import settings

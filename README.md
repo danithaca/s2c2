@@ -72,6 +72,43 @@ In VirtualHost:
     </VirtualHost>
 
 
+Example prod settings_local.py
+------------------------------------
+
+```
+DEBUG = False
+TEMPLATE_DEBUG = False
+ALLOWED_HOSTS = ['servuno.com']
+
+EMAIL_BACKEND = 'django_ses_backend.SESBackend'
+BROKER_URL = 'django://'
+
+DATABASES = {
+    'default': {
+        # note: this engine is provided by mysql. the one with django doesn't support py3.
+        'ENGINE': 'django.db.backends.mysql',
+        'NAME': 's2c2',
+        'USER': 's2c2',
+        'PASSWORD': 'mercy4me',
+        'HOST': 'localhost',   # Or an IP Address that your DB is hosted on
+        'PORT': '3306',
+    }
+}
+
+CACHES = {
+    'default': {
+        'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
+        'LOCATION': 'unique-snowflake',
+        'TIMEOUT': 120,     # 2 mins
+    }
+}
+
+USE_ETAGS = False
+CACHE_MIDDLEWARE_SECONDS = -1
+
+```
+
+
 Timezone concerns
 -----------------
 
