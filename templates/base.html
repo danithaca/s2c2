@@ -1,6 +1,5 @@
 <!DOCTYPE html>
 {% load staticfiles %}
-{#{% load bootstrap %}#}
 <html lang="en">
 <head>
   <meta charset="utf-8">
@@ -12,14 +11,7 @@
 
   <title>{% block title %}{{ title|default:'Servuno' }}{% endblock %}</title>
 
-  {% if SITE_ID == 1 %}
-    <link href="//maxcdn.bootstrapcdn.com/bootswatch/3.3.4/spacelab/bootstrap.min.css" rel="stylesheet">
-  {% elif SITE_ID == 2 %}
-    <link href="//maxcdn.bootstrapcdn.com/bootswatch/3.3.4/cerulean/bootstrap.min.css" rel="stylesheet">
-  {% else %}
-    <link href="//maxcdn.bootstrapcdn.com/bootswatch/3.3.4/cerulean/bootstrap.min.css" rel="stylesheet">
-{#    <link href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap.min.css" rel="stylesheet">#}
-  {% endif %}
+  <link href="//maxcdn.bootstrapcdn.com/bootswatch/3.3.4/cerulean/bootstrap.min.css" rel="stylesheet">
   <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/jasny-bootstrap/3.1.3/css/jasny-bootstrap.min.css">
   <link href="//maxcdn.bootstrapcdn.com/font-awesome/4.4.0/css/font-awesome.min.css" rel="stylesheet">
   <link href="{% static 'style.css' %}" rel="stylesheet" type="text/css">
@@ -110,18 +102,13 @@
 {#      <ul class="nav navbar-nav">#}
 {#        <li><a href="/"><i class="fa fa-home"></i> Home</a></li>#}
 {#      </ul>#}
-      {% if SITE_ID == 1 %}
-        <ul class="nav navbar-nav navbar-right">
-          {% include "includes/menu_s2c2.html" %}
-        </ul>
-      {% elif SITE_ID == 2 %}
+
 {#        <ul class="nav navbar-nav navbar-left">#}
 {#          {% include "includes/menu_p2_left.html" %}#}
 {#        </ul>#}
-        <ul class="nav navbar-nav navbar-right">
-          {% include "includes/menu_p2_right.html" %}
-        </ul>
-      {% endif %}
+      <ul class="nav navbar-nav navbar-right">
+        {% include "includes/menu_p2_right.html" %}
+      </ul>
 
     </div><!--/.nav-collapse -->
   </div>
@@ -134,8 +121,7 @@
 
   {% block page %}
     <div>
-      <h1>Bootstrap starter template</h1>
-      <p class="lead">Use this document as a way to quickly start any new project.<br> All you get is this text and a mostly barebones HTML document.</p>
+      <h1>Servuno Template</h1>
     </div>
   {% endblock %}
 

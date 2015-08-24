@@ -144,8 +144,13 @@ p2 related branches:
     * p2prod: the main prod branch for p2
 
 
-GIT Tags (outdated)
+GIT Tags
 ----------------------------------
+
+New tags:
+  * p2-0.1: initial release, before "minimalist design" refactor.
+
+Outdated, only pertain to s2c2 related stuff:
 
   * backup-1:   before switching to a customized User model. (update: not going to switch to customized User model. use proxy instead)
   * backup-2:   before switching from customized User model, FullUser, back to Profile pattern. Also not using inheritance for "Group".
@@ -167,3 +172,5 @@ Log
 The project started with __s2c2__ (scheduling software for children's center), but gradually moved focus to __p2__ (parents portal) for servuno. The original decision was to keep both s2c2 and p2 codes together in order to reuse code. Now it looks like keeping s2c2 code is more of a liability (preventing code change). The decision now is to remove s2c2 code, but keep the option open to add it back (i.e., keep the SITE_ID structure). This will make p2 more agile to move forward.
 
 Even after code branch break up, both s2c2 and p2 are and will be sharing the same database.
+
+We won't actively remove s2c2 code. The code break up just means that we don't care whether or not code changes to p2 would advertly affect s2c2.
