@@ -316,6 +316,10 @@ class Match(StatusMixin, models.Model):
     def is_confirmed(self):
         return self == self.contract.confirmed_match
 
+    # this shows whether the server has responded.
+    def is_responded(self):
+        return self.is_accepted() or self.is_declined()
+
     def engage(self):
         """
         shout to the targeted user and engage him/her for this match.

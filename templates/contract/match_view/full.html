@@ -10,7 +10,7 @@ $(document).ready(function() {
     var $match_response = $('#match-response');
     var post_data = $match_response.data('changed') ? {response: $match_response.val()} : {};
     $.post($(this).data('url'), post_data, function(data) {
-      location.reload();
+      window.location = '{% url "contract:match_view" pk=match.id %}';
     });
   });
 
@@ -18,10 +18,23 @@ $(document).ready(function() {
     $(this).data('changed', true);
   });
 
+  {% if match.is_responded %}
+    $('#match-non-edit-bar').hide();
+    $('#match-edit-bar').show();
+    $('button[name="edit"]').click(function() {
+      $('#match-non-edit-bar').show();
+      $('#match-edit-bar').hide();
+      $('#match-response').removeAttr('readonly');
+    });
+  {% else %}
+    $('#match-edit-bar').hide();
+  {% endif %}
+
   {% if user.is_staff %}
     // for staff member, allow create and preview match.
     $('.contract-summary').addClass('hover-pointer');
     $('.contract-summary').click(function () {
+      {# instead of hard code here, maybe use 'url'? can't figure out why i hard coded earlier with client side code. #}
       window.location = '/contract/' + $(this).data('contract-id');
     });
   {% endif %}
@@ -46,22 +59,23 @@ $(document).ready(function() {
           {% include 'contract/match_view/extended.html' with match=match contract=contract %}
         </div>
         <div class="panel-body">
-          <textarea class="form-control" rows="3" placeholder="Optional note" id="match-response">{{ match.response  }}</textarea>
+          <textarea class="form-control" rows="3" placeholder="Optional note" id="match-response"{% if match.is_responded or contract.is_event_expired %} readonly{% endif %}>{{ match.response }}</textarea>
         </div>
 
-        {% if match.target_user == user or user.is_staff %}
+        {% if match.target_user == user or user.is_staff %}{% if not contract.is_event_expired %}
           <div class="panel-footer text-center">
-            {# we always want the "accept" button available so people can update the note. #}
-            <button class="btn btn-success" name="match" data-url="{% url 'contract:match_accept' pk=match.id %}" title="You agree to do this job, although the requesting parent might not choose you." data-toggle="tooltip">Accept</button>
-            {# disable "decline" button if the match is already confirmed. #}
-            <button class="btn btn-danger{% if match.is_confirmed %} disabled{% endif %}"
-                    name="match" data-url="{% url 'contract:match_decline' pk=match.id %}"
-                    title="You will not help this time and will not receive further notice about this job."
-                    data-toggle="tooltip">Decline
-            </button>
-            <div class="help-block">Choose "Accept" if you might help <em>{% user-short-name contract.initiate_user %}</em>. Specify your conditions (if any) in the text box above. Choose "Decline" if you are sure you cannot help.</div>
+            <div id="match-non-edit-bar">
+              {# we always want the "accept" button available so people can update the note. #}
+              <button class="btn btn-success" name="match" data-url="{% url 'contract:match_accept' pk=match.id %}" title="You agree to do this job, although might not get chosen." data-toggle="tooltip">Accept</button>
+              {# disable "decline" button if the match is already confirmed. #}
+              <button class="btn btn-danger{% if match.is_confirmed %} disabled{% endif %}" name="match" data-url="{% url 'contract:match_decline' pk=match.id %}" title="You will not help this time and will not receive further notice." data-toggle="tooltip">Decline</button>
+              <div class="help-block">Choose "Accept" if you might help <em>{% user-short-name contract.initiate_user %}</em>. Specify your conditions (if any) in the text box above. Choose "Decline" if you are sure you cannot help.</div>
+            </div>
+            <div id="match-edit-bar">
+              <button class="btn btn-primary" name="edit">Edit</button>
+            </div>
           </div>
-        {% endif %}
+        {% endif %}{% endif %}
       </div>
     </div>
   </div>
