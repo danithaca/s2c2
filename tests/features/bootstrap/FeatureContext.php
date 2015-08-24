@@ -354,6 +354,7 @@ class FeatureContext extends MinkContext implements SnippetAcceptingContext
 
     // wait 1 second for selenium to catch up on the browser side.
     $this->pauseSeconds(1);
+    $this->getSession()->wait(500, 'false');
   }
 
   /**

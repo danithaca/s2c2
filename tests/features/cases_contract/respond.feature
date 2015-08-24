@@ -13,8 +13,14 @@ Feature: test users interactions between the client and the server
     When I fill in "match-response" with "message-i-declined"
     When I press "Decline"
     Then I should see "Declined"
-    And I should not see an "button[name='edit']" element
-    And I should not see "Accept"
+    And I should see a "button[name='edit']" element
+    # And I should not see a "button[name='match']" element
+    When I evaluate the following Javascript:
+      """
+      return $("button[name='match']").is(':hidden');
+      """
+    Then check Javascript result is true
+
     And the "match-response" field should contain "message-i-declined"
     When I evaluate the following Javascript:
       """
@@ -25,7 +31,13 @@ Feature: test users interactions between the client and the server
     # check edit button
     When I press "Edit"
     And I should see "Accept"
-    And I should not see an "button[name='edit']" element
+    #And I should not see an "button[name='edit']" element
+    When I evaluate the following Javascript:
+      """
+      return $("button[name='edit']").is(':hidden');
+      """
+    Then check Javascript result is true
+
     When I evaluate the following Javascript:
       """
       return $('#match-response').attr('readonly') != 'readonly';
