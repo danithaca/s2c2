@@ -134,12 +134,14 @@ class ContractChangeStatus(LoginRequiredMixin, JSONResponseMixin, AjaxResponseMi
         return self.render_json_response({'success': True, 'op': op})
 
 
-class MatchDetail(DetailView):
+class MatchDetail(LoginRequiredMixin, DetailView):
     model = Match
     template_name = 'contract/match_view/full.html'
+    # edit = False
 
     def get_context_data(self, **kwargs):
         kwargs['contract'] = self.object.contract
+        # kwargs['edit'] = self.edit
         return super().get_context_data(**kwargs)
 
 
