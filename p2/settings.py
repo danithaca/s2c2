@@ -178,6 +178,9 @@ TIME_FORMAT = 'h:iA'
 
 ################# user related ###################
 
+# AUTH_USER_MODEL = 'puser.PUser'
+AUTH_USER_MODEL = 'auth.User'
+
 AUTHENTICATION_BACKENDS = (
     'django.contrib.auth.backends.ModelBackend',
     'account.auth_backends.EmailAuthenticationBackend',

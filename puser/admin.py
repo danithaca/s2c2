@@ -3,7 +3,7 @@ from django.contrib.admin import SimpleListFilter
 from django.contrib.auth.admin import UserAdmin
 from django.contrib.auth.models import User
 from image_cropping import ImageCroppingMixin
-from puser.models import Info
+from puser.models import Info, PUser
 
 
 class UserInfoAdmin(UserAdmin):
@@ -45,3 +45,4 @@ class UserInfoAdmin(UserAdmin):
 # Re-register UserAdmin, GroupAdmin
 admin.site.unregister(User)
 admin.site.register(User, UserInfoAdmin)
+# admin.site.register(PUser, UserInfoAdmin)

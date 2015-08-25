@@ -1,4 +1,4 @@
-from django.contrib.auth.models import User
+from django.contrib.auth.models import User, AbstractUser
 from django.core.urlresolvers import reverse
 from django.db import models
 from django.db.models import Q, F
@@ -8,7 +8,7 @@ from localflavor.us.models import PhoneNumberField
 from django.core import checks
 from circle.models import Membership, Circle
 from contract.models import Contract, Match, Engagement
-from p2 import settings
+from django.conf import settings
 from s2c2.utils import auto_user_name, deprecated
 
 
@@ -32,7 +32,7 @@ class Info(models.Model):
     Authentication/authorization would be handled by user_account.
     """
 
-    user = models.OneToOneField(User, primary_key=True)
+    user = models.OneToOneField(settings.AUTH_USER_MODEL, primary_key=True)
     address = models.CharField(max_length=200, blank=True)
     phone = PhoneNumberField(blank=True)
     note = models.TextField(blank=True)
@@ -62,13 +62,15 @@ class Info(models.Model):
         return info
 
 
+# class PUser(AbstractUser):
 class PUser(User):
     """
     This is the proxy class for User instead of using monkey patch.
     """
 
-    class Meta:
+    class Meta():
         proxy = True
+        # db_table = 'auth_user'
 
     # def __getattr__(self, attrib):
     #     if self.has_info() and hasattr(self.info, attrib):

@@ -8,6 +8,7 @@ from localflavor.us.models import USStateField
 from pytz import timezone
 from s2c2 import settings
 from s2c2.models import TemplateSettings
+from django.conf import settings
 
 
 class Area(models.Model):

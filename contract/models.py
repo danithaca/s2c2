@@ -2,12 +2,12 @@ from datetime import timedelta, datetime
 from django.utils import timezone, dateparse
 from enum import Enum
 from decimal import Decimal
-from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse
 from django.db import models
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 from contract import tasks
+from django.conf import settings
 
 
 class StatusMixin(object):
@@ -94,7 +94,7 @@ class Contract(StatusMixin, models.Model):
         CANCELED = 5        # for some reason this was canceled.
         FAILED = 6          # was confirmed, but not carried through.
 
-    initiate_user = models.ForeignKey(User)
+    initiate_user = models.ForeignKey(settings.AUTH_USER_MODEL)
     confirmed_match = models.OneToOneField('Match', blank=True, null=True, related_name='confirmed_contract')     # user string for classname per django doc.
 
     created = models.DateTimeField(auto_now_add=True)
@@ -270,7 +270,7 @@ class Match(StatusMixin, models.Model):
         CANCELED = 5            # the initiate_user canceled the match for some reason.
 
     contract = models.ForeignKey(Contract)
-    target_user = models.ForeignKey(User)
+    target_user = models.ForeignKey(settings.AUTH_USER_MODEL)
 
     created = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True)

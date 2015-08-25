@@ -1,7 +1,6 @@
 from enum import Enum
-from django.contrib.auth.models import User
 from django.db import models
-
+from django.conf import settings
 
 class Circle(models.Model):
     """
@@ -22,10 +21,10 @@ class Circle(models.Model):
     type = models.PositiveSmallIntegerField(choices=[(t.value, t.name.capitalize()) for t in Type])
 
     # the last resort to access someone in the circle. usually we'll use membership.
-    owner = models.ForeignKey(User, related_name='owner')
+    owner = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='owner')
     created = models.DateTimeField(auto_now_add=True)
 
-    members = models.ManyToManyField(User, through='Membership')
+    members = models.ManyToManyField(settings.AUTH_USER_MODEL, through='Membership')
 
     from location.models import Area
     # circle's listing area. doesn't necessarily mean every member in the circle have to be in the area
@@ -91,7 +90,7 @@ class Membership(models.Model):
         NORMAL = 1
         ADMIN = 2
 
-    member = models.ForeignKey(User)
+    member = models.ForeignKey(settings.AUTH_USER_MODEL)
     circle = models.ForeignKey(Circle)
 
     # this specifies whether the user is disabled or activated
