@@ -51,6 +51,7 @@ INSTALLED_APPS = (
     #'debug_toolbar',
     #'bootstrap3_datetime',
     'kombu.transport.django',  # for celery
+    'login_token',
 
     # customized
     's2c2',
@@ -76,6 +77,7 @@ MIDDLEWARE_CLASSES = (
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'django.contrib.sites.middleware.CurrentSiteMiddleware',
 
+    'login_token.middleware.LoginTokenMiddleware',
     'puser.middleware.PUserMiddleware',
 
     # external
@@ -178,7 +180,9 @@ TIME_FORMAT = 'h:iA'
 
 AUTHENTICATION_BACKENDS = (
     'django.contrib.auth.backends.ModelBackend',
-    'account.auth_backends.EmailAuthenticationBackend'
+    'account.auth_backends.EmailAuthenticationBackend',
+    # this is the login token backend.
+    'login_token.auth_backends.LoginTokenAuthenticationBackend',
 )
 
 # from djang-user-account
@@ -245,6 +249,10 @@ LOGGING = {
     'p2.management': {
         'handlers': ['console'],
         'level': 'DEBUG',
+    },
+    'login_token.management': {
+        'handlers': ['console'],
+        'level': 'INFO',
     },
 }
 
