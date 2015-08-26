@@ -40,3 +40,7 @@ class CalendarView(LoginRequiredMixin, TemplateView):
 
 class HelpView(TemplateView):
     template_name = 'pages/help.html'
+
+
+class AboutView(TemplateView):
+    template_name = 'pages/about.html'

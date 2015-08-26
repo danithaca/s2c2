@@ -9,6 +9,7 @@ urlpatterns = patterns(
     '',
     url(r'^$', views.home, name='home'),
     url(r'^help/$', views.HelpView.as_view(), name='help'),
+    url(r'^about/$', views.AboutView.as_view(), name='about'),
     url(r'^calendar/$', views.CalendarView.as_view(), name='calendar'),
 
     # first occurance takes priority

@@ -7,7 +7,7 @@ from puser.models import Info
 
 
 class SignupBasicForm(account.views.SignupForm):
-    required_css_class = 'required'
+    # required_css_class = 'required'
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
