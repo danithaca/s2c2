@@ -1,3 +1,4 @@
+from account.models import Account, EmailAddress
 from django.contrib.auth.models import User, AbstractUser
 from django.core.urlresolvers import reverse
 from django.db import models
@@ -9,6 +10,7 @@ from django.core import checks
 from circle.models import Membership, Circle
 from contract.models import Contract, Match, Engagement
 from django.conf import settings
+from login_token.models import Token
 from s2c2.utils import auto_user_name, deprecated
 
 
@@ -72,6 +74,9 @@ class PUser(User):
         proxy = True
         # db_table = 'auth_user'
 
+    # class AlreadyExists(Exception):
+    #     pass
+
     # def __getattr__(self, attrib):
     #     if self.has_info() and hasattr(self.info, attrib):
     #         return getattr(self.info, attrib)
@@ -97,13 +102,6 @@ class PUser(User):
         except Info.DoesNotExist:
             return None
 
-    # def join(self, circle):
-    #     """
-    #     This is very simple, doesn't handle "approval" notification, etc.
-    #     """
-    #     membership, created = Membership.objects.update_or_create(member=self, circle=circle, defaults={'active': True})
-    #     return membership
-
     # a person could have multiple personal list based on area.
     def get_personal_circle(self, area=None):
         if area is None:
@@ -114,18 +112,32 @@ class PUser(User):
         return circle
 
     @staticmethod
-    def create_dummy(email):
-        """
-        Create a new "stub" user
-        :return: the created puser object
-        """
-        # todo: check duplicate email
+    def create(email, password=None, dummy=True):
+        # supposedly to use in the referral creation phase and not the full process of user signup. if not use in referral creation
+        # neglected: 1. signup_code, 2.email verification (some cases email might have already been verified), 3. email confirmation requirement, 4. login
+        assert not PUser.objects.filter(email=email).exists() and not EmailAddress.objects.filter(email=email).exists()
+
         user = PUser()
         user.username = auto_user_name(email)
         user.email = email
-        user.set_unusable_password()
-        user.is_active = False
+        if not dummy and password:
+            user.set_password(password)
+        else:
+            user.set_unusable_password()
+        # make sure user is active
+        user.is_active = True
+
+        # we want to handle Account/EmailAddress creation manually, because signals have some
+        user._disable_account_creation = True
         user.save()
+
+        # now create Account/EmailAddress
+        Account.create(user=user)
+
+        # create Info(?) and login token.
+        if dummy:
+            Token.generate(user, is_user_registered=False)
+
         return user
 
     # this function is convenient but we still don't want to have it because "create" involves many instances
@@ -198,9 +210,6 @@ class PUser(User):
         """
         return self.membership_set.filter(circle__type=Circle.Type.PERSONAL.value, active=True).exclude(circle__owner=self)
 
-    def is_onboard(self):
-        return self.has_info() and self.info.area and self.first_name
-
     def engagement_queryset(self):
         return Contract.objects.filter(Q(initiate_user=self) | Q(match__target_user=self)).distinct()
 
@@ -241,3 +250,20 @@ class PUser(User):
         """
         assert isinstance(client, User)     # PUser is also an instance of user.
         return Contract.objects.filter(confirmed_match__target_user=self, initiate_user=client, status=Contract.Status.SUCCESSFUL.value).count()
+
+    ######## methods that check user's status #########
+    # is_active: from django system. inactive means the user cannot login (perhaps a spam user), and cannot use the site.
+    # is_registered: shows whether the user is signed up by other people, or has been through the sign up process. not-registered user doesn't have a valid password
+    # is_onboard: user has been through the onboarding process and (should) added first/last name and area.
+    # is_onboard includes is_registered. is_active is orthogonal.
+
+    def is_onboard(self):
+        return self.has_info() and self.info.area and self.first_name
+
+    def is_registered(self):
+        try:
+            token = self.token
+            return token.is_user_registered
+        except Token.DoesNotExist:
+            # no token by default means already registered.
+            return True

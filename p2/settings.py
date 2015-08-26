@@ -200,7 +200,10 @@ ACCOUNT_REMEMBER_ME_EXPIRY = 60 * 60 * 24 * 2  # 2 days
 # if needed, we could override hookset to use celery for sending emails
 # ACCOUNT_HOOKSET =
 ACCOUNT_USER_DISPLAY = lambda user: user.get_full_name() or user.email
-ACCOUNT_CREATE_ON_SAVE = True  # default. automatically create "Account" when user object is created.
+ACCOUNT_CREATE_ON_SAVE = True  # default. automatically create "Account"/"EmailAddress" when user object is created.
+ACCOUNT_LANGUAGES = (
+    ('en-us', 'English - US'),
+)
 
 # override login urls
 LOGIN_REDIRECT_URL = '/'

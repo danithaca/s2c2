@@ -20,6 +20,7 @@ class Token(models.Model):
     is_user_registered = models.BooleanField(default=True)
 
     # if the token becomes invalid, either delete it, or generate a new valid token.
+    # reason to do this is because otherwise "is_user_registered" would be duplicated in multiple token entries.
     # is_valid = models.BooleanField(default=True)
     token = models.CharField(max_length=64, unique=True)
 
@@ -28,12 +29,12 @@ class Token(models.Model):
     accessed = models.DateTimeField(blank=True, null=True)
 
     @staticmethod
-    def generate(user, is_user_registered=True):
+    def generate(user, is_user_registered=None):
         token_string = generate_token(user.email)
-        token = Token.objects.update_or_create(user=user, default={
-            'is_user_registered': is_user_registered,
-            'token': token_string,
-        })
+        defaults = {'token': token_string}
+        if isinstance(is_user_registered, bool):
+            defaults['is_user_registered'] = is_user_registered
+        token, created = Token.objects.update_or_create(user=user, defaults=defaults)
         return token
 
 

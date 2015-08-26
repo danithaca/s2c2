@@ -39,7 +39,7 @@ class Notify(object):
             puser = PUser.objects.get(email=email)
             return puser
         except PUser.DoesNotExist:
-            return PUser.create_dummy(email)
+            return PUser.create(email, dummy=True)
 
     def send(self, from_user, to_user, tpl_prefix, ctx=None, anonymous=False):
         """

@@ -1,8 +1,10 @@
+from account.models import Account, EmailAddress
 from django.contrib import admin
 from django.contrib.admin import SimpleListFilter
 from django.contrib.auth.admin import UserAdmin
 from django.contrib.auth.models import User
 from image_cropping import ImageCroppingMixin
+from login_token.models import Token
 from puser.models import Info, PUser
 
 
@@ -12,7 +14,20 @@ class UserInfoAdmin(UserAdmin):
         can_delete = False
         verbose_name_plural = 'info'
 
-    inlines = (InfoInline, )
+    class TokenInline(admin.StackedInline):
+        model = Token
+        can_delete = True
+
+    class AccountInline(admin.StackedInline):
+        model = Account
+        can_delete = True
+
+    class EmailAddressInline(admin.StackedInline):
+        model = EmailAddress
+        can_delete = True
+        extra = 0
+
+    inlines = (InfoInline, TokenInline, EmailAddressInline, AccountInline)
 
     add_fieldsets = (
         (None, {

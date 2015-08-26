@@ -338,4 +338,5 @@ class OnboardWizard(SessionWizardView):
 class APIGetByEmail(LoginRequiredMixin, RetrieveAPIView):
     lookup_field = 'email'
     serializer_class = UserSerializer
-    queryset = PUser.objects.filter(is_active=True)
+    queryset = PUser.objects.filter(is_active=True).exclude(token__is_user_registered=False)
+    # queryset = PUser.objects.filter(is_active=True)

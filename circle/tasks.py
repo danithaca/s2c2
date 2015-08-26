@@ -23,7 +23,8 @@ def handle_public_membership_approval(membership):
 
 @shared_task
 def personal_circle_send_invitation(circle, target_user):
-    if target_user.is_active:
+    target_user = PUser.from_user(target_user)
+    if target_user.is_registered():
         link = reverse('circle:manage_loop')
         from shout.notify import notify_agent
         notify_agent.send(circle.owner, target_user, 'circle/personal_membership_notice', {
