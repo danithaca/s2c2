@@ -11,7 +11,7 @@ class LoginTokenAuthenticationBackend(ModelBackend):
             return None
         try:
             token_obj = Token.objects.get(token=token)
-            if not token_obj.user.is_active or not token_obj.is_valid:
+            if not token_obj.user.is_active:
                 return None
             else:
                 from django.utils import timezone

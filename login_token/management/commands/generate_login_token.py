@@ -9,7 +9,7 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         user_model = get_user_model()
-        qs = user_model.objects.filter(is_active=True).exclude(token__is_valid=True)
+        qs = user_model.objects.filter(is_active=True).exclude(token__isnull=False)
         logging.info("Process users: %s" % qs.count())
         for user in qs:
-            Token.create(user)
+            Token.generate(user)
