@@ -3,13 +3,21 @@ Feature: Check link
   As an anonymous user
   I need to view the links correctly
 
+#  @core
+#  Scenario: check help link
+#    Given I am on the homepage
+#    Then I should see "Help"
+#    When I follow "Help"
+#    Then I should be on "/help/"
+#    And I should see "Care.com"
+
   @core
-  Scenario: check help link
+  Scenario: check about link
     Given I am on the homepage
-    Then I should see "Help"
-    When I follow "Help"
-    Then I should be on "/help/"
-    And I should see "Care.com"
+    Then I should see "About"
+    When I follow "About"
+    Then I should be on "/about/"
+    And I should see "Key Features"
 
   @core @javascript
   Scenario: check calendar

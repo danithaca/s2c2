@@ -1,4 +1,5 @@
 {% block body %}{% endblock %}
 {% if signup_warning and not to_user.is_registered %}
-NOTICE: Please sign up at {{ site_url }}{% url 'account_signup' %}?email={{ to_user.email }}
+-- Please sign up at --
+{{ site_url }}{% url 'account_signup' %}?email={{ to_user.email }}
 {% endif %}
