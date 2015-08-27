@@ -17,25 +17,6 @@ Feature: Test referral user
 
 
   @javascript
-  Scenario: check dummy user account
-    Given I am logged in as admin
-    And I am on "/admin/auth/user"
-    When I follow "to-be-deleted-referral"
-    Then the checkbox "Active" should be checked
-    And the checkbox "Is user registered" should not be checked
-    And the checkbox "Primary" should be checked
-    And the checkbox "Verified" should not be checked
-    And the "Email" field should contain "to-be-deleted-referral@servuno.com"
-    # we assume 1 is always present in a 64 length string
-    # And the "Token" field should contain "1"
-    When I evaluate the following Javascript:
-      """
-      return document.getElementById('id_token-0-token').value.length == 64;
-      """
-    Then check Javascript result is true
-
-
-  @javascript
   Scenario: follow sign up step
     When I open the last email
     Then show email content

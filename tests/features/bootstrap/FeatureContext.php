@@ -377,4 +377,15 @@ class FeatureContext extends MinkContext implements SnippetAcceptingContext
       throw new Exception("Javascript is not true.");
     }
   }
+
+  /**
+   * @Transform /^:([A-Z_]+)$/
+   */
+  public function constantMapping($key)
+  {
+    $mapping = array(
+      'SIGNUP_LANDING' => '/account/onboard/profile/',
+    );
+    return @$mapping[$key];
+  }
 }

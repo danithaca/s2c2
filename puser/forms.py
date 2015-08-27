@@ -1,9 +1,10 @@
 from account.forms import LoginEmailForm
+from account.models import EmailAddress
 import account.views
 from django import forms
 from django.contrib.auth.models import User
 from django.forms import ModelForm, fields_for_model
-from puser.models import Info
+from puser.models import Info, PUser
 
 
 class SignupBasicForm(account.views.SignupForm):
@@ -15,6 +16,18 @@ class SignupBasicForm(account.views.SignupForm):
         del self.fields["username"]
         # this is "OrderedDict
         self.fields.move_to_end('email', False)
+
+    # here we override to allow existing email if the email is "pre-registered".
+    def clean_email(self):
+        value = self.cleaned_data["email"]
+        try:
+            user = PUser.get_by_email(value)
+            if not user.is_registered():
+                self.cleaned_data['pre_registered_user'] = user
+                return
+        except PUser.DoesNotExist:
+            pass
+        return super().clean_email()
 
 
 class SignupConfirmForm(forms.Form):

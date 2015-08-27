@@ -20,6 +20,7 @@ from rest_framework.generics import RetrieveAPIView
 from circle.forms import SignupFavoriteForm, SignupCircleForm, ManagePersonalForm
 from circle.models import Circle, Membership
 from circle.views import ManagePersonal, ManagePublic
+from login_token.models import Token
 from puser.forms import SignupBasicForm, UserInfoForm, SignupConfirmForm, UserPictureForm, LoginEmailAdvForm
 from puser.models import Info, PUser
 from puser.serializers import UserSerializer
@@ -61,30 +62,29 @@ class SignupView(account.views.SignupView):
             form.fields['email'].initial = self.request.GET['email']
         return form
 
-    # SignupBasicForm (subclass of Account.SignupForm) checks email existence using EmailAddress
-    # a dummy user won't have "EmailAddress" and therefore should be pass form validation.
-    # we'll still have to take care of "create_user" when dummy user alreay exists.
-    def create_user(self, form, commit=True, **kwargs):
-        email = form.cleaned_data["email"].strip()
-        try:
-            user = PUser.get_by_email(email)
-            if self.signup_code:
-                self.request.session['signup_inviter_email'] = self.signup_code.inviter.email
-            # even if there's no signup_code, we still allow signup if "active" is not set.
-            # if self.signup_code and self.signup_code.email == email and not user.is_active:
-            if not user.is_active:
-                user.is_active = True
-                password = form.cleaned_data.get("password")
-                if password:
-                    user.set_password(password)
-                else:
-                    user.set_unusable_password()
-                if commit:
-                    user.save()
-                return user
-        except PUser.DoesNotExist:
-            pass
-        return super().create_user(form, commit, **kwargs)
+    def form_valid(self, form):
+        prereg_user = form.cleaned_data.get('pre_registered_user', None)
+        if prereg_user:
+            self.created_user = prereg_user
+            password = form.cleaned_data.get("password")
+            assert password
+            prereg_user.set_password(password)
+            prereg_user.save()
+            try:
+                # remove pre-registration status
+                token = prereg_user.token
+                token.is_user_registered = True
+                token.save()
+
+                # mark email verified, if token exists
+                # todo: this is not well thought
+                prereg_user.emailaddress_set.filter(email=prereg_user.email).update(verified=True)
+            except Token.DoesNotExist:
+                pass
+            self.login_user()
+            return redirect(self.get_success_url())
+        else:
+            return super().form_valid(form)
 
 
 class UserEdit(LoginRequiredMixin, FormView):

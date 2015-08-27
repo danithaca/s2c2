@@ -11,7 +11,7 @@ from s2c2.utils import dummy
 
 def home(request):
     if request.user.is_anonymous():
-        return render(request, 'landing_p2.html', {'form_login': LoginEmailForm(), 'form_signup': SignupBasicForm})
+        return redirect(reverse('account_login'))
     else:
         # find engagement for the user
         puser = request.puser
@@ -44,3 +44,13 @@ class HelpView(TemplateView):
 
 class AboutView(TemplateView):
     template_name = 'pages/about.html'
+
+
+class LandingView(TemplateView):
+    template_name = 'landing_p2.html'
+
+    def get_context_data(self, **kwargs):
+        ctx = super().get_context_data(**kwargs)
+        ctx['form_login'] = LoginEmailForm()
+        ctx['form_signup'] = SignupBasicForm()
+        return ctx
