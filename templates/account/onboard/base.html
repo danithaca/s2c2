@@ -30,20 +30,24 @@ $(document).ready(function() {
 {#          <h4 class="list-group-item-heading">Step 1</h4>#}
 {#          <p class="list-group-item-text">Create an account</p>#}
 {#        </a>#}
-        <a href="{% url 'onboard_profile' %}" class="list-group-item">
+        <a href="{% url 'onboard_about' %}" class="list-group-item">
           <h4 class="list-group-item-heading">Step 1</h4>
+          <p class="list-group-item-text">About Servuno</p>
+        </a>
+        <a href="{% url 'onboard_profile' %}" class="list-group-item">
+          <h4 class="list-group-item-heading">Step 2</h4>
           <p class="list-group-item-text">Update profile</p>
         </a>
         <a href="{% url 'onboard_personal' %}" class="list-group-item">
-          <h4 class="list-group-item-heading">Step 2</h4>
+          <h4 class="list-group-item-heading">Step 3</h4>
           <p class="list-group-item-text">Add contacts to your personal list</p>
         </a>
         <a href="{% url 'onboard_public' %}" class="list-group-item">
-          <h4 class="list-group-item-heading">Step 3</h4>
+          <h4 class="list-group-item-heading">Step 4</h4>
           <p class="list-group-item-text">Join parents circles</p>
         </a>
         <a href="{% url 'onboard_picture' %}" class="list-group-item">
-          <h4 class="list-group-item-heading">Step 4</h4>
+          <h4 class="list-group-item-heading">Step 5</h4>
           <p class="list-group-item-text">Upload profile picture</p>
         </a>
       </div>
@@ -53,7 +57,7 @@ $(document).ready(function() {
       {% block step-block %}
         <form class="form-horizontal" method="post" autocapitalize="off" {% if form.is_multipart %}enctype="multipart/form-data"{% endif %}>
           {% csrf_token %}
-          {{ form|bootstrap_horizontal:'col-sm-3' }}
+          {% if form %}{{ form|bootstrap_horizontal:'col-sm-3' }}{% endif %}
           {% block submit-block %}
           <div class="form-group">
             <div class="col-sm-offset-3 col-sm-9">

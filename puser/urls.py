@@ -9,8 +9,9 @@ urlpatterns = patterns(
     # url(r"^signup/$", views.OnboardWizard.as_view(), name="account_signup"),
     url(r"^signup/$", views.SignupView.as_view(), name="account_signup"),
 
-    url(r"^onboard/profile/$", views.OnboardProfile.as_view(), name="onboard_start"),
+    url(r"^onboard/about/$", views.OnboardAbout.as_view(), name="onboard_start"),
     # url(r"^onboard/signup/$", views.OnboardSignup.as_view(), name="onboard_signup"),
+    url(r"^onboard/about/$", views.OnboardAbout.as_view(), name="onboard_about"),
     url(r"^onboard/profile/$", views.OnboardProfile.as_view(), name="onboard_profile"),
     url(r"^onboard/personal/$", views.OnboardPersonalCircle.as_view(), name="onboard_personal"),
     url(r"^onboard/public/$", views.OnboardPublicCircle.as_view(), name="onboard_public"),

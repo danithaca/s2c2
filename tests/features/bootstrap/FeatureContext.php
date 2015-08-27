@@ -384,7 +384,7 @@ class FeatureContext extends MinkContext implements SnippetAcceptingContext
   public function constantMapping($key)
   {
     $mapping = array(
-      'SIGNUP_LANDING' => '/account/onboard/profile/',
+      'SIGNUP_LANDING' => '/account/onboard/about/',
     );
     return @$mapping[$key];
   }

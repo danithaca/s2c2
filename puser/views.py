@@ -5,6 +5,7 @@ import account.views
 import account.forms
 from account.conf import settings
 from braces.views import UserPassesTestMixin, FormValidMessageMixin
+from django import forms
 from django.contrib.auth.decorators import login_required
 from django.contrib import auth
 from django.contrib.auth import forms as auth_forms
@@ -234,6 +235,9 @@ class MultiStepViewsMixin(object):
     #         for field_name in form.fields:
     #             form.fields[field_name].widget.attrs['readonly'] = True
     #     return form
+
+class OnboardAbout(MultiStepViewsMixin, TemplateView):
+    template_name = 'account/onboard/about.html'
 
 
 class OnboardProfile(MultiStepViewsMixin, UserEdit):

@@ -30,8 +30,11 @@ Feature: Test referral user
       | Password         | password |
       | Password (again) | password |
     And I press "Sign up"
-    Then I should be on "/account/onboard/profile/"
+    Then I should be on "/account/onboard/about/"
+    And I should see "Key Features"
 
+    When I follow "Next >"
+    Then I should be on "/account/onboard/profile/"
     When I fill in the following:
       | First name | 2BD |
       | Last name  | Bot |
