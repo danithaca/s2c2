@@ -7,6 +7,7 @@ from account.conf import settings
 from braces.views import UserPassesTestMixin, FormValidMessageMixin
 from django.contrib.auth.decorators import login_required
 from django.contrib import auth
+from django.contrib.auth import forms as auth_forms
 from django.core.files.storage import FileSystemStorage
 from django.core.urlresolvers import reverse_lazy
 from django.http import HttpResponse
@@ -37,6 +38,14 @@ def logout(request):
 class LoginView(account.views.LoginView):
     # switching to use Email-only login form
     form_class = LoginEmailAdvForm
+
+
+class SimpleChangePasswordView(account.views.ChangePasswordView):
+    form_class = auth_forms.SetPasswordForm
+
+    def form_valid(self, form):
+        form.cleaned_data['password_new'] = form.cleaned_data['new_password1']
+        return super().form_valid(form)
 
 
 class SignupView(account.views.SignupView):
@@ -78,7 +87,7 @@ class SignupView(account.views.SignupView):
 
                 # mark email verified, if token exists
                 # todo: this is not well thought
-                prereg_user.emailaddress_set.filter(email=prereg_user.email).update(verified=True)
+                prereg_user.emailaddress_set.filter(email=prereg_user.email, verified=False).update(verified=True)
             except Token.DoesNotExist:
                 pass
             self.login_user()

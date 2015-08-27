@@ -8,7 +8,7 @@ Feature: pre registered user
     Given I am logged in as user "test@servuno.com" with password "password"
     And I am on "/circle/manage/personal"
     Then I should not see "to-be-deleted-dummy@servuno.com"
-    When I fill in "new-contact" with "to-be-deleted-dummy@servuno.com"
+    When I fill in "new-contact" with "to-be-deleted-dummy@servuno.com to-be-deleted-dummy2@servuno.com"
     And I press "new-contact-add-btn"
     Then I should see "to-be-deleted-dummy@servuno.com"
     When I press "Submit"
@@ -63,10 +63,51 @@ Feature: pre registered user
     And the response should contain "<!-- logged in as to-be-deleted-dummy@servuno.com -->"
 
 
+  Scenario: forget password and then login
+    Given I am on "/account/login/"
+    When I fill in the following:
+      | Email            | to-be-deleted-dummy2@servuno.com |
+      | Password         | password                         |
+    And I press "Log in"
+    Then I should see "The email address and/or password you specified are not correct."
+    When I follow "Forget password?"
+    Then I should see "Password reset"
+    When I fill in "to-be-deleted-dummy2@servuno.com" for "Email"
+    And I press "Request"
+
+    # check email
+    Then pause 2 seconds
+    When I open the last email
+    Then check email sent to "to-be-deleted-dummy2@servuno.com"
+    And check email contains "/account/password/reset/"
+
+    When I follow the email link like "/account/password/reset/"
+    Then I should see "Set your new password"
+
+    When I fill in the following:
+      | New Password         | password |
+      | New Password (again) | password |
+    And I press "Reset"
+    Then I should see "Password successfully changed."
+
+    Given I am on "/account/logout/"
+    Given I am on "/account/login/"
+    When I fill in the following:
+      | Email            | to-be-deleted-dummy2@servuno.com |
+      | Password         | password                         |
+    And I press "Log in"
+    Then the response status code should be 200
+    And the response should contain "<!-- logged in as to-be-deleted-dummy2@servuno.com -->"
+
+
   Scenario: clean up - remove user
     Given I am logged in as admin
     And I am on "/admin/auth/user"
     When I follow "to-be-deleted-dummy"
     And I follow "Delete"
     And I press "Yes, I'm sure"
-    Then I should see "was deleted successfully"  
+    Then I should see "was deleted successfully"
+    When I follow "to-be-deleted-dummy2"
+    And I follow "Delete"
+    And I press "Yes, I'm sure"
+    Then I should see "was deleted successfully"

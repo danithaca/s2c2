@@ -83,4 +83,4 @@ class UserPictureForm(ModelForm):
 
 
 class LoginEmailAdvForm(LoginEmailForm):
-    authentication_fail_message = "The email address and/or password you specified are not correct. Please sign up if you do not have an existing account."
+    authentication_fail_message = "The email address and/or password you specified are not correct."

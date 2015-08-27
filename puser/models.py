@@ -1,8 +1,11 @@
 from account.models import Account, EmailAddress
+from account.signals import password_changed
+from account.views import PasswordResetTokenView
 from django.contrib.auth.models import User, AbstractUser
 from django.core.urlresolvers import reverse
 from django.db import models
 from django.db.models import Q, F
+from django.dispatch import receiver
 from django.utils import timezone
 from image_cropping import ImageCropField, ImageRatioField
 from localflavor.us.models import PhoneNumberField
@@ -267,3 +270,20 @@ class PUser(User):
         except Token.DoesNotExist:
             # no token by default means already registered.
             return True
+
+
+# @receiver(password_changed, sender=PasswordResetTokenView)
+# @receiver(password_changed, sender=ChangePasswordView)
+@receiver(password_changed)
+def handle_pre_registered_user_after_password_change(sender, user, **kwargs):
+    try:
+        token = user.token
+        if not token.is_user_registered:
+            token.is_user_registered = True
+            token.save()
+    except Token.DoesNotExist:
+        pass
+
+@receiver(password_changed, sender=PasswordResetTokenView)
+def verify_email_after_password_reset(sender, user, **kwargs):
+    EmailAddress.objects.filter(user=user, email=user.email, verified=False).update(verified=True)

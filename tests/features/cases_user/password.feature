@@ -49,9 +49,8 @@ Feature: password change
     When I follow "Edit account"
     And I follow "Change password"
     And I fill in the following:
-      | Current Password     | password1 |
-      | New Password         | password  |
-      | New Password (again) | password  |
+      | New password              | password |
+      | New password confirmation | password |
     And I press "Change"
     Then I should see "Password successfully changed."
 
