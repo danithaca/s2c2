@@ -1,5 +1,9 @@
 {% block body %}{% endblock %}
+
+--
+Servuno.com: {% include 'elements/slogan.html' %}
+{{ site_url }}{% url 'about' %}
 {% if signup_warning and not to_user.is_registered %}
--- Please sign up at --
+Sign up at:
 {{ site_url }}{% url 'account_signup' %}?email={{ to_user.email }}
 {% endif %}
