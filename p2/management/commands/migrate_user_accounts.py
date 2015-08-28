@@ -3,14 +3,18 @@ from account.models import EmailAddress
 from django.contrib.auth.models import User
 from django.core.management import BaseCommand
 from django.db.models import F
+from login_token.models import Token
+from puser.models import PUser
 
 
 class Command(BaseCommand):
     help = 'Support s2c2 users to be with p2 users'
 
     def handle(self, *args, **options):
-        to_add_users = User.objects.exclude(emailaddress__email=F('email')).filter(active=True)
-        logging.info('Total users to add: %s' % to_add_users.count())
+        logging.root.setLevel(logging.INFO)
+        ######### handle email addresses
+        to_add_users = User.objects.exclude(emailaddress__email=F('email')).filter(is_active=True)
+        logging.info('Total users to add EmailAddress: %s' % to_add_users.count())
         for user in to_add_users:
             EmailAddress.objects.add_email(user, user.email)
 
@@ -24,3 +28,9 @@ class Command(BaseCommand):
                 old_primary.save()
             email_address.primary = True
             email_address.save()
+
+        ######### handle inactive user: use login_token instead
+        qs = PUser.objects.filter(is_active=False).exclude(token__isnull=False)
+        logging.info('Total inactive users to switch to LoginToken: %d' % qs.count())
+        for u in qs:
+            Token.generate(u, is_user_registered=False)

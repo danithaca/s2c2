@@ -9,6 +9,8 @@ from django.core.urlresolvers import reverse_lazy
 # SECURITY WARNING: don't run with debug turned on in production!
 # Don't use this in conditional test in settings because it'll be overriden in production
 # Set this to False in settings_local.py in prod
+import sys
+
 DEBUG = True
 TEMPLATE_DEBUG = True
 ALLOWED_HOSTS = []
@@ -221,7 +223,7 @@ LOGGING = {
             'format': '%(levelname)s %(asctime)s %(module)s %(process)d %(thread)d %(message)s'
         },
         'simple': {
-            'format': '%(levelname)s %(message)s'
+            'format': '%(levelname)s: %(message)s'
         },
     },
     'handlers': {
@@ -234,6 +236,7 @@ LOGGING = {
             'level': 'DEBUG',
             'class': 'logging.StreamHandler',
             'formatter': 'simple',
+            'stream': sys.stdout,
         },
     },
     'loggers': {
@@ -242,23 +245,15 @@ LOGGING = {
             'level': 'DEBUG',
             'propagate': True,
         },
+        'django': {
+            'handlers': ['file'],
+            'propagate': True,
+            'level': 'ERROR',
+        },
     },
-    'django': {
-        'handlers': ['file'],
-        'propagate': True,
-        'level': 'ERROR',
-    },
-    's2c2.management': {
+    'root': {
         'handlers': ['console'],
         'level': 'DEBUG',
-    },
-    'p2.management': {
-        'handlers': ['console'],
-        'level': 'DEBUG',
-    },
-    'login_token.management': {
-        'handlers': ['console'],
-        'level': 'INFO',
     },
 }
 
