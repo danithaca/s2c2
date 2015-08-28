@@ -75,7 +75,7 @@ Feature: Test Find (contract add)
 
   Scenario: check email
     When I open the last email from "test@servuno.com" to "test1@servuno.com"
-    Then check email subject contains "John Smith needs your help"
+    Then check email subject contains "John Smith needs help babysitting (for pay)"
     And check email contains "Compensation: $10"
     And check email contains "Please respond here"
     And check email contains "/contract/match/"

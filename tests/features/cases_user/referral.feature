@@ -22,7 +22,7 @@ Feature: Test referral user
     Then show email content
     And check email subject contains "invited"
     And check email sent from "admin@servuno.com" to "to-be-deleted-referral@servuno.com"
-    When I follow the email link like "/account/signup/?code="
+    When I follow the email link like "account/signup/?token="
     Then I should be on "/account/signup/"
     And the "Email" field should contain "to-be-deleted-referral@servuno.com"
 

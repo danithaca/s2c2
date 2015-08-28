@@ -49,7 +49,7 @@ def p2_tag_user_short_name(user):
 
 @register.simple_tag(name='user-full-name')
 def p2_tag_user_full_name(user):
-    assert isinstance(user, User)
+    assert isinstance(user, User), 'Type is: %s' % type(user)
     return user.get_full_name() or user.email
 
 

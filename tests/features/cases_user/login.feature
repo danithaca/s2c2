@@ -13,7 +13,7 @@ Feature: user login
     Then the response status code should be 200
     And the response should contain "<!-- logged in as test@servuno.com -->"
     When I follow "Logout"
-    Then I should be on the homepage
+    Then I should be on "/account/login/"
     And the response should not contain "<!-- logged in as test@servuno.com -->"
 
   @core

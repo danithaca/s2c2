@@ -37,6 +37,15 @@ class Token(models.Model):
         token, created = Token.objects.update_or_create(user=user, defaults=defaults)
         return token
 
+    @staticmethod
+    def find(token):
+        if isinstance(token, str) and len(token) == 64:
+            try:
+                token_obj = Token.objects.get(token=token)
+                return token_obj
+            except:
+                pass
+        return None
 
 @checks.register()
 def login_token_missing_check(app_configs, **kwargs):

@@ -1,0 +1,3 @@
+{% extends 'email_subject.txt' %}
+{% load p2_tags %}
+{% block subject %}{% user-full-name from_user %} invited you to join {{ site_name }} for babysitting favor exchange{% endblock %}

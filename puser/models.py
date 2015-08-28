@@ -254,6 +254,17 @@ class PUser(User):
         assert isinstance(client, User)     # PUser is also an instance of user.
         return Contract.objects.filter(confirmed_match__target_user=self, initiate_user=client, status=Contract.Status.SUCCESSFUL.value).count()
 
+    def get_login_token(self, force=False):
+        try:
+            token = self.token
+            return token.token
+        except Token.DoesNotExist:
+            if force:
+                token = Token.generate(user=self)
+                return token.token
+            else:
+                return None
+
     ######## methods that check user's status #########
     # is_active: from django system. inactive means the user cannot login (perhaps a spam user), and cannot use the site.
     # is_registered: shows whether the user is signed up by other people, or has been through the sign up process. not-registered user doesn't have a valid password

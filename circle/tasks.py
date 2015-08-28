@@ -24,22 +24,24 @@ def handle_public_membership_approval(membership):
 @shared_task
 def personal_circle_send_invitation(circle, target_user):
     target_user = PUser.from_user(target_user)
+    from shout.notify import notify_agent
     if target_user.is_registered():
         link = reverse('circle:manage_loop')
-        from shout.notify import notify_agent
         notify_agent.send(circle.owner, target_user, 'circle/personal_membership_notice', {
             'review_link': link,
             'circle_owner': circle.owner,
         })
     else:
+        # we don't use SignupCode for now.
         # user is not active. send invitation code
-        expiry = 24 * 365   # a year to expire. in hours.
-        try:
-            signup_code = SignupCode.create(email=target_user.email, expiry=expiry, inviter=circle.owner)
-            signup_code.send(extra_ctx={
-                'inviter': circle.owner.get_name()
-            })
-        except SignupCode.AlreadyExists:
-            # todo: figure out what to do when invitation code is alreay sent.
-            # current we do nothing, assuming the target user already received a invitation email
-            pass
+        # expiry = 24 * 365   # a year to expire. in hours.
+        # try:
+        #     signup_code = SignupCode.create(email=target_user.email, expiry=expiry, inviter=circle.owner)
+        #     signup_code.send(extra_ctx={
+        #         'inviter': circle.owner.get_name()
+        #     })
+        # except SignupCode.AlreadyExists:
+        #     # todo: figure out what to do when invitation code is alreay sent.
+        #     # current we do nothing, assuming the target user already received a invitation email
+        #     pass
+        notify_agent.send(circle.owner, target_user, 'account/email/new_user_invite')

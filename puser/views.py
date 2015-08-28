@@ -63,8 +63,15 @@ class SignupView(account.views.SignupView):
     # this allows the default email field for Signup code not permitting user change the email address
     def get_form(self, form_class=None):
         form = super().get_form(form_class)
-
-        if self.signup_code:
+        if 'token' in self.request.GET and len(self.request.GET['token']) == 64:
+            token = Token.find(self.request.GET['token'])
+            if token:
+                form.fields['email'].initial = token.user.email
+                form.fields['email'].widget.attrs = {
+                    'readonly': True
+                }
+                self.valid_login_token = True
+        elif self.signup_code:
             form.fields['email'].widget.attrs = {
                 'readonly': True
             }
@@ -88,7 +95,8 @@ class SignupView(account.views.SignupView):
 
                 # mark email verified, if token exists
                 # todo: this is not well thought
-                prereg_user.emailaddress_set.filter(email=prereg_user.email, verified=False).update(verified=True)
+                if hasattr(self, 'valid_login_token') and self.valid_login_token is True:
+                    prereg_user.emailaddress_set.filter(email=prereg_user.email, verified=False).update(verified=True)
             except Token.DoesNotExist:
                 pass
             self.login_user()
@@ -249,12 +257,19 @@ class OnboardPersonalCircle(MultiStepViewsMixin, ManagePersonal):
     template_name = 'account/onboard/manage_personal.html'
     success_url = reverse_lazy('onboard_public')
 
+    # this only applies to the onboarding process. not in Edit account.
     def get_initial(self):
         initial = super().get_initial()
         # if initial['faovorite'] already exists, we don't override it.
-        if not initial.get('favorite', '') and self.request.session.get('signup_inviter_email', ''):
-            initial['favorite'] = self.request.session['signup_inviter_email']
-            initial['force_save'] = True
+        if not initial.get('favorite', ''):
+            puser = PUser.from_user(self.request.user)
+            qs = puser.membership_queryset_loop()
+            if qs.count() > 0:
+                initial['favorite'] = '/n'.join(set([membership.circle.owner.email for membership in qs]))
+                initial['force_save'] = True
+        #  if not initial.get('favorite', '') and self.request.session.get('signup_inviter_email', ''):
+        #     initial['favorite'] = self.request.session['signup_inviter_email']
+        #     initial['force_save'] = True
         return initial
 
 

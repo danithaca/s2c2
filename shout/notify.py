@@ -56,8 +56,9 @@ class Notify(object):
 
         context = self.default_context()
         context['from_user'] = PUser.from_user(from_user)
-        context['to_user'] = PUser.to_user(to_user)
-        context.update(ctx)
+        context['to_user'] = PUser.from_user(to_user)
+        if ctx:
+            context.update(ctx)
 
         subject = render_to_string(subject_tpl, context)
         subject = ''.join(subject.splitlines())

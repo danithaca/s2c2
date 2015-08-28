@@ -90,7 +90,15 @@ def after_match_accepted(match):
 @shared_task
 def after_match_engaged(match):
     from shout.notify import notify_agent
-    notify_agent.send(match.contract.initiate_user, match.target_user, 'contract/messages/match_engaged', {'match': match, 'contract': match.contract, 'signup_warning': True})
+    from puser.models import PUser
+    context = {
+        'match': match,
+        'contract': match.contract,
+        'signup_warning': True,
+        'price_note': 'for pay' if match.contract.price > 0 else 'favor exchange',
+        'server_token': PUser.from_user(match.target_user).get_login_token(force=True)
+    }
+    notify_agent.send(match.contract.initiate_user, match.target_user, 'contract/messages/match_engaged', context)
 
 
 @shared_task

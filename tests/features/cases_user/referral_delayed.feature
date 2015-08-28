@@ -30,9 +30,9 @@ Feature: Test referral user when the user doesn't signup right away
   Scenario: create contract, check email/signup
     When I open the last email from "test@servuno.com" to "to-be-deleted-referral-delayed@servuno.com"
     Then show email content
-    And check email subject contains "needs your help"
+    And check email subject contains "needs help babysitting"
     And check email subject contains "John Smith"
-    And check email contains "You do not have an active user account on Servuno"
+    And check email contains "Sign up at"
     When I follow the email link like "/account/signup/"
     Then I should be on "/account/signup/"
     And the "Email" field should contain "to-be-deleted-referral-delayed@servuno.com"

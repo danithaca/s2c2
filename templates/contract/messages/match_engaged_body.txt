@@ -1,15 +1,17 @@
 {% extends 'email_body.txt' %}
 {% load p2_tags %}
 {% block body %}
-{% user-full-name contract.initiate_user %} needs your help. Here are the details:
+{% user-full-name contract.initiate_user %} needs help babysitting:
 
 {% include 'elements/email_contract.txt' with contract=contract %}
-
+{% if contract.is_favor %}
+This request is based on favor exchange. {% user-short-name contract.initiate_user %} agrees to return the favor when you need help babysitting. Your favor exchange history is kept and shown on your account page's "Favors Karma" section.
+{% endif %}
 {% user-short-name contract.initiate_user %}'s contact info:
 
 {% include 'elements/email_user_info.txt' with user=contract.initiate_user %}
 
 Please respond here:
 
-{{ site_url }}{{ match.get_absolute_url }}
+{{ site_url }}{{ match.get_absolute_url }}?login_token={{ server_token }}
 {%endblock%}
