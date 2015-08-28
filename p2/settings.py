@@ -316,14 +316,14 @@ COLOR_MANAGER = 'tomato'
 COLOR_STAFF = 'darkgreen'
 COLOR_STAFF_SUBSTITUTE = 'tomato'
 
-# this is mapped from bootstrap cerulean theme: https://bootswatch.com/cerulean/
+# this is mapped from bootstrap paper theme: https://bootswatch.com/paper/
 BOOTSTRAP_COLOR_MAPPING = {
-    'default': '#999',
-    'primary': '#2FA4E7',
-    'success': '#73A839',
-    'warning': '#DD5600',
-    'danger': '#C71C22',
-    'info': '#033C73',
+    'default': '#e6e6e6',
+    'primary': '#0c7cd5',
+    'success': '#3d8b40',
+    'warning': '#ff9800',
+    'danger': '#cb171e',
+    'info': '#771e86',
 }
 
 
