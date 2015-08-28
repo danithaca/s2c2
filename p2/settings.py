@@ -236,7 +236,7 @@ LOGGING = {
             'level': 'DEBUG',
             'class': 'logging.StreamHandler',
             'formatter': 'simple',
-            'stream': sys.stdout,
+            # 'stream': sys.stdout,
         },
     },
     'loggers': {

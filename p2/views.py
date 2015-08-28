@@ -22,7 +22,7 @@ def home(request):
         # else:
         #     return redirect(reverse('contract:add'))
         else:
-            return redirect(reverse('calendar'))
+            return redirect(reverse('dashboard'))
 
 
 class CalendarView(LoginRequiredMixin, TemplateView):
@@ -54,3 +54,7 @@ class LandingView(TemplateView):
         ctx['form_login'] = LoginEmailForm()
         ctx['form_signup'] = SignupBasicForm()
         return ctx
+
+
+class DashboardView(TemplateView):
+    template_name = 'pages/dashboard.html'

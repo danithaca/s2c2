@@ -103,6 +103,12 @@ img.user-picture-md { width: 48px; height: 100%; }
   align-items: center;
 }
 
+/******** dashboard *********/
+
+.dashboard-link {
+  margin-bottom: 20px;
+}
+
 /******** for contract related *********/
 
 .contract-label-decoration {
