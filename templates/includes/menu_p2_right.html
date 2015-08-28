@@ -2,9 +2,9 @@
 {% if user.is_anonymous %}
 {#  <li><a href="{% url 'account_login' %}"><i class="fa fa-sign-in"></i> Login</a></li>#}
 {#  <li><a href="{% url 'account_signup' %}"><i class="fa fa-edit"></i> Signup</a></li>#}
-  <li><a href="{% url 'about' %}"><i class="fa fa-question-circle"></i> About</a></li>
+  <li><a href="{% url 'about' %}" id="nav-about"><i class="fa fa-question-circle"></i> About</a></li>
 {% else %}
-  <li><a href="{% url 'about' %}"><i class="fa fa-question-circle"></i> About</a></li>
+  <li><a href="{% url 'about' %}" id="nav-about"><i class="fa fa-question-circle"></i> About</a></li>
   <li class="dropdown user-admin">
     <a class="dropdown-toggle" data-toggle="dropdown" data-target="#" href="#"><img src="{% user_picture_url user %}" class="img-circle img-18"> {{ user.first_name|default:'My account' }} <span class="caret"></span></a>
     <ul class="dropdown-menu" role="menu">

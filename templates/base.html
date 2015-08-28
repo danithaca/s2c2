@@ -23,6 +23,7 @@
   <script src="//cdnjs.cloudflare.com/ajax/libs/underscore.js/1.8.3/underscore-min.js"></script>
   <script src="//cdnjs.cloudflare.com/ajax/libs/backbone.js/1.2.1/backbone-min.js"></script>
   <script src="//cdnjs.cloudflare.com/ajax/libs/backbone-localstorage.js/1.1.16/backbone.localStorage-min.js" type="text/javascript"></script>
+  <script src="//cdnjs.cloudflare.com/ajax/libs/jquery-cookie/1.4.1/jquery.cookie.min.js"></script>
   <script src="{% static 'js/utils.js' %}"></script>
 
   <script>
@@ -37,6 +38,12 @@
 
       // turn on tooltip
       $('[data-toggle="tooltip"]').tooltip();
+
+      // glow "about" link for first time user
+      if (!$.cookie('servuno_visited')) {
+        $('#nav-about').addClass('glow-animation');
+        $.cookie('servuno_visited', true, {expires: 90, path: '/'});
+      }
 
       // load jotForm
       $.getScript('http://www.jotform.com/min/?g=feedback2', function() {
@@ -134,8 +141,6 @@
   </div>
 </div><!-- /.container -->
 
-
-<script src="//cdnjs.cloudflare.com/ajax/libs/jquery-cookie/1.4.1/jquery.cookie.min.js"></script>
 <script type="text/javascript">
   $(document).ready(function() {
     $.ajaxSetup({
