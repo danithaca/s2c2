@@ -18,8 +18,8 @@
   {% include 'pages/dashboard_link.html' with color='success' href=href_calendar text='View Activities' help="Browse recent activies and view them in calendar." only %}
 
   {% url 'circle:manage_personal' as href_manage_contacts %}
-  {% include 'pages/dashboard_link.html' with color='warning' href=href_manage_contacts text='Manage Contacts' help="Expand your reach by adding people to your list and joining parents circles. The more reach, the better chance you'll find a babysitter." only %}
+  {% include 'pages/dashboard_link.html' with color='primary' href=href_manage_contacts text='Manage Contacts' help="Expand your reach by adding people to your list and joining parents circles. The more reach, the better chance you'll find a babysitter." only %}
 
   {% url 'account_view' as href_account %}
-  {% include 'pages/dashboard_link.html' with color='info' href=href_account text='View/Manage Account' help="Review your personal info." only %}
+  {% include 'pages/dashboard_link.html' with color='info' href=href_account text='View Account' help="Review your personal info." only %}
 {% endblock %}

@@ -22,7 +22,7 @@ Feature: Check link
   @core @javascript
   Scenario: check calendar
     Given I am logged in as user "test@servuno.com" with password "password"
-    Then I should be on "/calendar/"
+    Given I am on "/calendar/"
     And I should see "Find a Babysitter"
     And I should see "Recent Activities"
     And I should see a "div.fc-view" element
@@ -38,3 +38,13 @@ Feature: Check link
     Then pause 5 seconds
     And I should see a ".jotform-feedback-link" element
     And I should see "Send Feedback"
+
+  @core
+  Scenario: check navbar
+    Given I am logged in as user "test@servuno.com" with password "password"
+    Then I should see "John"
+    When I follow "Edit account"
+    Then I should be on "/account/edit/"
+    When I follow "Dashboard"
+    Then I should be on "/dashboard/"
+    Then I should see "Logout"
