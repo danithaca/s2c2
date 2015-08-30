@@ -1,4 +1,8 @@
 {% extends "base_s.html" %}
+{% load p2_tags %}
+
+{% block title %}Dashboard{% endblock %}
+
 {% block extra_header %}
 <script type="text/javascript">
   $(document).ready(function() {
@@ -11,6 +15,11 @@
 {% endblock %}
 
 {% block content %}
+{#  {% if target_user.is_onboard %}#}
+{#  <div class="page-header">#}
+{#    <h4><img class="img-circle img-50" src="{% user_picture_url target_user %}"> {% user-full-name user %}</h4>#}
+{#  </div>#}
+{#  {% endif %}#}
   {% url 'contract:add' as href_contract_add %}
   {% include 'pages/dashboard_link.html' with color='success' href=href_contract_add text='Find a Babysitter' help="Want a babysitter either for pay or for free (favor exchange)? Click the button and make a request." only %}
 

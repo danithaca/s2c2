@@ -58,3 +58,8 @@ class LandingView(TemplateView):
 
 class DashboardView(TemplateView):
     template_name = 'pages/dashboard.html'
+
+    def get_context_data(self, **kwargs):
+        ctx = super().get_context_data(**kwargs)
+        ctx['target_user'] = self.request.puser
+        return ctx
