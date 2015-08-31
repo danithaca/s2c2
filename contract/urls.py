@@ -10,6 +10,7 @@ urlpatterns = patterns(
     url(r'^(?P<pk>\d+)/status$', views.ContractChangeStatus.as_view(), name='change_status'),
 
     url(r"^list/$", views.EngagementList.as_view(), name="engagement_list"),
+    url(r"^calendar/$", views.CalendarView.as_view(), name="calendar"),
     url(r"^add/$", views.ContractCreate.as_view(), name="add"),
     # url(r"^add/$", views.ContractCreatePreview(forms.ContractForm), name="add"),
     url(r"^(?P<pk>\d+)/edit/$", views.ContractEdit.as_view(), name="edit"),
