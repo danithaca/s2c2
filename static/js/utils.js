@@ -48,6 +48,22 @@ function checkEmail(email) {
   return re.test(email);
 }
 
+// make sure to be consistent with django DATETIME_INPUT_FORMATS settings.
+function parseDatetime(dt_str) {
+  var input_format = [
+    'YYYY-MM-DD HH:mm',
+    'MM/DD/YYYY HH:mm',
+    'YYYY-MM-DD hh:mmA',
+    'MM/DD/YYYY hh:mmA'
+  ];
+  var m = moment(dt_str, input_format);
+  if (m.isValid()){
+    return m;
+  } else {
+    return false;
+  }
+}
+
 ////////////////////    full calendar related    ////////////////////////
 
 // $fc is jquery selector for fullcalendar. e.g., $('#calendar')

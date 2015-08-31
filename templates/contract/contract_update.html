@@ -1,16 +1,19 @@
-{% extends "base_lean.html" %}
+{% extends "base_s.html" %}
 {% load staticfiles %}
 {% load bootstrap %}
 
 {% block extra_header %}
 {{ form.media }}
 <script src='{% static 'fullcalendar/lib/moment.min.js' %}'></script>
+<script src='{% static 'js/humanize_duration.js' %}'></script>
+<script src="//cdnjs.cloudflare.com/ajax/libs/bootbox.js/4.4.0/bootbox.min.js"></script>
 <script type="text/javascript">
   $(document).ready(function() {
+    var datetime_format = 'MM/DD/YYYY HH:mm';
     var widget_separate = $('#viewport-xs-detector').is(':hidden') ? false : true;
     // enable datetimepicker
     $('.datetimepicker-control').datetimepicker({
-      format: 'MM/DD/YYYY HH:mm',
+      format: datetime_format,
       minDate: moment().subtract(1, 'hours'),
       stepping: 10,
       useCurrent: true,
@@ -24,7 +27,13 @@
     // sync end date if start date is changed.
     var $event_start = $('#id_event_start');
     var $event_end = $('#id_event_end');
-    $event_start.focusout(function () {
+    if (!$event_start.val() && !$event_end.val()) {
+      // when both fields are empty. set default value.
+      var start_timestamp = moment().add(1, 'hours').minute(0);
+      $event_start.val(start_timestamp.format(datetime_format));
+      $event_end.val(start_timestamp.add(1, 'hours').format(datetime_format));
+    }
+    /*$event_start.focusout(function () {
       if ($event_start.val() && !$event_end.val()) {
         $event_end.val($event_start.val());
       }
@@ -33,24 +42,29 @@
       if ($event_end.val() && !$event_start.val()) {
         $event_start.val($event_end.val());
       }
-    });
+    });*/
 
     var $price = $('#id_price');
     var $price_info = $('#price-info');
+    var $price_info_container = $('#price-info-container');
     var handlePriceInfo = function() {
-      var start = $event_start.val(), end = $event_end.val(), price = $price.val();
-      if (start && end && price) {
-        $.get('{% url "contract:preview_query" %}', {start: start, end: end, price: price}, function(result){
+      var start = parseDatetime($event_start.val()), end = parseDatetime($event_end.val()), price = $price.val();
+      if (start && end && price && end > start) {
+        /*$.get('{% url "contract:preview_query" %}', {start: start, end: end, price: price}, function(result){
           if (result['success']) {
             var rate = result['rate'] == 0 ? 'favor exchange' : '$' + result['rate'] + '/hour';
-            $price_info.text(rate + ', ' + result['length']);
+            $price_info.val(rate + ', ' + result['length']);
           } else {
-            $price_info.text('');
-            console.log(result);
+            $price_info.val('');
           }
-        });
+        });*/
+        var duration = moment.duration(end.diff(start, 'seconds'), 'seconds');
+        var rate = price <= 0.01 ? 'favor exchange' : '$' + parseFloat(Math.round((price / duration.asHours()) * 100) / 100).toFixed(2) + '/hour';
+        $price_info_container.show();
+        // $price_info.val(rate + ', ' + duration.humanize());
+        $price_info.val(rate + ', ' + humanizeDuration(duration.asMilliseconds()));
       } else {
-        $price_info.text('');
+        $price_info_container.hide();
       }
     };
 
@@ -69,80 +83,107 @@
     $price.change(handlePriceInfo);
     $price.keyup(handlePriceInfo);
 
+    // confirm
+    var $form = $('#contract-update');
+    var $form_button = $form.find('button[name="op"]');
+    // we can't do $form.submit() because then any submit will trigger. we only want to track button click.
+    // submit() returns "false" to prevent form submission, but bootbox is non-blocking and will always return true.
+    $form_button.click(function(event) {
+      var msg = $(this).data('message');
+      event.preventDefault();
+      bootbox.confirm({
+        title: 'Confirm',
+        message: msg ? msg : 'Confirm to proceed.',
+        /*buttons: {
+          cancel: {label: 'Cancel'},
+          confirm: {label: 'Confirm'}
+        },*/
+        callback: function(result) {
+          if (result) {
+            console.log('haha');
+            $form.submit();
+          }
+        }
+      });
+    });
   });
 </script>
 {% endblock %}
 
-{% block title %}Find help{% endblock %}
+{% block title %}Find a Babysitter{% endblock %}
 
-{% block page-content %}
-  <form class="form form-horizontal" method="post">
+{% block content %}
+  <form class="form" method="post" id="contract-update">
     {% csrf_token %}
-{#    {{ form|bootstrap_horizontal }}#}
-
     {% include 'form_includes/form_errors.html' %}
     {% include 'form_includes/hidden_fields.html' %}
 
     <div class="form-group{% if form.event_start.errors or form.event_end.errors %} has-error{% endif %}">
-      <label class="control-label required col-sm-2">Date &amp; Time</label>
-      {% with field=form.event_start %}
-      <div class="col-sm-5">
-        <div class="input-group date datetimepicker-control">
-          {{ field }}
-          <span class="input-group-addon"><i class="fa fa-calendar"></i></span>
+      <div class="row">
+        <div class="col-xs-6">
+          {% with field=form.event_start %}
+            <label class="control-label" for="{{ field.id_for_label }}">{{ field.label }}</label>
+            <div class="input-group date datetimepicker-control">
+              {{ field }}
+              <span class="input-group-addon"><i class="fa fa-calendar"></i></span>
+            </div>
+            {% include 'form_includes/field_errors.html' %}
+            {% include 'form_includes/field_help_text.html' %}
+          {% endwith %}
         </div>
-        {% include 'form_includes/field_errors.html' %}
-        {% include 'form_includes/field_help_text.html' %}
-      </div>
-      {% endwith %}
-      {% with field=form.event_end %}
-      <div class="col-sm-5">
-        <div class="input-group date datetimepicker-control">
-          {{ field }}
-          <span class="input-group-addon"><i class="fa fa-calendar"></i></span>
+        <div class="col-xs-6">
+          {% with field=form.event_end %}
+            <label class="control-label" for="{{ field.id_for_label }}">{{ field.label }}</label>
+            <div class="input-group date datetimepicker-control">
+              {{ field }}
+              <span class="input-group-addon"><i class="fa fa-calendar"></i></span>
+            </div>
+            {% include 'form_includes/field_errors.html' %}
+            {% include 'form_includes/field_help_text.html' %}
+          {% endwith %}
         </div>
-        {% include 'form_includes/field_errors.html' %}
-        {% include 'form_includes/field_help_text.html' %}
       </div>
-      {% endwith %}
 {#      <div class="col-sm-offset-2 col-sm-10">#}
 {#        <p class="help-block">Specify the start and end date/time when you need to be served.</p>#}
 {#      </div>#}
     </div>
 
     {% with field=form.price %}
-      <div class="form-group{% include 'form_includes/field_container_error_class.html' %}">
-        <label class="control-label required col-sm-2" for="{{ field.id_for_label }}">{{ field.label }}</label>
-        <div class="col-sm-3">
-          <div class="input-group">
-            <span class="input-group-addon">$</span>
-            {{ field }}
+    <div class="row">
+      <div class="col-xs-6">
+          <div class="form-group{% include 'form_includes/field_container_error_class.html' %}">
+            <div class="input-group">
+              {{ field }}
+              <span class="input-group-addon">$</span>
+            </div>
           </div>
+      </div>
+      <div class="col-xs-6">
+        <div class="form-group has-success" id="price-info-container">
+          <input class="form-control" id="price-info" readonly>
+          <span class="glyphicon glyphicon-ok form-control-feedback"></span>
         </div>
-        <div class="col-sm-7">
-          <p class="text-x-large pull-right"><span class="label label-default" id="price-info"></span></p>
-        </div>
-        <div class="col-sm-offset-2 col-sm-10">
+      </div>
+      <div class="col-xs-12">
+        <div class="form-group{% include 'form_includes/field_container_error_class.html' %}">
           {% include 'form_includes/field_errors.html' %}
           {% include 'form_includes/field_help_text.html' %}
         </div>
       </div>
+    </div>
+
     {% endwith %}
 
-    {{ form.description|bootstrap_horizontal }}
+    {{ form.description|bootstrap }}
 
     <div class="form-group">
-      <div class="col-sm-offset-2 col-sm-10">
-        {% if not form.instance.id %}
-          <button type="submit" name="submit" class="btn btn-primary">Send to My Contacts</button>
-          <a href="javascript:history.back();" class="btn btn-default">Back</a>
-          <div class="help-block">By clicking the button, your contacts (in your personal list and parents circles) will be notified by email.</div>
-        {% else %}
-          <button type="submit" name="submit" class="btn btn-primary">Update</button>
-          <a href="javascript:history.back();" class="btn btn-default">Back</a>
-          <div class="help-block">People who agreed to help will receive notifications about the update.</div>
-        {% endif %}
-      </div>
+      {% if not form.instance.id %}
+        <button type="submit" name="op" class="btn btn-primary" data-message="Confirm to notify your contacts via Email (as selected by the SmartMatch algorithm). If the request is for pay, please pay the babysitter offline after service is delivered. If it is a favor exchange, you would agree to repay the favor when they need help.">Submit</button>
+        <a href="javascript:history.back();" class="btn btn-default">Back</a>
+      {% else %}
+        <button type="submit" name="op" class="btn btn-primary" data-message="People who are in contact will receive this update via Email.">Update</button>
+        <a href="javascript:history.back();" class="btn btn-default">Back</a>
+      {% endif %}
     </div>
   </form>
 {% endblock %}

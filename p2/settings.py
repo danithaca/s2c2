@@ -165,7 +165,7 @@ EMAIL_BACKEND = 'django.core.mail.backends.filebased.EmailBackend'
 # override in settings_local.py
 # EMAIL_BACKEND = 'django_ses_backend.SESBackend'
 
-################# i18n/l10n ###################
+################# i18n/l10n/datetime ###################
 
 LANGUAGE_CODE = 'en-us'
 # this only applies to rendering whit USE_TZ is True.
@@ -177,6 +177,14 @@ USE_L10N = True  # True
 USE_TZ = True
 TIME_FORMAT = 'h:iA'
 
+# make sure to be consistent to the javascript util function.
+DATETIME_INPUT_FORMATS = (
+    '%Y-%m-%d %H:%M',        # '2006-10-25 14:30'
+    '%m/%d/%Y %H:%M',        # '10/25/2006 14:30'
+
+    '%Y-%m-%d %I:%M%p',      # '2006-10-25 02:30PM'
+    '%m/%d/%Y %I:%M%p',      # '10/25/2006 02:30PM'
+)
 
 ################# user related ###################
 
