@@ -36,7 +36,7 @@ Feature: Edit account
   @core
   Scenario: view account
     Given I am logged in as user "test@servuno.com" with password "password"
-    When I follow "View account"
+    When I follow "View Account"
     Then I should be on "/account/"
     And I should see "John Smith"
     And I should see "John's List"
@@ -46,6 +46,10 @@ Feature: Edit account
     And I should see "555-555-5555"
     And I should see "This is a test account."
 
+    When I follow "link_account_picture"
+    Then I should be on "/account/picture/"
+
+    When I move backward one page
     When I follow "link_account_edit"
     Then I should be on "/account/edit/"
 

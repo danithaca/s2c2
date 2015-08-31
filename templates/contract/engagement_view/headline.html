@@ -35,11 +35,6 @@
         {% if engagement.contract.description %}
           <p class="text-center">{{ engagement.contract.description|truncatechars:100 }}</p>
         {% endif %}
-        {#      {% if engagement.target_user %}#}
-        {#      <p class="truncate">#}
-        {#        <a href="{% url 'account_view' pk=engagement.target_user.id %}">{% user-full-name engagement.target_user %}</a>#}
-        {#      </p>#}
-        {#      {% endif %}#}
       </div>
     </div>
   </div>
