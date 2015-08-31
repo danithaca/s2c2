@@ -49,4 +49,7 @@ class DashboardView(TemplateView):
     def get_context_data(self, **kwargs):
         ctx = super().get_context_data(**kwargs)
         ctx['target_user'] = self.request.puser
+        headline = self.request.puser.engagement_headline()
+        if headline:
+            ctx['engagement_headline'] = headline
         return ctx

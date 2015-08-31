@@ -87,7 +87,7 @@ $(document).ready(function() {
     if (href) {
       window.location = href;
     }
-  })
+  });
 });
 </script>
 {% endblock %}
@@ -97,16 +97,7 @@ $(document).ready(function() {
 {% block content %}
 <div class="row">
   <div class="col-sm-4">
-    {% if engagement_headline %}
-      {% include 'contract/engagement_view/headline.html' with engagement=engagement_headline %}
-    {% endif %}
-
-    <div id="find-btn" style="margin-bottom: 20px;">
-      <a class="btn btn-lg btn-block btn-success" href="{% url 'contract:add' %}">Find a Babysitter</a>
-      <div class="help-block">Or select a time period on the calendar</div>
-    </div>
-
-    <div class="panel panel-info">
+    <div class="panel panel-success">
       <div class="panel-heading panel-title">Recent activities</div>
 {#        <div class="help-block"><small>Ordered by last updated</small></div>#}
       {% if engagement_recent %}
