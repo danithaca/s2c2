@@ -390,4 +390,15 @@ class FeatureContext extends MinkContext implements SnippetAcceptingContext
     );
     return @$mapping[$key];
   }
+
+  /**
+   * @Then the :element is hidden
+   */
+  public function checkElementHidden($element)
+  {
+    $js = "return $('{$element}').is(':hidden');";
+    if (!$this->getSession()->evaluateScript($js)) {
+      throw new Exception("Element {$element} is not hidden.");
+    }
+  }
 }
