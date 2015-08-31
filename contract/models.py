@@ -28,8 +28,7 @@ class StatusMixin(object):
         contract_display_map = {
             Contract.Status.INITIATED: ('default', 'Inactive', 'Not activated.'),
             Contract.Status.ACTIVE: ('primary', 'Active', 'Actively finding a babysitter.'),
-            Contract.Status.CONFIRMED: (
-            'success', 'Active - Confirmed', 'You have confirmed with a babysitter.'),
+            Contract.Status.CONFIRMED: ('success', 'Active - Confirmed', 'You have confirmed with a babysitter.'),
             Contract.Status.SUCCESSFUL: ('info', 'Successful', 'Service was successfully delivered.'),
             Contract.Status.CANCELED: ('warning', 'Canceled', 'Request was canceled.'),
             Contract.Status.FAILED: ('danger', 'Failed', 'Service was confirmed but eventually failed.'),
@@ -58,7 +57,7 @@ class StatusMixin(object):
                     if not self.match_set.filter(status=Match.Status.ACCEPTED.value).exists():
                         label, explanation = 'Active - Searching', 'Searching for a babysitter. No one has agreed to help yet.'
                     else:
-                        label, explanation = 'Active - Found', 'Found at least 1 user agreed to babysit. The parent has not confirmed yet.'
+                        color, label, explanation = 'warning', 'Active - Found', 'Found at least 1 user agreed to babysit. The parent has not confirmed yet.'
 
         elif isinstance(self, Match):
             color, label, explanation = match_display_map.get(status, ('default', str(status).capitalize(), ''))

@@ -2,9 +2,7 @@
 {% load static %}
 {% if user %}
 <div data-uid="{{ user.id }}">
-  <a href="{% url 'account_view' pk=user.id %}"><img class="img-rounded img-responsive"
-                                                     src="{% user_picture_url user %}" alt="user"
-                                                     title="{% user-full-name user %}"></a>
+  <a href="{% url 'account_view' pk=user.id %}" class="user-link"><img class="img-rounded img-responsive" src="{% user_picture_url user %}" alt="user" title="{% user-full-name user %}" data-toggle="tooltip"></a>
   {% if icon or label %}
     <p class=" upper-corner"><span class="label label-{{ color|default:'default' }}">
       {% if icon %}{% include icon %}{% else %}{{ label }}{% endif %}

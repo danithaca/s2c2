@@ -2,38 +2,6 @@
   padding-top: 64px;
 }*/
 
-.form-group .control-label.required:after {
-  content: " *";
-  color: red;
-}
-
-.navbar-brand img {
-  max-height: 60px;
-  max-width: 50px;
-}
-
-#page-summary table * { border-top: none; }
-#page-summary table { margin-bottom: 0; }
-#page-summary:empty { display: none; }
-
-#page-error-message:empty { display: none; }
-
-.tab-pane { padding-top: 12px; }
-
-.multiple-checkbox ul.list-inline li label { font-weight: normal; }
-
-.offer-remove:hover, .need-remove:hover, .message-remove:hover {
-  cursor: pointer;
-  color: red;
-}
-
-.message-remove { display: none; }
-
-.colored-legend { background-color: darkgray; color: white; padding: 5px; border-radius: 5px; margin-bottom: 3px; }
-.colored-legend a { color: white; }
-
-img.user-picture-md { width: 48px; height: 100%; }
-
 .text-x-small {
   font-size: x-small;
 }
@@ -98,12 +66,36 @@ img.user-picture-md { width: 48px; height: 100%; }
   right: 0;
 }
 
+
+/***** flex related ******/
+
 .vertical-align {
   display: flex;
   align-items: center;
 }
 
-/******** dashboard *********/
+.flex-imgbox {
+  display: flex;
+  align-items: center;
+}
+.flex-imgbox-img {
+  position: relative;
+  width: 30%;
+}
+.flex-imgbox-txt {
+  position: relative;
+  width: 70%;
+}
+
+/******** special settings for print  ********/
+
+@media print {
+  div.page-footer { display: none; }
+  a[href]:after { content: ""; }
+}
+
+
+/******** for dashboard *********/
 
 .dashboard-link {
   margin-bottom: 20px;
@@ -185,9 +177,37 @@ img.user-picture-md { width: 48px; height: 100%; }
   font-size:11px;
 }
 
-/********************************* special settings for print **********************************/
+/******** special purpose, might be obsolete ***********/
 
-@media print {
-  div.page-footer { display: none; }
-  a[href]:after { content: ""; }
+.form-group .control-label.required:after {
+  content: " *";
+  color: red;
 }
+
+.navbar-brand img {
+  max-height: 60px;
+  max-width: 50px;
+}
+
+#page-summary table * { border-top: none; }
+#page-summary table { margin-bottom: 0; }
+#page-summary:empty { display: none; }
+
+#page-error-message:empty { display: none; }
+
+.tab-pane { padding-top: 12px; }
+
+.multiple-checkbox ul.list-inline li label { font-weight: normal; }
+
+.offer-remove:hover, .need-remove:hover, .message-remove:hover {
+  cursor: pointer;
+  color: red;
+}
+
+.message-remove { display: none; }
+
+.colored-legend { background-color: darkgray; color: white; padding: 5px; border-radius: 5px; margin-bottom: 3px; }
+.colored-legend a { color: white; }
+
+img.user-picture-md { width: 48px; height: 100%; }
+

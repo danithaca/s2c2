@@ -231,21 +231,16 @@ class PUser(User):
 
     def engagement_headline(self):
         # headline logic:
-        # if i have an active "find" engagement in the future, always show that
-        # otherwise, show the most recent confirmed engagement
-        # else, show nothing.
-
-        active_contract = Contract.objects.filter(initiate_user=self, status__in=(Contract.Status.ACTIVE.value, Contract.Status.INITIATED.value), event_start__gt=timezone.now()).order_by('event_start').first()
-        if active_contract:
-            return Engagement.from_contract(active_contract)
-
-        # now try to find the next confirmed engagement
-        engagement_list = self.engagement_list(lambda qs: qs.filter(status=Contract.Status.CONFIRMED.value, event_start__gt=timezone.now()).filter(Q(initiate_user=self) | (Q(match__target_user=self) & Q(match=F('confirmed_match')))).order_by('event_start')[:1])
+        # show the most recent one that needs my attention:
+        # 1. if i'm the client, then always show if it's initiated, active or confirmed.
+        # 2. if i'm the server, then show when i'm confirmed or i haven't responded.
+        # use "id" as the 2nd "order by" for consistent ordering.
+        engagement_list = self.engagement_list(lambda qs: qs.filter((Q(initiate_user=self) & Q(status__in=(Contract.Status.INITIATED.value, Contract.Status.ACTIVE.value, Contract.Status.CONFIRMED.value))) | (Q(match__target_user=self) & (Q(status__in=(Match.Status.ENGAGED.value,)) | Q(match=F('confirmed_match'))))).filter(event_start__gt=timezone.now()).order_by('event_start', 'id')[:1])
         if engagement_list:
             return engagement_list[0]
-
-        # if not found, then return None
-        return None
+        else:
+            # if not found, then return None
+            return None
 
     def count_served(self, client):
         """

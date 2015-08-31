@@ -24,9 +24,6 @@ Feature: Test Find (contract add)
     When I fill in "event_end" with "12/01/2020 20:00"
     Then the "price-info" field should contain "$4.00/hour, 2 hours"
 
-    When I fill in "event_end" with "12/01/2020 17:00"
-    Then the "price-info" field should contain "$4.00/hour, 2 hours"
-
     When I fill in "price" with "2"
     Then the "price-info" field should contain "$1.00/hour, 2 hours"
 
@@ -46,7 +43,7 @@ Feature: Test Find (contract add)
     And I am on "/contract/calendar/"
     When I run the following Javascript:
       """
-      var start = moment().add({days: 1, hours: 1});
+      var start = moment().add({hours: 1});
       var end = moment(start).add({hours: 1});
       $('#calendar').fullCalendar('select', start, end);
       """

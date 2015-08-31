@@ -392,7 +392,7 @@ class FeatureContext extends MinkContext implements SnippetAcceptingContext
   }
 
   /**
-   * @Then the :element is hidden
+   * @Then the :element element is hidden
    */
   public function checkElementHidden($element)
   {
