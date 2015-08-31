@@ -1,29 +1,30 @@
 {% load p2_tags %}
 {% load static %}
 {% if user %}
-<div data-uid="{{ user.id }}">
-  <a href="{% url 'account_view' pk=user.id %}" class="user-link"><img class="img-rounded img-responsive" src="{% user_picture_url user %}" alt="user" title="{% user-full-name user %}" data-toggle="tooltip"></a>
+<div data-uid="{{ user.id }}"  title="{% user-full-name user %}" data-toggle="tooltip">
+  <a href="{% url 'account_view' pk=user.id %}" class="user-link"><img class="img-rounded img-responsive" src="{% user_picture_url user %}" alt="user"></a>
   {% if icon or label %}
     <p class=" upper-corner"><span class="label label-{{ color|default:'default' }}">
       {% if icon %}{% include icon %}{% else %}{{ label }}{% endif %}
     </span></p>
   {% endif %}
   {% if not hide_name %}
-  <div class="text-center lower-center" title="{% user-full-name user %}" data-toggle="tooltip">
+  <div class="text-center lower-center">
     <a href="{% url 'account_view' pk=user.id %}"><span class="label label-primary">{% user-short-name user %}</span></a>
   </div>
   {% endif %}
 </div>
+
 {% else %}
-<div>
-  <img class="img-rounded img-responsive" src="{% static 'images/question_200x200.png' %}" alt="user" title="Not found">
+<div title="Not found" data-toggle="tooltip">
+  <img class="img-rounded img-responsive img-thumbnail" src="{% static 'images/question_200x200.png' %}" alt="user">
   {% if icon or label %}
     <p class="upper-corner"><span class="label label-{{ color|default:'default' }}">
       {% if icon %}{% include icon %}{% else %}{{ label }}{% endif %}
     </span></p>
   {% endif %}
   {% if not hide_name %}
-    <div class="text-center truncate lower-center" title="Not found" data-toggle="tooltip">
+    <div class="text-center truncate lower-center" >
       <span class="label label-primary">Not found</span>
     </div>
   {% endif %}
