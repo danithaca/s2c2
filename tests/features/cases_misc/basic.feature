@@ -22,7 +22,7 @@ Feature: Check link
   @core @javascript
   Scenario: check calendar
     Given I am logged in as user "test@servuno.com" with password "password"
-    Given I am on "/calendar/"
+    Given I am on "/contract/calendar/"
     And I should see "Find a Babysitter"
     And I should see "Recent Activities"
     And I should see a "div.fc-view" element

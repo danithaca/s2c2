@@ -43,7 +43,7 @@ Feature: Test Find (contract add)
   @core @javascript
   Scenario: form submission
     Given I am logged in as user "test@servuno.com" with password "password"
-    And I am on "/calendar/"
+    And I am on "/contract/calendar/"
     When I run the following Javascript:
       """
       var start = moment().add({days: 1, hours: 1});

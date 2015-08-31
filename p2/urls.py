@@ -13,7 +13,6 @@ urlpatterns = patterns(
     url(r'^landing/$', views.LandingView.as_view(), name='landing'),
 
     url(r'^dashboard/$', views.DashboardView.as_view(), name='dashboard'),
-    url(r'^calendar/$', views.CalendarView.as_view(), name='calendar'),
 
     # first occurance takes priority
     url(r"^account/", include("puser.urls")),

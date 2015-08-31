@@ -62,7 +62,7 @@ Feature: sign up
     And I should see "Picture upload"
 
     When I press "Next >"
-    Then I should be on "/calendar/"
+    Then I should be on ":LOGIN_LANDING"
     And I should see "Welcome!"
     And I should see "Deleted"
 

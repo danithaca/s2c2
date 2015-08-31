@@ -48,7 +48,7 @@ Feature: Test referral user
     When I press "Next >"
     Then I should be on "/account/onboard/picture/"
     When I press "Next >"
-    Then I should be on "/calendar/"
+    Then I should be on ":LOGIN_LANDING"
 
     Given I am on "/circle/manage/personal/"
     Then I should see "test@servuno.com"

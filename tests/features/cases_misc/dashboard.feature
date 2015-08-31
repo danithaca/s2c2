@@ -11,7 +11,7 @@ Feature: check dashboard
 
     When I move backward one page
     When I follow "View Activities"
-    Then I should be on "/calendar/"
+    Then I should be on "/contract/calendar/"
 
     When I move backward one page
     When I follow "Manage Contacts"

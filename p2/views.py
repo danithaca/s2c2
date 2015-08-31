@@ -25,19 +25,6 @@ def home(request):
             return redirect(reverse('dashboard'))
 
 
-class CalendarView(LoginRequiredMixin, TemplateView):
-    template_name = 'calendar.html'
-
-    def get_context_data(self, **kwargs):
-        ctx = super().get_context_data(**kwargs)
-        # assume this is only valid for current user
-        puser = self.request.puser
-        engagement_list = puser.engagement_list(lambda qs: qs.order_by('-updated')[:3])
-        ctx['engagement_recent'] = engagement_list
-        ctx['engagement_headline'] = puser.engagement_headline()
-        return ctx
-
-
 class HelpView(TemplateView):
     template_name = 'pages/help.html'
 
