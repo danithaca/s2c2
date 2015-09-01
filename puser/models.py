@@ -115,7 +115,7 @@ class PUser(User):
         return circle
 
     @staticmethod
-    def create(email, password=None, dummy=True):
+    def create(email, password=None, dummy=True, area=None):
         # supposedly to use in the referral creation phase and not the full process of user signup. if not use in referral creation
         # neglected: 1. signup_code, 2.email verification (some cases email might have already been verified), 3. email confirmation requirement, 4. login
         assert not PUser.objects.filter(email=email).exists() and not EmailAddress.objects.filter(email=email).exists()
@@ -140,6 +140,9 @@ class PUser(User):
         # create Info(?) and login token.
         if dummy:
             Token.generate(user, is_user_registered=False)
+
+        if area:
+            Info.objects.create(user=user, area=area)
 
         return user
 

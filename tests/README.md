@@ -9,10 +9,10 @@ Test users:
   Email             | Name        | Registered  | Memo
   ------------------|-------------|-------------|---------------------------------
   test@servuno.com  | John Smith  | Yes         | All purpose test user
-  test1@servuno.com | Nancy Doe   | Yes         | Secondary user to test; is staff and thus is able to bypass some limitations
-  test2@servuno.com | N/A         | No          | Test pre-registered user
-  test3@servuno.com | Mary Jane   | Yes         | Set up with fixed testing data (e.g., favors). Don't remove any data related to test3
-  test4@servuno.com | Jack Lee    | Yes         | Set up with fixed testing
+  test1@servuno.com | Test1 Bot   | Yes         | Secondary user to test; 
+  test2@servuno.com | Nancy Doe   | Yes         | is staff and thus is able to bypass some limitations
+  test3@servuno.com | N/A         | No          | Test pre-registered user, always remain unsigned up
+  test4@servuno.com | Jack Lea    | Yes         | Set up with fixed testing data (e.g., favors). Don't remove any data related to test3
   
 
 Notes

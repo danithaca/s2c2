@@ -1,10 +1,11 @@
-You just created a request:
+{% extends 'email_body.txt' %}
+{% load p2_tags %}
+{% block body %}
+This is to confirm you have created a babysitting request:
 
-When: {{ contract.display_event_range }}
-Compensation: ${{ contract.price }}
-Note: {{ contract.description|default:'- None -' }}
-Initial contacts: {{ contract.count_total_match }}
+{% include 'elements/email_contract.txt' with contract=contract %}
 
 Review here:
 
-{{ site_url}}{{ contract.get_absolute_url }}
+{{ site_url}}{{ contract.get_absolute_url }}{% if client.get_login_token %}?login_token={{ client.get_login_token }}{% endif %}
+{%endblock%}

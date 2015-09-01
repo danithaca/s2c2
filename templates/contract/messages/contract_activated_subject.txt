@@ -1,1 +1,3 @@
-[{{site_name}}] You just created a request on {{ contract.event_start }}
+{% extends 'email_subject.txt' %}
+{% load p2_tags %}
+{% block subject %}You just created a babysitting request for {{ contract.event_start }}{% endblock %}

@@ -58,7 +58,7 @@ class ContractForm(forms.ModelForm):
     #     #     field.widget.attrs['class'] = 'form-control'
 
     def clean(self):
-        cleaned_data = super(ContractForm, self).clean()
+        cleaned_data = super().clean()
         event_start = cleaned_data.get("event_start")
         event_end = cleaned_data.get("event_end")
         now = timezone.now()

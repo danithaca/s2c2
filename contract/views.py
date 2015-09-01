@@ -65,7 +65,7 @@ class ContractCreate(LoginRequiredMixin, FormValidMessageMixin, CreateView):
 
     # def get_form(self, form_class=None):
     #     form = super().get_form(form_class)
-    #     form.fields['area'].widget.attrs['disabled'] = True
+    #     # form.fields['area'].widget.attrs['disabled'] = True
     #     return form
 
     def form_valid(self, form):

@@ -16,19 +16,23 @@ def after_contract_activated(contract):
     recommender.recommend(contract)
 
     from shout.notify import notify_agent
-    notify_agent.send(None, contract.initiate_user, 'contract/messages/contract_activated', {'contract': contract})
+    from puser.models import PUser
+    notify_agent.send(None, contract.initiate_user, 'contract/messages/contract_activated', {'contract': contract, 'client': PUser.from_user(contract.initiate_user)})
 
 
 @shared_task
 def after_contract_confirmed(contract):
     from shout.notify import notify_agent
+    from puser.models import PUser
     confirmed_match = contract.confirmed_match
+    initiate_user = PUser.from_user(contract.initiate_user)
+    target_user = PUser.from_user(confirmed_match.target_user)
     # first, shout to the target user
     notify_agent.send(contract.initiate_user, confirmed_match.target_user, 'contract/messages/contract_confirmed_send',
-                      {'match': confirmed_match, 'contract': contract, 'initiate_user': contract.initiate_user})
+                      {'match': confirmed_match, 'contract': contract, 'initiate_user': initiate_user, 'target_user': target_user})
     # next, shout to the initiate user
     notify_agent.send(confirmed_match.target_user, contract.initiate_user, 'contract/messages/contract_confirmed_review',
-                      {'match': confirmed_match, 'contract': contract, 'target_user': confirmed_match.target_user})
+                      {'match': confirmed_match, 'contract': contract, 'initiate_user': initiate_user, 'target_user': target_user})
     # schedule reminder tasks
     # fixme: if contract is confirmed and then undo and then confirmed again. we want to make sure it doesn't have problems
     before_contract_starts.apply_async((contract,), eta=contract.event_start - timedelta(hours=1))
@@ -52,8 +56,8 @@ def before_contract_starts(contract):
             'contract': contract,
             'match': contract.confirmed_match,
         }
-        notify_agent(client, server, 'contract/messages/start_reminder_server', ctx)
-        notify_agent(server, client, 'contract/messages/start_reminder_client', ctx)
+        notify_agent.send(client, server, 'contract/messages/start_reminder_server', ctx)
+        notify_agent.send(server, client, 'contract/messages/start_reminder_client', ctx)
 
 
 @shared_task
@@ -71,7 +75,7 @@ def after_contract_ends(contract):
             'event_start': localtime(contract.event_start),
             'contract': contract,
         }
-        notify_agent(None, client, 'contract/messages/end_reminder_client', ctx)
+        notify_agent.send(None, client, 'contract/messages/end_reminder_client', ctx)
 
 
 @shared_task
@@ -84,7 +88,9 @@ def handle_expired_contract(contract):
 @shared_task
 def after_match_accepted(match):
     from shout.notify import notify_agent
-    notify_agent.send(match.target_user, match.contract.initiate_user, 'contract/messages/match_accepted', {'match': match, 'contract': match.contract})
+    from puser.models import PUser
+    client = PUser.from_user(match.contract.initiate_user)
+    notify_agent.send(match.target_user, match.contract.initiate_user, 'contract/messages/match_accepted', {'match': match, 'contract': match.contract, 'client': client})
 
 
 @shared_task

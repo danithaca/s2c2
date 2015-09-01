@@ -3,8 +3,9 @@ from account.models import EmailAddress
 from django.contrib.auth.models import User
 from django.core.management import BaseCommand
 from django.db.models import F
+from circle.models import Membership, Circle
 from login_token.models import Token
-from puser.models import PUser
+from puser.models import PUser, Info
 
 
 class Command(BaseCommand):
@@ -36,3 +37,10 @@ class Command(BaseCommand):
             Token.generate(u, is_user_registered=False)
             u.is_active = True
             u.save()
+
+        ######## handle info #######
+        qs = PUser.objects.filter(is_staff=False).filter(info__isnull=True).filter(membership__isnull=False)
+        for u in qs:
+            membership = Membership.objects.filter(member=u, circle__type=Circle.Type.PERSONAL.value).order_by('-updated').first()
+            if membership:
+                Info.objects.create(user=u, area=membership.circle.area)

@@ -82,6 +82,7 @@ class FeatureContext extends MinkContext implements SnippetAcceptingContext
         $this->navigateRecentEmail($i);
         try {
           $this->checkEmailAddress($from_email, $to_email);
+          echo "Open email {$this->currentEmailFileName}";
           // found the email. break here.
           break;
         } catch (Exception $e) {

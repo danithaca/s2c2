@@ -1,5 +1,6 @@
-{% load account_tags %}
+{% extends 'email_body.txt' %}
 {% load p2_tags %}
+{% block body %}
 {% user-full-name initiate_user %} confirmed your offer. Here are the details:
 
 {% include 'elements/email_contract.txt' with contract=contract %}
@@ -10,4 +11,5 @@ You can response to the email to contact {% user-short-name initiate_user %}. Or
 
 Review the request here:
 
-{{ site_url}}{{ match.get_absolute_url }}
+{{ site_url}}{{ match.get_absolute_url }}{% if target_user.get_login_token %}?login_token={{ target_user.get_login_token }}{% endif %}
+{%endblock%}

@@ -1,4 +1,9 @@
-{% load account_tags %}
-{% user_display match.target_user %} accepted your request. You have a total of {{ contract.count_accepted_match }} offers. Review your request here:
+{% extends 'email_body.txt' %}
+{% load p2_tags %}
+{% block body %}
+{% user-full-name match.target_user %} accepted your babysitting request. You have a total of {{ contract.count_accepted_match }} offer{{ contract.count_accepted_match|pluralize }}.
 
-{{ site_url}}{{ contract.get_absolute_url }}
+Review and confirm here:
+
+{{ site_url}}{{ contract.get_absolute_url }}{% if client.get_login_token %}?login_token={{ client.get_login_token }}{% endif %}
+{%endblock%}

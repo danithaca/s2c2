@@ -1,2 +1,3 @@
-{% load account_tags %}
-[{{ site_name }}] {% user_display match.target_user %} accepted your request
+{% extends 'email_subject.txt' %}
+{% load p2_tags %}
+{% block subject %}{% user-full-name match.target_user %} accepted your request{% endblock %}

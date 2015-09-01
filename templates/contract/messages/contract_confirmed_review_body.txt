@@ -1,12 +1,15 @@
-{% load account_tags %}
-You have confirmed the offer from {% user_display target_user %}. You can response to the email to contact {% user_display target_user %}. Or use the following contact:
+{% extends 'email_body.txt' %}
+{% load p2_tags %}
+{% block body %}
+You have confirmed the offer from {% user-full-name target_user %}. You can response to the email to contact {% user-short-name target_user %}. Or use the following contact:
 
 {% include 'elements/email_user_info.txt' with user=target_user %}
 
 {% if not contract.is_favor %}
-You agreed to pay {% user_display target_user %} ${{ contract.price }}. Don't forget to pay after the service is delivered.
+You agreed to pay ${{ contract.price }} for the service. Don't forget to pay after the service is delivered.
 {% endif %}
 
 Review the request here:
 
-{{ site_url}}{{ contract.get_absolute_url }}
+{{ site_url}}{{ contract.get_absolute_url }}{% if initiate_user.get_login_token %}?login_token={{ initiate_user.get_login_token }}{% endif %}
+{%endblock%}

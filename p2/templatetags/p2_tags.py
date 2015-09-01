@@ -44,7 +44,7 @@ def user_picture_url(context, puser, **kwargs):
 def p2_tag_user_short_name(user):
     assert isinstance(user, User)
     name = user.first_name or user.last_name or user.username
-    return truncatechars(name, 10)
+    return truncatechars(name, 12)
 
 
 @register.simple_tag(name='user-full-name')

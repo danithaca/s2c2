@@ -118,7 +118,7 @@ class ManagePersonal(LoginRequiredMixin, FormView):
                 try:
                     target_puser = PUser.get_by_email(email)
                 except PUser.DoesNotExist:
-                    target_puser = PUser.create(email, dummy=True)
+                    target_puser = PUser.create(email, dummy=True, area=personal_circle.area)
                 personal_circle.add_member(target_puser)
                 # send notification
                 # if the user is a dummy user, send invitation code instead.
