@@ -235,7 +235,7 @@ class PUser(User):
         # 1. if i'm the client, then always show if it's initiated, active or confirmed.
         # 2. if i'm the server, then show when i'm confirmed or i haven't responded.
         # use "id" as the 2nd "order by" for consistent ordering.
-        engagement_list = self.engagement_list(lambda qs: qs.filter((Q(initiate_user=self) & Q(status__in=(Contract.Status.INITIATED.value, Contract.Status.ACTIVE.value, Contract.Status.CONFIRMED.value))) | (Q(match__target_user=self) & (Q(status__in=(Match.Status.ENGAGED.value,)) | Q(match=F('confirmed_match'))))).filter(event_start__gt=timezone.now()).order_by('event_start', 'id')[:1])
+        engagement_list = self.engagement_list(lambda qs: qs.filter((Q(initiate_user=self) & Q(status__in=(Contract.Status.INITIATED.value, Contract.Status.ACTIVE.value, Contract.Status.CONFIRMED.value))) | (Q(match__target_user=self) & (Q(match__status__in=(Match.Status.ENGAGED.value,)) | Q(match=F('confirmed_match'))))).filter(event_start__gt=timezone.now()).order_by('event_start', 'id')[:1])
         if engagement_list:
             return engagement_list[0]
         else:

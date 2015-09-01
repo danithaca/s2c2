@@ -34,3 +34,5 @@ class Command(BaseCommand):
         logging.info('Total inactive users to switch to LoginToken: %d' % qs.count())
         for u in qs:
             Token.generate(u, is_user_registered=False)
+            u.is_active = True
+            u.save()
