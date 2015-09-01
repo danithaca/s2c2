@@ -23,7 +23,7 @@
           {% if not contract.is_favor %}
             <strong>${{ contract.price }}</strong> (${{ contract.hourly_rate }}/hour)
           {% else %}
-            <strong>$0</strong> (favor exchange <span class="fa fa-info-circle" data-toggle="tooltip" title="Servuno will keep track of the number of favors done and remind people to repay the owed favors."></span>)
+            <strong>$0</strong> (favor exchange <span class="fa fa-info-circle" data-toggle="tooltip" title="Servuno will keep track of the number of favors done and remind people to return the favors."></span>)
           {% endif %}
         </li>
       </ul>
@@ -39,7 +39,9 @@
     </div>
 
     <div class="col-xs-6 col-sm-3 col-md-2">
-      {% if contract.confirmed_match %}
+      {% if match_override %}
+        {% include 'account/view/compact.html' with user=match_override.target_user icon='elements/icon_server.html' color=contract.display_status.color only %}
+      {% elif contract.confirmed_match %}
         {% include 'account/view/compact.html' with user=contract.confirmed_match.target_user icon='elements/icon_server.html' color=contract.display_status.color only %}
       {% else %}
         {% include 'account/view/compact.html' with user=None hide_name=True only %}

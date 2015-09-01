@@ -72,3 +72,8 @@ def p2_tag_user_full_name(user):
 #             current_site.domain,
 #             reverse("account_signup")
 #         )
+
+
+@register.filter
+def negate(value):
+    return -value

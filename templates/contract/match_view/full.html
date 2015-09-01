@@ -1,4 +1,4 @@
-{% extends "base.html" %}
+{% extends "base_l.html" %}
 {% load staticfiles %}
 {% load bootstrap %}
 {% load p2_tags %}
@@ -42,41 +42,75 @@ $(document).ready(function() {
 </script>
 {% endblock %}
 
-{% block page %}
-  <div class="panel panel-default">
-    <div class="panel-body">
-      {% include 'contract/contract_view/summary.html' with contract=contract %}
-    </div>
+{% block content %}
+<div class="panel panel-default">
+  <div class="panel-body">
+    {% include 'contract/contract_view/summary.html' with contract=contract match_override=match %}
+  </div>
+</div>
+
+<div class="match-details panel panel-{{ match.display_status.color }}" data-match-id="{{ match.id }}">
+  <div class="panel-heading panel-title">
+    {% if match.is_responded %}
+      <span title="{{ match.display_status.explanation }}" data-toggle="tooltip">{{ match.display_status.label }}</span>
+    {% elif not contract.is_event_expired %}
+      <strong>Your response?</strong> <small>(Leave a response now; you might change later)</small>
+    {% else %}
+      Expired
+    {% endif %}
   </div>
 
-  <div class="row">
-    <div class="col-xs-12 col-sm-offset-2 col-sm-8 col-md-offset-3 col-md-6">
-      <div class="match-details panel panel-primary">
-        <div class="panel-heading panel-title">Your response?</div>
-        <div class="panel-body">
-          {% if match.is_accepted %}<div class="alert alert-success">You have accepted the request.</div>{% endif %}
-          {% if match.is_declined %}<div class="alert alert-warning">You have declined the request.</div>{% endif %}
-          {% include 'contract/match_view/extended.html' with match=match contract=contract %}
-        </div>
-        <div class="panel-body">
-          <textarea class="form-control" rows="3" placeholder="Optional note" id="match-response"{% if match.is_responded or contract.is_event_expired %} readonly{% endif %}>{{ match.response }}</textarea>
-        </div>
+  <div class="panel-body"><div class="row">
+    <div class="col-xs-12 col-sm-6">
+      {# make tooltip in "p" to prevent getting truncated. but then it shows funny in match_view #}
+      <p title="You are contacted because of these tags." data-toggle="tooltip"><strong>Tagged in:</strong>
+        {% for circle in match.circles.all %}
+          <span class="label label-primary">{{ circle.display }}</span>
+        {% empty %}
+          - None -
+        {% endfor %}
+      </p>
+      <p data-toggle="tooltip" title="This shows the number of times you and {% user-short-name contract.initiate_user %} helped each other."><strong>Previous interactions:</strong>
+        {% if not match.count_served and not match.count_served_reverse %}
+          - None -
+        {% else %}
+          {% with count=match.count_served client=contract.initiate_user server=match.target_user %}{% if count %}
+            You ({% user-short-name server %}) helped <em>{% user-short-name client %}</em> <u>{{ count }}</u> time{{ count|pluralize }}{% if match.count_served_reverse%};{% endif %}
+          {% endif %}{% endwith %}
+          {% with count=match.count_served_reverse server=contract.initiate_user client=match.target_user %}{% if count %}
+            <em>{% user-short-name server %}</em> helped you ({% user-short-name client %}) <u>{{ count }}</u> time{{ count|pluralize }}
+          {% endif %}{% endwith %}
+        {% endif %}
+      </p>
+      <p data-toggle="tooltip" title="Favors owed between you and {% user-short-name contract.initiate_user %}. Only successfully completed 'free' babysitting count as favors."><strong>Favors karma:</strong>
+      {% with count=match.count_favors_karma other=contract.initiate_user me=match.target_user %}{% if count %}
+        {% if count > 0 %}
+          <span class="label label-success"><em>{% user-short-name other %}</em> owes you ({% user-short-name me %}) <u>{{ count }}</u> favor{{ count|pluralize }}</span>
+        {% else %}
+          <span class="label label-danger">You ({% user-short-name me %}) owe <em>{% user-short-name other %}</em> <u>{{ count|negate }}</u> favor{{ count|negate|pluralize }}</span>
+        {% endif %}
+      {% else %}
+        - None -
+      {% endif %}{% endwith %}
+      </p>
+    </div>
+    <div class="col-xs-12 col-sm-6">
+      <textarea class="form-control" rows="3" placeholder="Optional note" id="match-response"{% if match.is_responded or contract.is_event_expired %} readonly{% endif %}>{{ match.response }}</textarea>
+    </div>
+  </div></div>
 
-        {% if match.target_user == user or user.is_staff %}{% if not contract.is_event_expired %}
-          <div class="panel-footer text-center">
-            <div id="match-non-edit-bar">
-              {# we always want the "accept" button available so people can update the note. #}
-              <button class="btn btn-success" name="match" data-url="{% url 'contract:match_accept' pk=match.id %}" title="You agree to do this job, although might not get chosen." data-toggle="tooltip">Accept</button>
-              {# disable "decline" button if the match is already confirmed. #}
-              <button class="btn btn-danger{% if match.is_confirmed %} disabled{% endif %}" name="match" data-url="{% url 'contract:match_decline' pk=match.id %}" title="You will not help this time and will not receive further notice." data-toggle="tooltip">Decline</button>
-              <div class="help-block">Choose "Accept" if you might help <em>{% user-short-name contract.initiate_user %}</em>. Specify your conditions (if any) in the text box above. Choose "Decline" if you are sure you cannot help.</div>
-            </div>
-            <div id="match-edit-bar">
-              <button class="btn btn-primary" name="edit">Edit</button>
-            </div>
-          </div>
-        {% endif %}{% endif %}
+  {% if match.target_user == user or user.is_staff %}{% if not contract.is_event_expired %}
+    <div class="panel-footer text-center">
+      <div id="match-non-edit-bar">
+        {# we always want the "accept" button available so people can update the note. #}
+        <button class="btn btn-success" name="match" data-url="{% url 'contract:match_accept' pk=match.id %}" title="Choose 'Accept' if you might help {% user-short-name contract.initiate_user %} babysit. Specify your conditions (if any) in the text box above, and {% user-short-name contract.initiate_user %} will decide whether to receive your help." data-toggle="tooltip">Accept</button>
+        {# disable "decline" button if the match is already confirmed. #}
+        <button class="btn btn-danger{% if match.is_confirmed %} disabled{% endif %}" name="match" data-url="{% url 'contract:match_decline' pk=match.id %}" title="Choose 'Decline' if you are sure you cannot help. You will not receive further notice about this request." data-toggle="tooltip">Decline</button>
+      </div>
+      <div id="match-edit-bar">
+        <button class="btn btn-primary" name="edit">Edit</button>
       </div>
     </div>
-  </div>
+  {% endif %}{% endif %}
+</div>
 {% endblock %}

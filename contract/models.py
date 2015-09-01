@@ -252,8 +252,12 @@ class Contract(StatusMixin, models.Model):
         except:
             return None
 
+    # whether the client consider this contract as a favor.
+    # for now, only price=0 is counted as a favor.
+    # need to think more to use more complex logic: asymmetric client/server's perception as a favor; sql search.
     def is_favor(self):
-        return self.price <= 0.1 or self.hourly_rate() <= 0.1
+        # return self.price <= 0.1 or self.hourly_rate() <= 0.1
+        return self.price <= 0
 
 
 class Match(StatusMixin, models.Model):
@@ -342,6 +346,25 @@ class Match(StatusMixin, models.Model):
     def count_served_reverse(self):
         from puser.models import PUser
         return PUser.from_user(self.contract.initiate_user).count_served(self.target_user)
+
+    def count_favors(self):
+        """
+        Return the number of favors the server (match.target_user) has done to the client (contract.initiate_user)
+        """
+        from puser.models import PUser
+        return PUser.from_user(self.target_user).count_favors(self.contract.initiate_user)
+
+    def count_favors_reverse(self):
+        from puser.models import PUser
+        return PUser.from_user(self.contract.initiate_user).count_favors(self.target_user)
+
+    def count_favors_karma(self):
+        """
+        Positive number; client owes server favors; negative number: server owes client favor.
+        """
+        favors = self.count_favors()
+        favors_reverse = self.count_favors_reverse()
+        return favors - favors_reverse
 
 
 class Engagement(object):

@@ -140,7 +140,11 @@ class MatchDetail(LoginRequiredMixin, DetailView):
     # edit = False
 
     def get_context_data(self, **kwargs):
-        kwargs['contract'] = self.object.contract
+        match = self.object
+        kwargs['contract'] = match.contract
+        kwargs['favors_karma'] = match.count_favors_karma()
+        if kwargs['favors_karma'] < 0 and not match.is_responded():
+            messages.info(self.request, 'You owe %s a favor. Please consider return the favor by accepting the request.' % match.contract.initiate_user.get_name())
         # kwargs['edit'] = self.edit
         return super().get_context_data(**kwargs)
 

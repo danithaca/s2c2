@@ -249,6 +249,17 @@ class PUser(User):
         assert isinstance(client, User)     # PUser is also an instance of user.
         return Contract.objects.filter(confirmed_match__target_user=self, initiate_user=client, status=Contract.Status.SUCCESSFUL.value).count()
 
+    def count_favors(self, client):
+        """
+        Count how many times the current puser (as "server") has served the client as favors.
+        """
+        assert isinstance(client, User)     # PUser is also an instance of user.
+        count = 0
+        for contract in Contract.objects.filter(confirmed_match__target_user=self, initiate_user=client, status=Contract.Status.SUCCESSFUL.value):
+            if contract.is_favor():
+                count += 1
+        return count
+
     def get_login_token(self, force=False):
         try:
             token = self.token
