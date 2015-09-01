@@ -24,6 +24,8 @@ Feature: view newly created contract
     And I should see "Last updated"
     And I should see "test1"
     And I should see "John Smith's List"
+    And I should see a ".matches-tabs" element
+    And I should see "Notified & Waiting"
 
     # didn't find a server yet, so there's no link to user page.
 #    Given I am on the homepage

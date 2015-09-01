@@ -1,6 +1,7 @@
 from collections import defaultdict
 from datetime import datetime, timedelta
 from decimal import Decimal
+from itertools import groupby
 from braces.views import JSONResponseMixin, AjaxResponseMixin, LoginRequiredMixin, FormValidMessageMixin
 from django.contrib import messages
 from django.core.validators import MinValueValidator
@@ -22,8 +23,24 @@ class ContractDetail(DetailView):
     template_name = 'contract/contract_view/full.html'
 
     def get_context_data(self, **kwargs):
-        kwargs['matches'] = self.object.match_set.all().order_by('-score')
-        return super(ContractDetail, self).get_context_data(**kwargs)
+        ctx = super().get_context_data(**kwargs)
+        # ctx['matches'] = self.object.match_set.all().order_by('-score')
+        tabs = []
+        for status in (Match.Status.ACCEPTED, Match.Status.ENGAGED, Match.Status.DECLINED, Match.Status.INITIALIZED):
+            qs = self.object.match_set.filter(status=status.value).order_by('-score')
+            if qs.exists():
+                status_label = None
+                matches = []
+                for match in qs:
+                    if status_label is None:
+                        status_label = match.display_status()['label']
+                    elif status_label != match.display_status()['label']:
+                        status_label = status.name.capitalize()
+                    matches.append(match)
+                tabs.append((status_label, matches))
+        if tabs:
+            ctx['matches_tabs'] = tabs
+        return ctx
 
 
 class ContractList(ListView):

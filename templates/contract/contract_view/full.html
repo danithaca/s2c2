@@ -78,30 +78,43 @@ $(document).ready(function() {
     {% endif %}
   </div>
 
-<div class="row">
-{% if matches %}
-{% for match in matches %}
-  <div class="col-xs-12 col-sm-6 col-md-4">
-    <div class="match-preview panel panel-default" data-slug="{{ match.target_user.get_name|slugify }}">
-      <div class="panel-body">
-        {% include 'contract/match_view/summary.html' with match=match contract=contract %}
-        {% if match.response %}
-          <blockquote class="text-small" style="margin-bottom: 0px; margin-top: 10px;"><p>{{ match.response }}</p></blockquote>
-        {% endif %}
-      </div>
-      {% if match.is_accepted and contract.is_active and contract.initiate_user == user %}
-        <div class="panel-footer text-center">
-          <button class="btn btn-success" name="change-status" value="confirm" data-match-id="{{ match.id }}">
-            Confirm
-          </button>
-        </div>
-      {% endif %}
+{% if matches_tabs %}
+  <div class="matches-tabs">
+    <ul class="nav nav-tabs">
+      {% for tab_status, tab_matchs in matches_tabs %}
+        <li {% if forloop.first %}class="active"{% endif %}><a href="#{{ tab_status|slugify }}" data-toggle="tab">{{ tab_status }} <span class="badge">{{ tab_matchs|length }}</span></a></li>
+      {% endfor %}
+    </ul>
+    <div class="tab-content">
+      {% for tab_status, tab_matches in matches_tabs %}
+        <div class="tab-pane{% if forloop.first %} active{% endif %}" id="{{ tab_status|slugify }}"><div class="row">
+          {% for match in tab_matches %}
+            <div class="col-xs-12 col-sm-6 col-md-4">
+              <div class="match-preview panel panel-default" data-slug="{{ match.target_user.get_name|slugify }}">
+                <div class="panel-body">
+                  {% include 'contract/match_view/summary.html' with match=match contract=contract %}
+                  {% if match.response %}
+                    <blockquote class="text-small" style="margin-bottom: 0px; margin-top: 10px;"><p>{{ match.response }}</p></blockquote>
+                  {% endif %}
+                </div>
+                {% if match.is_accepted and contract.is_active and contract.initiate_user == user %}
+                  <div class="panel-footer text-center">
+                    <button class="btn btn-success" name="change-status" value="confirm" data-match-id="{{ match.id }}">
+                      Confirm
+                    </button>
+                  </div>
+                {% endif %}
+              </div>
+            </div>
+          {% endfor %}
+        </div></div>
+      {% endfor %}
     </div>
   </div>
-{% endfor %}
 {% else %}
-  <div class="col-sm-12">We will forward your request to your personal contacts and public circles momentarily.</div>
+  <div class="row">
+    <div class="col-sm-12">We will forward your request to your personal contacts and public circles momentarily.</div>
+  </div>
 {% endif %}
-</div>
 
 {% endblock %}
