@@ -3,6 +3,8 @@ p2/settings_local.py
 assets
 logfiles
 
+.vagrant/
+
 # IDE related
 *.tmproj
 *.iml
