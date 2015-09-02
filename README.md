@@ -159,6 +159,7 @@ GIT Tags
 
 New tags:
   * p2-0.1: initial release, before "minimalist design" refactor.
+  * p2-0.2: after the minimal design major refactor. changed theme
 
 Outdated, only pertain to s2c2 related stuff:
 
