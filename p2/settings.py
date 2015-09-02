@@ -53,6 +53,7 @@ INSTALLED_APPS = (
     #'debug_toolbar',
     #'bootstrap3_datetime',
     'kombu.transport.django',  # for celery
+    'djcelery', # for celery
     'login_token',
 
     # customized
@@ -134,7 +135,8 @@ REST_FRAMEWORK = {
 
 # celery related settings
 BROKER_URL = 'sqla+sqlite:///celerydb.sqlite'
-CELERY_RESULT_BACKEND = 'db+sqlite:///celerydb.sqlite'
+# CELERY_RESULT_BACKEND = 'db+sqlite:///celerydb.sqlite'
+CELERY_RESULT_BACKEND = 'djcelery.backends.database:DatabaseBackend'
 CELERY_ACCEPT_CONTENT = ['pickle', 'json', 'msgpack', 'yaml']
 # CELERY_ACCEPT_CONTENT = ['json']
 # CELERY_TASK_SERIALIZER = 'json'

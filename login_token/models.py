@@ -47,7 +47,9 @@ class Token(models.Model):
                 pass
         return None
 
-@checks.register()
+
+# this doesn't hanlde missing login_token_token table problem before migrate.
+# @checks.register()
 def login_token_missing_check(app_configs, **kwargs):
     errors = []
     if app_configs is None or 'login_token' in [app.label for app in app_configs]:

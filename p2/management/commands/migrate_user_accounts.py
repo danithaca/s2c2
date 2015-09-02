@@ -41,6 +41,12 @@ class Command(BaseCommand):
         ######## handle info #######
         qs = PUser.objects.filter(is_staff=False).filter(info__isnull=True).filter(membership__isnull=False)
         for u in qs:
+            try:
+                u.info
+                assert False, "user info exists: %s" % u.username
+            except Info.DoesNotExist:
+                pass
             membership = Membership.objects.filter(member=u, circle__type=Circle.Type.PERSONAL.value).order_by('-updated').first()
             if membership:
                 Info.objects.create(user=u, area=membership.circle.area)
+
