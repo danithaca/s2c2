@@ -27,6 +27,9 @@ Feature: view newly created contract
     And I should see a ".matches-tabs" element
     And I should see "Notified & Waiting"
 
+    When I follow "view in calendar"
+    Then I should be on "/contract/calendar/"
+
     # didn't find a server yet, so there's no link to user page.
 #    Given I am on the homepage
 #    When I run the following Javascript:
@@ -34,3 +37,17 @@ Feature: view newly created contract
 #      $('.engagement.engagement-headline a.user-link').click();
 #      """
 #    Then the URL should match "/account/\d+/"
+
+  @core @javascript
+  Scenario: view calendar
+    Given I am logged in as user "test@servuno.com" with password "password"
+    And I am on "/contract/calendar/"
+    Then I should see "Recently updated"
+    And I should see "minutes ago"
+    And I should see an "#calendar" element
+    And I should see a "div.fc-view" element
+    And I should see a "button.fc-agendaDay-button" element
+    And I should see a "button.fc-agendaWeek-button" element
+    And I should see a "button.fc-month-button" element
+    And I should see a "button.fc-prev-button" element
+    And I should see a "button.fc-next-button" element

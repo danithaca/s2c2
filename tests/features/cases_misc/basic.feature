@@ -19,18 +19,6 @@ Feature: Check link
     Then I should be on "/about/"
     And I should see "Key Features"
 
-  @core @javascript
-  Scenario: check calendar
-    Given I am logged in as user "test@servuno.com" with password "password"
-    Given I am on "/contract/calendar/"
-    And I should see "Find a Babysitter"
-    And I should see "Recent Activities"
-    And I should see a "div.fc-view" element
-    And I should see a "button.fc-agendaDay-button" element
-    And I should see a "button.fc-agendaWeek-button" element
-    And I should see a "button.fc-month-button" element
-    And I should see a "button.fc-prev-button" element
-    And I should see a "button.fc-next-button" element
 
   @core @javascript
   Scenario: check jotform

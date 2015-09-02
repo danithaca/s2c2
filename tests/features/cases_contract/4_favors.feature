@@ -27,10 +27,11 @@ Feature: Test favors exchange
     And pause 3 seconds
     # Given I am on "/account/logout/"
 
-    # confirm from email. login token should take care of login
+    # confirm from email. login token should take care of login as test2
     When I open the last email from "to-be-deleted-favors@servuno.com" to "test2@servuno.com"
     And I follow the email link like "/contract/"
     Then the URL should match "/contract/\d+/"
+    Then I should see an ".nav-tabs a[href='#accepted-pending']" element
     When I press "Confirm"
     And I press "Yes"
 
@@ -67,13 +68,26 @@ Feature: Test favors exchange
     And I press "OK"
     And pause 3 seconds
 
+    Then the URL should match "/contract/\d+/"
+    # check status
+    Then I should see an ".nav-tabs a[href='#notified-waiting']" element
+    Then I should see an ".match-preview" element
+    Then I should see an ".match-interactions-label" element
+    Then I should see an ".match-favors-label" element
+    Given I am on "/account/"
+    Then I should see an ".label-danger.match-favors-label" element
+    And I should see "1 to-be-del"
+
     When I open the last email from "test2@servuno.com" to "to-be-deleted-favors@servuno.com"
+    # now logged in as to-be-deleted from login token
     And I follow the email link like "/contract/match/"
     Then the URL should match "/contract/match/\d+/"
     And I should see "Previous interactions: You (to-be-del...) helped Nancy 1 time"
     And I should see "Favors karma: Nancy owes you (to-be-del...) 1 favor"
+    Given I am on "/account/"
+    Then I should see an ".label-success.match-favors-label" element
+    And I should see "1 Nancy"
 
-    # now logged in as to-be-deleted from login token
     # try the other way: to-be-deleted send request to test2
     Given I am on "/circle/manage/personal"
     When I fill in "new-contact" with "test2@servuno.com"
@@ -85,14 +99,13 @@ Feature: Test favors exchange
     And I press "Submit"
     And I press "OK"
     And pause 3 seconds
+    # now logged in as nancy from login_token
     When I open the last email from "to-be-deleted-favors@servuno.com" to "test2@servuno.com"
     And I follow the email link like "/contract/match/"
     Then the URL should match "/contract/match/\d+/"
     Then I should see "You owe to-be-deleted-favors a favor. Please consider return the favor by accepting the request"
     And I should see "Previous interactions: to-be-del... helped you (Nancy) 1 time"
     And I should see "Favors karma: You (Nancy) owe to-be-del... 1 favor "
-
-    # now logged in as nancy from login_token
 
 
   Scenario: clean up - remove user

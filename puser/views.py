@@ -1,3 +1,4 @@
+from collections import defaultdict
 import tempfile
 
 from account.mixins import LoginRequiredMixin
@@ -111,7 +112,7 @@ class UserEdit(LoginRequiredMixin, FormView):
     """
     template_name = 'account/manage/default.html'
     form_class = UserInfoForm
-    success_url = reverse_lazy('account_edit')
+    success_url = reverse_lazy('account_view')
 
     def get_initial(self):
         # this will only work for current user.
@@ -202,6 +203,18 @@ class UserView(LoginRequiredMixin, TrustedUserMixin, DetailView):
             'my_circles': my_circles,
             'my_memberships': my_memberships
         }
+
+        # favors karma
+        karma = defaultdict(int)
+        for favor in u.engagement_favors():
+            direction = 0
+            if favor.is_main_contract():
+                direction = -1
+            elif favor.is_match_confirmed():
+                direction = 1
+            karma[favor.passive_user()] += direction
+        context['favors_karma'] = [(u, f) for u, f in karma.items() if f != 0]
+
         context.update(kwargs)
         return super().get_context_data(**context)
 

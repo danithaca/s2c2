@@ -51,7 +51,7 @@
   <div class="row">
     <div class="col-xs-12">
       {% if contract.description %}<blockquote>{{ contract.description }}</blockquote>{% endif %}
-      <div class="text-muted text-small pull-right">Last updated: {{ contract.updated|timesince }} ago</div>
+      <div class="text-muted text-small pull-right">Last updated: {{ contract.updated|timesince }} ago | <a href="{% url 'contract:calendar' %}?day={{ contract.event_start|date:'Y-m-d' }}">view in calendar</a></div>
     </div>
   </div>
 </div>

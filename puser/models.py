@@ -219,7 +219,7 @@ class PUser(User):
     def engagement_queryset(self):
         return Contract.objects.filter(Q(initiate_user=self) | Q(match__target_user=self)).distinct()
 
-    def engagement_list(self, extra_query = lambda qs: qs):
+    def engagement_list(self, extra_query=lambda qs: qs):
         list_engagement = []
         for contract in extra_query(self.engagement_queryset()):
             if contract.initiate_user == self:
@@ -244,6 +244,15 @@ class PUser(User):
         else:
             # if not found, then return None
             return None
+
+    def engagement_favors(self):
+        results = []
+        # we filter by price=0 for now, which might change later depending on what counts as favors.
+        engagement_list = self.engagement_list(extra_query=lambda qs: qs.filter(price=0, event_end__lt=timezone.now(), status=Contract.Status.SUCCESSFUL.value))
+        for engagement in engagement_list:
+            if engagement.contract.is_favor() and (engagement.is_main_contract() or engagement.is_match_confirmed()):
+                results.append(engagement)
+        return results
 
     def count_served(self, client):
         """

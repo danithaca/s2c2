@@ -258,6 +258,7 @@ class Contract(StatusMixin, models.Model):
     # whether the client consider this contract as a favor.
     # for now, only price=0 is counted as a favor.
     # need to think more to use more complex logic: asymmetric client/server's perception as a favor; sql search.
+    # this doesn't count for whether the contract is completed or not.
     def is_favor(self):
         # return self.price <= 0.1 or self.hourly_rate() <= 0.1
         return self.price <= 0

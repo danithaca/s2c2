@@ -94,7 +94,7 @@ $(document).ready(function() {
                 <div class="panel-body">
                   {% include 'contract/match_view/summary.html' with match=match contract=contract %}
                   {% if match.response %}
-                    <blockquote class="text-small" style="margin-bottom: 0px; margin-top: 10px;"><p>{{ match.response }}</p></blockquote>
+                    <p><blockquote>{{ match.response }}</blockquote></p>
                   {% endif %}
                 </div>
                 {% if match.is_accepted and contract.is_active and contract.initiate_user == user %}

@@ -11,7 +11,7 @@
         <h4 class="text-center">{% user-full-name target_user %} {% if full_access %}<small><a href="{% url 'account_edit' %}" id="link_account_edit"><i class="fa fa-edit"></i></a></small>{% endif %}</h4>
       </div>
     </div>
-    <div class="panel panel-primary">
+    <div class="panel panel-default">
       <div class="panel-heading panel-title">Contact</div>
       <ul class="list-group">
         <li class="list-group-item"><i class="fa fa-envelope"></i> <a href="mailto:{{ target_user.email }}">{{ target_user.email }}</a></li>
@@ -24,16 +24,32 @@
       </ul>
     </div>
     {% if target_user.info.note %}
-      <div class="panel panel-info">
+      <div class="panel panel-default">
         <div class="panel-heading panel-title">About</div>
         <div class="panel-body">{{ target_user.info.note|default:"Nothing." }}</div>
       </div>
     {% endif %}
+    <div class="panel panel-{% if favors_karma %}warning{% else %}default{% endif %}">
+      <div class="panel-heading panel-title">Favors Karma <i class="fa fa-question-circle" data-toggle="tooltip" title="Help other parents babysit and have them return the favor when you need help. Paid babysitting is not a favor. Favors will show here 1-2 days after successfully delivered."></i></div>
+      <div class="panel-body">
+        {% if favors_karma %}
+          {% for favor_user, count in favors_karma %}
+          {% with other=favor_user me=target_user %}{% if count > 0 %}
+            <span class="label label-success match-favors-label" data-toggle="tooltip" title="{% user-short-name other %} owes you ({% user-short-name me %}) {{ count }} favor{{ count|pluralize }}"><i class="fa fa-balance-scale"></i> {{ count }} {% user-short-name other %}</span>
+          {% elif count < 0 %}
+            <span class="label label-danger match-favors-label" data-toggle="tooltip" title="You ({% user-short-name me %}) owe {% user-short-name other %} {{ count|negate }} favor{{ count|negate|pluralize }}"><i class="fa fa-balance-scale"></i> {{ count|negate }} {% user-short-name other %}</span>
+          {% endif %}{% endwith %}
+          {% endfor %}
+        {% else %}
+          No favors owed.
+        {% endif %}
+      </div>
+    </div>
   </aside>
 
   <div class="col-sm-8">
 
-  <div class="panel panel-default">
+  <div class="panel panel-primary">
     <div class="panel-heading panel-title">{% user-short-name target_user %}'s List {% if full_access %}<small><a href="{% url 'circle:manage_personal' %}" id="link_manage_personal"><i class="fa fa-edit"></i></a></small>{% endif %}</div>
     <div class="panel-body">
       {% if my_listed %}
@@ -51,7 +67,7 @@
     </div>
   </div>
 
-  <div class="panel panel-default">
+  <div class="panel panel-primary">
     <div class="panel-heading panel-title">{% user-short-name target_user %}'s Circles {% if full_access %}<small><a href="{% url 'circle:manage_public' %}" id="link_manage_public"><i class="fa fa-edit"></i></a></small>{% endif %}</div>
     <div class="panel-body">
     {% if my_memberships %}
@@ -75,7 +91,7 @@
     </div>
   </div>
 
-  <div class="panel panel-default">
+  <div class="panel panel-primary">
     <div class="panel-heading panel-title">Listed By {% if full_access%}<small><a href="{% url 'circle:manage_loop' %}" id="link_manage_loop"><i class="fa fa-edit"></i></a></small>{% endif %}</div>
     <div class="panel-body">
       {% if in_others %}

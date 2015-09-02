@@ -6,7 +6,7 @@ from contract.models import Contract, Match
 
 
 class Command(BaseCommand):
-    help = 'Update active contracts and their matches.'
+    help = 'Update active contracts and their matches for recommendations'
 
     def handle(self, *args, **options):
         qs = Contract.objects.filter(status=Contract.Status.ACTIVE.value, event_start__gte=timezone.now())

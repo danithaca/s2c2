@@ -291,6 +291,6 @@ class CalendarView(LoginRequiredMixin, TemplateView):
         ctx = super().get_context_data(**kwargs)
         # assume this is only valid for current user
         puser = self.request.puser
-        engagement_list = puser.engagement_list(lambda qs: qs.order_by('-updated')[:5])
-        ctx['engagement_recent'] = engagement_list
+        engagement_list = sorted(puser.engagement_list(lambda qs: qs.filter(initiate_user=puser).order_by('-updated')[:5]) + puser.engagement_list(lambda qs: qs.filter(match__target_user=puser).order_by('-match__updated')[:5]), key=lambda e: e.updated(), reverse=True)
+        ctx['engagement_recent'] = engagement_list[:5]
         return ctx
