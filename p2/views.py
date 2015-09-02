@@ -1,3 +1,4 @@
+from collections import defaultdict
 from braces.views import LoginRequiredMixin
 from django.core.urlresolvers import reverse
 from django.db.models import Q
@@ -48,8 +49,21 @@ class DashboardView(TemplateView):
 
     def get_context_data(self, **kwargs):
         ctx = super().get_context_data(**kwargs)
+
         ctx['target_user'] = self.request.puser
         headline = self.request.puser.engagement_headline()
         if headline:
             ctx['engagement_headline'] = headline
+
+        # favors karma
+        karma = defaultdict(int)
+        for favor in self.request.puser.engagement_favors():
+            direction = 0
+            if favor.is_main_contract():
+                direction = -1
+            elif favor.is_match_confirmed():
+                direction = 1
+            karma[favor.passive_user()] += direction
+        ctx['favors_karma'] = [(u, f) for u, f in karma.items() if f != 0]
+
         return ctx

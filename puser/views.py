@@ -196,6 +196,7 @@ class UserView(LoginRequiredMixin, TrustedUserMixin, DetailView):
         my_listed = list(PUser.objects.filter(membership__circle__owner=u, membership__circle__type=Circle.Type.PERSONAL.value, membership__active=True, membership__approved=True).exclude(membership__member=u).distinct())
         my_circles = list(Circle.objects.filter(membership__member=u, membership__circle__type=Circle.Type.PUBLIC.value, membership__active=True, membership__approved=True).distinct())
         my_memberships = list(Membership.objects.filter(member=u, circle__type=Circle.Type.PUBLIC.value, active=True))
+
         context = {
             'full_access': self.get_object() == self.request.puser,
             'in_others': in_others,
@@ -204,16 +205,16 @@ class UserView(LoginRequiredMixin, TrustedUserMixin, DetailView):
             'my_memberships': my_memberships
         }
 
-        # favors karma
-        karma = defaultdict(int)
-        for favor in u.engagement_favors():
-            direction = 0
-            if favor.is_main_contract():
-                direction = -1
-            elif favor.is_match_confirmed():
-                direction = 1
-            karma[favor.passive_user()] += direction
-        context['favors_karma'] = [(u, f) for u, f in karma.items() if f != 0]
+        # # favors karma
+        # karma = defaultdict(int)
+        # for favor in u.engagement_favors():
+        #     direction = 0
+        #     if favor.is_main_contract():
+        #         direction = -1
+        #     elif favor.is_match_confirmed():
+        #         direction = 1
+        #     karma[favor.passive_user()] += direction
+        # context['favors_karma'] = [(u, f) for u, f in karma.items() if f != 0]
 
         context.update(kwargs)
         return super().get_context_data(**context)

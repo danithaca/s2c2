@@ -74,7 +74,7 @@ Feature: Test favors exchange
     Then I should see an ".match-preview" element
     Then I should see an ".match-interactions-label" element
     Then I should see an ".match-favors-label" element
-    Given I am on "/account/"
+    Given I am on "/dashboard/"
     Then I should see an ".label-danger.match-favors-label" element
     And I should see "1 to-be-del"
 
@@ -84,7 +84,7 @@ Feature: Test favors exchange
     Then the URL should match "/contract/match/\d+/"
     And I should see "Previous interactions: You (to-be-del...) helped Nancy 1 time"
     And I should see "Favors karma: Nancy owes you (to-be-del...) 1 favor"
-    Given I am on "/account/"
+    Given I am on "/dashboard/"
     Then I should see an ".label-success.match-favors-label" element
     And I should see "1 Nancy"
 

@@ -17,6 +17,13 @@
         window.location = href;
       }
     });
+
+    $('.help-icon').hide();
+    $('.dashboard-link').hover(function() {
+      $(this).find('.help-icon').show();
+    }, function() {
+      $(this).find('.help-icon').hide();
+    });
   });
 </script>
 {% endblock %}
@@ -42,4 +49,19 @@
 
   {% url 'account_view' as href_account %}
   {% include 'pages/dashboard_link.html' with color='info' href=href_account text='View Account' help="Review your personal info." only %}
+
+  <p class="{% if not favors_karma %}text-muted{% endif %}">
+    <span class="">Favors karma <i class="fa fa-question-circle" data-toggle="tooltip" title="Help other parents babysit and have them return the favor when you need help. Paid babysitting is not a favor. Favors will show here 1-2 days after successfully delivered."></i></span>
+    {% if favors_karma %}
+      {% for favor_user, count in favors_karma %}
+      {% with other=favor_user me=target_user %}{% if count > 0 %}
+        <span class="label label-success match-favors-label" data-toggle="tooltip" title="{% user-short-name other %} owes you ({% user-short-name me %}) {{ count }} favor{{ count|pluralize }}"><i class="fa fa-balance-scale"></i> {{ count }} {% user-short-name other %}</span>
+      {% elif count < 0 %}
+        <span class="label label-danger match-favors-label" data-toggle="tooltip" title="You ({% user-short-name me %}) owe {% user-short-name other %} {{ count|negate }} favor{{ count|negate|pluralize }}"><i class="fa fa-balance-scale"></i> {{ count|negate }} {% user-short-name other %}</span>
+      {% endif %}{% endwith %}
+      {% endfor %}
+    {% else %}
+      - None -
+    {% endif %}
+  </p>
 {% endblock %}

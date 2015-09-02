@@ -1,4 +1,4 @@
 <div class="dashboard-link">
 {#  <a class="btn btn-lg btn-block btn-{{ color|default:'primary' }}" href="{{ href }}" title="About" data-toggle="popover" data-content="{{ help|default:'No help text.' }}">{{ text }}</a>#}
-  <a class="btn btn-lg btn-block btn-{{ color|default:'primary' }}" href="{{ href }}" title="{{ help|default:'No help text.' }}" data-toggle="tooltip">{{ text }}</a>
+  <a class="btn btn-lg btn-block btn-{{ color|default:'primary' }}" href="{{ href }}">{{ text }} {% if help %}<span class="help-icon" title="{{ help }}" data-toggle="tooltip"><i class="fa fa-question-circle"></i></span>{% endif %}</a>
 </div>
