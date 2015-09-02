@@ -17,21 +17,20 @@ Feature: Test referral user when the user doesn't signup right away
 
     Given I am on "/contract/add/"
     When I fill in the following:
-      | event_start | 12/02/2010 18:00 |
-      | event_end   | 12/02/2010 19:00 |
+      | event_start | 12/02/2020 18:00 |
+      | event_end   | 12/02/2020 19:00 |
       | price       | 8                |
-    When I press "submit"
+    When I press "Submit"
+    And I press "OK"
     Then the URL should match "/contract/\d+/"
     And I should see a ".match-summary" element
     And I should see "successfully"
 
 
   @javascript
-  Scenario: create contract, check email/signup
+  Scenario: create contact, check email/signup
     When I open the last email from "test@servuno.com" to "to-be-deleted-referral-delayed@servuno.com"
-    Then show email content
-    And check email subject contains "needs help babysitting"
-    And check email subject contains "John Smith"
+    And check email subject contains "John Smith needs help babysitting (for pay)"
     And check email contains "Sign up at"
     When I follow the email link like "/account/signup/"
     Then I should be on "/account/signup/"

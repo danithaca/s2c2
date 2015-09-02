@@ -28,6 +28,16 @@ In settings_local.py:
   * (new SECRET_KEY)
 
 
+Promotion piece
+-----------------------
+
+Important places for promotion purposes:
+
+  * templates/pages/about.html
+  * templates/contract/messages/match_engaged
+  * templates/account/new_user_invite
+
+
 WSGI Settings
 -------------
 

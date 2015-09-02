@@ -1,6 +1,9 @@
+{% extends 'email_body.txt' %}
 {% load p2_tags %}
+{% block body %}
 Hi {% user-short-name server %},
 
-This is a friendly reminder that you are about to help {% user-full-name client %} soon at {{ event_start }}. Check the details at:
+This is a friendly reminder that you are about to help {% user-full-name client %} soon at {{ event_start }}. Check out the details at:
 
-{{ site_url}}{{ match.get_absolute_url }}
+{{ site_url}}{{ match.get_absolute_url }}?login_token={{ server.get_login_token }}
+{%endblock%}

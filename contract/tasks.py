@@ -56,8 +56,8 @@ def before_contract_starts(contract):
             'contract': contract,
             'match': contract.confirmed_match,
         }
-        notify_agent.send(client, server, 'contract/messages/start_reminder_server', ctx)
-        notify_agent.send(server, client, 'contract/messages/start_reminder_client', ctx)
+        notify_agent.send(None, server, 'contract/messages/start_reminder_server', ctx)
+        notify_agent.send(None, client, 'contract/messages/start_reminder_client', ctx)
 
 
 @shared_task
@@ -102,7 +102,9 @@ def after_match_engaged(match):
         'contract': match.contract,
         'signup_warning': True,
         'price_note': 'for pay' if match.contract.price > 0 else 'favor exchange',
-        'server_token': PUser.from_user(match.target_user).get_login_token(force=True)
+        'server_token': PUser.from_user(match.target_user).get_login_token(force=True),
+        'interactions_count': match.count_served_total(),
+        'favors_count': -match.count_favors_karma(),        # this should be positive
     }
     notify_agent.send(match.contract.initiate_user, match.target_user, 'contract/messages/match_engaged', context)
 
@@ -123,6 +125,21 @@ def after_contract_reverted(contract, match):
 def after_contract_failed(contract):
     from shout.notify import notify_agent
     notify_agent.send(None, None, 'contract/messages/contract_failed', {'contract': contract})
+
+@shared_task
+def after_contract_successful(contract):
+    from shout.notify import notify_agent
+    from puser.models import PUser
+    client = PUser.from_user(contract.initiate_user)
+    server = PUser.from_user(contract.confirmed_match.target_user)
+    # send from the system, not from the client
+    notify_agent.send(None, server, 'contract/messages/contract_successful', {
+        'contract': contract,
+        'match': contract.confirmed_match,
+        'client': client,
+        'server': server,
+        'server_token': server.get_login_token(force=True)
+    })
 
 
 @shared_task

@@ -19,6 +19,10 @@ Feature: Test favors exchange
 
     # respond from email. login token should take care of login
     When I open the last email from "test2@servuno.com" to "to-be-deleted-favors@servuno.com"
+    # check email content
+    Then check email contains "Nancy Doe needs help babysitting. Please consider help out and have Nancy return the favor when you need help babysitting."
+    And check email contains "This request is not for pay but based on favor exchange."
+    # login as to-be-deleted
     And I follow the email link like "/contract/match/"
     Then the URL should match "/contract/match/\d+/"
     And I should see "Previous interactions: - None -"
@@ -57,6 +61,10 @@ Feature: Test favors exchange
     Then pause 1 second
 
     # now there is a favor from to-be-deleted to test2
+    # check success message
+    When I open the last email from "admin@servuno.com" to "to-be-deleted-favors@servuno.com"
+    Then check email contains "Congratulations"
+    And check email contains "/contract/match/"
 
 
   @javascript
@@ -101,6 +109,9 @@ Feature: Test favors exchange
     And pause 3 seconds
     # now logged in as nancy from login_token
     When I open the last email from "to-be-deleted-favors@servuno.com" to "test2@servuno.com"
+    Then check email contains "You have helped each other 1 time in the past."
+    Then check email contains "1 favor"
+    Then check email contains "Please return the favor."
     And I follow the email link like "/contract/match/"
     Then the URL should match "/contract/match/\d+/"
     Then I should see "You owe to-be-deleted-favors a favor. Please consider return the favor by accepting the request"

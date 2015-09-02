@@ -62,7 +62,7 @@ Feature: test users interactions between the client and the server
     When I open the last email
     Then check email sent from "test1@servuno.com" to "test@servuno.com"
     And check email subject contains "accepted your request"
-    And check email contains "Review your request here"
+    And check email contains "Review and confirm here"
 
   @core @javascript
   Scenario: edit contract, without submit
@@ -113,7 +113,8 @@ Feature: test users interactions between the client and the server
     Then pause 5 seconds
     When I open the last email from "test@servuno.com" to "test1@servuno.com"
     Then check email subject contains "John Smith confirmed your offer"
-    And check email contains "John Smith confirmed your offer. Here are the details"
+    And check email contains "John Smith confirmed your offer of help. Details of the request"
+    And check email contains "Please contact John directly if you need to change, cancel, or ask for more information. You can response to the email directly or use the following information"
 
     When I open the last email from "test1@servuno.com" to "test@servuno.com"
     Then check email subject contains "Review the confirmed"

@@ -1,2 +1,3 @@
+{% extends 'email_subject.txt' %}
 {% load p2_tags %}
-[{{ site_name }}] Reminder: don't forget to help {% user-short-name client %}
+{% block subject %}Reminder: help {% user-short-name client %} babysit{% endblock %}

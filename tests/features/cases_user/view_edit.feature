@@ -17,7 +17,8 @@ Feature: Edit account
       | About me   | This is me.  |
     And I press "Submit"
     Then I should see "Profile successfully updated."
-    And the "First name" field should contain "Daniel"
+    Given I am on "/account/edit/"
+    Then the "First name" field should contain "Daniel"
     And the "Last name" field should contain "Zhou"
     And the "Phone" field should contain "734-123-4567"
     # And the "About me" field should contain "This is me."
@@ -30,6 +31,7 @@ Feature: Edit account
       | About me   | This is a test account. |
     And I press "Submit"
     Then I should see "Profile successfully updated."
+    Given I am on "/account/edit/"
     And the "First name" field should contain "John"
 
 
