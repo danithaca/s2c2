@@ -75,19 +75,19 @@ $(document).ready(function() {
           - None -
         {% else %}
           {% with count=match.count_served client=contract.initiate_user server=match.target_user %}{% if count %}
-            You ({% user-short-name server %}) helped <em>{% user-short-name client %}</em> <u>{{ count }}</u> time{{ count|pluralize }}{% if match.count_served_reverse%};{% endif %}
+            You ({% user-short-name server %}) helped <em>{% user-short-name client %}</em> <span class="label label-info"><i class="fa fa-exchange"></i> {{ count }}</span> time{{ count|pluralize }}{% if match.count_served_reverse%};{% endif %}
           {% endif %}{% endwith %}
           {% with count=match.count_served_reverse server=contract.initiate_user client=match.target_user %}{% if count %}
-            <em>{% user-short-name server %}</em> helped you ({% user-short-name client %}) <u>{{ count }}</u> time{{ count|pluralize }}
+            <em>{% user-short-name server %}</em> helped you ({% user-short-name client %}) <span class="label label-info"><i class="fa fa-exchange"></i> {{ count }}</span> time{{ count|pluralize }}
           {% endif %}{% endwith %}
         {% endif %}
       </p>
       <p data-toggle="tooltip" title="Favors owed between you and {% user-short-name contract.initiate_user %}. Only successfully completed 'free' babysitting count as favors."><strong>Favors karma:</strong>
       {% with count=match.count_favors_karma other=contract.initiate_user me=match.target_user %}{% if count %}
         {% if count > 0 %}
-          <span class="label label-success"><em>{% user-short-name other %}</em> owes you ({% user-short-name me %}) <u>{{ count }}</u> favor{{ count|pluralize }}</span>
+          <em>{% user-short-name other %}</em> owes you ({% user-short-name me %}) <span class="label label-success"><i class="fa fa-balance-scale"></i> {{ count }}</span> favor{{ count|pluralize }}
         {% else %}
-          <span class="label label-danger">You ({% user-short-name me %}) owe <em>{% user-short-name other %}</em> <u>{{ count|negate }}</u> favor{{ count|negate|pluralize }}</span>
+          You ({% user-short-name me %}) owe <em>{% user-short-name other %}</em> <span class="label label-danger"><i class="fa fa-balance-scale"></i> {{ count|negate }}</span> favor{{ count|negate|pluralize }}
         {% endif %}
       {% else %}
         - None -

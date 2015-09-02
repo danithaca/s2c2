@@ -29,7 +29,7 @@ class StatusMixin(object):
             Contract.Status.INITIATED: ('default', 'Inactive', 'Not activated.'),
             Contract.Status.ACTIVE: ('primary', 'Active', 'Actively finding a babysitter.'),
             Contract.Status.CONFIRMED: ('success', 'Active - Confirmed', 'You have confirmed with a babysitter.'),
-            Contract.Status.SUCCESSFUL: ('info', 'Successful', 'Service was successfully delivered.'),
+            Contract.Status.SUCCESSFUL: ('success', 'Successful', 'Service was successfully delivered.'),
             Contract.Status.CANCELED: ('warning', 'Canceled', 'Request was canceled.'),
             Contract.Status.FAILED: ('danger', 'Failed', 'Service was confirmed but eventually failed.'),
         }
@@ -67,10 +67,10 @@ class StatusMixin(object):
             elif status == Match.Status.ACCEPTED:
                 if self.contract.confirmed_match == self:
                     color, label, explanation = 'success', 'Accepted & Confirmed', 'Request was confirmed.'
-                elif self.contract.is_confirmed():
+                elif self.contract.is_confirmed() or self.contract.is_feedback_provided():
                     color, label, explanation = 'primary', 'Not chosen', 'The user accepted to help but not chosen to babysit.'
                 elif not self.contract.is_event_expired() and not self.contract.is_confirmed():
-                    color, label, explanation = 'primary', 'Accepted & Pending', 'User accepted the request to babysit, but the requesting parent has not made a confirmation yet.'
+                    color, label, explanation = 'warning', 'Accepted & Pending', 'User accepted the request to babysit, but the requesting parent has not made a confirmation yet.'
             elif status in (Match.Status.INITIALIZED, Match.Status.ENGAGED) and self.contract.is_confirmed():
                 color, label, explanation = 'default', 'Expired', 'Another babysitter was confirmed. Request expired.'
 
@@ -181,6 +181,9 @@ class Contract(StatusMixin, models.Model):
         if result:
             assert self.confirmed_match is not None
         return result
+
+    def is_feedback_provided(self):
+        return self.status in (Contract.Status.SUCCESSFUL.value, Contract.Status.FAILED.value)
 
     def count_accepted_match(self):
         return Match.objects.filter(contract=self, status=Match.Status.ACCEPTED.value).count()
@@ -346,6 +349,9 @@ class Match(StatusMixin, models.Model):
     def count_served_reverse(self):
         from puser.models import PUser
         return PUser.from_user(self.contract.initiate_user).count_served(self.target_user)
+
+    def count_served_total(self):
+        return self.count_served() + self.count_served_reverse()
 
     def count_favors(self):
         """
