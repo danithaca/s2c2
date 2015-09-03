@@ -41,7 +41,7 @@ Feature: Edit account
     When I follow "View Account"
     Then I should be on "/account/"
     And I should see "John Smith"
-    And I should see "John's List"
+    And I should see "John's Contacts"
     And I should see "John's Circles"
     And I should see "Listed By"
     And I should see "test@servuno.com"

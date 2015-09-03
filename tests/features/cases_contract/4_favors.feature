@@ -8,7 +8,7 @@ Feature: Test favors exchange
     When I fill in "new-contact" with "to-be-deleted-favors@servuno.com"
     And I press "new-contact-add-btn"
     Then I should see "to-be-deleted-favors@servuno.com"
-    When I press "Submit"
+    When I press "Save Changes"
 
     # create contract
     Given I am on "/contract/add/"
@@ -102,7 +102,7 @@ Feature: Test favors exchange
     When I fill in "new-contact" with "test2@servuno.com"
     And I press "new-contact-add-btn"
     Then I should see "test2@servuno.com"
-    When I press "Submit"
+    When I press "Save Changes"
     Given I am on "/contract/add/"
     When I fill in "price" with "0"
     And I press "Submit"

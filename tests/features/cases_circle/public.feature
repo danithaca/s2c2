@@ -5,7 +5,6 @@ Feature: Test manage public circles
     Given I am logged in as user "test@servuno.com" with password "password"
     And I am on "/circle/manage/public"
     Then the response status code should be 200
-    And I should see "Manage"
     And I should see a ".public-circle-superset" element
     And I should see a ".public-circle-entity" element
     And I should see "Sleeping Bears"
@@ -15,13 +14,14 @@ Feature: Test manage public circles
   Scenario: add and remove, submit and check email
     Given I am logged in as user "test@servuno.com" with password "password"
     And I am on "/circle/manage/public"
+    Then I should not see "Changes are not saved."
 
     # make sure it's unsubscribed.
     When I run the following Javascript:
       """
       $('li[data-slug="sleeping-bears"] input').bootstrapSwitch('state', false);
       """
-    And I press "Update"
+    And I press "Save Changes"
     And I should be on "/account/"
     And I should not see "Sleeping Bears"
 
@@ -31,7 +31,8 @@ Feature: Test manage public circles
       """
       $('li[data-slug="sleeping-bears"] input').bootstrapSwitch('state', true);
       """
-    And I press "Update"
+    Then I should see "Changes are not saved."
+    And I press "Save Changes"
     And I should be on "/account/"
     And I should see "Sleeping Bears"
 
@@ -47,6 +48,7 @@ Feature: Test manage public circles
       """
       $('li[data-slug="sleeping-bears"] input').bootstrapSwitch('state', false);
       """
-    And I press "Update"
+    Then I should see "Changes are not saved."
+    And I press "Save Changes"
     And I should be on "/account/"
     And I should not see "Sleeping Bears"

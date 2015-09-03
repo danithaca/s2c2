@@ -1,12 +1,11 @@
 {# This needs the "form" to pass in #}
 {% load bootstrap %}
-
 <section id="contact-app">
   <div class="input-group">
     <input id="new-contact" class="form-control" placeholder="Add friends' email addresses to your contact list" autofocus>
     <span class="input-group-btn"><button class="btn btn-primary" id="new-contact-add-btn">Add</button></span>
   </div>
-  <span class="help-block">Press "Enter" to add email. Eg, somebody@gmail.com.</span>
+  <span class="help-block">Press "Enter" to add.</span>
   <ul id="contact-list" class="list-group"></ul>
 </section>
 
@@ -140,6 +139,11 @@ $(document).ready(function() {
     }
   });
 
+  // now start monitor changes
+  list.on('add remove', function() {
+    $('.changes-notice').removeClass('hidden');
+  });
+
   // update field before submit
   // this is different from "manage_public" where this field is always updated
   $('#contact-list-form').submit(function() {
@@ -157,9 +161,10 @@ $(document).ready(function() {
   {% csrf_token %}
   {{ form|bootstrap }}
   {% block submit-block %}
+  <p class="text-danger hidden changes-notice"><i class="fa fa-exclamation"></i> Changes are not saved.</p>
   <div class="form-group">
-    <button class="btn btn-primary" type="submit">Submit</button>
-    <span class="help-block">Changes will not be saved unless you press the "Submit" button. We will email affected contacts.</span>
+    <button class="btn btn-primary" type="submit">Save Changes</button>
+    <a class="btn btn-default" href="#" title="What is this for?" data-content="Add people you trust so that Servuno can help you find babysitters from them and their contacts. The more contacts you add here, the better chance you'll find a babysitter." data-toggle="popover"><i class="fa fa-book"></i> About</a>
   </div>
   {% endblock %}
 </form>

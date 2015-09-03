@@ -14,7 +14,7 @@ $(document).ready(function() {
 {% block title %}Edit account{% endblock %}
 
 {% block content %}
-  <div class="panel panel-default" id="account-manage">
+<div class="panel panel-default" id="account-manage">
   <div class="panel-heading">
     <ul class="nav nav-pills nav-justified">
       <li><a href="{% url 'account_edit' %}">Edit profile</a></li>
@@ -25,5 +25,5 @@ $(document).ready(function() {
   <div class="panel-body">
     {% block manage-block %}{% endblock %}
   </div>
-  </div>
+</div>
 {% endblock %}

@@ -8,7 +8,7 @@
 
     <div class="panel panel-default">
       <div class="panel-body text-center">
-        <div class="thumbnail">{% if full_access %}<a href="{% url 'account_picture' %}" id="link_account_picture">{% endif %}<img src="{% user_picture_url target_user %}" alt="user picture" class="img-rounded img-responsive">{% if full_access %}</a>{% endif %}</div>
+        {% if full_access %}<a href="{% url 'account_picture' %}" id="link_account_picture">{% endif %}<img src="{% user_picture_url target_user %}" alt="user picture" class="img-rounded img-responsive img-thumbnail">{% if full_access %}</a>{% endif %}
         <h4 class="text-center">{% user-full-name target_user %} {% if full_access %}<small><a href="{% url 'account_edit' %}" id="link_account_edit"><i class="fa fa-edit"></i></a></small>{% endif %}</h4>
       </div>
     </div>
@@ -54,8 +54,8 @@
 
   <div class="col-sm-8">
 
-  <div class="panel panel-primary">
-    <div class="panel-heading panel-title">{% user-short-name target_user %}'s List {% if full_access %}<small><a href="{% url 'circle:manage_personal' %}" id="link_manage_personal"><i class="fa fa-edit"></i></a></small>{% endif %}</div>
+  <div class="panel panel-default">
+    <div class="panel-heading panel-title">{% user-short-name target_user %}'s Contacts {% if full_access %}<small><a href="{% url 'circle:manage_personal' %}" id="link_manage_personal"><i class="fa fa-edit"></i></a></small>{% endif %}</div>
     <div class="panel-body">
       {% if my_listed %}
       <div class="row">
@@ -72,7 +72,7 @@
     </div>
   </div>
 
-  <div class="panel panel-primary">
+  <div class="panel panel-default">
     <div class="panel-heading panel-title">{% user-short-name target_user %}'s Circles {% if full_access %}<small><a href="{% url 'circle:manage_public' %}" id="link_manage_public"><i class="fa fa-edit"></i></a></small>{% endif %}</div>
     <div class="panel-body">
     {% if my_memberships %}
@@ -96,7 +96,7 @@
     </div>
   </div>
 
-  <div class="panel panel-primary">
+  <div class="panel panel-default">
     <div class="panel-heading panel-title">Listed By {% if full_access%}<small><a href="{% url 'circle:manage_loop' %}" id="link_manage_loop"><i class="fa fa-edit"></i></a></small>{% endif %}</div>
     <div class="panel-body">
       {% if in_others %}

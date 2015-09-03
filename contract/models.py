@@ -389,10 +389,16 @@ class Engagement(object):
     @staticmethod
     def from_contract(contract):
         assert isinstance(contract, Contract)
+        assert not(contract.is_confirmed() and contract.confirmed_match is None), 'Contract %d is invalid: marked as confirmed but no confirmed_match.' % contract.id
         e = Engagement()
         e.main_user = contract.initiate_user
         e.contract = contract
         e.initiate_user = contract.initiate_user
+        try:
+            # if match was deleted by contract field as not set to none, this would be error.
+            contract.confirmed_match
+        except:
+            assert False, 'Contract %d is invalid.' % contract.id
         if contract.confirmed_match:
             e.match = contract.confirmed_match
             e.target_user = contract.confirmed_match.target_user

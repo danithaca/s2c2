@@ -5,7 +5,6 @@ Feature: Test manage loop (in other people's list)
     Given I am logged in as user "test1@servuno.com" with password "password"
     And I am on "/circle/manage/loop"
     Then the response status code should be 200
-    And I should see "Manage"
     And I should see a ".circle-loop" element
     And I should see "John Smith"
 
@@ -14,11 +13,13 @@ Feature: Test manage loop (in other people's list)
   Scenario: remove, submit
     Given I am logged in as user "test1@servuno.com" with password "password"
     And I am on "/circle/manage/loop"
+    Then I should not see "Changes are not saved."
     When I run the following Javascript:
       """
       $('li[data-slug="john-smith"] input').bootstrapSwitch('state', false);
       """
-    And I press "Update"
+    Then I should see "Changes are not saved."
+    And I press "Save Changes"
     And I should be on "/account/"
     And I should not see "John Smith"
 
@@ -27,10 +28,12 @@ Feature: Test manage loop (in other people's list)
 
     # test unsubscribe. the first time was just to make sure it wasn't already subscribed to setup to test subscribe.
     Given I am on "/circle/manage/loop"
+    Then I should not see "Changes are not saved."
     When I run the following Javascript:
       """
       $('li[data-slug="john-smith"] input').bootstrapSwitch('state', true);
       """
-    And I press "Update"
+    Then I should see "Changes are not saved."
+    And I press "Save Changes"
     And I should be on "/account/"
     And I should see "John Smith"

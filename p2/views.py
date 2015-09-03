@@ -63,7 +63,9 @@ class DashboardView(TemplateView):
                 direction = -1
             elif favor.is_match_confirmed():
                 direction = 1
-            karma[favor.passive_user()] += direction
+            u = favor.passive_user()
+            assert u is not None, 'Contract has problem: %d' % favor.contract.id
+            karma[u] += direction
         ctx['favors_karma'] = [(u, f) for u, f in karma.items() if f != 0]
 
         return ctx

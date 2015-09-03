@@ -8,7 +8,11 @@
 $(document).ready(function() {
   // change to switch
   var bsOptions = defaultBootstrapSwitchOptions();
-  $('input.switch').bootstrapSwitch(bsOptions);
+  var $inputSwitch = $('input.switch');
+  $inputSwitch.bootstrapSwitch(bsOptions);
+  $inputSwitch.on('switchChange.bootstrapSwitch', function(e, s){
+    $('.changes-notice').removeClass('hidden');
+  });
 
   // update field before submit
   $('#circle-loop-form').submit(function() {
@@ -24,30 +28,30 @@ $(document).ready(function() {
 {% endblock %}
 
 {% block manage-block %}
-  {% if form.membership_data %}
-  <p class="help-block">Turn off the switch to opt out from the list your were added.</p>
-  <form id="circle-loop-form" class="form" method="post" autocapitalize="off" {% if form.is_multipart %}enctype="multipart/form-data"{% endif %}>
-    {% csrf_token %}
-    <ul class="list-group">
-      {% for membership in form.membership_data %}
+{% if form.membership_data %}
+<form id="circle-loop-form" class="form" method="post" autocapitalize="off" {% if form.is_multipart %}enctype="multipart/form-data"{% endif %}>
+  {% csrf_token %}
+  <ul class="list-group">
+    {% for membership in form.membership_data %}
 {#      <div class="form-group">#}
 {#        <div class="checkbox"><img src="{{ membership.picture }}" class="img-circle img-50"><label>{{ membership.name }} <input type="checkbox" name="{{ membership.membership_id }}" {{ membership.approved|yesno:"checked," }} class="switch"></label></div>#}
 {#      </div>#}
-        <li class="list-group-item circle-loop" data-slug="{{ membership.name|slugify }}">
-          <input type="checkbox" name="{{ membership.membership_id }}" {{ membership.approved|yesno:"checked," }} class="switch">
-          <img src="{{ membership.picture }}" class="img-circle img-18"> {{ membership.name }}
-        </li>
-      {% endfor %}
-    </ul>
+      <li class="list-group-item circle-loop" data-slug="{{ membership.name|slugify }}">
+        <input type="checkbox" name="{{ membership.membership_id }}" {{ membership.approved|yesno:"checked," }} class="switch">
+        <img src="{{ membership.picture }}" class="img-circle img-18"> {{ membership.name }}
+      </li>
+    {% endfor %}
+  </ul>
 
-    {{ form|bootstrap }}
-    <div class="form-group">
-      <button class="btn btn-primary" type="submit">Update</button>
-      <span class="help-block">Changes are not saved unless you press the "Update" button.</span>
-    </div>
-  </form>
+  {{ form|bootstrap }}
+  <p class="text-danger hidden changes-notice"><i class="fa fa-exclamation"></i> Changes are not saved.</p>
+  <div class="form-group">
+    <button class="btn btn-primary" type="submit">Save Changes</button>
+    <a class="btn btn-default" href="#" title="What is this for?" data-content="You can opt out from receiving messages from certain people." data-toggle="popover"><i class="fa fa-book"></i> About</a>
+  </div>
+</form>
 
-  {% else %}
-    <p>You are not added to anyone's personal list.</p>
-  {% endif %}
+{% else %}
+  <p>You are not in anyone's contact list.</p>
+{% endif %}
 {% endblock %}

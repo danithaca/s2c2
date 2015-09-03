@@ -13,12 +13,14 @@ Feature: Test manage personal feature
   Scenario: add and remove UI, does not submit
     Given I am logged in as user "test@servuno.com" with password "password"
     And I am on "/circle/manage/personal"
+    Then I should not see "Changes are not saved."
 
     When I run the following Javascript:
       """
       $('li[data-email="test1@servuno.com"] i.fa-remove').click();
       """
     Then I should not see "test1@servuno.com"
+    And I should see "Changes are not saved."
 
     When I run the following Javascript:
       """
@@ -30,6 +32,7 @@ Feature: Test manage personal feature
     And I press "new-contact-add-btn"
     Then I should see "test1@servuno.com"
     And I should see "test2@servuno.com"
+    And I should see "Changes are not saved."
 
   @javascript @core
   Scenario: submit and check email
@@ -42,7 +45,7 @@ Feature: Test manage personal feature
       """
     Then I should not see "test1@servuno.com"
 
-    When I press "Submit"
+    When I press "Save Changes"
     And I should be on "/account/"
     And I should not see "test1@servuno.com"
 
@@ -51,7 +54,7 @@ Feature: Test manage personal feature
     And I press "new-contact-add-btn"
     Then I should see "test1@servuno.com"
 
-    When I press "Submit"
+    When I press "Save Changes"
     Then I should see "Successfully updated"
     And I should be on "/account/"
     And I should see "Test1 Bot"
