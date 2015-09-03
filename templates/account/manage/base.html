@@ -1,48 +1,29 @@
-  {% extends "base_page.html" %}
+{% extends "base_s.html" %}
 
-  {% block extra_header %}
-  {{ form.media }}
-  <script type="text/javascript">
-  $(document).ready(function() {
-    var path = window.location.pathname;
-    $('div.account-manage-sidebar a[href="'+ path +'"]').addClass('active');
-  });
-  </script>
-  {% block more_header %}{% endblock %}
-  {% endblock %}
+{% block extra_header %}
+{{ form.media }}
+<script type="text/javascript">
+$(document).ready(function() {
+  var path = window.location.pathname;
+  $('#account-manage a[href="'+ path +'"]').parent().addClass('active');
+});
+</script>
+{% block more_header %}{% endblock %}
+{% endblock %}
 
-  {% block title %}Edit account{% endblock %}
-  {% block page-header %}Edit account{% endblock %}
+{% block title %}Edit account{% endblock %}
 
-  {% block page-content %}
-    <div class="row">
-      <div class="col-sm-4">
-        <div class="list-group account-manage-sidebar">
-          <a href="{% url 'account_edit' %}" class="list-group-item">
-            <h4 class="list-group-item-heading">Update profile</h4>
-            <p class="list-group-item-text">Edit phone number, address, etc.</p>
-          </a>
-          <a href="{% url 'account_picture' %}" class="list-group-item">
-            <h4 class="list-group-item-heading">Edit picture</h4>
-            <p class="list-group-item-text">Change avatar picture</p>
-          </a>
-          <a href="{% url 'account_password' %}" class="list-group-item">
-            <h4 class="list-group-item-heading">Change password</h4>
-            <p class="list-group-item-text">Use a different password</p>
-          </a>
-  {#        <a href="{% url 'account_favorite' %}" class="list-group-item">#}
-  {#          <h4 class="list-group-item-heading">Manage favorites</h4>#}
-  {#          <p class="list-group-item-text">Edit emails to the favorite list</p>#}
-  {#        </a>#}
-  {#        <a href="{% url 'account_circle' %}" class="list-group-item">#}
-  {#          <h4 class="list-group-item-heading">Manage circles</h4>#}
-  {#          <p class="list-group-item-text">Join or quit the circles of trusted parents and sitters</p>#}
-  {#        </a>#}
-        </div>
-      </div>
-
-      <div class="col-sm-8">
-        {% block manage-block %}{% endblock %}
-      </div>
-    </div>
-  {% endblock %}
+{% block content %}
+  <div class="panel panel-default" id="account-manage">
+  <div class="panel-heading">
+    <ul class="nav nav-pills nav-justified">
+      <li><a href="{% url 'account_edit' %}">Edit profile</a></li>
+      <li><a href="{% url 'account_picture' %}">Upload picture</a></li>
+      <li><a href="{% url 'account_password' %}">Change password</a></li>
+    </ul>
+  </div>
+  <div class="panel-body">
+    {% block manage-block %}{% endblock %}
+  </div>
+  </div>
+{% endblock %}

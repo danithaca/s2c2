@@ -66,6 +66,8 @@
   right: 0;
 }
 
+.tab-pane { padding-top: 16px; }
+
 
 /***** flex related ******/
 
@@ -194,8 +196,6 @@
 #page-summary:empty { display: none; }
 
 #page-error-message:empty { display: none; }
-
-.tab-pane { padding-top: 12px; }
 
 .multiple-checkbox ul.list-inline li label { font-weight: normal; }
 

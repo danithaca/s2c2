@@ -80,7 +80,7 @@ $(document).ready(function() {
 
 {% if matches_tabs %}
   <div class="matches-tabs">
-    <ul class="nav nav-tabs">
+    <ul class="nav nav-tabs nav-justified">
       {% for tab_status, tab_matchs in matches_tabs %}
         <li {% if forloop.first %}class="active"{% endif %}><a href="#{{ tab_status|slugify }}" data-toggle="tab">{{ tab_status }} <span class="badge">{{ tab_matchs|length }}</span></a></li>
       {% endfor %}

@@ -51,7 +51,7 @@ Feature: password change
     And I fill in the following:
       | New password              | password |
       | New password confirmation | password |
-    And I press "Change"
+    And I press "Submit"
     Then I should see "Password successfully changed."
 
     When I open the last email

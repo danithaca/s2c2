@@ -47,16 +47,20 @@ class UserInfoForm(ModelForm):
 
     class Meta:
         model = Info
-        fields = ['area', 'first_name', 'last_name', 'phone', 'address', 'note']
+        fields = ['first_name', 'last_name', 'area', 'phone', 'address', 'note']
         # fields = ['first_name', 'last_name', 'phone', 'address', 'note']
+        widgets = {
+            'note': forms.Textarea(attrs={'rows': 3})
+        }
         labels = {
             'area': 'Activity area',
             'note': 'About me',
+            'phone': 'Phone number',
         }
         help_texts = {
-            'area': 'This is where most of the babysitting activities take place.',
-            'phone': 'This number will be shown to people your trust.',
-            'address': 'This will help people find you for babysitting activities.',
+            'area': 'This is where most of the babysitting activities take place. Limited to Ann Arbor and Ypsilanti at the time being.',
+            # 'phone': 'This number will be shown to people your trust.',
+            'address': 'This helps your contacts find you for babysitting activities.',
             'note': 'Tell people a little bit about yourself and the kids to be taken care of.'
         }
 
@@ -74,7 +78,7 @@ class UserPictureForm(ModelForm):
         fields = ('picture_original', 'picture_cropping')
         help_texts = {
             # 'picture_original': 'Please choose which part of the picture to show.',
-            'picture_cropping': 'Drag to choose which part of the picture to use as your avatar.',
+            'picture_cropping': 'Select which part of the picture to use as your avatar.',
         }
         labels = {
             'picture_original': 'Picture upload',
