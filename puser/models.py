@@ -289,6 +289,8 @@ class PUser(User):
     # is_onboard: user has been through the onboarding process and (should) added first/last name and area.
     # is_onboard includes is_registered. is_active is orthogonal.
 
+    # is_isolated: too few contacts. need to add more
+
     def is_onboard(self):
         return self.has_info() and self.info.area and self.first_name
 
@@ -300,6 +302,14 @@ class PUser(User):
             # no token by default means already registered.
             return True
 
+    def is_isolated(self):
+        # we count non-active/approved here.
+        count_personal = Membership.objects.filter(circle__owner=self, circle__type=Circle.Type.PERSONAL.value).count()
+        count_public = Membership.objects.filter(member=self, circle__type = Circle.Type.PUBLIC.value).count()
+        if count_personal + count_public <= 5:
+            return True
+        else:
+            return False
 
 # @receiver(password_changed, sender=PasswordResetTokenView)
 # @receiver(password_changed, sender=ChangePasswordView)
