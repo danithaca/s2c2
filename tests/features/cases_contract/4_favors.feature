@@ -57,6 +57,7 @@ Feature: Test favors exchange
     Then I follow the email link like "/contract/"
     Then the URL should match "/contract/\d+/"
     And I should see "Done"
+    And I should see "You have few contacts on Servuno. Please add more contacts and/or join more parents circles."
     When I press "Successful"
     Then pause 1 second
 

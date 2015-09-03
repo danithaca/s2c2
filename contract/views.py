@@ -4,6 +4,7 @@ from decimal import Decimal
 from itertools import groupby
 from braces.views import JSONResponseMixin, AjaxResponseMixin, LoginRequiredMixin, FormValidMessageMixin
 from django.contrib import messages
+from django.core.urlresolvers import reverse_lazy
 from django.core.validators import MinValueValidator
 from django.db.models import Q
 from django.forms import modelform_factory, Form
@@ -23,11 +24,12 @@ class ContractDetail(DetailView):
     template_name = 'contract/contract_view/full.html'
 
     def get_context_data(self, **kwargs):
+        contract = self.object
         ctx = super().get_context_data(**kwargs)
         # ctx['matches'] = self.object.match_set.all().order_by('-score')
         tabs = []
         for status in (Match.Status.ACCEPTED, Match.Status.ENGAGED, Match.Status.DECLINED, Match.Status.INITIALIZED):
-            qs = self.object.match_set.filter(status=status.value).order_by('-score')
+            qs = contract.match_set.filter(status=status.value).order_by('-score')
             if qs.exists():
                 status_label = None
                 matches = []
@@ -40,6 +42,10 @@ class ContractDetail(DetailView):
                 tabs.append((status_label, matches))
         if tabs:
             ctx['matches_tabs'] = tabs
+
+        if self.request.puser.id == contract.initiate_user.id and self.request.puser.is_isolated():
+            messages.warning(self.request, 'You have few contacts on Servuno. Please <a href="%s">add more contacts</a> and/or <a href="%s">join more parents circles</a>.' % (reverse_lazy('circle:manage_personal'), reverse_lazy('circle:manage_public')), extra_tags='safe')
+
         return ctx
 
 
@@ -80,10 +86,12 @@ class ContractCreate(LoginRequiredMixin, FormValidMessageMixin, CreateView):
                 initial['event_' + token] = token_value
         return initial
 
-    # def get_form(self, form_class=None):
-    #     form = super().get_form(form_class)
-    #     # form.fields['area'].widget.attrs['disabled'] = True
-    #     return form
+    def get_form(self, form_class=None):
+        form = super().get_form(form_class)
+        if self.request.puser.is_isolated():
+            messages.warning(self.request, 'You have few contacts on Servuno. Please <a href="%s">add more contacts</a> and/or <a href="%s">join more parents circles</a>.' % (reverse_lazy('circle:manage_personal'), reverse_lazy('circle:manage_public')), extra_tags='safe')
+        # form.fields['area'].widget.attrs['disabled'] = True
+        return form
 
     def form_valid(self, form):
         contract = form.instance

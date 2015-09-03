@@ -13,6 +13,15 @@ from django.conf import settings
 register = template.Library()
 
 
+@register.filter
+def bootstrap_alert(message):
+    try:
+        sub = message.level_tag if message.level_tag != 'error' else 'danger'
+        return 'alert-%s' % sub
+    except Exception:
+        return ''
+
+
 @register.simple_tag(takes_context=True)
 def user_picture_url(context, puser, **kwargs):
     assert isinstance(puser, User), 'Wrong type: %s' % type(puser)

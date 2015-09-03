@@ -1,5 +1,5 @@
-{% load s2c2_tags %}
+{% load p2_tags %}
 <div class="alert fade in {{ message|bootstrap_alert }} alert-dismissible">
   <button type="button" class="close" data-dismiss="alert">&times;</button>
-  {{ message }}
+  {% if 'safe' in message.tags %}{{ message|safe }}{% else %}{{ message }}{% endif %}
 </div>
