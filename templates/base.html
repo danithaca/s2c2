@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 {% load staticfiles %}
+{% load p2_tags %}
 <html lang="en">
 <head>
   <meta charset="utf-8">
@@ -41,7 +42,15 @@
 
       // glow "about" link for first time user
       if (!$.cookie('servuno_visited')) {
-        $('#nav-about').addClass('glow-animation');
+        var $about = $('#nav-about');
+        $about.addClass('glow-animation');
+        $about.popover({
+          title: 'First time user?',
+          content: 'Read more about Servuno here',
+          trigger: 'hover',
+          placement: 'left',
+          container: 'body'
+        });
         $.cookie('servuno_visited', true, {expires: 90, path: '/'});
       }
 
@@ -114,7 +123,21 @@
 {#          {% include "includes/menu_p2_left.html" %}#}
 {#        </ul>#}
       <ul class="nav navbar-nav navbar-right">
-        {% include "includes/menu_p2_right.html" %}
+        <li><a href="{% url 'about' %}" id="nav-about"><i class="fa fa-question-circle"></i> About</a></li>
+        {% if user.is_anonymous %}
+          {#  <li><a href="{% url 'account_login' %}"><i class="fa fa-sign-in"></i> Login</a></li>#}
+          {#  <li><a href="{% url 'account_signup' %}"><i class="fa fa-edit"></i> Signup</a></li>#}
+        {% else %}
+          <li class="dropdown user-admin">
+            <a class="dropdown-toggle" data-toggle="dropdown" data-target="#" href="#"><img src="{% user_picture_url user %}" class="img-circle img-18"> {% user-short-name user %} <span class="caret"></span></a>
+            <ul class="dropdown-menu" role="menu">
+              <li><a href="{% url 'dashboard' %}">Dashboard</a></li>
+              <li class="divider"></li>
+              <li><a href="{% url 'account_edit' %}">Edit account</a></li>
+              <li><a href="{% url 'account_logout' %}">Logout</a></li>
+            </ul>
+          </li>
+        {% endif %}
       </ul>
 
     </div><!--/.nav-collapse -->

@@ -36,3 +36,18 @@ Feature: Check link
     When I follow "Dashboard"
     Then I should be on "/dashboard/"
     Then I should see "Logout"
+
+  @core @javascript
+  Scenario: attention on about
+    Given I am on the homepage
+    When I evaluate the following Javascript:
+      """
+      return $("#nav-about").hasClass('glow-animation');
+      """
+    Then check Javascript result is true
+    When I follow "About"
+    When I evaluate the following Javascript:
+      """
+      return !($("#nav-about").hasClass('glow-animation'));
+      """
+    Then check Javascript result is true
