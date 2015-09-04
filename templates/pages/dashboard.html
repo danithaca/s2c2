@@ -51,8 +51,8 @@
     {% include 'pages/dashboard_link.html' with color='primary' href=href_manage_contacts text='Manage Contacts' help="Expand your reach by adding people to your list and joining parents circles. The more reach, the better chance you'll find a babysitter." only %}
   {% endif %}
 
-  {% url 'account_view' as href_account %}
-  {% include 'pages/dashboard_link.html' with color='info' href=href_account text='View Account' help="Review your personal info." only %}
+{#  {% url 'account_view' as href_account %}#}
+{#  {% include 'pages/dashboard_link.html' with color='info' href=href_account text='View Account' help="Review your personal info." only %}#}
 
   <p class="{% if not favors_karma %}text-muted{% endif %}">
     <span class="">Favors karma <i class="fa fa-question-circle" data-toggle="tooltip" title="Help other parents babysit and have them return the favor when you need help. Paid babysitting is not a favor. Favors will show here 1-2 days after successfully delivered."></i></span>
