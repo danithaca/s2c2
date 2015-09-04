@@ -120,9 +120,10 @@ class ManagePersonal(LoginRequiredMixin, FormView):
                 except PUser.DoesNotExist:
                     target_puser = PUser.create(email, dummy=True, area=personal_circle.area)
                 personal_circle.add_member(target_puser)
-                # send notification
-                # if the user is a dummy user, send invitation code instead.
-                personal_circle_send_invitation.delay(personal_circle, target_puser)
+                if form.cleaned_data.get('send', False):
+                    # send notification
+                    # if the user is a dummy user, send invitation code instead.
+                    personal_circle_send_invitation.delay(personal_circle, target_puser)
 
             if updated:
                 messages.success(self.request, 'Successfully updated your personal favorite list.')

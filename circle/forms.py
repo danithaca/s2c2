@@ -14,6 +14,7 @@ class ManagePersonalForm(forms.Form):
     favorite = forms.CharField(label='Contacts', widget=forms.HiddenInput, required=False, help_text='One email per line.')
     # if force_save, then save in form_valid() regardless of whether the form has changed or not.
     force_save = forms.BooleanField(widget=forms.HiddenInput, initial=False, required=False)
+    send = forms.BooleanField(initial=True, required=False, label='Notify newly added contacts')
 
     def clean(self):
         cleaned_data = super().clean()

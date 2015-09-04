@@ -1,13 +1,5 @@
-{% extends "base.html" %}
-{% load staticfiles %}
-{% load bootstrap %}
-
-{% block page %}
-  <h1>403 Forbidden</h1>
-  <p>You are seeing this page because you are not authorized to view the requested page or perform the requested action.</p>
-  <p>Common reasons:</p>
-  <ul>
-    <li>Your account is not verified by a center manager.</li>
-    <li>You do not belong to the same center as the target you are trying to view.</li>
-  </ul>
+{% extends "base_s.html" %}
+{% block content %}
+  <h3>Access Denied</h3>
+  <p>You do not have permission to view the requested page or perform the requested action. If you believe this is an error, please report it to <a href="mailto:admin@servuno.com">admin@servuno.com</a>, or by clicking the "Send Feedback" button on the bottom right of the page.</p>
 {% endblock %}

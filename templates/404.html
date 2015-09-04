@@ -1,8 +1,6 @@
-{% extends "base.html" %}
-{% load staticfiles %}
-{% load bootstrap %}
+{% extends "base_s.html" %}
 
-{% block page %}
-  <h1>404 Not Found</h1>
-  <p>The requested URL <strong>{{ request_path }}</strong> was not found on this server. Please report the error by clicking the "Send Feedback" button on the bottom right of the page, or email to admin@knowsun.com.</p>
+{% block content %}
+  <h3>Not Found</h3>
+  <p>The requested URL <strong>{{ request_path }}</strong> was not found on the site. If you believe this is an error, please report it to <a href="mailto:admin@servuno.com">admin@servuno.com</a>, or by clicking the "Send Feedback" button on the bottom right of the page.</p>
 {% endblock %}

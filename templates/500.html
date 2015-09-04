@@ -1,8 +1,6 @@
-{% extends "base.html" %}
-{% load staticfiles %}
-{% load bootstrap %}
+{% extends "base_s.html" %}
 
-{% block page %}
-  <h1>500 Internal Server Error</h1>
-  <p>Oops! Something wrong just happened. Please report the error by clicking the "Send Feedback" button on the bottom right of the page, or email to admin@knowsun.com.</p>
+{% block content %}
+  <h3>Internal Server Error</h3>
+  <p>Oops! Something wrong just happened. Please report the error to <a href="mailto:admin@servuno.com">admin@servuno.com</a>, or by clicking the "Send Feedback" button on the bottom right of the page.</p>
 {% endblock %}
