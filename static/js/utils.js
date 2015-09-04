@@ -64,6 +64,11 @@ function parseDatetime(dt_str) {
   }
 }
 
+function is_viewport_xs() {
+  // this selector is in base.html
+  return $('#viewport-xs-detector').is(':hidden');
+}
+
 ////////////////////    full calendar related    ////////////////////////
 
 // $fc is jquery selector for fullcalendar. e.g., $('#calendar')

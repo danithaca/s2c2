@@ -13,6 +13,16 @@ $(document).ready(function() {
   // change to switch
   var bsOptions = defaultBootstrapSwitchOptions();
   $('input.switch').bootstrapSwitch(bsOptions);
+
+  // hide none active tab in xs.
+  var hide_tab = function() {
+    if (is_viewport_xs()) {
+      $('#onboard-pane .panel-heading li:not(.active)').hide();
+    }
+  };
+  hide_tab();
+  // this doesn't show(unhide) the other items.
+  //$(window).resize(hide_tab);
 });
 </script>
 {% block more_header %}{% endblock %}
