@@ -35,7 +35,7 @@ $(document).ready(function() {
   <div class="panel-heading">
     <ul class="nav nav-tabs nav-justified">
       {% for name, meta in steps_meta.items %}
-        <li class="{% if meta.position == 0 %}active{% elif meta.position > 0 %}disabled{% endif %}"><a href="{{ meta.url }}">Step {{ forloop.counter }} <i class="fa fa-angle-double-right"></i></a></li>
+        <li class="{% if meta.position == 0 %}active{% elif meta.position > 0 %}disabled{% endif %}"><a href="{{ meta.url }}">Step {{ forloop.counter }}<span class="visible-xs-inline">/{{ steps_meta|length }}</span> <i class="fa fa-angle-double-right"></i></a></li>
       {% endfor %}
     </ul>
   </div>
