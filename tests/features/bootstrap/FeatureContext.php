@@ -49,10 +49,7 @@ class FeatureContext extends MinkContext implements SnippetAcceptingContext
     }
   }
 
-  /**
-   * @When I open the recent email: :index
-   */
-  public function navigateRecentEmail($index)
+  private function _navigateEmail($index)
   {
     $files = scandir($this->emailsPath , SCANDIR_SORT_DESCENDING);
     if ($files && isset($files[$index - 1])) {
@@ -63,11 +60,23 @@ class FeatureContext extends MinkContext implements SnippetAcceptingContext
   }
 
   /**
+   * @When I open the recent email: :index
+   */
+  public function navigateRecentEmail($index)
+  {
+    // wait a few seconds
+    $this->pauseSeconds(2);
+    $this->_navigateEmail($index);
+  }
+
+  /**
    * @When I open the last email
    */
   public function navigateLatestEmail()
   {
-    return $this->navigateRecentEmail(1);
+    // wait a few seconds
+    $this->pauseSeconds(2);
+    $this->_navigateEmail(1);
   }
 
   /**
@@ -75,11 +84,12 @@ class FeatureContext extends MinkContext implements SnippetAcceptingContext
    */
   public function navigateLatestEmailAddress($from_email, $to_email)
   {
+    $this->pauseSeconds(2);
     $i = 0;
     while (TRUE) {
       $i++;
       try {
-        $this->navigateRecentEmail($i);
+        $this->_navigateEmail($i);
         try {
           $this->checkEmailAddress($from_email, $to_email);
           echo "Open email {$this->currentEmailFileName}";

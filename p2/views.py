@@ -44,7 +44,7 @@ class LandingView(TemplateView):
         return ctx
 
 
-class DashboardView(TemplateView):
+class DashboardView(LoginRequiredMixin, TemplateView):
     template_name = 'pages/dashboard.html'
 
     def get_context_data(self, **kwargs):

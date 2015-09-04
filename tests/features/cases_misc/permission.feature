@@ -17,3 +17,8 @@ Feature: check user permission with contract
   Scenario: view contract
     Given I am on "/contract/"
     Then I should be on "/account/login/"
+
+  @core
+  Scenario: dashboard
+    Given I am on "/dashboard/"
+    Then I should be on "/account/login/"

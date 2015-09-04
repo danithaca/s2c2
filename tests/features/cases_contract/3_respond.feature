@@ -110,7 +110,7 @@ Feature: test users interactions between the client and the server
 
   Scenario: check confirmation email
     # give some time for celery to catch up.
-    Then pause 5 seconds
+    Then pause 10 seconds
     When I open the last email from "test@servuno.com" to "test1@servuno.com"
     Then check email subject contains "John Smith confirmed your offer"
     And check email contains "John Smith confirmed your offer of help. Details of the request"
