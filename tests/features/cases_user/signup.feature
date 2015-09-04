@@ -27,14 +27,17 @@ Feature: sign up
     When I press "Confirm"
     Then I should see "You have confirmed to-be-deleted@servuno.com."
 
+
   @core
   Scenario: check onboarding steps
     Given I am logged in as user "to-be-deleted@servuno.com" with password "password"
-    Then I should be on "/account/onboard/about/"
+    Then I should be on ":SIGNUP_LANDING"
+    And I should see "About Servuno"
     And I should see "Key Features"
 
     When I follow "Next"
     Then I should be on "/account/onboard/profile/"
+    And I should see "Update Profile"
     When I fill in the following:
       | First name | Deleted              |
       | Last name  | Bot                  |
@@ -45,17 +48,21 @@ Feature: sign up
 
     Then I should see "Profile successfully updated"
     And I should be on "/account/onboard/personal/"
+    And I should see "Add Contacts"
+    And I should see "Add people you trust"
     And I should see a "#new-contact" element
     And I should see a "#new-contact-add-btn" element
 
     When I press "Next"
     Then I should be on "/account/onboard/public/"
+    And I should see "Join Parents Circles"
     And I should see a ".public-circle-superset" element
     And I should see a ".public-circle-entity" element
     And I should see "Sleeping Bears"
 
     When I press "Next"
     Then I should be on "/account/onboard/picture/"
+    And I should see "Upload Picture"
     And I should see a "#id_picture_original" element
     # this perhaps needs javascript
     #And I should see "No file chosen"
@@ -65,6 +72,37 @@ Feature: sign up
     Then I should be on ":LOGIN_LANDING"
     And I should see "Welcome!"
     And I should see "Deleted"
+
+
+  @javascript
+  Scenario: check ui
+    Given I am logged in as user "test@servuno.com" with password "password"
+    And I am on ":SIGNUP_LANDING"
+    Then I should see "Step 1"
+    Then I should see "Step 2"
+    Then I should see "Step 3"
+    Then I should see "Step 4"
+    Then I should see "Step 5"
+    And I should see a "#onboard-pane" element
+    When I evaluate the following Javascript:
+      """
+      return $('li[data-slug="step-1"]').hasClass('active') && $('li[data-slug="step-2"]').hasClass('disabled');
+      """
+    Then check Javascript result is true
+
+    When I follow "Next"
+    When I evaluate the following Javascript:
+      """
+      return !($('li[data-slug="step-1"]').hasClass('active')) &&  $('li[data-slug="step-2"]').hasClass('active') && $('li[data-slug="step-3"]').hasClass('disabled')
+      """
+    Then check Javascript result is true
+
+    Given I am on homepage
+    And I set browser mobile
+    And I am on ":SIGNUP_LANDING"
+    Then I should not see "Step 2"
+    And I should see "Step 1/5"
+
 
   @core
   Scenario: clean up

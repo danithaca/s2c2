@@ -385,7 +385,7 @@ class FeatureContext extends MinkContext implements SnippetAcceptingContext
   public function constantMapping($key)
   {
     $mapping = array(
-      'SIGNUP_LANDING' => '/account/onboard/about/',
+      'SIGNUP_LANDING' => '/account/onboard/',
       'LOGIN_LANDING' => '/dashboard/',
       'MANAGE_CONTACTS_DEFAULT' => '/circle/manage/personal/',
     );
@@ -402,4 +402,24 @@ class FeatureContext extends MinkContext implements SnippetAcceptingContext
       throw new Exception("Element {$element} is not hidden.");
     }
   }
+
+  /**
+   * @Given /^I set browser window size to "([^"]*)" x "([^"]*)"$/
+   *
+   * Eg: I set browser window size to "1280" x "600"
+   */
+  public function setBrowserWindowSizeToX($width, $height)
+  {
+    $this->getSession()->resizeWindow((int)$width, (int)$height, 'current');
+  }
+
+
+  /**
+   * @Given I set browser mobile
+   */
+  public function setBrowserMobileSize()
+  {
+    $this->setBrowserWindowSizeToX(360, 720);
+  }
+
 }
