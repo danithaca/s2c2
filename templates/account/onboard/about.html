@@ -2,19 +2,20 @@
 {% load bootstrap %}
 
 {% block step-block %}
-  <h3 class="page-header">How it Works</h3>
-  <p>{% include 'elements/slogan.html' %}</p>
+  <p class="well"><span class="lead">About Servuno</span>{% include 'elements/slogan.html' %}</p>
+
+  <h6 class="page-header">How it Works</h6>
   <p>{% include 'elements/how_it_works.html' %}</p>
 
-  <h3 class="page-header">Key Features</h3>
+  <h6 class="page-header">Key Features</h6>
   <div class="row">
-    {% include 'pages/about_feature.html' with fa="fa-exchange" title="Parents Favor Exchange" note="Want a short-term babysitter for free? Partner with other parents for favor exchange and let Servuno keep track of who owes whom." only %}
-    {% include 'pages/about_feature.html' with fa="fa-beer" title="Absolutely Free" note="Frustrated with sites that let you 'sign up' for free but pay to 'use'? There is no catch 22 here in Servuno. You only pay your babysitters." only %}
-    {% include 'pages/about_feature.html' with fa="fa-random" title="Smart Matching <i class='fa fa-registered'></i>" note="We have a smart algorithm that matches your babysitting request to the best potential babysitters. No hassel to filter by yourself." only %}
-    {% include 'pages/about_feature.html' with fa="fa-paint-brush" title="Minimalistic Design" note="We aim to give you a zen-like experience with simple interface and hide all complexity at the backend." only %}
-    {% include 'pages/about_feature.html' with fa="fa-street-view" title="Short-term Babysitters" note="This is Servuno's focus. If you want to find long term nannies, try find a short-term babysitter first and then negotiate offline for long-term opportunities." only %}
-    {% include 'pages/about_feature.html' with fa="fa-shopping-cart" title="On Demand" note="You only use Servuno when you need it. We'll keep everyone notified with email." only %}
+    {% include 'account/onboard/includes/about_feature.html' with fa="fa-exchange" title="Parents Favor Exchange" note="Want a short-term babysitter for free? Partner with other parents for favor exchange and let Servuno keep track of who owes whom." only %}
+    {% include 'account/onboard/includes/about_feature.html' with fa="fa-beer" title="Absolutely Free" note="Frustrated with sites that let you 'sign up' for free but pay to 'use'? There is no catch 22 here in Servuno. You only pay your babysitters." only %}
+    {% include 'account/onboard/includes/about_feature.html' with fa="fa-random" title="Smart Matching <i class='fa fa-registered'></i>" note="We have a smart algorithm that matches your babysitting request to the best potential babysitters. No hassel to filter by yourself." only %}
+    {% include 'account/onboard/includes/about_feature.html' with fa="fa-paint-brush" title="Minimalistic Design" note="We aim to give you a zen-like experience with simple interface and hide all complexity at the backend." only %}
+    {% include 'account/onboard/includes/about_feature.html' with fa="fa-street-view" title="Short-term Babysitters" note="This is Servuno's focus. If you want to find long term nannies, try find a short-term babysitter first and then negotiate offline for long-term opportunities." only %}
+    {% include 'account/onboard/includes/about_feature.html' with fa="fa-shopping-cart" title="On Demand" note="You only use Servuno when you need it. We'll keep everyone notified with email." only %}
   </div>
 
-  <div><a href="{% url 'onboard_profile' %}" class="btn btn-primary">Next &gt;</a></div>
+  <div><a href="{% url 'onboard_profile' %}" class="btn btn-primary">Next <i class="fa fa-angle-double-right"></i></a></div>
 {% endblock %}

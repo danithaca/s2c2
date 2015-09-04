@@ -33,21 +33,21 @@ Feature: Test referral user
     Then I should be on "/account/onboard/about/"
     And I should see "Key Features"
 
-    When I follow "Next >"
+    When I follow "Next"
     Then I should be on "/account/onboard/profile/"
     When I fill in the following:
       | First name | 2BD |
       | Last name  | Bot |
-    And I press "Next >"
+    And I press "Next"
     Then I should be on "/account/onboard/personal/"
     # if this is the referred user, by default the referrer should appear here.
     And I should see "test@servuno.com"
 
-    When I press "Next >"
+    When I press "Next"
     Then I should be on "/account/onboard/public/"
-    When I press "Next >"
+    When I press "Next"
     Then I should be on "/account/onboard/picture/"
-    When I press "Next >"
+    When I press "Next"
     Then I should be on ":LOGIN_LANDING"
 
     Given I am on "/circle/manage/personal/"

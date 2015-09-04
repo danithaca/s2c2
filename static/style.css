@@ -68,12 +68,24 @@
 
 .tab-pane { padding-top: 16px; }
 
+/******** onboard *********/
+
+.panel-body .lead {
+  font-weight: bold;
+  margin-right: 20px;
+}
+
 
 /***** flex related ******/
 
 .vertical-align {
   display: flex;
   align-items: center;
+}
+
+.horizontal-justified {
+  display: flex;
+  justify-content: space-between;
 }
 
 .flex-imgbox {

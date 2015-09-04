@@ -1,4 +1,4 @@
-from collections import defaultdict
+from collections import defaultdict, OrderedDict
 import tempfile
 
 from account.mixins import LoginRequiredMixin
@@ -11,10 +11,11 @@ from django.contrib.auth.decorators import login_required
 from django.contrib import auth
 from django.contrib.auth import forms as auth_forms
 from django.core.files.storage import FileSystemStorage
-from django.core.urlresolvers import reverse_lazy
+from django.core.urlresolvers import reverse_lazy, reverse
 from django.http import HttpResponse
 from django.shortcuts import redirect
 from django.views.generic import FormView, TemplateView, UpdateView, DetailView
+from django.views.generic.base import ContextMixin
 from formtools.wizard.views import SessionWizardView
 
 from django.contrib import messages
@@ -234,13 +235,49 @@ class UserView(LoginRequiredMixin, TrustedUserMixin, DetailView):
 #################### views for onboarding ######################
 
 
-class MultiStepViewsMixin(object):
+class MultiStepViewsMixin(ContextMixin):
     """
     This is to help with multiple views, different from FormWizard
     """
 
+    def get_steps_meta(self):
+        step_order = ['OnboardAbout', 'OnboardProfile', 'OnboardPersonalCircle', 'OnboardPublicCircle', 'OnboardPicture']
+        step_url = [reverse('onboard_about'), reverse('onboard_profile'), reverse('onboard_personal'), reverse('onboard_public'), reverse('onboard_picture')]
+        steps_meta = OrderedDict()
+        for name, url in zip(step_order, step_url):
+            steps_meta[name] = {'url': url}
+        return steps_meta
 
-# class OnboardSignup(MultiStepViewsMixin, SignupView):
+    # def get_step_url(self):
+    #     assert hasattr(self, 'step_url')
+    #     return self.step_url
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        if hasattr(self, 'step_title'):
+            context['step_title'] = self.step_title
+        if hasattr(self, 'step_note'):
+            context['step_note'] = self.step_note
+
+        # this is blocking us from automating "step generation".
+        # context['step_url'] = self.get_step_url()
+
+        # update steps meta with position info
+        steps_meta = self.get_steps_meta()
+        current_step_name = self.__class__.__name__
+        position = -1
+        for step_name in steps_meta:
+            if step_name == current_step_name:
+                steps_meta[step_name]['position'] = 0
+                position = 1
+            else:
+                steps_meta[step_name]['position'] = position
+        context['steps_meta'] = steps_meta
+
+        return context
+
+
+        # class OnboardSignup(MultiStepViewsMixin, SignupView):
 #     pass
     # this is not used because SignupView reloaded get_success_url(). Set SIGNUP REDIRECT URL instead.
     # success_url = reverse_lazy('onboard_profile')
@@ -263,13 +300,16 @@ class OnboardAbout(MultiStepViewsMixin, TemplateView):
 
 
 class OnboardProfile(MultiStepViewsMixin, UserEdit):
-    template_name = 'account/onboard/base.html'
+    template_name = 'account/onboard/form.html'
     success_url = reverse_lazy('onboard_personal')
+    step_title = 'Update Profile'
 
 
 class OnboardPersonalCircle(MultiStepViewsMixin, ManagePersonal):
     template_name = 'account/onboard/manage_personal.html'
     success_url = reverse_lazy('onboard_public')
+    step_title = 'Add Contacts'
+    step_note = 'Add people you trust so that Servuno can help you find babysitters from them and their contacts. The more contacts you add here, the better chance you will find a babysitter.'
 
     # this only applies to the onboarding process. not in Edit account.
     def get_initial(self):
@@ -290,12 +330,16 @@ class OnboardPersonalCircle(MultiStepViewsMixin, ManagePersonal):
 class OnboardPublicCircle(MultiStepViewsMixin, ManagePublic):
     template_name = 'account/onboard/manage_public.html'
     success_url = reverse_lazy('onboard_picture')
+    step_title = 'Join Parents Circles'
+    step_note = "Reach out to fellow parents you don't know yet but are trustworthy based on common background. Existing members of the circles will review and approve your admission if it is valid."
 
 
 class OnboardPicture(MultiStepViewsMixin, UserPicture):
-    template_name = 'account/onboard/base.html'
+    template_name = 'account/onboard/form.html'
     success_url = '/'
-    form_valid_message = "Welcome! You can find a babysitter or wait for others to find help from you. Manage your contacts and circles by following your account link on the top right corner."
+    form_valid_message = "Welcome! You can find a babysitter now or wait for others to find help from you."
+    step_title = 'Upload Picture'
+    # step_note = 'Let other users see you!'
 
 
 # deprecated in favor of multiple formviews.

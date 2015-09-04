@@ -33,7 +33,7 @@ Feature: sign up
     Then I should be on "/account/onboard/about/"
     And I should see "Key Features"
 
-    When I follow "Next >"
+    When I follow "Next"
     Then I should be on "/account/onboard/profile/"
     When I fill in the following:
       | First name | Deleted              |
@@ -41,27 +41,27 @@ Feature: sign up
       | Phone      | 555-555-5556         |
       | Address    | 123 Someplace, Earth |
       | About me   | Blah                 |
-    And I press "Next >"
+    And I press "Next"
 
     Then I should see "Profile successfully updated"
     And I should be on "/account/onboard/personal/"
     And I should see a "#new-contact" element
     And I should see a "#new-contact-add-btn" element
 
-    When I press "Next >"
+    When I press "Next"
     Then I should be on "/account/onboard/public/"
     And I should see a ".public-circle-superset" element
     And I should see a ".public-circle-entity" element
     And I should see "Sleeping Bears"
 
-    When I press "Next >"
+    When I press "Next"
     Then I should be on "/account/onboard/picture/"
     And I should see a "#id_picture_original" element
     # this perhaps needs javascript
     #And I should see "No file chosen"
     And I should see "Picture upload"
 
-    When I press "Next >"
+    When I press "Next"
     Then I should be on ":LOGIN_LANDING"
     And I should see "Welcome!"
     And I should see "Deleted"

@@ -1,5 +1,4 @@
-{% extends "base_page.html" %}
-{% load bootstrap %}
+{% extends "base_s.html" %}
 
 {% block extra_header %}
 <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-switch/3.3.2/css/bootstrap3/bootstrap-switch.min.css" rel="stylesheet">
@@ -19,54 +18,49 @@ $(document).ready(function() {
 {% block more_header %}{% endblock %}
 {% endblock %}
 
-{% block title %}Onboard{% endblock %}
-{% block page-header %}New user sign up{% endblock %}
+{% block title %}New user onboard{% endblock %}
 
-{% block page-content %}
-  <div class="row">
-    <div class="col-sm-4">
-      <div class="list-group onboard-sidebar">
-{#        <a href="{% url 'onboard_signup' %}" class="list-group-item">#}
-{#          <h4 class="list-group-item-heading">Step 1</h4>#}
-{#          <p class="list-group-item-text">Create an account</p>#}
-{#        </a>#}
-        <a href="{% url 'onboard_about' %}" class="list-group-item">
-          <h4 class="list-group-item-heading">Step 1</h4>
-          <p class="list-group-item-text">About Servuno</p>
-        </a>
-        <a href="{% url 'onboard_profile' %}" class="list-group-item">
-          <h4 class="list-group-item-heading">Step 2</h4>
-          <p class="list-group-item-text">Update profile</p>
-        </a>
-        <a href="{% url 'onboard_personal' %}" class="list-group-item">
-          <h4 class="list-group-item-heading">Step 3</h4>
-          <p class="list-group-item-text">Add contacts to your personal list</p>
-        </a>
-        <a href="{% url 'onboard_public' %}" class="list-group-item">
-          <h4 class="list-group-item-heading">Step 4</h4>
-          <p class="list-group-item-text">Join parents circles</p>
-        </a>
-        <a href="{% url 'onboard_picture' %}" class="list-group-item">
-          <h4 class="list-group-item-heading">Step 5</h4>
-          <p class="list-group-item-text">Upload profile picture</p>
-        </a>
-      </div>
-    </div>
-
-    <div class="col-sm-8">
-      {% block step-block %}
-        <form class="form-horizontal" method="post" autocapitalize="off" {% if form.is_multipart %}enctype="multipart/form-data"{% endif %}>
-          {% csrf_token %}
-          {% if form %}{{ form|bootstrap_horizontal:'col-sm-3' }}{% endif %}
-          {% block submit-block %}
-          <div class="form-group">
-            <div class="col-sm-offset-3 col-sm-9">
-              <button class="btn btn-primary" type="submit">Next &gt;</button>
-            </div>
-          </div>
-          {% endblock %}
-        </form>
-      {% endblock %}
-    </div>
+{% block content %}
+<div class="panel panel-default" id="onboard-pane">
+  <div class="panel-heading">
+    <ul class="nav nav-tabs nav-justified">
+      {% for name, meta in steps_meta.items %}
+        <li class="{% if meta.position == 0 %}active{% elif meta.position > 0 %}disabled{% endif %}"><a href="{{ meta.url }}">Step {{ forloop.counter }} <i class="fa fa-angle-double-right"></i></a></li>
+      {% endfor %}
+    </ul>
   </div>
+  <div class="panel-body">
+    {% if step_title %}
+      <p class="well"><span class="lead">{{ step_title }}</span>{{ step_note }}</p>
+    {% endif %}
+    {% block step-block %}{% endblock %}
+  </div>
+</div>
+
+{#<div class="row">#}
+{#  <div class="col-sm-4">#}
+{#    <div class="list-group onboard-sidebar">#}
+{#      <a href="{% url 'onboard_about' %}" class="list-group-item">#}
+{#        <h4 class="list-group-item-heading">Step 1</h4>#}
+{#        <p class="list-group-item-text">About Servuno</p>#}
+{#      </a>#}
+{#      <a href="{% url 'onboard_profile' %}" class="list-group-item">#}
+{#        <h4 class="list-group-item-heading">Step 2</h4>#}
+{#        <p class="list-group-item-text">Update profile</p>#}
+{#      </a>#}
+{#      <a href="{% url 'onboard_personal' %}" class="list-group-item">#}
+{#        <h4 class="list-group-item-heading">Step 3</h4>#}
+{#        <p class="list-group-item-text">Add contacts to your personal list</p>#}
+{#      </a>#}
+{#      <a href="{% url 'onboard_public' %}" class="list-group-item">#}
+{#        <h4 class="list-group-item-heading">Step 4</h4>#}
+{#        <p class="list-group-item-text">Join parents circles</p>#}
+{#      </a>#}
+{#      <a href="{% url 'onboard_picture' %}" class="list-group-item">#}
+{#        <h4 class="list-group-item-heading">Step 5</h4>#}
+{#        <p class="list-group-item-text">Upload profile picture</p>#}
+{#      </a>#}
+{#    </div>#}
+{#  </div>#}
+{#</div>#}
 {% endblock %}
