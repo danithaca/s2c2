@@ -38,7 +38,7 @@ Feature: Edit account
   @core
   Scenario: view account
     Given I am logged in as user "test@servuno.com" with password "password"
-    When I follow "View Account"
+    When I follow "View account"
     Then I should be on "/account/"
     And I should see "John Smith"
     And I should see "John's Contacts"

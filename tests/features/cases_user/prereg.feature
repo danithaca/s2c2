@@ -11,7 +11,7 @@ Feature: pre registered user
     When I fill in "new-contact" with "to-be-deleted-dummy@servuno.com to-be-deleted-dummy2@servuno.com"
     And I press "new-contact-add-btn"
     Then I should see "to-be-deleted-dummy@servuno.com"
-    When I press "Submit"
+    When I press "Save Changes"
     Then I should be on "/account/"
     Then I should see "to-be-deleted-dummy@servuno.com"
 

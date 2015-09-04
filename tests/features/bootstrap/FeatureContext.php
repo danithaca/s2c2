@@ -176,8 +176,11 @@ class FeatureContext extends MinkContext implements SnippetAcceptingContext
   public function checkEmailAddress($from_email, $to_email)
   {
       $email = $this->parseCurrentEmail();
-      if ((stripos(@$email['from'], $from_email) === FALSE && stripos(@$email['reply-to'], $from_email) === FALSE) || stripos(@$email['to'], $to_email) === FALSE) {
-        throw new Exception("Expected emails and actual emails do not match. In file '{$this->currentEmailFileName}': {$email['from']} (from), {$email['reply-to']} (reply-to), {$email['to']} (to).");
+      $from = @$email['from'];
+      $reply_to = @$email['reply-to'];
+      $to = @$email['to'];
+      if ((stripos($from, $from_email) === FALSE && stripos($reply_to, $from_email) === FALSE) || stripos($to, $to_email) === FALSE) {
+        throw new Exception("Expected emails and actual emails do not match. In file '{$this->currentEmailFileName}': {$from} (from), {$reply_to} (reply-to), {$to} (to).");
       }
   }
 

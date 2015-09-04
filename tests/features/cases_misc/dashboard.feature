@@ -17,7 +17,3 @@ Feature: check dashboard
     When I follow "Manage Contacts"
     Then I should be on ":MANAGE_CONTACTS_DEFAULT"
 
-    When I move backward one page
-    When I follow "View Account"
-    Then I should be on "/account/"
-

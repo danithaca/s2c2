@@ -31,6 +31,8 @@ Feature: Check link
   Scenario: check navbar
     Given I am logged in as user "test@servuno.com" with password "password"
     Then I should see "John"
+    When I follow "View account"
+    Then I should be on "/account/"
     When I follow "Edit account"
     Then I should be on "/account/edit/"
     When I follow "Dashboard"

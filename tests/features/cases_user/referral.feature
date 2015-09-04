@@ -11,17 +11,17 @@ Feature: Test referral user
     When I fill in "new-contact" with "to-be-deleted-referral@servuno.com"
     And I press "new-contact-add-btn"
     Then I should see "to-be-deleted-referral@servuno.com"
-    When I press "Submit"
+    When I press "Save Changes"
     Then I should be on "/account/"
     Then I should see "to-be-deleted-referral@servuno.com"
 
 
   @javascript
   Scenario: follow sign up step
-    When I open the last email
-    Then show email content
+    # give it a few seconds to response
+    Then pause 3 seconds
+    When I open the last email from "test@servuno.com" to "to-be-deleted-referral@servuno.com"
     And check email subject contains "invited"
-    And check email sent from "admin@servuno.com" to "to-be-deleted-referral@servuno.com"
     When I follow the email link like "account/signup/?token="
     Then I should be on "/account/signup/"
     And the "Email" field should contain "to-be-deleted-referral@servuno.com"
@@ -30,7 +30,7 @@ Feature: Test referral user
       | Password         | password |
       | Password (again) | password |
     And I press "Sign up"
-    Then I should be on "/account/onboard/about/"
+    Then I should be on ":SIGNUP_LANDING"
     And I should see "Key Features"
 
     When I follow "Next"

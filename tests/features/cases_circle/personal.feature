@@ -35,7 +35,7 @@ Feature: Test manage personal feature
     And I should see "Changes are not saved."
 
   @javascript @core
-  Scenario: submit and check email
+  Scenario: submit
     Given I am logged in as user "test@servuno.com" with password "password"
     And I am on "/circle/manage/personal"
 
@@ -59,9 +59,9 @@ Feature: Test manage personal feature
     And I should be on "/account/"
     And I should see "Test1 Bot"
 
+  Scenario: check email after submit
     # note: test1 should be "active", otherwise the email is "referral", tested in the other scenario
-    When I open the last email
-    Then check email sent from "test@servuno.com" to "test1@servuno.com"
+    When I open the last email from "test@servuno.com" to "test1@servuno.com"
     Then check email subject contains "You are added to"
     And check email contains "test@servuno.com"
     And check email contains "John Smith"
