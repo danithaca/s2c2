@@ -12,6 +12,7 @@ Feature: Test Find (contract add)
     Given I am logged in as user "test@servuno.com" with password "password"
     And I am on "/contract/add/"
     Then the "#price-info-container" element is hidden
+    And the checkbox "price-favor" should be unchecked
 
     When I fill in the following:
       | event_start | 12/01/2020 18:00 |
@@ -20,9 +21,15 @@ Feature: Test Find (contract add)
     Then I should see a "#price-info-container" element
     And I should see a "#price-info" element
     Then the "price-info" field should contain "$8.00/hour, 1 hour"
+    And the checkbox "price-favor" should be unchecked
 
     When I fill in "event_end" with "12/01/2020 20:00"
     Then the "price-info" field should contain "$4.00/hour, 2 hours"
+
+    When I check "price-favor"
+    Then the "price" field should contain "0"
+    When I uncheck "price-favor"
+    Then the "price" field should not contain "0"
 
     When I fill in "price" with "2"
     Then the "price-info" field should contain "$1.00/hour, 2 hours"
@@ -32,6 +39,7 @@ Feature: Test Find (contract add)
 
     When I fill in "price" with "0"
     Then the "price-info" field should contain "favor exchange, 1 hour, 30 minutes"
+    And the checkbox "price-favor" should be checked
 
     When I fill in "price" with ""
     Then the "#price-info-container" element is hidden

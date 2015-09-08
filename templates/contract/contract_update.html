@@ -47,9 +47,15 @@
     var $price = $('#id_price');
     var $price_info = $('#price-info');
     var $price_info_container = $('#price-info-container');
+    var $price_favor = $('#price-favor-checkbox');
     var handlePriceInfo = function() {
-      var start = parseDatetime($event_start.val()), end = parseDatetime($event_end.val()), price = $price.val();
-      if (start && end && price && end > start) {
+      var start = parseDatetime($event_start.val()), end = parseDatetime($event_end.val()), price = parseInt($price.val());
+      if (price === 0) {
+        $price_favor.prop('checked', true);
+      } else {
+        $price_favor.prop('checked', false);
+      }
+      if (start && end && price >= 0 && end > start) {
         /*$.get('{% url "contract:preview_query" %}', {start: start, end: end, price: price}, function(result){
           if (result['success']) {
             var rate = result['rate'] == 0 ? 'favor exchange' : '$' + result['rate'] + '/hour';
@@ -59,11 +65,12 @@
           }
         });*/
         var duration = moment.duration(end.diff(start, 'seconds'), 'seconds');
-        var rate = price <= 0.01 ? 'favor exchange' : '$' + parseFloat(Math.round((price / duration.asHours()) * 100) / 100).toFixed(2) + '/hour';
+        var rate = (price === 0 ? 'favor exchange' : '$' + parseFloat(Math.round((price / duration.asHours()) * 100) / 100).toFixed(2) + '/hour');
         $price_info_container.show();
         // $price_info.val(rate + ', ' + duration.humanize());
         $price_info.val(rate + ', ' + humanizeDuration(duration.asMilliseconds()));
       } else {
+        console.log(price);
         $price_info_container.hide();
       }
     };
@@ -82,6 +89,16 @@
     //$event_end.focusout(handlePriceInfo);
     $price.change(handlePriceInfo);
     $price.keyup(handlePriceInfo);
+
+    // handle "favor" checkbox
+    $price_favor.change(function() {
+      if ($price_favor.is(':checked')) {
+        $price.val(0);
+      } else if (!$price_favor.is(':checked')) {
+        $price.val('');
+      }
+      handlePriceInfo();
+    });
 
     // confirm
     var $form = $('#contract-update');
@@ -159,9 +176,10 @@
           </div>
       </div>
       <div class="col-xs-6">
-        <div class="form-group has-success" id="price-info-container">
-          <input class="form-control" id="price-info" readonly>
-          <span class="glyphicon glyphicon-ok form-control-feedback"></span>
+        <div class="form-group">
+          <div class="checkbox">
+            <label><input id="price-favor-checkbox" name="price-favor" type="checkbox"> <span>Free (favor)</span></label>
+          </div>
         </div>
       </div>
       <div class="col-xs-12">
@@ -171,8 +189,12 @@
         </div>
       </div>
     </div>
-
     {% endwith %}
+
+    <div class="form-group has-success has-feedback" id="price-info-container">
+      <input class="form-control" id="price-info" readonly>
+      <span class="glyphicon glyphicon-ok form-control-feedback"></span>
+    </div>
 
     {{ form.description|bootstrap }}
 
