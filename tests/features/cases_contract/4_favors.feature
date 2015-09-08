@@ -21,7 +21,7 @@ Feature: Test favors exchange
     When I open the last email from "test2@servuno.com" to "to-be-deleted-favors@servuno.com"
     # check email content
     Then check email contains "Nancy Doe needs help babysitting. Please consider help out and have Nancy return the favor when you need help babysitting."
-    And check email contains "This request is not for pay but based on favor exchange."
+    And check email contains "This request is based on reciprocity of doing favors to each other."
     # login as to-be-deleted
     And I follow the email link like "/contract/match/"
     Then the URL should match "/contract/match/\d+/"

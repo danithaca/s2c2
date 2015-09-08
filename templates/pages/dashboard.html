@@ -39,7 +39,7 @@
   {% endif %}
 
   {% url 'contract:add' as href_contract_add %}
-  {% include 'pages/dashboard_link.html' with color='success' href=href_contract_add text='Find a Babysitter' help="Want a babysitter either for pay or for free (favor exchange)? Click the button and make a request." only %}
+  {% include 'pages/dashboard_link.html' with color='success' href=href_contract_add text='Find a Babysitter' help="Want a babysitter either for a fee or for free (favor exchange)? Click the button and make a request." only %}
 
   {% url 'contract:calendar' as href_calendar %}
   {% include 'pages/dashboard_link.html' with color='success' href=href_calendar text='View Activities' help="Browse recent activies and view them in calendar." only %}

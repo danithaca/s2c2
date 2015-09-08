@@ -1,7 +1,7 @@
 {% extends 'email_body.txt' %}
 {% load p2_tags %}
 {% block body %}
-{% user-full-name from_user %} invited you to join {{ site_name }}, a web-based platform that helps parents exchange favors babysitting for each other either for pay or for free.
+{% user-full-name from_user %} invited you to join {{ site_name }}, a web-based platform that helps parents exchange favors babysitting for each other either for a fee or for free.
 
 Sign up at:
 {{ site_url }}{% url 'account_signup' %}?token={{ to_user.get_login_token }}

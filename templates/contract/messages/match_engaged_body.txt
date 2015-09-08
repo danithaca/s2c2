@@ -5,7 +5,7 @@
 
 {% include 'elements/email_contract.txt' with contract=contract %}
 {% if contract.is_favor %}
-This request is not for pay but based on favor exchange. {% user-short-name contract.initiate_user %} agrees to return the favor when you need help at another time. Yon can view the number of favors you have done to each other in the "favors karma" section on Servuno.
+This request is based on reciprocity of doing favors to each other. {% user-short-name contract.initiate_user %} agrees to return the favor when you need help at another time. Yon can view the number of favors you have done to each other in the "favors karma" section on Servuno.
 {% endif %}
 {% user-short-name contract.initiate_user %}'s contact info:
 

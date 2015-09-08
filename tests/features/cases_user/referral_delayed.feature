@@ -30,7 +30,7 @@ Feature: Test referral user when the user doesn't signup right away
   @javascript
   Scenario: create contact, check email/signup
     When I open the last email from "test@servuno.com" to "to-be-deleted-referral-delayed@servuno.com"
-    And check email subject contains "John Smith needs help babysitting (for pay)"
+    And check email subject contains "John Smith needs help babysitting (for a fee)"
     And check email contains "Sign up at"
     When I follow the email link like "/account/signup/"
     Then I should be on "/account/signup/"

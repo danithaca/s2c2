@@ -101,7 +101,7 @@ def after_match_engaged(match):
         'match': match,
         'contract': match.contract,
         'signup_warning': True,
-        'price_note': 'for pay' if match.contract.price > 0 else 'favor exchange',
+        'price_note': 'for a fee' if match.contract.price > 0 else 'favor exchange',
         'server_token': PUser.from_user(match.target_user).get_login_token(force=True),
         'interactions_count': match.count_served_total(),
         'favors_count': -match.count_favors_karma(),        # this should be positive
