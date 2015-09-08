@@ -101,13 +101,15 @@
   width: 70%;
 }
 
-/******** special settings for print  ********/
+/******** global settings  ********/
+
+/* without this, the navbar-brand will have different margin-left settings in different viewsport*/
+#servuno-brand { margin-left: -15px; }
 
 @media print {
   div.page-footer { display: none; }
   a[href]:after { content: ""; }
 }
-
 
 /******** for dashboard *********/
 
