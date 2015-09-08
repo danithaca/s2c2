@@ -117,7 +117,7 @@ Feature: test users interactions between the client and the server
     And check email contains "Please contact John directly if you need to change, cancel, or ask for more information. You can response to the email directly or use the following information"
 
     When I open the last email from "test1@servuno.com" to "test@servuno.com"
-    Then check email subject contains "Review the confirmed"
+    Then check email subject contains "Confirmation"
     And check email contains "You have confirmed the offer from Test1 Bot."
 
 
