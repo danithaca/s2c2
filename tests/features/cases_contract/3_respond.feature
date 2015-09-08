@@ -1,6 +1,8 @@
 Feature: test users interactions between the client and the server
 
-  @core @javascript
+  # todo: this should be on the "@core" level, but we don't have a good way to open email now.
+
+  @javascript
   Scenario: match response
     Given I am logged in as user "test1@servuno.com" with password "password"
     When I open the last email from "test@servuno.com" to "test1@servuno.com"
@@ -64,7 +66,7 @@ Feature: test users interactions between the client and the server
     And check email subject contains "accepted your request"
     And check email contains "Review and confirm here"
 
-  @core @javascript
+  @javascript
   Scenario: edit contract, without submit
     Given I am logged in as user "test@servuno.com" with password "password"
     When I open the last email
@@ -81,7 +83,7 @@ Feature: test users interactions between the client and the server
     Then check Javascript result is true
 
 
-  @core @javascript
+  @javascript
   Scenario: confirm contract
     Given I am logged in as user "test@servuno.com" with password "password"
     When I open the last email from "test1@servuno.com" to "test@servuno.com"
@@ -121,7 +123,7 @@ Feature: test users interactions between the client and the server
     And check email contains "You have confirmed the offer from Test1 Bot."
 
 
-  @core @javascript
+  @javascript
   Scenario: undo and cancel
     Given I am logged in as user "test@servuno.com" with password "password"
     When I open the last email from "test1@servuno.com" to "test@servuno.com"

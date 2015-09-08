@@ -36,12 +36,17 @@ Feature: Test manage public circles
     And I should be on "/account/"
     And I should see "Sleeping Bears"
 
+
+  Scenario: check email
     # check email
     When I open the last email
     Then check email sent to "admin@servuno.com"
     And check email subject contains "Approval"
     And check email subject contains "Sleeping Bears"
 
+
+  Scenario: test unsubscribe
+    Given I am logged in as user "test@servuno.com" with password "password"
     # test unsubscribe. the first time was just to make sure it wasn't already subscribed to setup to test subscribe.
     Given I am on "/circle/manage/public"
     When I run the following Javascript:
