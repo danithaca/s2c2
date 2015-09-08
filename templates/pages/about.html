@@ -21,10 +21,10 @@
   <div class="row jumbotron">
     <h1>Servuno</h1>
     <p>{% include 'elements/slogan.html' %}</p>
-    <h3>How does it work?</h3>
-    <small>{% include 'elements/how_it_works.html' %}</small>
   </div>
-  <h2 class="page-header">Key Features</h2>
+  <h4 class="page-header">How it Works</h4>
+  <p>{% include 'elements/how_it_works.html' %}</p>
+  <h4 class="page-header">Key Features</h4>
   <div class="row">
     {% include 'pages/about_feature.html' with fa="fa-exchange" title="Parents Favor Exchange" note="Want a short-term babysitter for free? Partner with other parents for favor exchange and let Servuno keep track of who owes whom." only %}
     {% include 'pages/about_feature.html' with fa="fa-beer" title="Absolutely Free" note="Frustrated with sites that let you 'sign up' for free but pay to 'use'? There is no catch 22 here in Servuno. You only pay your babysitters." only %}
