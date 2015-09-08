@@ -121,6 +121,7 @@ class UserEdit(LoginRequiredMixin, FormView):
         user = self.request.user
         initial['first_name'] = user.first_name
         initial['last_name'] = user.last_name
+        initial['email'] = user.email
         return initial
 
     def get_form_kwargs(self):

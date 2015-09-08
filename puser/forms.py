@@ -38,16 +38,20 @@ class UserInfoForm(ModelForm):
     required_css_class = 'required'
     first_name = fields_for_model(User, fields=['first_name'])['first_name']
     last_name = fields_for_model(User, fields=['last_name'])['last_name']
+    email = fields_for_model(User, fields=['email'])['email']
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         # todo: think about whether to require these 2 fields.
         self.fields['first_name'].required = True
         self.fields['last_name'].required = True
+        self.fields['email'].required = True
+        self.fields['email'].label = 'Email'
+        self.fields['email'].widget.attrs['readonly'] = True
 
     class Meta:
         model = Info
-        fields = ['first_name', 'last_name', 'area', 'phone', 'address', 'note']
+        fields = ['first_name', 'last_name', 'area', 'email', 'phone', 'address', 'note']
         # fields = ['first_name', 'last_name', 'phone', 'address', 'note']
         widgets = {
             'note': forms.Textarea(attrs={'rows': 3})
