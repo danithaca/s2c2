@@ -134,9 +134,10 @@ REST_FRAMEWORK = {
 }
 
 # celery related settings
-#BROKER_URL = 'sqla+sqlite:///celerydb.sqlite'
+# have to use a separate db for sqlite because it doesn't allow concurrent access together with django.
+BROKER_URL = 'sqla+sqlite:///celerydb.sqlite'
 # CELERY_RESULT_BACKEND = 'db+sqlite:///celerydb.sqlite'
-BROKER_URL = 'django://'
+# BROKER_URL = 'django://'
 CELERY_RESULT_BACKEND = 'djcelery.backends.database:DatabaseBackend'
 CELERY_ACCEPT_CONTENT = ['pickle', 'json', 'msgpack', 'yaml']
 # CELERY_ACCEPT_CONTENT = ['json']
