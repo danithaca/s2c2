@@ -112,13 +112,13 @@
         <div class="dropdown user-admin navbar-text pull-right">
           <a class="dropdown-toggle navbar-link pull-right" data-toggle="dropdown" data-target="#" href="#"><img src="{% user_picture_url user %}" class="img-circle img-18"> {% user-short-name user %} <span class="caret"></span></a>
           <ul class="dropdown-menu" role="menu">
-            <li><a href="{% url 'dashboard' %}"><i class="fa fa-home"></i> Dashboard</a></li>
+            <li><a href="{% url 'dashboard' %}">Dashboard</a></li>
             <li class="divider"></li>
-            <li><a href="{% url 'account_view' %}"><i class="fa fa-user"></i> View account</a></li>
-            <li><a href="{% url 'account_edit' %}"><i class="fa fa-edit"></i> Edit account</a></li>
-            <li><a href="{% url 'account_logout' %}"><i class="fa fa-sign-out"></i> Logout</a></li>
+            <li><a href="{% url 'account_view' %}">View account</a></li>
+            <li><a href="{% url 'account_edit' %}">Edit account</a></li>
+            <li><a href="{% url 'account_logout' %}">Logout</a></li>
             <li class="divider"></li>
-            <li><a href="{% url 'about' %}" id="nav-about"><i class="fa fa-question-circle"></i> About Servuno</a></li>
+            <li><a href="{% url 'about' %}" id="nav-about">About Servuno</a></li>
           </ul>
         </div>
       {% else %}
