@@ -27,7 +27,7 @@
   {% for group in form.circle_options %}
     <div class="panel panel-default public-circle-superset">
       <div class="panel-heading">
-        <small class="text-small text-muted" title="{{ group.description }}" data-toggle="tooltip">{{ group.title }}</small>
+        <small class="text-small" title="{{ group.description }}" data-toggle="tooltip">{{ group.title }}</small>
       </div>
       <ul class="list-group">
         {% for circle in group.list %}
