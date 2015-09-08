@@ -68,7 +68,7 @@ class StatusMixin(object):
                 if self.contract.confirmed_match == self:
                     color, label, explanation = 'success', 'Accepted & Confirmed', 'Request was confirmed.'
                 elif self.contract.is_confirmed() or self.contract.is_feedback_provided():
-                    color, label, explanation = 'primary', 'Not chosen', 'The user accepted to help but not chosen to babysit.'
+                    color, label, explanation = 'primary', 'Accepted & Not chosen', 'The user accepted to help but not chosen to babysit.'
                 elif not self.contract.is_event_expired() and not self.contract.is_confirmed():
                     color, label, explanation = 'warning', 'Accepted & Pending', 'User accepted the request to babysit, but the requesting parent has not made a confirmation yet.'
             elif status in (Match.Status.INITIALIZED, Match.Status.ENGAGED) and self.contract.is_confirmed():

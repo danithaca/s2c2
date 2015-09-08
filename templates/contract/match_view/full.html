@@ -45,7 +45,11 @@ $(document).ready(function() {
 {% block content %}
 <div class="panel panel-default">
   <div class="panel-body">
-    {% include 'contract/contract_view/summary.html' with contract=contract match_override=match %}
+    {% if contract.is_confirmed %}
+      {% include 'contract/contract_view/summary.html' with contract=contract %}
+    {% else %}
+      {% include 'contract/contract_view/summary.html' with contract=contract match_override=match %}
+    {% endif %}
   </div>
 </div>
 
@@ -53,8 +57,10 @@ $(document).ready(function() {
   <div class="panel-heading panel-title">
     {% if match.is_responded %}
       <span title="{{ match.display_status.explanation }}" data-toggle="tooltip">{{ match.display_status.label }}</span>
-    {% elif not contract.is_event_expired %}
-      <strong>Your response?</strong> <small>(Leave a response now; you might change later)</small>
+    {% elif not contract.is_event_expired and not contract.is_confirmed %}
+      <strong>Your response?</strong> <small>- leave a response now; you might change it later</small>
+    {% elif not contract.is_event_expired and contract.is_confirmed %}
+      <strong>Expired </strong> <small>- you might still leave a response <i class="fa fa-question-circle" title="{% user-short-name contract.initiate_user %} found and confirmed a babysitter ({% user-short-name contract.confirmed_match.target_user %}), and the request is expired. You might still leave a response in case the situation changes." data-toggle="tooltip"></i></small>
     {% else %}
       Expired
     {% endif %}
