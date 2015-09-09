@@ -38,6 +38,8 @@ Feature: Check link
     When I follow "Dashboard"
     Then I should be on "/dashboard/"
     Then I should see "Logout"
+    When I follow "About Servuno"
+    Then I should be on "/about/"
 
   @core @javascript
   Scenario: attention on about
