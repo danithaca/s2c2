@@ -1,0 +1,2 @@
+{% extends 'email_subject.txt' %}
+{% block subject %}New user signup: {{ user.email }}{% endblock %}

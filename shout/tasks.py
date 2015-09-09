@@ -19,3 +19,9 @@ def shout_to_circle(shout):
 
         shout.delivered = True
         shout.save()
+
+
+@shared_task
+def notify_send(from_user, to_user, tpl_prefix, ctx=None, anonymous=False):
+    # same signature as Notify::send()
+    notify_agent.send(from_user, to_user, tpl_prefix, ctx, anonymous)

@@ -1,0 +1,5 @@
+{% extends 'email_body.txt' %}
+{% block body %}
+New user signup:
+{{ site_url }}/admin/auth/user/{{ user.id }}/
+{%endblock%}

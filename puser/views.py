@@ -28,6 +28,7 @@ from login_token.models import Token
 from puser.forms import SignupBasicForm, UserInfoForm, SignupConfirmForm, UserPictureForm, LoginEmailAdvForm
 from puser.models import Info, PUser
 from puser.serializers import UserSerializer
+from shout.tasks import notify_send
 from s2c2.utils import auto_user_name
 
 
@@ -102,9 +103,13 @@ class SignupView(account.views.SignupView):
             except Token.DoesNotExist:
                 pass
             self.login_user()
-            return redirect(self.get_success_url())
+            redirection = redirect(self.get_success_url())
         else:
-            return super().form_valid(form)
+            redirection = super().form_valid(form)
+
+        # send admin notice
+        notify_send.delay(None, None, 'account/email/admin_new_user_signup', ctx={'user': self.created_user})
+        return redirection
 
 
 class UserEdit(LoginRequiredMixin, FormView):
