@@ -53,6 +53,13 @@
 
 {#  {% url 'account_view' as href_account %}#}
 {#  {% include 'pages/dashboard_link.html' with color='info' href=href_account text='View Account' help="Review your personal info." only %}#}
+  {% if contract_feedback_needed_qs and contract_feedback_needed_qs.exists %}
+    <p><strong class="text-danger">Feedback needed:</strong>
+      {% for contract_feedback in contract_feedback_needed_qs %}
+        <a href="{{ contract_feedback.get_absolute_url }}">{{ contract_feedback.event_start|date }} <i class="fa fa-calendar-o"></i></a>{% if not forloop.last %} | {% endif %}
+      {% endfor %}
+    </p>
+  {% endif %}
 
   <p class="{% if not favors_karma %}text-muted{% endif %}">
     <span class="">Favors karma <i class="fa fa-question-circle" data-toggle="tooltip" title="Help other parents babysit and have them return the favor when you need help. Paid babysitting is not a favor. Favors will show here 1-2 days after successfully delivered."></i></span>

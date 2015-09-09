@@ -1,5 +1,7 @@
 from celery.exceptions import TimeoutError
 from django.core.management import BaseCommand
+from django.db.models import F
+from circle.models import Circle
 from contract.models import Contract
 from contract.tasks import dummy
 from location.models import Area
@@ -12,7 +14,7 @@ class Command(BaseCommand):
     help = 'Arbitrary script run.'
 
     def handle(self, *args, **options):
-        print('Running on the fly script.')
+        # print('Running on the fly script.')
         # result = dummy.delay(3, 4)
         # print(result.ready())
         # try:
@@ -35,4 +37,7 @@ class Command(BaseCommand):
         # u = PUser.get_by_email('mrzhou@umich.edu')
         # Contract.objects.create(buyer=u, event_start=datetime.now(), event_end=datetime.now()+timedelta(hours=1), price=10, area=Area.objects.get(pk=1))
         # this should be automatically activated.
-        send_mail('test subject', 'test message', 'admin@servuno.com', ['admin@knowsun.com'], False)
+        # send_mail('test subject', 'test message', 'admin@servuno.com', ['admin@knowsun.com'], False)
+        for circle in Circle.objects.filter(type=Circle.Type.PERSONAL.value):
+            circle.name = '%s:personal:%d' % (circle.owner.username, circle.area_id)
+            circle.save()

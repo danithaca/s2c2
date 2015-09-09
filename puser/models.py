@@ -110,7 +110,7 @@ class PUser(User):
         if area is None:
             area = self.get_area()
         circle, created = Circle.objects.get_or_create(type=Circle.Type.PERSONAL.value, owner=self, area=area, defaults={
-            'name': 'personal'
+            'name': '%s:personal:%d' % (self.username, area.id)
         })
         return circle
 
@@ -253,6 +253,9 @@ class PUser(User):
             if engagement.contract.is_favor() and (engagement.is_main_contract() or engagement.is_match_confirmed()):
                 results.append(engagement)
         return results
+
+    def contract_feedback_needed_queryset(self):
+        return Contract.objects.filter(initiate_user=self, status=Contract.Status.CONFIRMED.value, confirmed_match__isnull=False, event_end__lt=timezone.now())
 
     def count_served(self, client):
         """

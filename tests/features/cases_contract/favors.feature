@@ -17,6 +17,10 @@ Feature: Test favors exchange
     And I press "OK"
     And pause 3 seconds
 
+    # make sure there's no feedback needed.
+    Given I am on "/dashboard/"
+    Then I should not see "Feedback needed"
+
     # respond from email. login token should take care of login
     When I open the last email from "test2@servuno.com" to "to-be-deleted-favors@servuno.com"
     # check email content
@@ -52,6 +56,12 @@ Feature: Test favors exchange
       | event_start_0 | 2010-12-10 |
       | event_end_0   | 2010-12-10 |
     And I press "Save"
+
+    # check "feedback needed"
+    Given I am on "/account/logout/"
+    Given I am logged in as user "test2@servuno.com" with password "password"
+    Then I should be on "/dashboard/"
+    And I should see "Feedback needed"
 
     # mark as success
     Then I follow the email link like "/contract/"

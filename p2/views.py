@@ -49,15 +49,16 @@ class DashboardView(LoginRequiredMixin, TemplateView):
 
     def get_context_data(self, **kwargs):
         ctx = super().get_context_data(**kwargs)
+        puser = self.request.puser
 
-        ctx['target_user'] = self.request.puser
-        headline = self.request.puser.engagement_headline()
+        ctx['target_user'] = puser
+        headline = puser.engagement_headline()
         if headline:
             ctx['engagement_headline'] = headline
 
         # favors karma
         karma = defaultdict(int)
-        for favor in self.request.puser.engagement_favors():
+        for favor in puser.engagement_favors():
             direction = 0
             if favor.is_main_contract():
                 direction = -1
@@ -67,5 +68,8 @@ class DashboardView(LoginRequiredMixin, TemplateView):
             assert u is not None, 'Contract has problem: %d' % favor.contract.id
             karma[u] += direction
         ctx['favors_karma'] = [(u, f) for u, f in karma.items() if f != 0]
+
+        # feedback needed
+        ctx['contract_feedback_needed_qs'] = puser.contract_feedback_needed_queryset()
 
         return ctx
