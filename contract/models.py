@@ -32,6 +32,7 @@ class StatusMixin(object):
             Contract.Status.SUCCESSFUL: ('success', 'Successful', 'Service was successfully delivered.'),
             Contract.Status.CANCELED: ('warning', 'Canceled', 'Request was canceled.'),
             Contract.Status.FAILED: ('danger', 'Failed', 'Service was confirmed but eventually failed.'),
+            Contract.Status.EXPIRED: ('default', 'Expired', 'Request expired without success.'),
         }
 
         match_display_map = {
@@ -48,9 +49,9 @@ class StatusMixin(object):
             # special handle for expired stuff
             if self.is_event_expired():
                 if status in (Contract.Status.INITIATED, Contract.Status.ACTIVE):
-                    color, label, explanation = 'default', 'Expired', 'Request expired.'
+                    color, label, explanation = 'default', 'Expired', 'Request expired without success.'
                 if status == Contract.Status.CONFIRMED:
-                    color, label, explanation = 'info', 'Done', 'Request confirmed and expired.'
+                    color, label, explanation = 'info', 'Done', 'Request confirmed but no feedback was given.'
             # not expired, proceed as normal
             else:
                 if status == Contract.Status.ACTIVE:
@@ -62,7 +63,7 @@ class StatusMixin(object):
         elif isinstance(self, Match):
             color, label, explanation = match_display_map.get(status, ('default', str(status).capitalize(), ''))
             # override
-            if self.contract.is_event_expired() and status in (Match.Status.INITIALIZED, Match.Status.ENGAGED):
+            if self.contract.is_expired() and status in (Match.Status.INITIALIZED, Match.Status.ENGAGED):
                 color, label, explanation = 'default', 'Expired', 'Request expired.'
             elif status == Match.Status.ACCEPTED:
                 if self.contract.confirmed_match == self:
@@ -92,6 +93,7 @@ class Contract(StatusMixin, models.Model):
         SUCCESSFUL = 4      # after the contract, everyone are happy.
         CANCELED = 5        # for some reason this was canceled.
         FAILED = 6          # was confirmed, but not carried through.
+        EXPIRED = 7         # was "active", but didn't get to the "success" stage. this could be derived from "active + event_expired", but it's easier to have a separate category for archival purposes. still need to search with "active" and "event_end" for exact expired contracts. automatically marked from "active" to "expired" in 7 days.
 
     initiate_user = models.ForeignKey(settings.AUTH_USER_MODEL)
     confirmed_match = models.OneToOneField('Match', blank=True, null=True, related_name='confirmed_contract')     # user string for classname per django doc.
@@ -182,6 +184,9 @@ class Contract(StatusMixin, models.Model):
         if result:
             assert self.confirmed_match is not None
         return result
+
+    def is_expired(self):
+        return self.status == Contract.Status.EXPIRED.value or self.is_event_expired()
 
     def is_feedback_provided(self):
         return self.status in (Contract.Status.SUCCESSFUL.value, Contract.Status.FAILED.value)
