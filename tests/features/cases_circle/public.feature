@@ -45,6 +45,7 @@ Feature: Test manage public circles
     And check email subject contains "Sleeping Bears"
 
 
+  @javascript
   Scenario: test unsubscribe
     Given I am logged in as user "test@servuno.com" with password "password"
     # test unsubscribe. the first time was just to make sure it wasn't already subscribed to setup to test subscribe.
