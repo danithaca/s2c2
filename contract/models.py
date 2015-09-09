@@ -115,7 +115,7 @@ class Contract(StatusMixin, models.Model):
     area = models.ForeignKey(Area)
 
     def __str__(self):
-        return 'Contract: %d' % self.id
+        return 'Contract:%d:%s' % (self.id, self.initiate_user.username)
 
     def get_absolute_url(self):
         return reverse('contract:view', kwargs={'pk': self.pk})
@@ -306,6 +306,9 @@ class Match(StatusMixin, models.Model):
 
     def get_absolute_url(self):
         return reverse('contract:match_view', kwargs={'pk': self.pk})
+
+    def __str__(self):
+        return 'Match:%d:%s-%s' % (self.id, self.contract.initiate_user.username, self.target_user.username)
 
     def accept(self):
         old_status = self.status
