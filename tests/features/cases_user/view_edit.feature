@@ -41,8 +41,8 @@ Feature: Edit account
     When I follow "View account"
     Then I should be on "/account/"
     And I should see "John Smith"
-    And I should see "John's Contacts"
-    And I should see "John's Circles"
+    And I should see "Contacts"
+    And I should see "Circles"
     And I should see "Listed By"
     And I should see "test@servuno.com"
     And I should see "555-555-5555"
@@ -62,6 +62,10 @@ Feature: Edit account
     When I move backward one page
     When I follow "link_manage_public"
     Then I should be on "/circle/manage/public/"
+
+    When I move backward one page
+    When I follow "link_manage_agency"
+    Then I should be on "/circle/manage/agency/"
 
     When I move backward one page
     When I follow "link_manage_loop"

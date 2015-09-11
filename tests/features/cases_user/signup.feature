@@ -45,30 +45,36 @@ Feature: sign up
       | Address    | 123 Someplace, Earth |
       | About me   | Blah                 |
     And I press "Next"
-
     Then I should see "Profile successfully updated"
-    And I should be on "/account/onboard/personal/"
-    And I should see "Add Contacts"
-    And I should see "Add people you trust"
-    And I should see a "#new-contact" element
-    And I should see a "#new-contact-add-btn" element
 
-    When I press "Next"
     Then I should be on "/account/onboard/public/"
     And I should see "Join Parents Circles"
     And I should see a ".public-circle-superset" element
     And I should see a ".public-circle-entity" element
     And I should see "Sleeping Bears"
-
     When I press "Next"
+
+    Then I should be on "/account/onboard/agency/"
+    And I should see "Subscribe to Agencies"
+    And I should see a ".circle-entity" element
+    And I should see "University of Michigan Family Helpers"
+    When I press "Next"
+
+    And I should be on "/account/onboard/personal/"
+    And I should see "Add Contacts"
+    And I should see "Add people you trust"
+    And I should see a "#new-contact" element
+    And I should see a "#new-contact-add-btn" element
+    When I press "Next"
+
     Then I should be on "/account/onboard/picture/"
     And I should see "Upload Picture"
     And I should see a "#id_picture_original" element
     # this perhaps needs javascript
     #And I should see "No file chosen"
     And I should see "Picture upload"
-
     When I press "Next"
+
     Then I should be on ":LOGIN_LANDING"
     And I should see "Welcome!"
     And I should see "Deleted"
@@ -83,6 +89,7 @@ Feature: sign up
     Then I should see "Step 3"
     Then I should see "Step 4"
     Then I should see "Step 5"
+    Then I should see "Step 6"
     And I should see a "#onboard-pane" element
     When I evaluate the following Javascript:
       """
@@ -101,7 +108,7 @@ Feature: sign up
     And I set browser mobile
     And I am on ":SIGNUP_LANDING"
     Then I should not see "Step 2"
-    And I should see "Step 1/5"
+    And I should see "Step 1/6"
 
 
   @core

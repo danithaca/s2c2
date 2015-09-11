@@ -27,7 +27,7 @@
 <ul class="list-group">
   {% for option in form.circle_options %}
     {% with circle=option.circle %}
-      <li class="list-group-item circle-entity" data-slug="{{ circle.title|slugify }}">
+      <li class="list-group-item circle-entity" data-slug="{{ circle.name|slugify }}">
         <input type="checkbox" class="switch" name="circle" value="{{ circle.id }}"{% if option.active %} checked{% endif %}>
         {{ circle.name }} {% if circle.homepage %}<a href="{{ circle.homepage }}" target="_blank"><i class="fa fa-external-link"></i></a>{% endif %} <small class="text-muted">{{ circle.description }}</small> <small class="pull-right">{% include 'elements/circle_member_count.html' with count=option.count %}</small>
       </li>

@@ -38,13 +38,17 @@ Feature: Test referral user
     When I fill in the following:
       | First name | 2BD |
       | Last name  | Bot |
-    And I press "Next"
+
+    When I press "Next"
+    Then I should be on "/account/onboard/public/"
+    When I press "Next"
+    Then I should be on "/account/onboard/agency/"
+
+    When I press "Next"
     Then I should be on "/account/onboard/personal/"
     # if this is the referred user, by default the referrer should appear here.
     And I should see "test@servuno.com"
 
-    When I press "Next"
-    Then I should be on "/account/onboard/public/"
     When I press "Next"
     Then I should be on "/account/onboard/picture/"
     When I press "Next"

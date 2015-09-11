@@ -1,0 +1,51 @@
+Feature: Test manage agency circles
+
+  @core
+  Scenario: basic manage interface is there
+    Given I am logged in as user "test@servuno.com" with password "password"
+    And I am on "/circle/manage/agency"
+    Then the response status code should be 200
+    And I should see a ".circle-entity" element
+    And I should see "University of Michigan Family Helpers"
+
+
+  @javascript @core
+  Scenario: add and remove, submit and check email
+    Given I am logged in as user "test@servuno.com" with password "password"
+    And I am on "/circle/manage/agency"
+    Then I should not see "Changes are not saved."
+
+    # make sure it's unsubscribed.
+    When I run the following Javascript:
+      """
+      $('li[data-slug="university-of-michigan-family-helpers"] input').bootstrapSwitch('state', false);
+      """
+    And I press "Save Changes"
+    And I should be on "/account/"
+    And I should not see "University of Michigan Family Helpers"
+
+    # now let's subscribe it
+    Given I am on "/circle/manage/agency"
+    When I run the following Javascript:
+      """
+      $('li[data-slug="university-of-michigan-family-helpers"] input').bootstrapSwitch('state', true);
+      """
+    Then I should see "Changes are not saved."
+    And I press "Save Changes"
+    And I should be on "/account/"
+    And I should see "University of Michigan Family Helpers"
+
+
+  @javascript
+  Scenario: test unsubscribe
+    Given I am logged in as user "test@servuno.com" with password "password"
+    # test unsubscribe. the first time was just to make sure it wasn't already subscribed to setup to test subscribe.
+    Given I am on "/circle/manage/agency"
+    When I run the following Javascript:
+      """
+      $('li[data-slug="university-of-michigan-family-helpers"] input').bootstrapSwitch('state', false);
+      """
+    Then I should see "Changes are not saved."
+    And I press "Save Changes"
+    And I should be on "/account/"
+    And I should not see "University of Michigan Family Helpers"
