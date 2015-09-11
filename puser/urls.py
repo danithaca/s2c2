@@ -15,6 +15,7 @@ urlpatterns = patterns(
     url(r"^onboard/profile/$", views.OnboardProfile.as_view(), name="onboard_profile"),
     url(r"^onboard/personal/$", views.OnboardPersonalCircle.as_view(), name="onboard_personal"),
     url(r"^onboard/public/$", views.OnboardPublicCircle.as_view(), name="onboard_public"),
+    url(r"^onboard/agency/$", views.OnboardAgencyCircle.as_view(), name="onboard_agency"),
     url(r"^onboard/picture/$", views.OnboardPicture.as_view(), name="onboard_picture"),
 
     # todo: allow other people view account

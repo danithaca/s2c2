@@ -125,5 +125,11 @@ class Membership(models.Model):
         # relieving the assumption will affect many existing code
         unique_together = ('member', 'circle')
 
+    def is_type_normal(self):
+        return self.type == Membership.Type.NORMAL.value
+
+    def is_type_partial(self):
+        return self.type == Membership.Type.PARTIAL.value
+
     def __str__(self):
         return '%s (%s)' % (self.member.get_name(), self.circle.display())

@@ -12,7 +12,7 @@ from s2c2.utils import dummy
 
 def home(request):
     if request.user.is_anonymous():
-        return redirect(reverse('account_login'))
+        return redirect(reverse('account_signup'))
     else:
         # find engagement for the user
         puser = request.puser

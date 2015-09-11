@@ -115,7 +115,7 @@ class ManagePublicForm(forms.Form):
 
 class ManageAgencyForm(ManagePublicForm):
     def build_circle_options(self, area):
-        membership_table = {m.circle_id: m for m in self.puser.membership_set.filter(circle__type=Circle.Type.AGENCY.value, active=True, type=Membership.Type.PARTIAL.value)}
+        membership_table = {m.circle_id: m for m in self.puser.membership_set.filter(circle__type=Circle.Type.AGENCY.value, active=True)}
         options = []
         for circle in Circle.objects.filter(type=Circle.Type.AGENCY.value, area=area):
             option = {

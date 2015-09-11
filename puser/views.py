@@ -23,7 +23,7 @@ from rest_framework.generics import RetrieveAPIView
 
 from circle.forms import SignupFavoriteForm, SignupCircleForm, ManagePersonalForm
 from circle.models import Circle, Membership
-from circle.views import ManagePersonal, ManagePublic
+from circle.views import ManagePersonal, ManagePublic, ManageAgency
 from login_token.models import Token
 from puser.forms import SignupBasicForm, UserInfoForm, SignupConfirmForm, UserPictureForm, LoginEmailAdvForm
 from puser.models import Info, PUser
@@ -203,13 +203,15 @@ class UserView(LoginRequiredMixin, TrustedUserMixin, DetailView):
         my_listed = list(PUser.objects.filter(membership__circle__owner=u, membership__circle__type=Circle.Type.PERSONAL.value, membership__active=True, membership__approved=True).exclude(membership__member=u).distinct())
         my_circles = list(Circle.objects.filter(membership__member=u, membership__circle__type=Circle.Type.PUBLIC.value, membership__active=True, membership__approved=True).distinct())
         my_memberships = list(Membership.objects.filter(member=u, circle__type=Circle.Type.PUBLIC.value, active=True))
+        my_agencies = list(Membership.objects.filter(member=u, circle__type=Circle.Type.AGENCY.value, active=True))
 
         context = {
             'full_access': self.get_object() == self.request.puser,
             'in_others': in_others,
             'my_listed': my_listed,
             'my_circles': my_circles,
-            'my_memberships': my_memberships
+            'my_memberships': my_memberships,
+            'my_agencies': my_agencies,
         }
 
         # # favors karma
@@ -246,12 +248,18 @@ class MultiStepViewsMixin(ContextMixin):
     This is to help with multiple views, different from FormWizard
     """
 
-    def get_steps_meta(self):
-        step_order = ['OnboardAbout', 'OnboardProfile', 'OnboardPersonalCircle', 'OnboardPublicCircle', 'OnboardPicture']
-        step_url = [reverse('onboard_about'), reverse('onboard_profile'), reverse('onboard_personal'), reverse('onboard_public'), reverse('onboard_picture')]
+    final_url = '/'
+
+    @classmethod
+    def get_steps_meta(cls):
+        step_order = ['OnboardAbout', 'OnboardProfile', 'OnboardPublicCircle', 'OnboardAgencyCircle', 'OnboardPersonalCircle', 'OnboardPicture']
+        step_url = [reverse('onboard_about'), reverse('onboard_profile'), reverse('onboard_public'), reverse('onboard_agency'), reverse('onboard_personal'),  reverse('onboard_picture')]
+        next_step_url = list(step_url)
+        next_step_url.append(cls.final_url)
+        del(next_step_url[0])
         steps_meta = OrderedDict()
-        for name, url in zip(step_order, step_url):
-            steps_meta[name] = {'url': url}
+        for name, url, next_url in zip(step_order, step_url, next_step_url):
+            steps_meta[name] = {'url': url, 'next_url': next_url}
         return steps_meta
 
     # def get_step_url(self):
@@ -282,8 +290,18 @@ class MultiStepViewsMixin(ContextMixin):
 
         return context
 
+    @classmethod
+    def get_next_step_url(cls):
+        steps_meta = cls.get_steps_meta()
+        current_step_name = cls.__name__
+        return steps_meta[current_step_name]['next_url']
 
-        # class OnboardSignup(MultiStepViewsMixin, SignupView):
+    # this only works for FormView where sucess_url is needed.
+    def get_success_url(self):
+        return self.get_next_step_url()
+
+
+# class OnboardSignup(MultiStepViewsMixin, SignupView):
 #     pass
     # this is not used because SignupView reloaded get_success_url(). Set SIGNUP REDIRECT URL instead.
     # success_url = reverse_lazy('onboard_profile')
@@ -307,13 +325,11 @@ class OnboardAbout(MultiStepViewsMixin, TemplateView):
 
 class OnboardProfile(MultiStepViewsMixin, UserEdit):
     template_name = 'account/onboard/form.html'
-    success_url = reverse_lazy('onboard_personal')
     step_title = 'Update Profile'
 
 
 class OnboardPersonalCircle(MultiStepViewsMixin, ManagePersonal):
     template_name = 'account/onboard/manage_personal.html'
-    success_url = reverse_lazy('onboard_public')
     step_title = 'Add Contacts'
     step_note = 'Add people you trust so that Servuno can help you find babysitters from them and their contacts. The more contacts you add here, the better chance you will find a babysitter.'
 
@@ -335,14 +351,18 @@ class OnboardPersonalCircle(MultiStepViewsMixin, ManagePersonal):
 
 class OnboardPublicCircle(MultiStepViewsMixin, ManagePublic):
     template_name = 'account/onboard/manage_public.html'
-    success_url = reverse_lazy('onboard_picture')
     step_title = 'Join Parents Circles'
     step_note = "Reach out to fellow parents you don't know yet but are trustworthy based on common background. Existing members of the circles will review and approve your admission if it is valid."
 
 
+class OnboardAgencyCircle(MultiStepViewsMixin, ManageAgency):
+    template_name = 'account/onboard/manage_agency.html'
+    step_title = 'Subscribe to Agencies'
+    step_note = "Subscribe to the child care agencies your trust, and Servuno's Smart Matching algorithm will help you find babysitters managed by those agencies."
+
+
 class OnboardPicture(MultiStepViewsMixin, UserPicture):
     template_name = 'account/onboard/form.html'
-    success_url = '/'
     form_valid_message = "Welcome! You can find a babysitter now or wait for others to find help from you."
     step_title = 'Upload Picture'
     # step_note = 'Let other users see you!'

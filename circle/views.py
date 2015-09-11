@@ -190,10 +190,17 @@ class ManageAgency(ManagePublic):
     success_message = 'Updated agency subscriptions.'
 
     def get_membership_circle_id_list(self):
-        return Membership.objects.filter(member=self.request.user, circle__type=Circle.Type.AGENCY.value, active=True, type=Membership.Type.PARTIAL.value).values_list('circle', flat=True).distinct()
+        return Membership.objects.filter(member=self.request.user, circle__type=Circle.Type.AGENCY.value, active=True).values_list('circle', flat=True).distinct()
 
     def create_membership(self, circle, puser):
-        circle.add_member(puser, membership_type=Membership.Type.PARTIAL.value)
+        try:
+            # if membership already exists, set it to active without touching "type" or "approved".
+            membership = circle.get_membership(puser)
+            if not membership.active:
+                membership.active = True
+                membership.save()
+        except Membership.DoesNotExist:
+            circle.add_member(puser, membership_type=Membership.Type.PARTIAL.value)
 
 
 class ManageLoop(LoginRequiredMixin, FormView):
