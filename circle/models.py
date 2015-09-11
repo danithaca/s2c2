@@ -17,6 +17,7 @@ class Circle(models.Model):
 
     name = models.CharField(max_length=200)
     description = models.TextField(blank=True)
+    homepage = models.URLField(max_length=200, blank=True)
 
     type = models.PositiveSmallIntegerField(choices=[(t.value, t.name.capitalize()) for t in Type])
 

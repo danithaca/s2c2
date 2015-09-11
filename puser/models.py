@@ -41,6 +41,7 @@ class Info(models.Model):
     address = models.CharField(max_length=200, blank=True)
     phone = PhoneNumberField(blank=True)
     note = models.TextField(blank=True)
+    homepage = models.URLField(blank=True)
 
     picture_original = ImageCropField(upload_to='picture', blank=True, null=True)
     picture_cropping = ImageRatioField('picture_original', '200x200')
