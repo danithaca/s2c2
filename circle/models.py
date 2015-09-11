@@ -91,6 +91,8 @@ class Membership(models.Model):
     class Type(Enum):
         NORMAL = 1
         ADMIN = 2
+        PARTIAL = 3         # this is a passive membership that only receive notifications, e.g., subscribe to a agency circle
+        HOMO = 4            # counted as the same user, or sharing the same kids.
 
     member = models.ForeignKey(settings.AUTH_USER_MODEL)
     circle = models.ForeignKey(Circle)
@@ -103,6 +105,7 @@ class Membership(models.Model):
     # whether the membership is approved by authorities or a panel.
     # private circle: should always be true, because private list are always approved by the owner. if the member doesn't want to be included, it could be set as false.
     # public circle: someone (either the owner or a panel) needs to approve the membership.
+    # agency: usually should always be true. subscribers are always true.
     approved = models.NullBooleanField(default=None, blank=True, null=True)
 
     # seems we don't need a "owner" type. the admin will suffice
