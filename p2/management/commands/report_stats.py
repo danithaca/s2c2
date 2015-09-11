@@ -32,5 +32,5 @@ class Command(BaseCommand):
         logging.info('Active contracts: %d' % Contract.objects.filter(created__gt=cutoff, status=Contract.Status.ACTIVE.value, event_start__gt=timezone.now()).exclude(initiate_user__email__icontains='servuno.com').count())
 
         # unhandled memberships
-        unhandled_membership = list(Membership.objects.filter(approved=False, active=True).exclude(member__email__icontains='servuno.com'))
+        unhandled_membership = list(Membership.objects.filter(approved__isnull=True, active=True).exclude(member__email__icontains='servuno.com'))
         logging.info('Unhandled memberships: %d - %s' % (len(unhandled_membership), ','.join([str(m.id) for m in unhandled_membership])))
