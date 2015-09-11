@@ -2,7 +2,7 @@ import json
 import re
 from django import forms
 
-from circle.models import Circle, SupersetRel
+from circle.models import Circle, SupersetRel, Membership
 from location.models import Area
 from p2.templatetags.p2_tags import p2_tag_user_full_name
 from puser.models import PUser
@@ -80,7 +80,7 @@ class ManagePublicForm(forms.Form):
                     'title': c.name,
                     'description': c.description,
                     'id': c.pk,
-                    'count': c.count,
+                    'count': c.count(),
                 }
                 if c.id in membership:
                     m = membership[c.id]
@@ -110,6 +110,22 @@ class ManagePublicForm(forms.Form):
         if leftover['list']:
             options.append(leftover)
 
+        return options
+
+
+class ManageAgencyForm(ManagePublicForm):
+    def build_circle_options(self, area):
+        membership_table = {m.circle_id: m for m in self.puser.membership_set.filter(circle__type=Circle.Type.AGENCY.value, active=True, type=Membership.Type.PARTIAL.value)}
+        options = []
+        for circle in Circle.objects.filter(type=Circle.Type.AGENCY.value, area=area):
+            option = {
+                'circle': circle,
+                'count': circle.count(membership_type=Membership.Type.NORMAL.value)
+            }
+            if circle.id in membership_table:
+                membership = membership_table[circle.id]
+                option['active'] = membership.active
+            options.append(option)
         return options
 
 

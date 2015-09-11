@@ -21,7 +21,7 @@
           <li class="list-group-item"><i class="fa fa-phone"></i> <a href="tel:{{ target_user.info.phone }}">{{ target_user.info.phone }}</a></li>
         {% endif %}
         {% if target_user.info.address %}
-          <li class="list-group-item"><i class="fa fa-truck"></i> <a href="https://www.google.com/maps/place/{{ target_user.info.address|urlencode }}">{{ target_user.info.address }}</a></li>
+          <li class="list-group-item"><i class="fa fa-map-marker"></i> <a href="https://www.google.com/maps/place/{{ target_user.info.address|urlencode }}">{{ target_user.info.address }}</a></li>
         {% endif %}
       </ul>
     </div>

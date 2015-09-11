@@ -41,11 +41,14 @@ class Circle(models.Model):
     def __str__(self):
         return self.name
 
-    def add_member(self, user):
+    def add_member(self, user, membership_type=None):
         """
         :return: if membership already exists, return it. otherwise, create the membership with default.
         """
-        membership, created = Membership.objects.update_or_create(member=user, circle=self, defaults={'active': True})
+        defaults = {'active': True}
+        if membership_type is not None:
+            defaults['type'] = membership_type
+        membership, created = Membership.objects.update_or_create(member=user, circle=self, defaults=defaults)
         if created and self.is_type_personal():
             membership.approved = True
             membership.save()
@@ -63,8 +66,11 @@ class Circle(models.Model):
     def is_type_public(self):
         return self.type == self.type == Circle.Type.PUBLIC.value
 
-    def count(self):
-        return self.membership_set.filter(active=True, approved=True).count()
+    def count(self, membership_type=None):
+        qs = self.membership_set.filter(active=True, approved=True)
+        if type is not None:
+            qs.filter(type=membership_type)
+        return qs.count()
 
 
 class SupersetRel(models.Model):

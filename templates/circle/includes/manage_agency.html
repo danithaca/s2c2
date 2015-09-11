@@ -24,24 +24,18 @@
 </script>
 
 {% if form.circle_options %}
-{% for group in form.circle_options %}
-  <div class="panel panel-default public-circle-superset">
-    <div class="panel-heading">
-      <small class="text-small" title="{{ group.description }}" data-toggle="tooltip">{{ group.title }}</small>
-    </div>
-    <ul class="list-group">
-      {% for circle in group.list %}
-        <li class="list-group-item public-circle-entity" data-slug="{{ circle.title|slugify }}">
-          <input type="checkbox" class="switch" name="circle" value="{{ circle.id }}"{% if circle.active %} checked{% endif %}>
-          {{ circle.title }} <small class="text-muted">{{ circle.description }}</small> <small class="pull-right">{% include 'elements/circle_member_count.html' with count=circle.count %}</small>
-{#            {% if circle.active %} <span class="badge">{{ circle.approved|yesno:'Approved,Not approved' }}</span>{% endif %}#}
-        </li>
-      {% endfor %}
-    </ul>
-  </div>
-{% endfor %}
+<ul class="list-group">
+  {% for option in form.circle_options %}
+    {% with circle=option.circle %}
+      <li class="list-group-item circle-entity" data-slug="{{ circle.title|slugify }}">
+        <input type="checkbox" class="switch" name="circle" value="{{ circle.id }}"{% if option.active %} checked{% endif %}>
+        {{ circle.name }} {% if circle.homepage %}<a href="{{ circle.homepage }}" target="_blank"><i class="fa fa-external-link"></i></a>{% endif %} <small class="text-muted">{{ circle.description }}</small> <small class="pull-right">{% include 'elements/circle_member_count.html' with count=option.count %}</small>
+      </li>
+    {% endwith %}
+  {% endfor %}
+</ul>
 {% else %}
-  <p>No parents circle found in this area.</p>
+  <p>No agency found for this area.</p>
 {% endif %}
 
 <form class="form" method="post" autocapitalize="off">

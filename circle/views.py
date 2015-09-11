@@ -6,7 +6,7 @@ from django.shortcuts import render
 
 # Create your views here.
 from django.views.generic import FormView
-from circle.forms import ManagePublicForm, ManagePersonalForm, ManageLoopForm
+from circle.forms import ManagePublicForm, ManagePersonalForm, ManageLoopForm, ManageAgencyForm
 from circle.models import Membership, Circle
 from circle.tasks import personal_circle_send_invitation
 from puser.models import PUser
@@ -141,10 +141,17 @@ class ManagePublic(LoginRequiredMixin, FormView):
     template_name = 'circle/manage_public.html'
     form_class = ManagePublicForm
     success_url = reverse_lazy('account_view')
+    success_message = 'Circles updated.'
+
+    def get_membership_circle_id_list(self):
+        return Membership.objects.filter(member=self.request.user, circle__type=Circle.Type.PUBLIC.value, active=True).values_list('circle', flat=True).distinct()
+
+    def create_membership(self, circle, puser):
+        circle.add_member(puser)
 
     def get_initial(self):
         initial = super().get_initial()
-        circles = Membership.objects.filter(member=self.request.user, circle__type=Circle.Type.PUBLIC.value, active=True).values_list('circle', flat=True).distinct()
+        circles = self.get_membership_circle_id_list()
         initial['circle'] = ','.join(list(map(str, circles)))
         return initial
 
@@ -157,24 +164,36 @@ class ManagePublic(LoginRequiredMixin, FormView):
         if form.has_changed():
             new_set = set(form.get_circle_id_list())
             puser = form.puser
-            old_set = set(Membership.objects.filter(member=self.request.user, circle__type=Circle.Type.PUBLIC.value, active=True).values_list('circle', flat=True).distinct())
+            old_set = set(self.get_membership_circle_id_list())
 
             # unsubscribe old set not in new set
             for circle_id in old_set - new_set:
                 membership = Membership.objects.get(circle__id=circle_id, member=puser)
                 membership.active = False
-                # todo: not sure whether we should set approved to false.
-                membership.approved = False
+                # membership.approved = False       # don't touch the "approved" field
                 membership.save()
 
             # subscribe new set not in old set
             for circle_id in new_set - old_set:
                 circle = Circle.objects.get(pk=circle_id)
-                circle.add_member(puser)
+                self.create_membership(circle, puser)
                 # notification for membership approval is handled in signal
 
-            messages.success(self.request, 'Circles updated.')
+            messages.success(self.request, self.success_message)
         return super().form_valid(form)
+
+
+class ManageAgency(ManagePublic):
+    template_name = 'circle/manage_agency.html'
+    form_class = ManageAgencyForm
+    success_url = reverse_lazy('account_view')
+    success_message = 'Updated agency subscriptions.'
+
+    def get_membership_circle_id_list(self):
+        return Membership.objects.filter(member=self.request.user, circle__type=Circle.Type.AGENCY.value, active=True, type=Membership.Type.PARTIAL.value).values_list('circle', flat=True).distinct()
+
+    def create_membership(self, circle, puser):
+        circle.add_member(puser, membership_type=Membership.Type.PARTIAL.value)
 
 
 class ManageLoop(LoginRequiredMixin, FormView):
