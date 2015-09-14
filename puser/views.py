@@ -268,13 +268,8 @@ class MultiStepViewsMixin(ContextMixin):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        if hasattr(self, 'step_title'):
-            context['step_title'] = self.step_title
-        if hasattr(self, 'step_note'):
-            context['step_note'] = self.step_note
-
-        # this is blocking us from automating "step generation".
-        # context['step_url'] = self.get_step_url()
+        context['step_title'] = self.get_step_title()
+        context['step_note'] = self.get_step_note()
 
         # update steps meta with position info
         steps_meta = self.get_steps_meta()
@@ -299,6 +294,18 @@ class MultiStepViewsMixin(ContextMixin):
     # this only works for FormView where sucess_url is needed.
     def get_success_url(self):
         return self.get_next_step_url()
+
+    def get_step_title(self):
+        if hasattr(self, 'step_title'):
+            return self.step_title
+        else:
+            return ''
+
+    def get_step_note(self):
+        if hasattr(self, 'step_note'):
+            return self.step_note
+        else:
+            return ''
 
 
 # class OnboardSignup(MultiStepViewsMixin, SignupView):
@@ -358,7 +365,7 @@ class OnboardPublicCircle(MultiStepViewsMixin, ManagePublic):
 class OnboardAgencyCircle(MultiStepViewsMixin, ManageAgency):
     template_name = 'account/onboard/manage_agency.html'
     step_title = 'Subscribe to Agencies'
-    step_note = "Subscribe to the child care agencies your trust, and Servuno's Smart Matching algorithm will help you find babysitters managed by those agencies."
+    step_note = "Subscribe to the child care agencies your trust, and Servuno's Smart Matching algorithm will help you find babysitters managed by those agencies. (If you are a caregiver, please contact us for more details.)"
 
 
 class OnboardPicture(MultiStepViewsMixin, UserPicture):
