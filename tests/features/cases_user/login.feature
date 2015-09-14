@@ -13,13 +13,14 @@ Feature: user login
     Then the response status code should be 200
     And the response should contain "<!-- logged in as test@servuno.com -->"
     When I follow "Logout"
-    Then I should be on "/account/login/"
+    Then I should be on ":ANONYMOUS_LANDING"
     And the response should not contain "<!-- logged in as test@servuno.com -->"
 
   @core
   Scenario: login from homepage
     Given I am on the homepage
     Then I should see "Servuno"
+    Given I am on "/account/login/"
     When I fill in the following:
       | Email    | test@servuno.com |
       | Password | password         |

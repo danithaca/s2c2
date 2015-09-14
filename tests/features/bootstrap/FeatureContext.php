@@ -406,6 +406,7 @@ class FeatureContext extends MinkContext implements SnippetAcceptingContext
     $mapping = array(
       'SIGNUP_LANDING' => '/account/onboard/',
       'LOGIN_LANDING' => '/dashboard/',
+      'ANONYMOUS_LANDING' => '/account/signup/',
       'MANAGE_CONTACTS_DEFAULT' => '/circle/manage/personal/',
     );
     return @$mapping[$key];

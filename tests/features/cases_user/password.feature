@@ -5,7 +5,7 @@ Feature: password change
 
   @core
   Scenario: check link on homepage
-    Given I am on the homepage
+    Given I am on "/account/login/"
     Then I should see "Forget password?"
     When I follow "Forget password?"
     Then I should be on "account/password/reset/"
@@ -37,7 +37,7 @@ Feature: password change
 
 
   Scenario: change password
-    Given I am on the homepage
+    Given I am on "/account/login/"
     # note: using the new password.
     And I fill in the following:
       | Email    | test@servuno.com |
