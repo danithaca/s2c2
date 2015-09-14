@@ -114,6 +114,9 @@ STATICFILES_DIRS = (
 MEDIA_ROOT = os.path.join(BASE_DIR_ASSETS, 'media')
 MEDIA_URL = '/media/'
 
+# data dir for internal use
+DATA_DIR = os.path.join(BASE_DIR, 'fixtures')
+
 
 ################# services ###################
 

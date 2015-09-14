@@ -488,6 +488,7 @@ class FeatureContext extends MinkContext implements SnippetAcceptingContext
           'services' => $this->_grabTextData($row, '.views-field.views-field-field-fh-provided-services', TRUE),
           'special_needs' => $this->_grabTextData($row, '.views-field.views-field-field-fh-provided-special-needs', TRUE),
           'transportation' => $this->_grabTextData($row, '.views-field.views-field-field-fh-provided-transportation', TRUE),
+          'certifications' => $this->_grabTextData($row, '.views-field.views-field-field-fh-provided-certifications', TRUE),
           'um_affiliation' => $this->_grabTextData($row, '.views-field.views-field-field-fh-um-affiliation', TRUE),
           'availability_start' => $this->_grabTextData($row, '.views-field.views-field-field-fh-availability-dates span.date-display-start'),
           'availability_end' => $this->_grabTextData($row, '.views-field.views-field-field-fh-availability-dates span.date-display-end'),

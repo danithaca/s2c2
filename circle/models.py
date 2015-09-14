@@ -41,17 +41,22 @@ class Circle(models.Model):
     def __str__(self):
         return self.name
 
-    def add_member(self, user, membership_type=None):
+    def add_member(self, user, membership_type=None, approved=None):
         """
         :return: if membership already exists, return it. otherwise, create the membership with default.
         """
         defaults = {'active': True}
         if membership_type is not None:
             defaults['type'] = membership_type
+        if approved is not None:
+            defaults['approved'] = approved
         membership, created = Membership.objects.update_or_create(member=user, circle=self, defaults=defaults)
+
+        # this should not be here. caller should specify the info.
         if created and self.is_type_personal():
             membership.approved = True
             membership.save()
+
         return membership
 
     def get_membership(self, user):
