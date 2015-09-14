@@ -200,7 +200,7 @@ class ManageAgency(ManagePublic):
                 membership.active = True
                 membership.save()
         except Membership.DoesNotExist:
-            circle.add_member(puser, membership_type=Membership.Type.PARTIAL.value)
+            circle.add_member(puser, membership_type=Membership.Type.PARTIAL.value, approved=True)
 
 
 class ManageLoop(LoginRequiredMixin, FormView):
