@@ -14,8 +14,8 @@ class SupersetAdmin(admin.ModelAdmin):
 
 @admin.register(models.Membership)
 class MembershipAdmin(admin.ModelAdmin):
-    list_display = ('member', 'circle', 'active', 'approved', 'type')
-    actions = ['approve_membership']
+    list_display = ('member', 'circle', 'active', 'approved', 'type', 'created', 'updated')
+    actions = ['approve_membership', 'disapprove_membership']
 
     def approve_membership(self, request, queryset):
         rows_updated = queryset.update(approved=True)
@@ -24,6 +24,14 @@ class MembershipAdmin(admin.ModelAdmin):
         else:
             message_bit = "%s memberships were" % rows_updated
         self.message_user(request, "%s successfully approved." % message_bit)
+
+    def disapprove_membership(self, request, queryset):
+        rows_updated = queryset.update(approved=False)
+        if rows_updated == 1:
+            message_bit = "1 membership was"
+        else:
+            message_bit = "%s memberships were" % rows_updated
+        self.message_user(request, "%s successfully disapproved." % message_bit)
 
     approve_membership.short_description = "Approve selected memberships"
 

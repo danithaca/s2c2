@@ -138,3 +138,9 @@ class Membership(models.Model):
 
     def __str__(self):
         return '%s (%s)' % (self.member.get_name(), self.circle.display())
+
+    def is_disapproved(self):
+        return self.approved is False
+
+    def is_pending_review(self):
+        return self.approved is None

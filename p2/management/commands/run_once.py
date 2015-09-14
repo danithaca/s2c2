@@ -1,4 +1,8 @@
+import json
+import os
+from pprint import pprint
 from celery.exceptions import TimeoutError
+from django.conf import settings
 from django.core.management import BaseCommand
 from django.db.models import F
 from circle.models import Circle
@@ -8,6 +12,7 @@ from location.models import Area
 from puser.models import PUser
 from datetime import datetime, timedelta
 from django.core.mail import send_mail
+
 
 
 class Command(BaseCommand):
@@ -38,6 +43,11 @@ class Command(BaseCommand):
         # Contract.objects.create(buyer=u, event_start=datetime.now(), event_end=datetime.now()+timedelta(hours=1), price=10, area=Area.objects.get(pk=1))
         # this should be automatically activated.
         # send_mail('test subject', 'test message', 'admin@servuno.com', ['admin@knowsun.com'], False)
-        for circle in Circle.objects.filter(type=Circle.Type.PERSONAL.value):
-            circle.name = '%s:personal:%d' % (circle.owner.username, circle.area_id)
-            circle.save()
+        # for circle in Circle.objects.filter(type=Circle.Type.PERSONAL.value):
+        #     circle.name = '%s:personal:%d' % (circle.owner.username, circle.area_id)
+        #     circle.save()
+
+        with open(os.path.join(settings.DATA_DIR, 'family_helper_crawl.json'), 'r') as f:
+            data = json.load(f)
+            table = {r['email']:r for r in data}
+            pprint(table['ebedrick@umich.edu'])
