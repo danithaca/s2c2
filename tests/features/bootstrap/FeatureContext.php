@@ -17,6 +17,7 @@ class FeatureContext extends MinkContext implements SnippetAcceptingContext
 
   protected $emailsPath;
   protected $screenshotsPath;
+  protected $dataPath;
   protected $disableEmails = FALSE;
   protected $currentEmailFileName;
   protected $javascriptResult;
@@ -46,6 +47,11 @@ class FeatureContext extends MinkContext implements SnippetAcceptingContext
     $this->screenshotsPath = $logfiles_path . DIRECTORY_SEPARATOR . 'screenshots';
     if (self::$suite->hasSetting('disable_emails')) {
       $this->disableEmails = @self::$suite->getSetting('disable_emails');
+    }
+
+    $this->dataPath = $logfiles_path . DIRECTORY_SEPARATOR . 'data';
+    if ($this->dataPath && !file_exists($this->dataPath)) {
+      mkdir($this->dataPath);
     }
   }
 
@@ -433,6 +439,79 @@ class FeatureContext extends MinkContext implements SnippetAcceptingContext
   public function setBrowserMobileSize()
   {
     $this->setBrowserWindowSizeToX(360, 720);
+  }
+
+  private function _grabTextData($element, $selector, $strip=FALSE) {
+    try {
+      $child = $element->find('css', $selector);
+      if ($child) {
+        $text = $child->getText();
+        if ($strip) {
+          // split by ":" and then take the value and discard the label
+          $text = trim(explode(':', $text)[1]);
+        }
+        return $text;
+      }
+    } catch (Exception $e) {
+      // do nothing.
+    }
+    return '';
+  }
+
+  /**
+   * @When I grab family helper data
+   */
+  public function crawlData() {
+    $results = array();
+    // echo will print to behat stream, which is cached. we don't want that.
+    $console = fopen('php://stdout', 'w');
+
+    // iterate all the pages.
+    for ($page_num = 1; $page_num <= 50; $page_num ++) {
+      $page = $this->getSession()->getPage();
+      $current_url = $this->getSession()->getCurrentUrl();
+      fputs($console, "Navigate to page: {$current_url}\n");
+
+      $view_content_rows = $page->findAll('css', 'div.view.view-view-family-helper-profiles div.view-content > div');
+      if (!$view_content_rows) {
+        throw new Exception("Cannot parse view rows data.");
+      }
+      $rows_total = count($view_content_rows);
+
+      foreach ($view_content_rows as $index => $row) {
+        $index_1 = $index + 1;
+        fputs($console, "Processing {$index_1}/{$rows_total}, Page: {$page_num}\n");
+        $record = array(
+          'name' => $this->_grabTextData($row, 'h2'),
+          'email' => $this->_grabTextData($row, '.views-field.views-field-field-fh-email-address a'),
+          'phone' => $this->_grabTextData($row, '.views-field.views-field-field-fh-telephone', TRUE),
+          'services' => $this->_grabTextData($row, '.views-field.views-field-field-fh-provided-services', TRUE),
+          'special_needs' => $this->_grabTextData($row, '.views-field.views-field-field-fh-provided-special-needs', TRUE),
+          'transportation' => $this->_grabTextData($row, '.views-field.views-field-field-fh-provided-transportation', TRUE),
+          'um_affiliation' => $this->_grabTextData($row, '.views-field.views-field-field-fh-um-affiliation', TRUE),
+          'availability_start' => $this->_grabTextData($row, '.views-field.views-field-field-fh-availability-dates span.date-display-start'),
+          'availability_end' => $this->_grabTextData($row, '.views-field.views-field-field-fh-availability-dates span.date-display-end'),
+          'availability_details' => $this->_grabTextData($row, '.views-field.views-field-field-fh-availability-details', TRUE),
+          'note' => $this->_grabTextData($row, 'p.field-content'),
+          'crawled_timestamp' => time(),
+          'current_url' => $current_url,
+        );
+        $results[] = $record;
+      }
+
+      if ($page->hasLink('Go to next page')) {
+        $page->clickLink('Go to next page');
+      }
+      else {
+        break;
+      }
+    }
+
+    // persist
+    $filename = $this->dataPath . DIRECTORY_SEPARATOR . 'family_helper_crawl.json';
+    file_put_contents($filename, json_encode($results));
+    fputs($console, "Saved results to: {$filename}\n");
+    fclose($console);
   }
 
 }
