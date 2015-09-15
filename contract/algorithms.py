@@ -22,21 +22,14 @@ class RandomFavoriteRecommender(RecommenderStrategy):
         initiate_user = PUser.from_user(contract.initiate_user)
         initiate_user_circle = initiate_user.get_personal_circle(contract.area)
         # order by random and limit by 10.
-        for ms in Membership.objects.filter(circle=initiate_user_circle, active=True, approved=True, type=Circle.Type.PERSONAL.value).exclude(member=contract.initiate_user).order_by('?')[:10]:
+        for ms in Membership.objects.filter(circle=initiate_user_circle, active=True, approved=True).exclude(member=contract.initiate_user).order_by('?')[:10]:
             target_user = ms.member
-            score = ms.updated.timestamp()
-            match, created = Match.objects.get_or_create(contract=contract, target_user=target_user, defaults={
-                'status': Match.Status.INITIALIZED.value,
-                'score': score,
-            })
-
-            # we'll not update existing matches
-            if not created:
-                pass
-
-            # save explanation
-            # if initiate_user_circle not in match.circles:
-            #     match.circles.add(initiate_user_circle)
+            # score = ms.updated.timestamp()
+            # IMPORTANT: contract might get changed (status) in "signal" while this is running and lead to "dictionary changed size" error. use id directly.
+            try:
+                match = Match.objects.get(contract_id=contract.id, target_user=target_user)
+            except Match.DoesNotExist:
+                match = Match.objects.create(contract_id=contract.id, target_user=target_user, status=Match.Status.INITIALIZED.value, score=1)
 
             # adding a second time is ok.
             match.circles.add(initiate_user_circle)
@@ -55,7 +48,7 @@ class IncrementalAllRecommender(RecommenderStrategy):
             return False
 
         score = self._compute_score_from_timestamp(membership.updated.timestamp())
-        match, created = Match.objects.get_or_create(contract=self.contract, target_user=target_user, defaults={
+        match, created = Match.objects.get_or_create(contract_id=self.contract.id, target_user=target_user, defaults={
             'status': Match.Status.INITIALIZED.value,
             'score': score,
         })
@@ -74,6 +67,7 @@ class IncrementalAllRecommender(RecommenderStrategy):
         if not contract.is_active() or contract.is_event_expired():
             return
         self.contract = contract
+        client = PUser.from_user(contract.initiate_user)
 
         ###### handle personal/public circles ########
 
@@ -91,7 +85,7 @@ class IncrementalAllRecommender(RecommenderStrategy):
 
         if not contract.is_favor():
             # get the subscriptions of the client
-            agency_subscription = set(Circle.objects.filter(membership__member=contract.initiate_user, area=contract.area, type=Membership.Type.PARTIAL.value, membership__active=True).values_list('id', flat=True))
+            agency_subscription = set(Circle.objects.filter(membership__member=contract.initiate_user, area=contract.area, membership__type=Membership.Type.PARTIAL.value, membership__active=True).values_list('id', flat=True))
             counter = 0
             # get servers from the agency circles.
             for membership in Membership.objects.filter(circle__type=Circle.Type.AGENCY.value, type=Membership.Type.NORMAL.value, active=True, approved=True, circle__in=agency_subscription).exclude(member=contract.initiate_user).order_by('?'):
@@ -104,9 +98,13 @@ class IncrementalAllRecommender(RecommenderStrategy):
 
         ###### handle friend's friend ########
 
-        personal_list = PUser.objects.filter(membership__circle__in=personal_circle, membership__active=True, membership__approved=True, membership__type=Circle.Type.PERSONAL.value).values_list('id', flat=True)
+        #personal_list = PUser.objects.filter(membership__circle__in=personal_circle, membership__active=True, membership__approved=True, membership__type=Circle.Type.PERSONAL.value).values_list('id', flat=True)
+        # friends' personal circles
+        my_personal_circle = client.get_personal_circle()
+        my_friends = PUser.objects.filter(membership__circle=my_personal_circle, membership__active=True, membership__approved=True)
+        friends_personal_circles = Circle.objects.filter(type=Circle.Type.PERSONAL.value, area=client.get_area(), owner__in=my_friends)
         counter = 0
-        for membership in Membership.objects.filter(circle__owner__in=personal_list, active=True, approved=True, circle__type=Circle.Type.PERSONAL.value).exclude(member=contract.initiate_user):
+        for membership in Membership.objects.filter(circle__in=friends_personal_circles, active=True, approved=True).exclude(member=client):
             new_match = self._add_match(membership)
             if new_match:
                 counter += 1

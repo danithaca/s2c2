@@ -100,11 +100,21 @@ class PUser(User):
         else:
             return PUser.objects.get(pk=user.id)
 
-    def get_area(self):
+    def has_area(self):
         try:
-            return self.info.area
+            if self.info.area is not None:
+                return True
         except Info.DoesNotExist:
-            return None
+            pass
+        return False
+
+    def get_area(self):
+        # try:
+        #     return self.info.area
+        # except Info.DoesNotExist:
+        #     return None
+        # raise exception if it doesn't have one.
+        return self.info.area
 
     # a person could have multiple personal list based on area.
     def get_personal_circle(self, area=None):
@@ -215,7 +225,10 @@ class PUser(User):
         """
         Return the queryset of membership where the user is a active member of regardless of approval status.
         """
-        return self.membership_set.filter(circle__type=Circle.Type.PERSONAL.value, active=True).exclude(circle__owner=self)
+        return self.membership_set.filter(circle__type=Circle.Type.PERSONAL.value, active=True, circle__area=self.get_area()).exclude(circle__owner=self)
+
+    def membership_queryset_public(self):
+        return self.membership_set.filter(circle__type=Circle.Type.PUBILC.value, active=True, approved=True, circle__area=self.get_area())
 
     def engagement_queryset(self):
         return Contract.objects.filter(Q(initiate_user=self) | Q(match__target_user=self)).distinct()

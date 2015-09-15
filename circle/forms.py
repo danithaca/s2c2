@@ -56,16 +56,18 @@ class ManagePublicForm(forms.Form):
     def get_circle_id_list(self):
         return self.cleaned_data['circle_list']
 
-    def __init__(self, puser, *args, **kwargs):
+    def __init__(self, puser, membership_circle_id_list, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.puser = puser
+        self.membership_circle_id_list = membership_circle_id_list
+        self.initial['circle'] = ','.join(list(map(str, membership_circle_id_list)))
 
         # build circle options
         self.circle_options = self.build_circle_options(puser.get_area())
 
     def build_circle_options(self, area):
-        membership = {m.circle_id: m for m in self.puser.membership_set.filter(circle__type=Circle.Type.PUBLIC.value, active=True)}
         options = []
+        membership_circle_id_set = set(self.membership_circle_id_list)
 
         # for all circles with superset
         for superset in Circle.objects.filter(type=Circle.Type.SUPERSET.value, area=area):
@@ -82,8 +84,8 @@ class ManagePublicForm(forms.Form):
                     'id': c.pk,
                     'count': c.count(),
                 }
-                if c.id in membership:
-                    m = membership[c.id]
+                if c.id in membership_circle_id_set:
+                    m = Membership.objects.get(circle_id=c.id, member=self.puser)
                     cd['active'] = m.active
                     cd['approved'] = m.approved
                 d['list'].append(cd)
@@ -102,8 +104,8 @@ class ManagePublicForm(forms.Form):
                 'id': c.pk,
                 'count': c.count,
             }
-            if c.id in membership:
-                m = membership[c.id]
+            if c.id in membership_circle_id_set:
+                m = Membership.objects.get(circle_id=c.id, member=self.puser)
                 cd['active'] = m.active
                 cd['approved'] = m.approved
             leftover['list'].append(cd)
@@ -115,15 +117,15 @@ class ManagePublicForm(forms.Form):
 
 class ManageAgencyForm(ManagePublicForm):
     def build_circle_options(self, area):
-        membership_table = {m.circle_id: m for m in self.puser.membership_set.filter(circle__type=Circle.Type.AGENCY.value, active=True)}
+        membership_circle_id_set = set(self.membership_circle_id_list)
         options = []
         for circle in Circle.objects.filter(type=Circle.Type.AGENCY.value, area=area):
             option = {
                 'circle': circle,
                 'count': circle.count(membership_type=Membership.Type.NORMAL.value)
             }
-            if circle.id in membership_table:
-                membership = membership_table[circle.id]
+            if circle.id in membership_circle_id_set:
+                membership = Membership.objects.get(circle_id=circle.id, member=self.puser)
                 option['active'] = membership.active
             options.append(option)
         return options

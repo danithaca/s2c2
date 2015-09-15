@@ -14,6 +14,7 @@ from django.conf import settings
 class Area(models.Model):
     name = models.CharField(max_length=50)
     state = USStateField()
+    description = models.TextField(blank=True)
 
     def get_timezone(self):
         if self.state == 'MI':

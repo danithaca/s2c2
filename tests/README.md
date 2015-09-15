@@ -13,6 +13,7 @@ Test users:
   test2@servuno.com | Nancy Doe   | Yes         | is staff and thus is able to bypass some limitations. doesn't have many contacts (is_isolated=True)
   test3@servuno.com | N/A         | No          | Test pre-registered user, always remain unsigned up
   test4@servuno.com | Jack Lee    | Yes         | Set up with fixed testing data (e.g., favors). Don't remove any data related to test3
+  test5@servuno.com | Test5 Bot   | Yes         | Default location is "Metro Detroit"
   test-a1@servuno.com
   test-a2@servuno.com
   

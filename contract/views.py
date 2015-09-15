@@ -17,6 +17,7 @@ from datetimewidget.widgets import DateTimeWidget
 from django.utils import timezone
 from django.template.loader import get_template, render_to_string
 from django.conf import settings
+from p2.utils import UserOnboardRequiredMixin
 
 
 class ContractDetail(DetailView):
@@ -78,7 +79,8 @@ class ContractCreate(LoginRequiredMixin, FormValidMessageMixin, CreateView):
         initial = super().get_initial()
         # process area code.
         from location.models import Area
-        initial['area'] = Area.default()
+        # current user's location is the default location for the contract.
+        initial['area'] = self.request.puser.get_area()
         # process start/end
         for token in ('start', 'end'):
             token_value =  self.request.GET.get(token, None)

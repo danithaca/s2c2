@@ -25,6 +25,7 @@ from circle.forms import SignupFavoriteForm, SignupCircleForm, ManagePersonalFor
 from circle.models import Circle, Membership
 from circle.views import ManagePersonal, ManagePublic, ManageAgency
 from login_token.models import Token
+from p2.utils import UserOnboardRequiredMixin
 from puser.forms import SignupBasicForm, UserInfoForm, SignupConfirmForm, UserPictureForm, LoginEmailAdvForm
 from puser.models import Info, PUser
 from puser.serializers import UserSerializer
@@ -182,7 +183,7 @@ class TrustedUserMixin(UserPassesTestMixin):
         return target_user.trusted(user)
 
 
-class UserView(LoginRequiredMixin, TrustedUserMixin, DetailView):
+class UserView(LoginRequiredMixin, UserOnboardRequiredMixin, TrustedUserMixin, DetailView):
     """
     The main thing to display user profile.
     """
@@ -199,11 +200,12 @@ class UserView(LoginRequiredMixin, TrustedUserMixin, DetailView):
 
     def get_context_data(self, **kwargs):
         u = self.get_object()
-        in_others = list(PUser.objects.filter(owner__type=Circle.Type.PERSONAL.value, owner__membership__member=u, owner__membership__active=True, owner__membership__approved=True).exclude(owner__owner=u).distinct())
-        my_listed = list(PUser.objects.filter(membership__circle__owner=u, membership__circle__type=Circle.Type.PERSONAL.value, membership__active=True, membership__approved=True).exclude(membership__member=u).distinct())
-        my_circles = list(Circle.objects.filter(membership__member=u, membership__circle__type=Circle.Type.PUBLIC.value, membership__active=True, membership__approved=True).distinct())
-        my_memberships = list(Membership.objects.filter(member=u, circle__type=Circle.Type.PUBLIC.value, active=True))
-        my_agencies = list(Membership.objects.filter(member=u, circle__type=Circle.Type.AGENCY.value, active=True))
+        area = u.get_area()
+        in_others = list(PUser.objects.filter(owner__type=Circle.Type.PERSONAL.value, owner__area=area, owner__membership__member=u, owner__membership__active=True, owner__membership__approved=True).exclude(owner__owner=u).distinct())
+        my_listed = list(PUser.objects.filter(membership__circle__owner=u, membership__circle__area=area, membership__circle__type=Circle.Type.PERSONAL.value, membership__active=True, membership__approved=True).exclude(membership__member=u).distinct())
+        my_circles = list(Circle.objects.filter(membership__member=u, membership__circle__type=Circle.Type.PUBLIC.value, membership__circle__area=area, membership__active=True, membership__approved=True).distinct())
+        my_memberships = list(Membership.objects.filter(member=u, circle__type=Circle.Type.PUBLIC.value, circle__area=area, active=True))
+        my_agencies = list(Membership.objects.filter(member=u, circle__type=Circle.Type.AGENCY.value, circle__area=area, active=True))
 
         context = {
             'full_access': self.get_object() == self.request.puser,

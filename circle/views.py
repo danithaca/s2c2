@@ -10,83 +10,10 @@ from circle.forms import ManagePublicForm, ManagePersonalForm, ManageLoopForm, M
 from circle.models import Membership, Circle
 from circle.tasks import personal_circle_send_invitation
 from puser.models import PUser
+from p2.utils import UserOnboardRequiredMixin
 
 
-# class ManageCircleView(LoginRequiredMixin, FormView):
-#     template_name = 'account/manage/circle.html'
-#     form_class = ManagePublicForm
-#     success_url = reverse_lazy('account_circle')
-#
-#     def get_initial(self):
-#         initial = super(ManageCircleView, self).get_initial()
-#         circles = Membership.objects.filter(member=self.request.user, circle__type=Circle.Type.PUBLIC.value, active=True).values_list('circle', flat=True).distinct()
-#         initial['circle'] = ','.join(list(map(str, circles)))
-#         return initial
-#
-#     def get_form_kwargs(self):
-#         kwargs = super(ManageCircleView, self).get_form_kwargs()
-#         kwargs['puser'] = self.request.puser
-#         return kwargs
-#
-#     def form_valid(self, form):
-#         if form.has_changed():
-#             new_set = set(form.get_circle_id_list())
-#             puser = form.puser
-#             old_set = set(Membership.objects.filter(member=self.request.user, circle__type=Circle.Type.PUBLIC.value, active=True).values_list('circle', flat=True).distinct())
-#             # unsubscribe old set not in new set
-#             for circle_id in old_set - new_set:
-#                 membership = Membership.objects.get(circle__id=circle_id, member=puser)
-#                 membership.active = False
-#                 membership.save()
-#             # subscribe new set not in old set
-#             for circle_id in new_set - old_set:
-#                 circle = Circle.objects.get(pk=circle_id)
-#                 puser.join(circle)
-#             messages.success(self.request, 'Circles updated.')
-#         return super(ManageCircleView, self).form_valid(form)
-
-
-# obsolte in favor of ManagePersonal
-# class ManageFavoriteView(LoginRequiredMixin, FormView):
-#     template_name = 'account/manage/favorite.html'
-#     form_class = ManagePersonalForm
-#     success_url = reverse_lazy('account_favorite')
-#
-#     def get_old_email_qs(self):
-#         return Membership.objects.filter(circle__owner=self.request.puser, circle__type=Circle.Type.PERSONAL.value, active=True).order_by('updated').values_list('member__email', flat=True).distinct()
-#
-#     def form_valid(self, form):
-#         if form.has_changed():
-#             personal_circle = self.request.puser.get_personal_circle()
-#             old_set = set(self.get_old_email_qs())
-#             # we get: dedup, valid email
-#             new_set = set(form.get_favorite_email_list())
-#
-#             # remove old users from list if not exists
-#             for email in old_set - new_set:
-#                 target_puser = PUser.get_by_email(email)
-#                 membership = personal_circle.get_membership(target_puser)
-#                 if membership.active:
-#                     membership.active = False
-#                     membership.save()
-#
-#             for email in new_set - old_set:
-#                 target_puser = PUser.get_or_create(email)
-#                 membership = personal_circle.add_member(target_puser)
-#                 if not membership.active:
-#                     membership.active = True
-#                     membership.save()
-#
-#         return super().form_valid(form)
-#
-#     def get_initial(self):
-#         initial = super().get_initial()
-#         email_qs = self.get_old_email_qs()
-#         initial['favorite'] = '\n'.join(list(email_qs))
-#         return initial
-
-
-class ManagePersonal(LoginRequiredMixin, FormView):
+class ManagePersonal(LoginRequiredMixin, UserOnboardRequiredMixin, FormView):
     template_name = 'circle/manage_personal.html'
     form_class = ManagePersonalForm
     success_url = reverse_lazy('account_view')
@@ -94,7 +21,9 @@ class ManagePersonal(LoginRequiredMixin, FormView):
     def get_old_email_qs(self):
         # return Membership.objects.filter(circle__owner=self.request.puser, circle__type=Circle.Type.PERSONAL.value, active=True).exclude(member=self.request.puser).order_by('updated').values_list('member__email', flat=True).distinct()
         # we don't exclude "myself"
-        return Membership.objects.filter(circle__owner=self.request.puser, circle__type=Circle.Type.PERSONAL.value, active=True).order_by('updated').values_list('member__email', flat=True).distinct()
+        puser = self.request.puser
+        my_personal_circle = puser.get_personal_circle()
+        return Membership.objects.filter(circle=my_personal_circle, active=True).order_by('updated').values_list('member__email', flat=True).distinct()
 
     def form_valid(self, form):
         if form.has_changed() or form.cleaned_data.get('force_save', False):
@@ -137,27 +66,29 @@ class ManagePersonal(LoginRequiredMixin, FormView):
         return initial
 
 
-class ManagePublic(LoginRequiredMixin, FormView):
+# be careful: UserOnboardRequired might loop back to the begining in "OnboardProcess".
+class ManagePublic(LoginRequiredMixin, UserOnboardRequiredMixin, FormView):
     template_name = 'circle/manage_public.html'
     form_class = ManagePublicForm
     success_url = reverse_lazy('account_view')
     success_message = 'Circles updated.'
 
     def get_membership_circle_id_list(self):
-        return Membership.objects.filter(member=self.request.user, circle__type=Circle.Type.PUBLIC.value, active=True).values_list('circle', flat=True).distinct()
+        return Membership.objects.filter(member=self.request.user, circle__type=Circle.Type.PUBLIC.value, active=True, circle__area=self.request.puser.get_area()).values_list('circle', flat=True).distinct()
 
     def create_membership(self, circle, puser):
         circle.add_member(puser)
 
-    def get_initial(self):
-        initial = super().get_initial()
-        circles = self.get_membership_circle_id_list()
-        initial['circle'] = ','.join(list(map(str, circles)))
-        return initial
+    # def get_initial(self):
+    #     initial = super().get_initial()
+    #     circles = self.get_membership_circle_id_list()
+    #     initial['circle'] = ','.join(list(map(str, circles)))
+    #     return initial
 
     def get_form_kwargs(self):
         kwargs = super().get_form_kwargs()
         kwargs['puser'] = self.request.puser
+        kwargs['membership_circle_id_list'] = self.get_membership_circle_id_list()
         return kwargs
 
     def form_valid(self, form):
@@ -190,7 +121,7 @@ class ManageAgency(ManagePublic):
     success_message = 'Updated agency subscriptions.'
 
     def get_membership_circle_id_list(self):
-        return Membership.objects.filter(member=self.request.user, circle__type=Circle.Type.AGENCY.value, active=True).values_list('circle', flat=True).distinct()
+        return Membership.objects.filter(member=self.request.user, circle__type=Circle.Type.AGENCY.value, active=True, circle__area=self.request.puser.get_area()).values_list('circle', flat=True).distinct()
 
     def create_membership(self, circle, puser):
         try:
