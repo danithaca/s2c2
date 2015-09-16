@@ -55,4 +55,4 @@ Feature: view newly created contract
     Given I am logged in as user "test@servuno.com" with password "password"
     And I am on "/contract/calendar/"
     Then I should see "Recently updated"
-    And I should see "minutes ago"
+    And I should see "ago"
