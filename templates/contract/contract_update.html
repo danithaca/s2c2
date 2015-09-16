@@ -130,82 +130,83 @@
 {% block title %}Find a Babysitter{% endblock %}
 
 {% block content %}
-  <form class="form" method="post" id="contract-update">
-    {% csrf_token %}
-    {% include 'form_includes/form_errors.html' %}
-    {% include 'form_includes/hidden_fields.html' %}
+<form class="form" method="post" id="contract-update">
+  {% csrf_token %}
+  {% include 'form_includes/form_errors.html' %}
+  {% include 'form_includes/hidden_fields.html' %}
 
-    <div class="form-group{% if form.event_start.errors or form.event_end.errors %} has-error{% endif %}">
-      <div class="row">
-        <div class="col-xs-6">
-          {% with field=form.event_start %}
-            <label class="control-label" for="{{ field.id_for_label }}">{{ field.label }}</label>
-            <div class="input-group date datetimepicker-control">
-              {{ field }}
-              <span class="input-group-addon"><i class="fa fa-calendar"></i></span>
-            </div>
-            {% include 'form_includes/field_errors.html' %}
-            {% include 'form_includes/field_help_text.html' %}
-          {% endwith %}
-        </div>
-        <div class="col-xs-6">
-          {% with field=form.event_end %}
-            <label class="control-label" for="{{ field.id_for_label }}">{{ field.label }}</label>
-            <div class="input-group date datetimepicker-control">
-              {{ field }}
-              <span class="input-group-addon"><i class="fa fa-calendar"></i></span>
-            </div>
-            {% include 'form_includes/field_errors.html' %}
-            {% include 'form_includes/field_help_text.html' %}
-          {% endwith %}
-        </div>
+  <div class="form-group{% if form.event_start.errors or form.event_end.errors %} has-error{% endif %}">
+    <div class="row">
+      <div class="col-xs-6">
+        {% with field=form.event_start %}
+          <label class="control-label" for="{{ field.id_for_label }}">{{ field.label }}</label>
+          <div class="input-group date datetimepicker-control">
+            {{ field }}
+            <span class="input-group-addon"><i class="fa fa-calendar"></i></span>
+          </div>
+          {% include 'form_includes/field_errors.html' %}
+          {% include 'form_includes/field_help_text.html' %}
+        {% endwith %}
       </div>
+      <div class="col-xs-6">
+        {% with field=form.event_end %}
+          <label class="control-label" for="{{ field.id_for_label }}">{{ field.label }}</label>
+          <div class="input-group date datetimepicker-control">
+            {{ field }}
+            <span class="input-group-addon"><i class="fa fa-calendar"></i></span>
+          </div>
+          {% include 'form_includes/field_errors.html' %}
+          {% include 'form_includes/field_help_text.html' %}
+        {% endwith %}
+      </div>
+    </div>
 {#      <div class="col-sm-offset-2 col-sm-10">#}
 {#        <p class="help-block">Specify the start and end date/time when you need to be served.</p>#}
 {#      </div>#}
-    </div>
+  </div>
 
-    {% with field=form.price %}
-    <div class="row">
-      <div class="col-xs-6">
-          <div class="form-group{% include 'form_includes/field_container_error_class.html' %}">
-            <div class="input-group">
-              {{ field }}
-              <span class="input-group-addon">$</span>
-            </div>
-          </div>
-      </div>
-      <div class="col-xs-6">
-        <div class="form-group">
-          <div class="checkbox">
-            <label><input id="price-favor-checkbox" name="price-favor" type="checkbox"> <span>Free (favor)</span></label>
-          </div>
-        </div>
-      </div>
-      <div class="col-xs-12">
+  {% with field=form.price %}
+  <div class="row">
+    <div class="col-xs-6">
         <div class="form-group{% include 'form_includes/field_container_error_class.html' %}">
-          {% include 'form_includes/field_errors.html' %}
-          {% include 'form_includes/field_help_text.html' %}
+          <div class="input-group">
+            {{ field }}
+            <span class="input-group-addon">$</span>
+          </div>
+        </div>
+    </div>
+    <div class="col-xs-6">
+      <div class="form-group">
+        <div class="checkbox">
+          <label><input id="price-favor-checkbox" name="price-favor" type="checkbox"> <span>Free (favor)</span></label>
         </div>
       </div>
     </div>
-    {% endwith %}
-
-    <div class="form-group has-success has-feedback" id="price-info-container">
-      <input class="form-control" id="price-info" readonly>
-      <span class="glyphicon glyphicon-ok form-control-feedback"></span>
+    <div class="col-xs-12">
+      <div class="form-group{% include 'form_includes/field_container_error_class.html' %}">
+        {% include 'form_includes/field_errors.html' %}
+        {% include 'form_includes/field_help_text.html' %}
+      </div>
     </div>
+  </div>
+  {% endwith %}
 
-    {{ form.description|bootstrap }}
+  <div class="form-group has-success has-feedback" id="price-info-container">
+    <input class="form-control" id="price-info" readonly>
+    <span class="glyphicon glyphicon-ok form-control-feedback"></span>
+  </div>
 
-    <div class="form-group">
-      {% if not form.instance.id %}
-        <button type="submit" name="op" class="btn btn-primary" data-message="Confirm to notify your contacts via Email (as selected by the SmartMatch algorithm). If the request is for pay, please pay the babysitter offline after service is delivered. If it is a favor exchange, you would agree to return the favor when they need help.">Submit</button>
-        <a href="javascript:history.back();" class="btn btn-default">Back</a>
-      {% else %}
-        <button type="submit" name="op" class="btn btn-primary" data-message="People who are in contact will receive this update via Email.">Update</button>
-        <a href="javascript:history.back();" class="btn btn-default">Back</a>
-      {% endif %}
-    </div>
-  </form>
+  {{ form.description|bootstrap }}
+
+  <div class="form-group">
+    {% if not form.instance.id %}
+      <button type="submit" name="op" class="btn btn-primary" data-message="Confirm to notify your contacts via Email (as selected by the SmartMatch algorithm). If the request is for pay, please pay the babysitter offline after service is delivered. If it is a favor exchange, you would agree to return the favor when they need help.">Submit</button>
+      <a href="javascript:history.back();" class="btn btn-default">Back</a>
+    {% else %}
+      <button type="submit" name="op" class="btn btn-primary" data-message="People who are in contact will receive this update via Email.">Update</button>
+      <a href="javascript:history.back();" class="btn btn-default">Back</a>
+    {% endif %}
+  </div>
+</form>
+{% if client.is_isolated %}<div><span class="text-warning" style="margin-right: 10px;"><i class="fa fa-exclamation-circle"></i></span> <span>You have few contacts on Servuno. Please <a href="{% url 'circle:manage_personal' %}">add more contacts</a> and/or <a href="{% url 'circle:manage_public' %}">join more parents circles</a>.</span></div>{% endif %}
 {% endblock %}

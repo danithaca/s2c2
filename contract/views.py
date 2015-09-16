@@ -88,12 +88,17 @@ class ContractCreate(LoginRequiredMixin, FormValidMessageMixin, CreateView):
                 initial['event_' + token] = token_value
         return initial
 
-    def get_form(self, form_class=None):
-        form = super().get_form(form_class)
-        if self.request.puser.is_isolated():
-            messages.warning(self.request, 'You have few contacts on Servuno. Please <a href="%s">add more contacts</a> and/or <a href="%s">join more parents circles</a>.' % (reverse_lazy('circle:manage_personal'), reverse_lazy('circle:manage_public')), extra_tags='safe')
-        # form.fields['area'].widget.attrs['disabled'] = True
-        return form
+    def get_context_data(self, **kwargs):
+        ctx = super().get_context_data(**kwargs)
+        ctx['client'] = self.request.puser
+        return ctx
+
+    # def get_form(self, form_class=None):
+    #     form = super().get_form(form_class)
+    #     if self.request.puser.is_isolated():
+    #         messages.warning(self.request, 'You have few contacts on Servuno. Please <a href="%s">add more contacts</a> and/or <a href="%s">join more parents circles</a>.' % (reverse_lazy('circle:manage_personal'), reverse_lazy('circle:manage_public')), extra_tags='safe')
+    #     # form.fields['area'].widget.attrs['disabled'] = True
+    #     return form
 
     def form_valid(self, form):
         contract = form.instance

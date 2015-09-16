@@ -26,9 +26,11 @@
 {% if form.circle_options %}
 {% for group in form.circle_options %}
   <div class="panel panel-default public-circle-superset">
+    {% if group.title %}
     <div class="panel-heading">
       <small class="text-small" title="{{ group.description }}" data-toggle="tooltip">{{ group.title }}</small>
     </div>
+    {% endif %}
     <ul class="list-group">
       {% for circle in group.list %}
         <li class="list-group-item public-circle-entity" data-slug="{{ circle.title|slugify }}">

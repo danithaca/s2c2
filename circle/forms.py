@@ -112,6 +112,10 @@ class ManagePublicForm(forms.Form):
         if leftover['list']:
             options.append(leftover)
 
+        if len(options) == 1 and options[0]['title'] == 'Other':
+            # if there's only "other", then don't show "other" at all.
+            options[0]['title'] = ''
+
         return options
 
 
