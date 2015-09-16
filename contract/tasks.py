@@ -144,10 +144,10 @@ def after_contract_successful(contract):
 
 @shared_task
 def after_contract_updated(contract):
-    # send all "accepted" servers the updated info notes.
+    # send all "accepted" and not responded servers the updated info notes.
     from shout.notify import notify_agent
     from contract.models import Match
-    for match in contract.match_set.filter(status=Match.Status.ACCEPTED.value):
+    for match in contract.match_set.filter(status__in=(Match.Status.ACCEPTED.value, Match.Status.ENGAGED.value)):
         notify_agent.send(contract.initiate_user, match.target_user, 'contract/messages/contract_updated',
                           {'contract': contract, 'match': match})
 

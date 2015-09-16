@@ -132,8 +132,7 @@ class ContractEdit(LoginRequiredMixin, FormValidMessageMixin, ContractUpdateMixi
     def get_form(self, form_class=None):
         form = super().get_form(form_class)
         if not form.is_bound:
-            messages.warning(self.request,
-                             'You can only change the note and/or increase payment. To make other changes, cancel the request and create a new one.')
+            messages.warning(self.request, 'You CANNOT change the date/time or reduce payment. To do so, cancel the request and create a new one.')
         # todo: double check security issue
         form.fields['event_start'].widget.attrs['readonly'] = True
         form.fields['event_end'].widget.attrs['readonly'] = True
@@ -142,6 +141,15 @@ class ContractEdit(LoginRequiredMixin, FormValidMessageMixin, ContractUpdateMixi
         form.fields['price'].validators.append(MinValueValidator(self.object.price))
         # form.base_price = self.object.price
         return form
+
+    def get_initial(self):
+        initial = super().get_initial()
+        contract = self.object
+        if contract.audience_type == Contract.AudienceType.SMART.value:
+            initial['audience'] = 0
+        elif contract.audience_type == Contract.AudienceType.CIRCLE.value:
+            initial['audience'] = contract.parse_audience_data()
+        return initial
 
     def form_valid(self, form):
         result = super().form_valid(form)
