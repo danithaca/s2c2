@@ -85,7 +85,6 @@ Feature: Test Find (contract add)
     When I press "Submit"
     And I press "OK"
     Then the URL should match "/contract/\d+/"
-    And I should see a ".match-summary" element
     And I should see "successfully"
 
 

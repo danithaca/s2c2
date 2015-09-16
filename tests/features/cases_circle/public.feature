@@ -2,7 +2,7 @@ Feature: Test manage public circles
 
   @core
   Scenario: basic manage interface is there
-    Given I am logged in as user "test@servuno.com" with password "password"
+    Given I am logged in as user "test2@servuno.com" with password "password"
     And I am on "/circle/manage/public"
     Then the response status code should be 200
     And I should see a ".public-circle-superset" element
@@ -12,7 +12,7 @@ Feature: Test manage public circles
 
   @javascript
   Scenario: add and remove, submit and check email
-    Given I am logged in as user "test@servuno.com" with password "password"
+    Given I am logged in as user "test2@servuno.com" with password "password"
     And I am on "/circle/manage/public"
     Then I should not see "Changes are not saved."
 
@@ -37,6 +37,9 @@ Feature: Test manage public circles
     And I should see "Sleeping Bears"
 
 
+  # we don't need to check admin emails.
+  # when we have sending email to circle owners, do a new test.
+  # this doesn't work now since test is alreay approved with sleeping bears
   Scenario: check email
     # check email
     When I open the last email
@@ -47,7 +50,7 @@ Feature: Test manage public circles
 
   @javascript
   Scenario: test unsubscribe
-    Given I am logged in as user "test@servuno.com" with password "password"
+    Given I am logged in as user "test2@servuno.com" with password "password"
     # test unsubscribe. the first time was just to make sure it wasn't already subscribed to setup to test subscribe.
     Given I am on "/circle/manage/public"
     When I run the following Javascript:
