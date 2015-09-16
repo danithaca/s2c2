@@ -1,3 +1,4 @@
+import json
 from datetimewidget.widgets import DateTimeWidget
 from decimal import Decimal
 from django import forms
@@ -79,6 +80,13 @@ class ContractForm(forms.ModelForm):
             raise forms.ValidationError('The date/time you specified cannot be in the past.')
         if event_start >= event_end:
             raise forms.ValidationError('End date/time must be later than start date/time.')
+
+        audience_option = int(cleaned_data.get('audience', 0))
+        if audience_option == 0:
+            self.instance.audience_type = Contract.AudienceType.SMART.value
+        else:
+            self.instance.audience_type = Contract.AudienceType.CIRCLE.value
+            self.instance.audience_data = json.dumps(audience_option)
 
         # if hasattr(self, 'base_price') and not cleaned_data.get("price") >= self.base_price:
         #     raise forms.ValidationError('End date/time must be later than start date/time.')

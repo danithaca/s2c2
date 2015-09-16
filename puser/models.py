@@ -1,6 +1,7 @@
 from account.models import Account, EmailAddress
 from account.signals import password_changed
 from account.views import PasswordResetTokenView
+from datetime import timedelta
 from django.contrib.auth.models import User, AbstractUser
 from django.core.urlresolvers import reverse
 from django.db import models
@@ -228,6 +229,21 @@ class PUser(User):
         # trust someone in the public circles where I'm a member of.
         my_public_circles = Circle.objects.filter(type=Circle.Type.PUBLIC.value, membership__member=self, membership__active=True, membership__approved=True)
         if Membership.objects.filter(circle__in=my_public_circles, member=puser, active=True, approved=True).exists():
+            return True
+
+        # trust anyone who has a "match" object within +/1 7days window
+        # this is mostly for agency users.
+        window_start = timezone.now() - timedelta(days=7)
+        window_end = timezone.now() + timedelta(days=7)
+        if Match.objects.filter(target_user=self, contract__initiate_user=puser, contract__event_end__lt=window_end, contract__event_start__gt=window_start).exists():
+            return True
+        if Match.objects.filter(target_user=puser, contract__initiate_user=self, contract__event_end__lt=window_end, contract__event_start__gt=window_start).exists():
+            return True
+
+        # trust anyone who have a upcoming confirmed match regardless of time
+        if Contract.objects.filter(initiate_user=self, confirmed_match__target_user=puser, status=Contract.Status.CONFIRMED.value, event_start__gt=timezone.now()).exists():
+            return True
+        if Contract.objects.filter(initiate_user=puser, confirmed_match__target_user=self, status=Contract.Status.CONFIRMED.value, event_start__gt=timezone.now()).exists():
             return True
 
         # todo: friend's friend

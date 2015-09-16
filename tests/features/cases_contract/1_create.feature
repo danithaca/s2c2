@@ -45,9 +45,31 @@ Feature: Test Find (contract add)
     Then the "#price-info-container" element is hidden
 
 
-  @core @javascript
+  @javascript
   Scenario: form submission
     Given I am logged in as user "test@servuno.com" with password "password"
+    And I am on "/contract/calendar/"
+    When I run the following Javascript:
+      """
+      var start = moment().add({hours: 1});
+      var end = moment(start).add({hours: 1});
+      $('#calendar').fullCalendar('select', start, end);
+      """
+    Then I should be on "/contract/add/"
+
+    When I fill in "price" with "10"
+    Then the "price-info" field should contain "$10.00/hour, 1 hour"
+
+    When I press "Submit"
+    And I press "OK"
+    Then the URL should match "/contract/\d+/"
+    And I should see a ".match-summary" element
+    And I should see "successfully"
+
+
+  @core @javascript
+  Scenario: form submission for production using test2 who don't have any contact.
+    Given I am logged in as user "test2@servuno.com" with password "password"
     And I am on "/contract/calendar/"
     When I run the following Javascript:
       """

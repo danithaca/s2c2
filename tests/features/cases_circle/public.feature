@@ -10,7 +10,7 @@ Feature: Test manage public circles
     And I should see "Sleeping Bears"
 
 
-  @javascript @core
+  @javascript
   Scenario: add and remove, submit and check email
     Given I am logged in as user "test@servuno.com" with password "password"
     And I am on "/circle/manage/public"

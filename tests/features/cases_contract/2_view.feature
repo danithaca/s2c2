@@ -1,6 +1,5 @@
 Feature: view newly created contract
 
-  @core
   Scenario: view upcoming
     # assuming after the first step of creating a contract (nearest time), we would see that same contract.
     Given I am logged in as user "test@servuno.com" with password "password"
@@ -9,7 +8,7 @@ Feature: view newly created contract
     And I should see "$10"
 
 
-  @core @javascript
+  @javascript
   Scenario: view contract
     Given I am logged in as user "test@servuno.com" with password "password"
     And I am on the homepage
@@ -42,8 +41,6 @@ Feature: view newly created contract
   Scenario: view calendar
     Given I am logged in as user "test@servuno.com" with password "password"
     And I am on "/contract/calendar/"
-    Then I should see "Recently updated"
-    And I should see "minutes ago"
     And I should see an "#calendar" element
     And I should see a "div.fc-view" element
     And I should see a "button.fc-agendaDay-button" element
@@ -51,3 +48,10 @@ Feature: view newly created contract
     And I should see a "button.fc-month-button" element
     And I should see a "button.fc-prev-button" element
     And I should see a "button.fc-next-button" element
+
+
+  @core
+  Scenario: view calendar events
+    Given I am logged in as user "test@servuno.com" with password "password"
+    Then I should see "Recently updated"
+    And I should see "minutes ago"
