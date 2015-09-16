@@ -56,10 +56,18 @@ class ContractList(ListView):
     ordering = '-updated'
 
 
-class ContractCreate(LoginRequiredMixin, FormValidMessageMixin, CreateView):
+class ContractUpdateMixin(object):
     model = Contract
     form_class = ContractForm
     template_name = 'contract/contract_update.html'
+
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        kwargs['client'] = self.request.puser
+        return kwargs
+
+
+class ContractCreate(LoginRequiredMixin, FormValidMessageMixin, ContractUpdateMixin, CreateView):
     form_valid_message = 'Request successfully created.'
 
     # override widget.
@@ -118,10 +126,7 @@ class ContractCreate(LoginRequiredMixin, FormValidMessageMixin, CreateView):
 #         pass
 
 
-class ContractEdit(LoginRequiredMixin, FormValidMessageMixin, UpdateView):
-    model = Contract
-    form_class = ContractForm
-    template_name = 'contract/contract_update.html'
+class ContractEdit(LoginRequiredMixin, FormValidMessageMixin, ContractUpdateMixin, UpdateView):
     form_valid_message = 'Request successfully updated.'
 
     def get_form(self, form_class=None):

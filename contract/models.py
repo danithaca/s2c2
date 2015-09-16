@@ -1,4 +1,5 @@
 from datetime import timedelta, datetime
+import json
 from django.utils import timezone, dateparse
 from enum import Enum
 from decimal import Decimal
@@ -95,6 +96,10 @@ class Contract(StatusMixin, models.Model):
         FAILED = 6          # was confirmed, but not carried through.
         EXPIRED = 7         # was "active", but didn't get to the "success" stage. this could be derived from "active + event_expired", but it's easier to have a separate category for archival purposes. still need to search with "active" and "event_end" for exact expired contracts. automatically marked from "active" to "expired" in 7 days.
 
+    class AudienceType(Enum):
+        SMART = 1           # smart match algorithm
+        CIRCLE = 2          # individual circle
+
     initiate_user = models.ForeignKey(settings.AUTH_USER_MODEL)
     confirmed_match = models.OneToOneField('Match', blank=True, null=True, related_name='confirmed_contract')     # user string for classname per django doc.
 
@@ -109,6 +114,9 @@ class Contract(StatusMixin, models.Model):
     description = models.TextField(blank=True)
 
     status = models.PositiveSmallIntegerField(choices=[(s.value, s.name.capitalize()) for s in Status], default=Status.INITIATED.value)
+
+    audience_type = models.PositiveSmallIntegerField(choices=[(s.value, s.name.capitalize()) for s in AudienceType], default=AudienceType.SMART.value)
+    audience_data = models.TextField(blank=True, help_text='Extra data for the particular audience type, stored in JSON.')
 
     # where does this contract happens. this is the ultimate place to decide where a contract goes
     from location.models import Area
@@ -268,6 +276,11 @@ class Contract(StatusMixin, models.Model):
     def is_favor(self):
         # return self.price <= 0.1 or self.hourly_rate() <= 0.1
         return self.price <= 0
+
+    def parse_audience_data(self):
+        if self.audience_type == Contract.AudienceType.CIRCLE.value:
+            return json.loads(self.audience_data)
+        return None
 
 
 class Match(StatusMixin, models.Model):

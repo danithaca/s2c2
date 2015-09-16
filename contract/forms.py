@@ -7,12 +7,13 @@ from contract.models import Contract
 
 # note: this form is highly customized in html template. this Form class doesn't control much of how it actually shows.
 class ContractForm(forms.ModelForm):
-    required_css_class = 'required'
+    #required_css_class = 'required'
     # price = forms.DecimalField(min_value=0, decimal_places=2, initial=10, label='Payment', help_text='', widget=forms.NumberInput(attrs={'class': 'form-control', 'step': 1}))
-    price = forms.DecimalField(min_value=0, decimal_places=2, label='Payment', widget=forms.NumberInput(attrs={'class': 'form-control', 'step': 1, 'placeholder': 'Total pay'}))
+    price = forms.DecimalField(min_value=0, decimal_places=2, label='Payment (total)', widget=forms.NumberInput(attrs={'class': 'form-control', 'step': 1, 'placeholder': ''}))
     # it seems "localize" by default is True if USE_TZ (or USE_L10N?) is turned on.
     # event_start = forms.DateTimeField(localize=True)
     # event_end = forms.DateTimeField(localize=True)
+    audience = forms.IntegerField(label='Contact', widget=forms.Select(attrs={'class': 'form-control'}))  # choices=((0, 'Smart Match'), (1, 'My Circle'))
 
     class Meta:
         model = Contract
@@ -28,12 +29,12 @@ class ContractForm(forms.ModelForm):
             # 'event_end': forms.DateTimeInput(attrs={'class': 'form-control', 'placeholder': 'E.g. 12/21/2014 19:00'}),
             'event_end': forms.DateTimeInput(attrs={'class': 'form-control', 'placeholder': 'End date/time'}),
             'area': forms.HiddenInput(),
-            'description': forms.Textarea(attrs={'placeholder': 'Optional note', 'rows': 3})
+            'description': forms.Textarea(attrs={'placeholder': 'Leave a note here', 'rows': 3})
         }
         labels = {
             'event_start': 'From',
             'event_end': 'To',
-            'description': '',  # hide the label
+            'description': 'Note',
         }
         localized_fields = ['event_start', 'event_end']
         # help_texts = {
@@ -48,14 +49,25 @@ class ContractForm(forms.ModelForm):
         )
         css = {'all': ('https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.14.30/css/bootstrap-datetimepicker.min.css',)}
 
-    # def __init__(self, *args, **kwargs):
-    #     super().__init__(*args, **kwargs)
-    #     # self.fields['price'].widget.attrs['step'] = 1
-    #     self.fields['area'].widget.attrs['disabled'] = True
-    #
-    #     # perhaps it's better to delegate to template js to add form-control to form elements.
-    #     # for fn, field in self.fields.items():
-    #     #     field.widget.attrs['class'] = 'form-control'
+    def __init__(self, *args, **kwargs):
+        audience_choices = [(0, '-- Select automatically --')]
+        client = kwargs.pop('client', None)
+        if client:
+            circles = []
+            circles.append(client.get_personal_circle())
+            circles.extend(client.get_public_circle_set())
+            circles.extend(client.get_agency_circle_set())
+            for circle in circles:
+                audience_choices.append((circle.id, circle.display()))
+
+        super().__init__(*args, **kwargs)
+        self.fields['audience'].widget.choices = audience_choices
+        # self.fields['price'].widget.attrs['step'] = 1
+        # self.fields['area'].widget.attrs['disabled'] = True
+
+        # perhaps it's better to delegate to template js to add form-control to form elements.
+        # for fn, field in self.fields.items():
+        #     field.widget.attrs['class'] = 'form-control'
 
     def clean(self):
         cleaned_data = super().clean()

@@ -77,6 +77,9 @@ class Circle(models.Model):
             qs.filter(type=membership_type)
         return qs.count()
 
+    def is_empty(self):
+        return self.count() == 0
+
 
 class SupersetRel(models.Model):
     """

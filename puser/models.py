@@ -125,6 +125,20 @@ class PUser(User):
         })
         return circle
 
+    # public circles the user joined (and approved)
+    def get_public_circle_set(self, area=None):
+        if area is None:
+            area = self.get_area()
+        membership = self.membership_set.filter(circle__type=Circle.Type.PUBLIC.value, active=True, approved=True, circle__area=area)
+        return set([m.circle for m in membership])
+
+    def get_agency_circle_set(self, area=None):
+        if area is None:
+            area = self.get_area()
+        # we don't care about "approve" here.
+        membership = self.membership_set.filter(circle__type=Circle.Type.AGENCY.value, active=True, type=Membership.Type.PARTIAL.value, circle__area=area)
+        return set([m.circle for m in membership])
+
     @staticmethod
     def create(email, password=None, dummy=True, area=None):
         # supposedly to use in the referral creation phase and not the full process of user signup. if not use in referral creation
