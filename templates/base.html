@@ -131,8 +131,6 @@
             <li><a href="{% url 'account_view' %}">View account</a></li>
             <li><a href="{% url 'account_edit' %}">Edit account</a></li>
             <li><a href="{% url 'account_logout' %}">Logout</a></li>
-            <li class="divider"></li>
-            <li><a href="{% url 'about' %}" id="nav-about"><small>About Servuno</small></a></li>
           </ul>
         </div>
       {% else %}
@@ -155,7 +153,17 @@
 
   <div class="page-footer">
     <hr>
-    <p class="text-center text-muted" style="font-size:80%"><i class="fa fa-copyright"></i> 2015 <a href="http://consulting.knowsun.com">Knowsun LLC</a>, in collaboration with <a href="http://hr.umich.edu/childcare/">University of Michigan Children's Centers</a></p>
+{#    <div class="row"><div class="col-xs-12 col-sm-offset-2 col-sm-8 col-md-offset-3 col-md-6">#}
+    <ul class="list-inline text-center">
+      <li><a href="{% url 'about' %}" id="nav-about"><i class="fa fa-book"></i> About Servuno</a></li>
+      <li><a href="{% url 'shout:contact' %}" id="nav-about"><i class="fa fa-envelope-o"></i> Contact Us</a></li>
+    </ul>
+{#    </div></div>#}
+
+    <p class="text-center text-muted" style="font-size:80%">
+      <i class="fa fa-copyright"></i> 2015 <a href="http://consulting.knowsun.com">Knowsun LLC</a>, in collaboration with <a href="http://hr.umich.edu/childcare/">University of Michigan Children's Centers</a><br>
+      <i class="fa fa-map-marker"></i> 201 S Division St, Ann Arbor, MI 48104
+    </p>
 
     <div class="hidden-xs" id="viewport-xs-detector"></div>
 {#    <p class="text-center"><img src="{% static 'logo.png' %}" style="max-width: 50px; max-height: 20px;"></p>#}

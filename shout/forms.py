@@ -35,3 +35,16 @@ class ShoutToCircleForm(forms.ModelForm):
     #     else:
     #         raise forms.ValidationError('Found no valid circles to shout to.')
     #     return cleaned_data
+
+
+class ShoutMessageOnlyForm(forms.ModelForm):
+
+    class Meta:
+        model = Shout
+        fields = ['body']
+        labels = {
+            'body': ''      # 'Message'
+        }
+        widgets = {
+            'body': forms.Textarea(attrs={'placeholder': 'Please type your message here. We appreciate your feedback!', 'rows': 4})
+        }

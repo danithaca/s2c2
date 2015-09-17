@@ -1,0 +1,5 @@
+{% extends 'email_body.txt' %}
+{% load p2_tags %}
+{% block body %}
+{{ message|safe }}
+{%endblock%}
