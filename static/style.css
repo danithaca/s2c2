@@ -68,13 +68,15 @@
 
 .tab-pane { padding-top: 16px; }
 
-/******** onboard *********/
+
+/******** onboard/base *********/
 
 .well span.lead  {
   font-weight: bold;
   margin-right: 20px;
 }
 
+.page-footer ul li { margin-left: 12px; margin-right: 12px; }
 
 /***** flex related ******/
 
