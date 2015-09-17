@@ -6,17 +6,17 @@ from contract.models import Contract
 
 
 class Shout(models.Model):
-    class Audience(Enum):
+    class AudienceType(Enum):
         UNDEFINED = 0
         USER = 1
         CIRCLE = 2
         CONTRACT = 3
         MIXED = 99
 
-    subject = models.CharField(max_length=200)
+    subject = models.CharField(max_length=200, blank=True)
     body = models.TextField()
     from_user = models.ForeignKey(User, related_name='from_user')
-    audience = models.PositiveSmallIntegerField(choices=[(t.value, t.name.capitalize()) for t in Audience], default=Audience.UNDEFINED.value)
+    audience_type = models.PositiveSmallIntegerField(choices=[(t.value, t.name.capitalize()) for t in AudienceType], default=AudienceType.UNDEFINED.value)
 
     to_users = models.ManyToManyField(User, related_name='to_user', blank=True)
     to_circles = models.ManyToManyField(Circle, blank=True)

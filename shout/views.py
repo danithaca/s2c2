@@ -16,7 +16,7 @@ class ShoutToCircle(LoginRequiredMixin, CreateView):
 
     def form_valid(self, form):
         shout = form.instance
-        shout.audience = Shout.Audience.CIRCLE.value
+        shout.audience = Shout.AudienceType.CIRCLE.value
         shout.from_user = form.from_user
 
         # seems no need to handle it as long as it's the same field name.
