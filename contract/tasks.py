@@ -9,6 +9,14 @@ def dummy(x, y):
 
 
 @shared_task
+def after_contract_created(contract):
+    from puser.models import PUser
+    from shout.notify import notify_agent
+    client = PUser.from_user(contract.initiate_user)
+    notify_agent.send(None, None, 'contract/messages/contract_created', {'contract': contract, 'client': client})
+
+
+@shared_task
 def after_contract_activated(contract):
     # compute matches
     from contract.algorithms import L1Recommender
@@ -125,6 +133,7 @@ def after_contract_reverted(contract, match):
 def after_contract_failed(contract):
     from shout.notify import notify_agent
     notify_agent.send(None, None, 'contract/messages/contract_failed', {'contract': contract})
+
 
 @shared_task
 def after_contract_successful(contract):

@@ -502,6 +502,16 @@ def contract_auto_activate(sender, **kwargs):
         instance.activate()
 
 
+# send email to admin
+@receiver(post_save, sender=Contract)
+def contract_created_notifiy_admin(sender, **kwargs):
+    instance = kwargs['instance']
+    created = kwargs['created']
+    if created:
+        # don't delay, just send that one damn email
+        tasks.after_contract_created(instance)
+
+
 @receiver(post_save, sender=Match)
 def match_auto_engage(sender, **kwargs):
     instance = kwargs['instance']
