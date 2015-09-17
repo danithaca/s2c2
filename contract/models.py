@@ -504,7 +504,7 @@ def contract_auto_activate(sender, **kwargs):
 
 # send email to admin
 @receiver(post_save, sender=Contract)
-def contract_created_notifiy_admin(sender, **kwargs):
+def contract_created_notify_admin(sender, **kwargs):
     instance = kwargs['instance']
     created = kwargs['created']
     if created:
