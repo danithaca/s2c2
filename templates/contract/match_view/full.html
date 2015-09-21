@@ -46,9 +46,13 @@ $(document).ready(function() {
 <div class="panel panel-default">
   <div class="panel-body">
     {% if contract.is_confirmed %}
-      {% include 'contract/contract_view/summary.html' with contract=contract match_override=contract.confirmed_match %}
+      {% if contract.confirmed_match == match %}
+        {% include 'contract/contract_view/summary.html' with contract=contract display_mode='my_confirmed_match' %}
+      {% else %}
+        {% include 'contract/contract_view/summary.html' with contract=contract display_mode='other_confirmed_match' %}
+      {% endif %}
     {% else %}
-      {% include 'contract/contract_view/summary.html' with contract=contract match_override=match %}
+      {% include 'contract/contract_view/summary.html' with contract=contract match_override=match display_mode="match" %}
     {% endif %}
   </div>
 </div>

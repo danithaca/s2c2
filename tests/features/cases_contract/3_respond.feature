@@ -108,6 +108,7 @@ Feature: test users interactions between the client and the server
     And I should see a "div[data-slug='test1-bot'] .label-success" element
     And I should see "Expired"
     And I should see "Undo"
+    And I should see "export to GCal"
 
 
   Scenario: check confirmation email
