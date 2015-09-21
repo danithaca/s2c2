@@ -5,8 +5,10 @@ from django.contrib.sites.models import Site
 from django.core.urlresolvers import reverse
 from django.template.defaultfilters import truncatechars, urlencode
 from django.templatetags.static import static
+from django.templatetags.tz import utc
 from image_cropping.templatetags.cropping import cropped_thumbnail
-from contract.models import Contract, Match
+from contract.models import Contract, Match, Engagement
+from p2.utils import get_site_url
 from puser.models import PUser
 from django.conf import settings
 
@@ -86,3 +88,18 @@ def p2_tag_user_full_name(user):
 @register.filter
 def negate(value):
     return -value
+
+
+@register.simple_tag(name='gcal-url')
+def p2_tag_gcal_url(engagement):
+    assert isinstance(engagement, Engagement), 'Type is: %s' % type(engagement)
+    url_template = "https://www.google.com/calendar/render?action=TEMPLATE&text={title}&dates={start}/{end}&details={details}&location&trp=false"
+    convert = lambda t: utc(t).strftime('%Y%m%dT%H%M%SZ')
+    start, end = convert(engagement.contract.event_start), convert(engagement.contract.event_end)
+    url = url_template.format(
+        title=urlencode('Babysitting (Servuno)'),
+        start=str(start),
+        end=str(end),
+        details=urlencode(get_site_url() + engagement.get_link())
+    )
+    return url

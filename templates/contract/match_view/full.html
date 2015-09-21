@@ -46,7 +46,7 @@ $(document).ready(function() {
 <div class="panel panel-default">
   <div class="panel-body">
     {% if contract.is_confirmed %}
-      {% include 'contract/contract_view/summary.html' with contract=contract %}
+      {% include 'contract/contract_view/summary.html' with contract=contract match_override=contract.confirmed_match %}
     {% else %}
       {% include 'contract/contract_view/summary.html' with contract=contract match_override=match %}
     {% endif %}

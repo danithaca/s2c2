@@ -1,3 +1,4 @@
+{% load p2_tags %}
 <div class="contract-summary" data-contract-id="{{ contract.id }}">
   <div class="row">
     <div class="col-xs-12 col-sm-6 col-md-8">
@@ -51,7 +52,7 @@
   <div class="row">
     <div class="col-xs-12">
       {% if contract.description %}<blockquote>{{ contract.description }}</blockquote>{% endif %}
-      <div class="text-muted text-small pull-right">Last updated: {{ contract.updated|timesince }} ago | <a href="{% url 'contract:calendar' %}?day={{ contract.event_start|date:'Y-m-d' }}">view in calendar</a></div>
+      <div class="text-muted text-small pull-right">Last updated: {{ contract.updated|timesince }} ago | <a href="{% url 'contract:calendar' %}?day={{ contract.event_start|date:'Y-m-d' }}">view in calendar</a>{% if contract.is_confirmed %} | <a href="{% if match_override %}{% gcal-url match_override.to_engagement %}{% else %}{% gcal-url contract.to_engagement %}{% endif %}">export to GCal</a>{% endif %}</div>
     </div>
   </div>
 </div>
