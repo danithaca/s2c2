@@ -65,6 +65,7 @@ Feature: Test Find (contract add)
     Then the URL should match "/contract/\d+/"
     And I should see a ".match-summary" element
     And I should see "successfully"
+    And I should not see "export to GCal"
 
 
   @core @javascript

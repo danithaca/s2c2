@@ -34,6 +34,10 @@ class AboutView(TemplateView):
     template_name = 'pages/about.html'
 
 
+class ExperimentView(TemplateView):
+    template_name = 'pages/experiment.html'
+
+
 class LandingView(TemplateView):
     template_name = 'landing_p2.html'
 

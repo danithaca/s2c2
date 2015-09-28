@@ -59,7 +59,7 @@ $(document).ready(function() {
 {% block page %}
   <div class="panel panel-default">
     <div class="panel-body">
-      {% include 'contract/contract_view/summary.html' with contract=contract %}
+      {% include 'contract/contract_view/summary.html' with contract=contract display_mode="contract" %}
     </div>
     {% if contract.initiate_user == user or user.is_staff %}
       <div class="panel-footer text-center">

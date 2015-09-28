@@ -25,6 +25,7 @@ urlpatterns = patterns(
 
     url(r'^admin/', include(admin.site.urls)),
     url(r'^dummy/$', utils.dummy, name='dummy'),
+    url(r'^experiment/$', views.ExperimentView.as_view(), name='experiment'),
 
     # note: the following thing about static is only valid in dev.
 ) + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

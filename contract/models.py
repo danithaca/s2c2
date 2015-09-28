@@ -282,6 +282,9 @@ class Contract(StatusMixin, models.Model):
             return json.loads(self.audience_data)
         return None
 
+    def to_engagement(self):
+        return Engagement.from_contract(self)
+
 
 class Match(StatusMixin, models.Model):
     """
@@ -394,6 +397,9 @@ class Match(StatusMixin, models.Model):
         favors = self.count_favors()
         favors_reverse = self.count_favors_reverse()
         return favors - favors_reverse
+
+    def to_engagement(self):
+        return Engagement.from_match(self)
 
 
 class Engagement(object):
