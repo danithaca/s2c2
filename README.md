@@ -150,8 +150,11 @@ s2c2 related branches:
     * production: the main branch for s2c2 code in production (stopped active dev on 2015-08-24, see log)
 
 p2 related branches:
-    * p2dev: the main dev branch for p2 (or servuno)
-    * p2prod: the main prod branch for p2
+    * p2dev: the main dev branch for p2 (or servuno), currently maps to v2
+    * p2prod: the main prod branch for p2, current maps to v2
+    * p2/payment: the branch that evaluates payment options
+    * p2/v2: the minimalist design before 3rd pivot
+    * p2/v3: the pivot that targets to parents only
 
 
 GIT Tags
