@@ -1,0 +1,172 @@
+{# This needs the "form" to pass in #}
+{# manage members for both the parents list and the babasitters list. used in both "Connections" and onboard #}
+{# todo: perhaps change "contact" to "member" #}
+{% load bootstrap %}
+<section id="contact-app">
+  <div class="input-group">
+    <input id="new-contact" class="form-control" placeholder="Add friends' email addresses to your contact list" autofocus>
+    <span class="input-group-btn"><button class="btn btn-primary" id="new-contact-add-btn">Add</button></span>
+  </div>
+  <span class="help-block">Press "Enter" to add.</span>
+  <ul id="contact-list" class="list-group"></ul>
+</section>
+
+<script type="text/template" id="item-template">
+  <span class="label label-danger destroy hover-pointer" title="Click to remove" data-toggle="tooltip"><i class="fa fa-remove"></i></span>
+  <span><%= email %><% if (display_name) { %> - <%= display_name %><% } %>{# <% if (picture) { %> <img src="<%= picture %>" class="img-circle img-50"><% } %> #}</span>
+</script>
+
+<script type="text/javascript">
+function initialize_app() {
+  'use strict';
+  var app = {};
+  app.localStorage = new Backbone.LocalStorage("contact-app");
+
+  app.Contact = Backbone.Model.extend({
+    defaults: {
+      email: '',
+      display_name: '',
+      picture: ''
+    },
+    idAttribute: 'email',
+    localStorage: app.localStorage,
+
+    // retrive additional data from server
+    initialize: function() {
+      $.ajax({
+        url: '/account/api/email/' + this.get('email') + '/',   // todo: this is hard coded. needs to change if url is changed.
+        context: this,
+        success: function(user_data) {
+          if (user_data) {
+            this.set('cid', user_data.id);
+            this.set('display_name', user_data.display_name);
+            this.set('picture', user_data.picture);
+          }
+        },
+        error: function() {
+          this.set('display_name', 'Not a user')
+        }
+      });
+    }
+  });
+
+  app.ContactList = Backbone.Collection.extend({
+    model: app.Contact,
+    localStorage: app.localStorage
+  });
+
+  app.ContactView = Backbone.View.extend({
+    tagName: 'li',
+    className: 'list-group-item',
+    template: _.template($('#item-template').html()),
+
+    // this renders the data attributes. see https://github.com/jashkenas/backbone/issues/1703
+    attributes: function() {
+      return {
+        "data-email": this.model.get('email')
+      };
+    },
+
+    render: function(){
+      this.$el.html(this.template(this.model.toJSON()));
+      return this; // enable chained calls
+    },
+    initialize: function(){
+      this.model.on('destroy', this.remove, this);
+      this.model.on('change', this.render, this);
+    },
+    events: {
+      'click .destroy': 'destroy'
+    },
+    destroy: function(){
+      this.model.destroy();
+    }
+  });
+
+  app.AppView = Backbone.View.extend({
+    el: '#contact-app',
+    initialize: function () {
+      this.input = this.$('#new-contact');
+      this.collection.on('add', this.addOne, this);
+      // todo: this might pose performance issues. reuse existing data for caching.
+      this.collection.reset();
+      //this.collection.fetch();
+    },
+    events: {
+      'keypress #new-contact': 'createOnEvent',
+      'click #new-contact-add-btn': 'createOnEvent'
+    },
+    createOnEvent: function(e){
+      var email_str = this.input.val().trim();
+      if ((!e || e.type == 'click' || (e.type == 'keypress' && e.which == 13)) && email_str) { // ENTER_KEY = 13
+        var email_list = email_str.split(/[,;: /]/);
+        for (var i = 0; i < email_list.length; i++) {
+          var email = email_list[i].trim();
+          if (email && checkEmail(email)) {
+            this.collection.create({
+              email: email
+            });
+          }
+        }
+        this.input.val(''); // clean input box
+      }
+    },
+    addOne: function(contact){
+      var view = new app.ContactView({model: contact});
+      this.$('#contact-list').append(view.render().el);
+    }
+  });
+
+  // this is the only instance
+  app.appView = new app.AppView({collection: new app.ContactList()});
+  return app;
+}
+
+$(document).ready(function() {
+  // trigger the whole thing
+  var app = initialize_app();
+  var $favorite = $('#id_favorite');
+
+  ////////// initialize list content from field.////////
+
+  var list = app.appView.collection;
+  var initial_list = $favorite.val().split('\n');
+
+  // add stuff to the list, assuming the list is reset/empty.
+  initial_list.forEach(function(e) {
+    if (checkEmail(e)) {
+      list.create({
+        email: e
+      });
+    }
+  });
+
+  // now start monitor changes
+  list.on('add remove', function() {
+    $('.changes-notice').removeClass('hidden');
+  });
+
+  // update field before submit
+  // this is different from "manage_public" where this field is always updated
+  $('#contact-list-form').submit(function() {
+    // do create one more time.
+    app.appView.createOnEvent();
+    // update the field.
+    var updated_list = list.map(function(m) { return m.get('email'); }).join('\n');
+    $favorite.val(updated_list);
+  });
+
+});
+</script>
+
+<form id="contact-list-form" class="form" method="post" autocapitalize="off" {% if form.is_multipart %}enctype="multipart/form-data"{% endif %}>
+  {% csrf_token %}
+  {{ form|bootstrap }}
+  {% block submit-block %}
+  <p class="text-danger hidden changes-notice"><i class="fa fa-exclamation"></i> Changes are not saved.</p>
+  <div class="form-group">
+    <button class="btn btn-primary" type="submit">Save Changes</button>
+    <a class="btn btn-default" title='About "Contacts"' data-content="Add people you trust so that Servuno can help you find babysitters from them and their contacts. The more contacts you add here, the better chance you'll find a babysitter." data-toggle="popover"><i class="fa fa-question-circle"></i></a>
+  </div>
+  {% endblock %}
+</form>

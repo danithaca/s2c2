@@ -153,7 +153,7 @@ p2 related branches:
     * p2dev: the main dev branch for p2 (or servuno), currently maps to v2
     * p2prod: the main prod branch for p2, current maps to v2
     * p2/payment: the branch that evaluates payment options
-    * p2/v2: the minimalist design before 3rd pivot
+    * p2/v2: the minimalist design before 3rd pivot (stopped active dev on 2015-09-30)
     * p2/v3: the pivot that targets to parents only
 
 
@@ -180,6 +180,16 @@ Outdated, only pertain to s2c2 related stuff:
 
 Log
 -----------------------------------
+
+*** 2015-09-30 ***
+
+Now we are using the v3 design that stresses "parents-only" feature and separates parents list and babysitter list. And we don't allow babysitters sign up. This changed a lot from the original s2c2 design and the code will gets a lot of changes. Keeping the s2c2 old code is too much a liability and we are actually removing it in p2/v3 branch. Here is a list of things we will keep:
+
+  * backup of data on production as fixtures.
+  * SITE_ID structure: p2 as SITE_ID = 2
+
+The goal is to make the code clean and agile. All old code can be found in the master branch and p2/v2 branch.
+
 
 *** 2015-08-24 ***
 

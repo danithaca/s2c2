@@ -1,17 +1,44 @@
-{% extends "base.html" %}
-{% load staticfiles %}
-{% load bootstrap %}
+{#{% extends "base.html" %}#}
+{#{% load staticfiles %}#}
+{#{% load bootstrap %}#}
+{##}
+{#{% block title %}Experiment{% endblock %}#}
+{##}
+{#{% block page %}#}
+{#  <div class="text-center" style="#}
+{#    font-size: 160px;#}
+{#    border-bottom: 10px solid #FF9800;#}
+{#    line-height: 1;#}
+{#  "><span class="text-primary">S</span><span class="text-danger">e</span><span class="text-warning">r</span><span class="text-primary">v</span><span class="text-success">u</span><span class="text-danger">n</span><span class="text-info">O</span></div>#}
+{#  <div class="text-center" style="#}
+{#    font-size: 40px;#}
+{#    margin-top: 0px;#}
+{#  ">It takes a village to raise a child</div>#}
+{#{% endblock %}#}
 
-{% block title %}Experiment{% endblock %}
+{% extends 'base_s.html' %}
 
-{% block page %}
-  <div class="text-center" style="
-    font-size: 160px;
-    border-bottom: 10px solid #FF9800;
-    line-height: 1;
-  "><span class="text-primary">S</span><span class="text-danger">e</span><span class="text-warning">r</span><span class="text-primary">v</span><span class="text-success">u</span><span class="text-danger">n</span><span class="text-info">O</span></div>
-  <div class="text-center" style="
-    font-size: 40px;
-    margin-top: 0px;
-  ">It takes a village to raise a child</div>
+{% block content %}
+  <div class="panel panel-default">
+    <div class="panel-heading">
+      <ul class="nav nav-pills nav-justified">
+        <div class="col-xs-4"><li><a href=""><i class="fa fa-home"></i> Dashboard</a></li></div>
+        <div class="col-xs-4"><li><a href=""><i class="fa fa-users"></i> Connect</a></li></div>
+        <div class="col-xs-4"><li><a href=""><i class="fa fa-child"></i> Find</a></li></div>
+      </ul>
+      <ul class="nav nav-pills nav-justified">
+        <li class="col-xs-4"><a href=""><i class="fa fa-home"></i> Dashboard</a></li>
+        <li class="col-xs-4"><a href=""><i class="fa fa-users"></i> Connect</a></li>
+        <li class="col-xs-4"><a href=""><i class="fa fa-child"></i> Find</a></li>
+      </ul>
+      <ul class="nav nav-pills nav-justified">
+        <li><a href=""><i class="fa fa-home"></i> Dashboard</a></li>
+        <li><a href=""><i class="fa fa-users"></i> Connect</a></li>
+        <li><a href=""><i class="fa fa-child"></i> Find</a></li>
+      </ul>
+    </div>
+    <div class="panel-body">
+      <p>{% lorem %}</p>
+    </div>
+  </div>
 {% endblock %}
