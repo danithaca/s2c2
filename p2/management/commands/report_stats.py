@@ -1,7 +1,9 @@
 import logging
 from datetime import datetime
+
 from django.utils import timezone
 from django.core.management import BaseCommand
+
 from circle.models import Membership
 from contract.models import Contract
 from puser.models import PUser

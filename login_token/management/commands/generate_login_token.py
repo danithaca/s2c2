@@ -1,6 +1,8 @@
 import logging
+
 from django.contrib.auth import get_user_model
 from django.core.management import BaseCommand
+
 from login_token.models import Token
 
 

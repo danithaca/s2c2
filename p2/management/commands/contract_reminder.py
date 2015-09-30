@@ -1,6 +1,4 @@
-import logging
 from django.core.management import BaseCommand
-from contract.models import Contract, Match
 
 # we could use period command to send notification. but we aren't able to tell if reminder is already sent unless
 # we track it in database. for now, we use celery to post reminder task with "eta".

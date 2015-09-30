@@ -1,8 +1,10 @@
 import logging
+
 from account.models import EmailAddress
 from django.contrib.auth.models import User
 from django.core.management import BaseCommand
 from django.db.models import F
+
 from circle.models import Membership, Circle
 from login_token.models import Token
 from puser.models import PUser, Info

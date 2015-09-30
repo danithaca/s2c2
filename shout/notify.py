@@ -1,13 +1,13 @@
-import logging
-from celery import shared_task
+from enum import Enum
+import re
+
 from django.contrib.auth.models import User
 from django.contrib.sites.models import Site
 from django.core.mail import EmailMessage, get_connection
 from django.template.loader import render_to_string
+
 from p2 import settings
-from enum import Enum
 from puser.models import PUser
-import re
 
 
 class Notify(object):

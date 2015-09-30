@@ -1,4 +1,4 @@
-from collections import defaultdict, OrderedDict
+from collections import OrderedDict
 import tempfile
 
 from account.mixins import LoginRequiredMixin
@@ -6,31 +6,28 @@ import account.views
 import account.forms
 from account.conf import settings
 from braces.views import UserPassesTestMixin, FormValidMessageMixin
-from django import forms
 from django.contrib.auth.decorators import login_required
 from django.contrib import auth
 from django.contrib.auth import forms as auth_forms
 from django.core.files.storage import FileSystemStorage
 from django.core.urlresolvers import reverse_lazy, reverse
-from django.http import HttpResponse
 from django.shortcuts import redirect
 from django.views.generic import FormView, TemplateView, UpdateView, DetailView
 from django.views.generic.base import ContextMixin
 from formtools.wizard.views import SessionWizardView
-
 from django.contrib import messages
 from rest_framework.generics import RetrieveAPIView
 
-from circle.forms import SignupFavoriteForm, SignupCircleForm, ManagePersonalForm
+from circle.forms import SignupFavoriteForm, SignupCircleForm
 from circle.models import Circle, Membership
 from circle.views import ManagePersonal, ManagePublic, ManageAgency
 from login_token.models import Token
-from p2.utils import UserOnboardRequiredMixin
-from puser.forms import SignupBasicForm, UserInfoForm, SignupConfirmForm, UserPictureForm, LoginEmailAdvForm
+from p2.utils import UserOnboardRequiredMixin, auto_user_name
+from puser.forms import SignupBasicForm, UserInfoForm, UserPictureForm, LoginEmailAdvForm
 from puser.models import Info, PUser
 from puser.serializers import UserSerializer
 from shout.tasks import notify_send
-from s2c2.utils import auto_user_name
+from p2.utils import auto_user_name
 
 
 @login_required

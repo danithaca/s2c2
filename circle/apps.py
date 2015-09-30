@@ -7,4 +7,5 @@ class CircleConfig(AppConfig):
     def ready(self):
         # suggested by django doc.
         # i guess this is to give application users the choice to whether use the signals or not.
+        # warning: pycharm "import optimize" will remove the follow.
         import circle.signals

@@ -1,4 +1,5 @@
 from django.test import TestCase
+
 from puser.models import PUser
 
 

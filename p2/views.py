@@ -1,13 +1,12 @@
 from collections import defaultdict
+
 from braces.views import LoginRequiredMixin
 from django.core.urlresolvers import reverse
-from django.db.models import Q
-from django.shortcuts import render, redirect
+from django.shortcuts import redirect
 from account.forms import LoginEmailForm
 from django.views.generic import TemplateView
-from contract.models import Contract, Engagement, Match
+
 from puser.forms import SignupBasicForm
-from s2c2.utils import dummy
 
 
 def home(request):

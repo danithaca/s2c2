@@ -1,9 +1,10 @@
 import json
-from datetimewidget.widgets import DateTimeWidget
-from decimal import Decimal
+
 from django import forms
 from django.utils import timezone
+
 from contract.models import Contract
+
 
 
 # note: this form is highly customized in html template. this Form class doesn't control much of how it actually shows.

@@ -1,6 +1,8 @@
 import logging
+
 from django.core.management import BaseCommand
 from django.utils import timezone
+
 from contract.algorithms import L2Recommender
 from contract.models import Contract, Match
 

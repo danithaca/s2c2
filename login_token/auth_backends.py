@@ -1,5 +1,7 @@
 from django.contrib.auth.backends import ModelBackend
+
 from login_token.models import Token
+
 
 
 # according to https://docs.djangoproject.com/en/1.8/topics/auth/customizing/#writing-an-authentication-backend

@@ -1,5 +1,6 @@
 from django import forms
 from django.db.models import Q
+
 from circle.models import Circle
 from shout.models import Shout
 

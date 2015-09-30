@@ -1,4 +1,5 @@
 from django.utils.functional import SimpleLazyObject
+
 from puser.models import PUser
 
 

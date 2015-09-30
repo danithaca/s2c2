@@ -1,5 +1,6 @@
 from django.contrib.auth.models import User
 from celery import shared_task
+
 from shout.models import Shout
 from shout.notify import notify_agent
 

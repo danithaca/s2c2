@@ -1,5 +1,7 @@
 from datetime import datetime
+
 from django.test import TestCase
+
 from contract.models import Contract
 from location.models import Area
 from puser.models import PUser

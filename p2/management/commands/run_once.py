@@ -1,18 +1,9 @@
 import json
 import os
 from pprint import pprint
-from celery.exceptions import TimeoutError
+
 from django.conf import settings
 from django.core.management import BaseCommand
-from django.db.models import F
-from circle.models import Circle
-from contract.models import Contract
-from contract.tasks import dummy
-from location.models import Area
-from puser.models import PUser
-from datetime import datetime, timedelta
-from django.core.mail import send_mail
-
 
 
 class Command(BaseCommand):

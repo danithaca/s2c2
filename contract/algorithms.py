@@ -1,5 +1,5 @@
 from abc import ABCMeta, abstractmethod
-from django.db.models import F
+
 from circle.models import Membership, Circle
 from contract.models import Match, Contract
 from puser.models import PUser

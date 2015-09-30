@@ -1,4 +1,5 @@
 from django.conf.urls import patterns, url
+
 from circle import views
 
 urlpatterns = patterns(

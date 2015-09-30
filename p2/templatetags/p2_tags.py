@@ -1,16 +1,13 @@
-from account.models import SignupCode
 from django import template
 from django.contrib.auth.models import User
-from django.contrib.sites.models import Site
-from django.core.urlresolvers import reverse
 from django.template.defaultfilters import truncatechars, urlencode
 from django.templatetags.static import static
 from django.templatetags.tz import utc
 from image_cropping.templatetags.cropping import cropped_thumbnail
-from contract.models import Contract, Match, Engagement
+
+from contract.models import Engagement
 from p2.utils import get_site_url
 from puser.models import PUser
-from django.conf import settings
 
 register = template.Library()
 

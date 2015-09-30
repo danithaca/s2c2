@@ -1,5 +1,6 @@
+from datetime import timedelta
+
 from celery import shared_task
-from datetime import datetime, timedelta
 from django.utils.timezone import localtime, now
 
 

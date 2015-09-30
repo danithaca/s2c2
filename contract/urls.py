@@ -2,7 +2,8 @@ from django.conf.urls import patterns, url
 from django.contrib.admin.views.decorators import staff_member_required
 from django.contrib.auth.decorators import login_required
 from django.core.urlresolvers import reverse_lazy
-from contract import views, forms
+
+from contract import views
 
 urlpatterns = patterns(
     "",

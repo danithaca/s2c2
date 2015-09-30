@@ -1,5 +1,6 @@
 from django.db.models.signals import post_save
 from django.dispatch import receiver
+
 from circle.models import Membership
 from circle.tasks import handle_public_membership_approval
 

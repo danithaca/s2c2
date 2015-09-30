@@ -1,12 +1,12 @@
 import json
 import re
+
 from django import forms
 
 from circle.models import Circle, SupersetRel, Membership
 from location.models import Area
 from p2.templatetags.p2_tags import p2_tag_user_full_name
-from puser.models import PUser
-from s2c2.utils import is_valid_email, get_int
+from p2.utils import is_valid_email, get_int
 
 
 class ManagePersonalForm(forms.Form):

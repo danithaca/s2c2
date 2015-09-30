@@ -2,7 +2,9 @@
 
 import os
 import logging
+
 from django.core.urlresolvers import reverse_lazy
+
 
 ################# dev specific ###################
 
@@ -57,12 +59,8 @@ INSTALLED_APPS = (
     'login_token',
 
     # customized
-    's2c2',
-    'location',
-    'user',
-    'log',
-
     'p2',
+    'location',
     'puser',
     # this is to use the AppConfig.
     'circle.apps.CircleConfig',
@@ -290,12 +288,6 @@ TEMPLATE_CONTEXT_PROCESSORS = (
     # 'account.context_processors.account',
 
     # for all templates
-    's2c2.context_processors.global_templates_vars',
-    # add 'user_profile' to request
-    'user.context_processors.current_user_profile',
-    # add notification count
-    'log.context_processors.notification_count',
-
     'account.context_processors.account',
     'p2.context_processors.global_templates_vars',
 )

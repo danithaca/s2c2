@@ -1,5 +1,7 @@
 from django.contrib import admin
+
 from contract import models
+
 
 @admin.register(models.Contract)
 class CircleAdmin(admin.ModelAdmin):

@@ -1,8 +1,8 @@
 from braces.views import LoginRequiredMixin
 from django.contrib import messages
 from django.core.urlresolvers import reverse_lazy
-from django.shortcuts import render
 from django.views.generic import CreateView
+
 from shout.forms import ShoutToCircleForm, ShoutMessageOnlyForm
 from shout.models import Shout
 from shout.tasks import shout_to_circle

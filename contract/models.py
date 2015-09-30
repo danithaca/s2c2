@@ -1,14 +1,16 @@
-from datetime import timedelta, datetime
+from datetime import datetime
 import json
-from django.utils import timezone, dateparse
 from enum import Enum
 from decimal import Decimal
+
+from django.utils import timezone
 from django.core.urlresolvers import reverse
 from django.db import models
 from django.db.models.signals import post_save
 from django.dispatch import receiver
-from contract import tasks
 from django.conf import settings
+
+from contract import tasks
 
 
 class StatusMixin(object):

@@ -1,7 +1,8 @@
+from datetime import timedelta
+
 from account.models import Account, EmailAddress
 from account.signals import password_changed
 from account.views import PasswordResetTokenView
-from datetime import timedelta
 from django.contrib.auth.models import User, AbstractUser
 from django.core.urlresolvers import reverse
 from django.db import models
@@ -10,12 +11,15 @@ from django.dispatch import receiver
 from django.utils import timezone
 from image_cropping import ImageCropField, ImageRatioField
 from localflavor.us.models import PhoneNumberField
+
 from django.core import checks
-from circle.models import Membership, Circle
-from contract.models import Contract, Match, Engagement
 from django.conf import settings
+
+from circle.models import Membership, Circle
+
+from contract.models import Contract, Match, Engagement
 from login_token.models import Token
-from s2c2.utils import auto_user_name, deprecated
+from p2.utils import auto_user_name
 
 
 @checks.register()

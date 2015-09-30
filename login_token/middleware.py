@@ -1,7 +1,5 @@
 from django.contrib import messages
-from django.utils.functional import SimpleLazyObject
 from django.conf import settings
-from login_token.models import Token
 from django.contrib import auth
 
 

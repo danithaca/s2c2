@@ -1,9 +1,9 @@
 from account.forms import LoginEmailForm
-from account.models import EmailAddress
 import account.views
 from django import forms
 from django.contrib.auth.models import User
 from django.forms import ModelForm, fields_for_model
+
 from puser.models import Info, PUser
 
 

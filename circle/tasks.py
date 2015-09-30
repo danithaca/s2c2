@@ -1,6 +1,6 @@
-from account.models import SignupCode
 from celery import shared_task
 from django.core.urlresolvers import reverse
+
 from puser.models import PUser
 
 

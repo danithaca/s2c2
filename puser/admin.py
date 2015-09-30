@@ -4,8 +4,9 @@ from django.contrib.admin import SimpleListFilter
 from django.contrib.auth.admin import UserAdmin
 from django.contrib.auth.models import User
 from image_cropping import ImageCroppingMixin
+
 from login_token.models import Token
-from puser.models import Info, PUser
+from puser.models import Info
 
 
 class UserInfoAdmin(UserAdmin):

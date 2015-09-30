@@ -1,6 +1,8 @@
+from enum import Enum
+
 from django.contrib.auth.models import User
 from django.db import models
-from enum import Enum
+
 from circle.models import Circle
 from contract.models import Contract
 from shout.notify import notify_agent

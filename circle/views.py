@@ -1,8 +1,9 @@
 import json
+
 from account.mixins import LoginRequiredMixin
 from django.contrib import messages
-from django.core.urlresolvers import reverse_lazy, reverse
-from django.shortcuts import render
+from django.core.urlresolvers import reverse_lazy
+
 
 # Create your views here.
 from django.views.generic import FormView

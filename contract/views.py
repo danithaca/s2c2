@@ -1,23 +1,19 @@
-from collections import defaultdict
 from datetime import datetime, timedelta
 from decimal import Decimal
-from itertools import groupby
+
 from braces.views import JSONResponseMixin, AjaxResponseMixin, LoginRequiredMixin, FormValidMessageMixin
 from django.contrib import messages
 from django.core.urlresolvers import reverse_lazy
 from django.core.validators import MinValueValidator
 from django.db.models import Q
-from django.forms import modelform_factory, Form
-from django.shortcuts import render
 from django.views.generic import CreateView, DetailView, ListView, View, TemplateView, UpdateView
-from formtools.preview import FormPreview
+from django.utils import timezone
+
+from django.template.loader import render_to_string
+from django.conf import settings
+
 from contract.forms import ContractForm
 from contract.models import Contract, Match, Engagement
-from datetimewidget.widgets import DateTimeWidget
-from django.utils import timezone
-from django.template.loader import get_template, render_to_string
-from django.conf import settings
-from p2.utils import UserOnboardRequiredMixin
 
 
 class ContractDetail(DetailView):
@@ -86,7 +82,6 @@ class ContractCreate(LoginRequiredMixin, FormValidMessageMixin, ContractUpdateMi
     def get_initial(self):
         initial = super().get_initial()
         # process area code.
-        from location.models import Area
         # current user's location is the default location for the contract.
         initial['area'] = self.request.puser.get_area()
         # process start/end
