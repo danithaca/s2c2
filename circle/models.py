@@ -14,6 +14,9 @@ class Circle(models.Model):
         SUPERSET = 4
         # SUBSCRIBER = 5    # people who suscribed to certain circles
         # LOOP = 6          # the circle of people who added me as favorite.
+        PARENT = 7          # parents network in v3 design
+        BABYSITTER = 8      # babysitter list in v3 design
+        TAG = 9             # tag-like circle type in v3 design
 
     name = models.CharField(max_length=200)
     description = models.TextField(blank=True)
