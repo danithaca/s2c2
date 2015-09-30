@@ -33,9 +33,8 @@ class Circle(models.Model):
 
     members = models.ManyToManyField(settings.AUTH_USER_MODEL, through='Membership')
 
-    from location.models import Area
     # circle's listing area. doesn't necessarily mean every member in the circle have to be in the area
-    area = models.ForeignKey(Area, default=1)
+    area = models.ForeignKey('puser.Area')
 
     def display(self):
         if self.type == Circle.Type.PERSONAL.value:

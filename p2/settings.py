@@ -60,9 +60,7 @@ INSTALLED_APPS = (
 
     # customized
     'p2',
-    'location',
-    'puser',
-    # this is to use the AppConfig.
+    'puser.apps.PUserConfig',
     'circle.apps.CircleConfig',
     'contract',
     'shout',

@@ -8,8 +8,7 @@ from django.core.management import BaseCommand
 from django.conf import settings
 
 from circle.models import Circle
-from location.models import Area
-from puser.models import PUser
+from puser.models import PUser, Area
 
 
 class Command(BaseCommand):

@@ -9,7 +9,7 @@ class Migration(migrations.Migration):
 
     dependencies = [
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
-        ('location', '0003_auto_20150421_1424'),
+        ('puser', '0001_initial')
     ]
 
     operations = [
@@ -21,7 +21,7 @@ class Migration(migrations.Migration):
                 ('description', models.TextField(blank=True)),
                 ('type', models.PositiveSmallIntegerField(choices=[(1, 'Personal'), (2, 'Public'), (3, 'Agency')])),
                 ('created', models.DateTimeField(auto_now_add=True)),
-                ('area', models.ForeignKey(to='location.Area')),
+                ('area', models.ForeignKey(to='puser.Area')),
                 ('creator', models.ForeignKey(to=settings.AUTH_USER_MODEL)),
             ],
         ),

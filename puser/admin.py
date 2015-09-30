@@ -6,7 +6,7 @@ from django.contrib.auth.models import User
 from image_cropping import ImageCroppingMixin
 
 from login_token.models import Token
-from puser.models import Info
+from puser.models import Info, Area
 
 
 class UserInfoAdmin(UserAdmin):
@@ -62,3 +62,8 @@ class UserInfoAdmin(UserAdmin):
 admin.site.unregister(User)
 admin.site.register(User, UserInfoAdmin)
 # admin.site.register(PUser, UserInfoAdmin)
+
+
+@admin.register(Area)
+class AreaAdmin(admin.ModelAdmin):
+    list_display = ('name', 'state', )

@@ -10,7 +10,7 @@ from django.db.models import Q, F
 from django.dispatch import receiver
 from django.utils import timezone
 from image_cropping import ImageCropField, ImageRatioField
-from localflavor.us.models import PhoneNumberField
+from localflavor.us.models import PhoneNumberField, USStateField
 
 from django.core import checks
 from django.conf import settings
@@ -36,6 +36,23 @@ def email_duplicate_check(app_configs, **kwargs):
     return errors
 
 
+class Area(models.Model):
+    name = models.CharField(max_length=50)
+    state = USStateField()
+    description = models.TextField(blank=True)
+
+    def get_timezone(self):
+        if self.state == 'MI':
+            return timezone('US/Eastern')
+
+    def __str__(self):
+        return '%s - %s' % (self.name, self.state)
+
+    @staticmethod
+    def default():
+        return Area.objects.get(pk=1)
+
+
 class Info(models.Model):
     """
     The extended field for p2 Users.
@@ -51,7 +68,6 @@ class Info(models.Model):
     picture_original = ImageCropField(upload_to='picture', blank=True, null=True)
     picture_cropping = ImageRatioField('picture_original', '200x200')
 
-    from location.models import Area
     # user's home area. it doesn't necessarily mean the user will request/respond to this area only.
     area = models.ForeignKey(Area, default=1)
 
@@ -66,7 +82,6 @@ class Info(models.Model):
     @staticmethod
     def get_or_create_for_user(user):
         assert isinstance(user, User)
-        from location.models import Area
         info, created = Info.objects.get_or_create(user=user, defaults={
             'area': Area.objects.get(pk=1)
         })

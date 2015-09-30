@@ -121,8 +121,7 @@ class Contract(StatusMixin, models.Model):
     audience_data = models.TextField(blank=True, help_text='Extra data for the particular audience type, stored in JSON.')
 
     # where does this contract happens. this is the ultimate place to decide where a contract goes
-    from location.models import Area
-    area = models.ForeignKey(Area)
+    area = models.ForeignKey('puser.Area')
 
     def __str__(self):
         return 'Contract:%d:%s' % (self.id, self.initiate_user.username)

@@ -7,13 +7,12 @@ from django.db import models, migrations
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('location', '0003_auto_20150421_1424'),
+        ('puser', '0005_info_homepage'),
     ]
 
     operations = [
-        migrations.AddField(
-            model_name='area',
-            name='description',
-            field=models.TextField(blank=True),
+        migrations.AlterModelTable(
+            name='area',
+            table=None,
         ),
     ]

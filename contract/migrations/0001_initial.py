@@ -10,7 +10,6 @@ class Migration(migrations.Migration):
     dependencies = [
         ('circle', '0001_initial'),
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
-        ('location', '0003_auto_20150421_1424'),
     ]
 
     operations = [
@@ -25,7 +24,7 @@ class Migration(migrations.Migration):
                 ('price', models.DecimalField(max_digits=5, decimal_places=2)),
                 ('description', models.TextField(blank=True)),
                 ('status', models.PositiveSmallIntegerField(choices=[(1, 'Initiated'), (2, 'Active'), (3, 'Confirmed'), (4, 'Finished'), (5, 'Canceled')], default=1)),
-                ('area', models.ForeignKey(to='location.Area')),
+                ('area', models.ForeignKey(to='puser.Area')),
                 ('buyer', models.ForeignKey(related_name='buyer', to=settings.AUTH_USER_MODEL)),
                 ('seller', models.ForeignKey(related_name='seller', null=True, to=settings.AUTH_USER_MODEL, blank=True)),
             ],

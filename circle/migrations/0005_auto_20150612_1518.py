@@ -21,7 +21,7 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='circle',
             name='area',
-            field=models.ForeignKey(default=1, to='location.Area'),
+            field=models.ForeignKey(default=1, to='puser.Area'),
         ),
         migrations.AlterField(
             model_name='circle',
