@@ -9,6 +9,26 @@ from p2.templatetags.p2_tags import p2_tag_user_full_name
 from p2.utils import is_valid_email, get_int
 
 
+class EmailListForm(forms.Form):
+    favorite = forms.CharField(label='Contacts', widget=forms.HiddenInput, required=False, help_text='One email per line.')
+    # if force_save, then save in form_valid() regardless of whether the form has changed or not.
+    force_save = forms.BooleanField(widget=forms.HiddenInput, initial=False, required=False)
+    send = forms.BooleanField(initial=True, required=False, label='Notify newly added contacts')
+
+    def clean(self):
+        cleaned_data = super().clean()
+        favorite = cleaned_data.get('favorite')
+        cleaned_data['favorite_list'] = [e.strip() for e in re.split(r'[\s,;]+', favorite) if is_valid_email(e.strip())]
+        # we don't validate for now
+        # raise forms.ValidationError('')
+        return cleaned_data
+
+    def get_favorite_email_list(self):
+        l = list(set(self.cleaned_data['favorite_list']))
+        assert isinstance(l, list), 'Call only after cleaned form.'
+        return l
+
+
 class ManagePersonalForm(forms.Form):
     # favorite = forms.CharField(label='Favorite', widget=forms.Textarea, required=False, help_text='One email per line.')
     favorite = forms.CharField(label='Contacts', widget=forms.HiddenInput, required=False, help_text='One email per line.')

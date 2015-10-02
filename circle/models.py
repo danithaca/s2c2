@@ -2,6 +2,7 @@ from enum import Enum
 
 from django.db import models
 from django.conf import settings
+from p2.utils import deprecated
 
 
 class Circle(models.Model):
@@ -10,8 +11,8 @@ class Circle(models.Model):
     """
 
     class Type(Enum):
-        PERSONAL = 1
-        PUBLIC = 2
+        PERSONAL = 1        # obsolete in favor of parent/babysitter.
+        PUBLIC = 2          # obsolete in favor of tag
         AGENCY = 3
         SUPERSET = 4
         # SUBSCRIBER = 5    # people who suscribed to certain circles
@@ -46,8 +47,10 @@ class Circle(models.Model):
     def __str__(self):
         return self.name
 
+    @deprecated
     def add_member(self, user, membership_type=None, approved=None):
         """
+        depreated in favor of "activate_membership"
         :return: if membership already exists, return it. otherwise, create the membership with default.
         """
         defaults = {'active': True}
@@ -63,6 +66,34 @@ class Circle(models.Model):
             membership.save()
 
         return membership
+
+    def _activate_membership(self, user, membership_type=None, approved=None):
+        """
+        :return: if membership already exists, return it with active set to True. otherwise, create the membership with default.
+        """
+        defaults = {'active': True}
+        if membership_type is not None:
+            defaults['type'] = membership_type
+        if approved is not None:
+            defaults['approved'] = approved
+        membership, created = Membership.objects.update_or_create(member=user, circle=self, defaults=defaults)
+        return membership
+
+    # this structure allows override activate_membership without overriding _active_membership()
+    def activate_membership(self, user, membership_type=None, approved=None):
+        self._activate_membership(user, membership_type, approved)
+
+    def deactivate_membership(self, user):
+        """
+        If membership already exists, set to False. otherwise, do nothing
+        """
+        try:
+            membership = self.get_membership(user)
+            if membership.active:
+                membership.active = False
+                membership.save()
+        except Membership.DoesNotExist:
+            pass
 
     def get_membership(self, user):
         return Membership.objects.get(member=user, circle=self)
@@ -86,6 +117,46 @@ class Circle(models.Model):
         return self.count() == 0
 
 
+class ParentCircleManager(models.Manager):
+    def get_queryset(self):
+        return super().get_queryset().filter(type=Circle.Type.PARENT.value)
+
+
+class ParentCircle(Circle):
+    # proxy circle for "Parent" type
+    class Meta:
+        proxy = True
+
+    objects = ParentCircleManager()
+
+    # case 1: no membership exists. after execution, both membership active and approved.
+    # case 2: A->B not active, B->A active but not approved: B->A should be approved
+    # case 3: A->B not active, B-> not active not approved: B->A active and approved.
+    # simply put, when activating parent membership, the other person will activate everything as well.
+    # this doesn't allow "decline friendship request", but we could change the behavior later
+    # if by default adding a friend needs approval, we'll set "approved" to be False by default, and then have the other person approve before activate.
+    def activate_membership(self, user, membership_type=None, approved=None):
+        # first, active this membership, and set approved to be True regardless of the paramenter.
+        self._activate_membership(user, membership_type, True)
+        # since the parent-parent relationship should be symmetric, we should active the other membership, if not already.
+        other_circle = user.to_puser().my_circle(type=Circle.Type.PARENT, area=self.area)
+        assert isinstance(other_circle, ParentCircle)
+        other_circle._activate_membership(self.owner, membership_type, True)
+
+    def deactivate_membership(self, user):
+        # first, deactivate the membership
+        super().deactivate_membership(user)
+        # then set "approved" as False to the other membership.
+        other_circle = user.to_puser().my_circle(type=Circle.Type.PARENT, area=self.area)
+        try:
+            other_membership = other_circle.get_membership(self.owner)
+            if other_membership.approved:
+                other_membership.approved = False
+                other_membership.save()
+        except Membership.DoesNotExist:
+            pass
+
+
 class SupersetRel(models.Model):
     """
     Many-many to track circle inclusions.
@@ -105,6 +176,9 @@ class SupersetRel(models.Model):
 class Membership(models.Model):
     """
     User-Circle membership.
+    For a membership, there is an "initiator" who initiate the membership (personal: owners; public: members).
+    There is an "target" who would review the membership and either prove or disapprove (personal: members; public: owners and admins)
+    The 'active' field is for the "initiator". The "approved" field is for the "target"
     """
 
     class Type(Enum):

@@ -15,7 +15,7 @@ from localflavor.us.models import PhoneNumberField, USStateField
 from django.core import checks
 from django.conf import settings
 
-from circle.models import Membership, Circle
+from circle.models import Membership, Circle, ParentCircle
 
 from contract.models import Contract, Match, Engagement
 from login_token.models import Token
@@ -142,6 +142,24 @@ class PUser(User):
             area = self.get_area()
         circle, created = Circle.objects.get_or_create(type=Circle.Type.PERSONAL.value, owner=self, area=area, defaults={
             'name': '%s:personal:%d' % (self.username, area.id)
+        })
+        return circle
+
+    def my_circle(self, type, area=None):
+        """
+        Return the user's circle, cast to proxy model if exists.
+        """
+        assert isinstance(type, Circle.Type)
+        if area is None:
+            area = self.get_area()
+        default_name = '%s:%s:%d' % (self.username, type.name.lower(), area.id)
+
+        # make sure to use the proxy class
+        circle_class = Circle
+        if type == Circle.Type.PARENT:
+            circle_class = ParentCircle
+        circle, created = circle_class.objects.get_or_create(type=type.value, owner=self, area=area, defaults={
+            'name': default_name
         })
         return circle
 

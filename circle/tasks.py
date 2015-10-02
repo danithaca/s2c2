@@ -45,3 +45,17 @@ def personal_circle_send_invitation(circle, target_user):
         #     # current we do nothing, assuming the target user already received a invitation email
         #     pass
         notify_agent.send(circle.owner, target_user, 'account/email/new_user_invite')
+
+
+@shared_task
+def parent_circle_send_invitation(circle, target_user):
+    target_user = PUser.from_user(target_user)
+    from shout.notify import notify_agent
+    if target_user.is_registered():
+        link = reverse('circle:parent')
+        notify_agent.send(circle.owner, target_user, 'circle/messages/parent_added', {
+            'review_link': link,
+            'circle_owner': circle.owner,
+        })
+    else:
+        notify_agent.send(circle.owner, target_user, 'account/email/new_user_invite')

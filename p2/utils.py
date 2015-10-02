@@ -2,26 +2,15 @@ from datetime import date, time, datetime
 import functools
 import sys
 import warnings
+from braces.views import FormValidMessageMixin
+from django.contrib import messages
 
 from django.contrib.messages import get_messages
 from django.contrib.sites.models import Site
 from django.shortcuts import redirect
 
-
-# import only in method in order to avoid circular import
-
-
-################# mixin ####################
 from django.template.loader import render_to_string
 from django.utils import timezone
-
-
-class UserOnboardRequiredMixin(object):
-
-    def dispatch(self, request, *args, **kwargs):
-        if not request.puser.has_area():
-            return redirect('onboard_start')
-        return super().dispatch(request, *args, **kwargs)
 
 
 def get_site_url():
@@ -47,29 +36,6 @@ def get_class(class_name):
     else:
         # assuming the class is already in scope
         return getattr(sys.modules['__main__'], class_name)
-
-
-def get_request_day(request):
-    try:
-        day = DayToken.from_token(request.GET.get('day', ''))
-    except ValueError as e:
-        day = DayToken.today()
-    return day
-
-
-def get_fullcaldendar_request_date_range(request):
-    return DayToken.from_fullcalendar(request.GET['start']), DayToken.from_fullcalendar(request.GET['end'])
-
-
-def to_fullcalendar_timestamp(d, t):
-    # someday: timezone concerns?
-    if isinstance(d, DayToken):
-        d = d.value
-    if isinstance(t, TimeToken):
-        t = t.value
-    assert isinstance(d, date) and isinstance(t, time)
-    dt = datetime.combine(d, t)
-    return dt.isoformat()
 
 
 def get_now():
@@ -120,19 +86,34 @@ def auto_user_name(email):
 
 
 def deprecated(func):
-    """
-    This is a decorator which can be used to mark functions
-    as deprecated. It will result in a warning being emitted
-    when the function is used.
-    """
-
-    @functools.wraps(func)
+    """This is a decorator which can be used to mark functions
+    as deprecated. It will result in a warning being emmitted
+    when the function is used."""
     def new_func(*args, **kwargs):
-        warnings.warn_explicit(
-            "Call to deprecated function {}.".format(func.__name__),
-            category=DeprecationWarning,
-            filename=func.func_code.co_filename,
-            lineno=func.func_code.co_firstlineno + 1
-        )
+        warnings.warn("Call to deprecated function %s." % func.__name__,
+                      category=DeprecationWarning)
         return func(*args, **kwargs)
+    new_func.__name__ = func.__name__
+    new_func.__doc__ = func.__doc__
+    new_func.__dict__.update(func.__dict__)
     return new_func
+
+
+################# mixin ####################
+
+
+class UserOnboardRequiredMixin(object):
+    def dispatch(self, request, *args, **kwargs):
+        if not request.puser.has_area():
+            return redirect('onboard_start')
+        return super().dispatch(request, *args, **kwargs)
+
+
+class ControlledFormValidMessageMixin(FormValidMessageMixin):
+    show_message = False
+
+    def form_valid(self, form):
+        response = super(FormValidMessageMixin, self).form_valid(form)
+        if self.show_message:
+            messages.success(self.request, self.get_form_valid_message(), fail_silently=True)
+        return response

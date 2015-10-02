@@ -1,14 +1,13 @@
 {# This needs the "form" to pass in #}
 {# manage members for both the parents list and the babasitters list. used in both "Connections" and onboard #}
-{# todo: perhaps change "contact" to "member" #}
 {% load bootstrap %}
-<section id="contact-app">
+<section id="item-list-app">
   <div class="input-group">
-    <input id="new-contact" class="form-control" placeholder="Add friends' email addresses to your contact list" autofocus>
-    <span class="input-group-btn"><button class="btn btn-primary" id="new-contact-add-btn">Add</button></span>
+    <input id="new-item" class="form-control" placeholder="Add friends' email addresses to your contact list" autofocus>
+    <span class="input-group-btn"><button class="btn btn-primary" id="new-item-add-btn">Add</button></span>
   </div>
   <span class="help-block">Press "Enter" to add.</span>
-  <ul id="contact-list" class="list-group"></ul>
+  <ul id="item-list" class="list-group"></ul>
 </section>
 
 <script type="text/template" id="item-template">
@@ -20,9 +19,9 @@
 function initialize_app() {
   'use strict';
   var app = {};
-  app.localStorage = new Backbone.LocalStorage("contact-app");
+  app.localStorage = new Backbone.LocalStorage("item-list-app");
 
-  app.Contact = Backbone.Model.extend({
+  app.Item = Backbone.Model.extend({
     defaults: {
       email: '',
       display_name: '',
@@ -50,12 +49,12 @@ function initialize_app() {
     }
   });
 
-  app.ContactList = Backbone.Collection.extend({
-    model: app.Contact,
+  app.ItemList = Backbone.Collection.extend({
+    model: app.Item,
     localStorage: app.localStorage
   });
 
-  app.ContactView = Backbone.View.extend({
+  app.ItemView = Backbone.View.extend({
     tagName: 'li',
     className: 'list-group-item',
     template: _.template($('#item-template').html()),
@@ -84,17 +83,17 @@ function initialize_app() {
   });
 
   app.AppView = Backbone.View.extend({
-    el: '#contact-app',
+    el: '#item-list-app',
     initialize: function () {
-      this.input = this.$('#new-contact');
+      this.input = this.$('#new-item');
       this.collection.on('add', this.addOne, this);
       // todo: this might pose performance issues. reuse existing data for caching.
       this.collection.reset();
       //this.collection.fetch();
     },
     events: {
-      'keypress #new-contact': 'createOnEvent',
-      'click #new-contact-add-btn': 'createOnEvent'
+      'keypress #new-item': 'createOnEvent',
+      'click #new-item-add-btn': 'createOnEvent'
     },
     createOnEvent: function(e){
       var email_str = this.input.val().trim();
@@ -111,14 +110,14 @@ function initialize_app() {
         this.input.val(''); // clean input box
       }
     },
-    addOne: function(contact){
-      var view = new app.ContactView({model: contact});
-      this.$('#contact-list').append(view.render().el);
+    addOne: function(item){
+      var view = new app.ItemView({model: item});
+      this.$('#item-list').append(view.render().el);
     }
   });
 
   // this is the only instance
-  app.appView = new app.AppView({collection: new app.ContactList()});
+  app.appView = new app.AppView({collection: new app.ItemList()});
   return app;
 }
 
@@ -148,7 +147,7 @@ $(document).ready(function() {
 
   // update field before submit
   // this is different from "manage_public" where this field is always updated
-  $('#contact-list-form').submit(function() {
+  $('#item-list-form').submit(function() {
     // do create one more time.
     app.appView.createOnEvent();
     // update the field.
@@ -159,7 +158,7 @@ $(document).ready(function() {
 });
 </script>
 
-<form id="contact-list-form" class="form" method="post" autocapitalize="off" {% if form.is_multipart %}enctype="multipart/form-data"{% endif %}>
+<form id="item-list-form" class="form" method="post" autocapitalize="off" {% if form.is_multipart %}enctype="multipart/form-data"{% endif %}>
   {% csrf_token %}
   {{ form|bootstrap }}
   {% block submit-block %}
