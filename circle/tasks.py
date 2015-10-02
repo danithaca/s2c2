@@ -51,11 +51,14 @@ def personal_circle_send_invitation(circle, target_user):
 def parent_circle_send_invitation(circle, target_user):
     target_user = PUser.from_user(target_user)
     from shout.notify import notify_agent
-    if target_user.is_registered():
-        link = reverse('circle:parent')
-        notify_agent.send(circle.owner, target_user, 'circle/messages/parent_added', {
-            'review_link': link,
-            'circle_owner': circle.owner,
-        })
-    else:
-        notify_agent.send(circle.owner, target_user, 'account/email/new_user_invite')
+    #link = reverse('circle:parent')
+
+    context = {
+        # 'review_link': link,
+        'circle': circle,
+        'target_user': target_user
+    }
+    if not target_user.is_registered():
+        context['signup_warning'] = True
+
+    notify_agent.send(circle.owner, target_user, 'circle/messages/parent_added', context)

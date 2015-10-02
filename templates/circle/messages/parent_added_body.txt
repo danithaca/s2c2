@@ -1,7 +1,5 @@
 {% extends 'email_body.txt' %}
 {% load p2_tags %}
 {% block body %}
-You are added to {{circle_owner.get_name}} ({{ circle_owner.email }})'s list. To opt-out, click the link below:
-
-{{site_url}}{{review_link}}
+You are receiving this email because {% user-full-name circle.owner %} added you to his/her parents network on {{ site_url }}. You can now swap favors babysitting for each other, and you would have access to {% user-short-name circle.owner %}'s trusted babysitters (and vice versa). Learn more about {{ site_name }} at {{ site_url }}
 {%endblock%}

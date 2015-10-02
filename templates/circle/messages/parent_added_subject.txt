@@ -1,3 +1,3 @@
 {% extends 'email_subject.txt' %}
 {% load p2_tags %}
-{% block subject %}You are connected to {% user-full-name circle_owner %}{% endblock %}
+{% block subject %}You are connected to {% user-full-name circle.owner %}{% endblock %}

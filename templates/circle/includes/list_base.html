@@ -7,12 +7,18 @@
     <span class="input-group-btn"><button class="btn btn-primary" id="new-item-add-btn">Add</button></span>
   </div>
   <span class="help-block">Press "Enter" to add.</span>
-  <ul id="item-list" class="list-group"></ul>
+  <div id="item-list" class="row"></div>
 </section>
 
 <script type="text/template" id="item-template">
-  <span class="label label-danger destroy hover-pointer" title="Click to remove" data-toggle="tooltip"><i class="fa fa-remove"></i></span>
-  <span><%= email %><% if (display_name) { %> - <%= display_name %><% } %>{# <% if (picture) { %> <img src="<%= picture %>" class="img-circle img-50"><% } %> #}</span>
+  <div class="thumbnail">
+    <% if (user_id) { %>
+    <span title="<%= email %>" data-toggle="tooltip" class="word-break"><% if (picture) { %><img src="<%= picture %>" class="img-circle img-18"><% } %> <a href="/account/<%= user_id %>/"><%= display_name %></a></span>
+    <% } else { %>
+    <span title="Not a user." data-toggle="tooltip" class="word-break"><%= email %></span>
+    <% } %>
+    <span class="text-danger destroy hover-pointer pull-right" title="Click to remove" data-toggle="tooltip"><i class="fa fa-trash-o"></i></span>
+  </div>
 </script>
 
 <script type="text/javascript">
@@ -23,6 +29,7 @@ function initialize_app() {
 
   app.Item = Backbone.Model.extend({
     defaults: {
+      user_id: null,
       email: '',
       display_name: '',
       picture: ''
@@ -37,13 +44,14 @@ function initialize_app() {
         context: this,
         success: function(user_data) {
           if (user_data) {
-            this.set('cid', user_data.id);
+            // might need to use "cid"
+            this.set('user_id', user_data.id);
             this.set('display_name', user_data.display_name);
             this.set('picture', user_data.picture);
           }
         },
         error: function() {
-          this.set('display_name', 'Not a user')
+          this.set('display_name', this.get('email'));
         }
       });
     }
@@ -55,8 +63,8 @@ function initialize_app() {
   });
 
   app.ItemView = Backbone.View.extend({
-    tagName: 'li',
-    className: 'list-group-item',
+    tagName: 'div',
+    className: 'col-xs-12 col-sm-6 col-md-4 col-lg-3',
     template: _.template($('#item-template').html()),
 
     // this renders the data attributes. see https://github.com/jashkenas/backbone/issues/1703
