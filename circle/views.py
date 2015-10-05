@@ -1,3 +1,4 @@
+from itertools import groupby
 import json
 
 from account.mixins import LoginRequiredMixin
@@ -8,20 +9,15 @@ from django.core.urlresolvers import reverse_lazy
 # Create your views here.
 from django.views.generic import FormView
 from circle.forms import ManagePublicForm, ManagePersonalForm, ManageLoopForm, ManageAgencyForm, EmailListForm
-from circle.models import Membership, Circle, ParentCircle
+from circle.models import Membership, Circle, ParentCircle, UserConnection
 from circle.tasks import personal_circle_send_invitation, parent_circle_send_invitation
 from puser.models import PUser
 from p2.utils import UserOnboardRequiredMixin, ControlledFormValidMessageMixin
 
 
-class ParentCircleView(LoginRequiredMixin, UserOnboardRequiredMixin, ControlledFormValidMessageMixin, FormView):
-    template_name = 'circle/parent.html'
+class BaseCircleView(LoginRequiredMixin, UserOnboardRequiredMixin, ControlledFormValidMessageMixin, FormView):
     form_class = EmailListForm
-    success_url = reverse_lazy('circle:parent')
-    form_valid_message = 'Parent connections successfully updated.'
-
-    def get_circle(self):
-        return self.request.puser.my_circle(Circle.Type.PARENT)
+    default_approved = None
 
     def get_old_email_qs(self):
         circle = self.get_circle()
@@ -30,7 +26,6 @@ class ParentCircleView(LoginRequiredMixin, UserOnboardRequiredMixin, ControlledF
     def form_valid(self, form):
         if form.has_changed() or form.cleaned_data.get('force_save', False):
             circle = self.get_circle()
-            assert isinstance(circle, ParentCircle)
             old_set = set(self.get_old_email_qs())
             # we get: dedup, valid email
             new_set = set(form.get_favorite_email_list())
@@ -48,10 +43,8 @@ class ParentCircleView(LoginRequiredMixin, UserOnboardRequiredMixin, ControlledF
                     target_puser = PUser.get_by_email(email)
                 except PUser.DoesNotExist:
                     target_puser = PUser.create(email, dummy=True, area=circle.area)
-
-                # this relationship is symmetric, therefore add both ways. handled by the method.
-                circle.activate_membership(target_puser)
-
+                # this behaves differently for different circle type (Proxy subclass)
+                circle.activate_membership(target_puser, approved=self.default_approved)
                 if form.cleaned_data.get('send', False):
                     # send notification
                     # if the user is a dummy user, send invitation code instead.
@@ -64,6 +57,46 @@ class ParentCircleView(LoginRequiredMixin, UserOnboardRequiredMixin, ControlledF
         email_qs = self.get_old_email_qs()
         initial['favorite'] = '\n'.join(list(email_qs))
         return initial
+
+
+class ParentCircleView(BaseCircleView):
+    template_name = 'circle/parent.html'
+    success_url = reverse_lazy('circle:parent')
+    form_valid_message = 'Parent connections successfully updated.'
+    # we always set "approved" to be true here.
+    default_approved = True
+
+    def get_circle(self):
+        circle = self.request.puser.my_circle(Circle.Type.PARENT)
+        assert isinstance(circle, ParentCircle)
+        return circle
+
+
+class SitterCircleView(BaseCircleView):
+    template_name = 'circle/sitter.html'
+    success_url = reverse_lazy('circle:sitter')
+    form_valid_message = 'Successfully updated your paid babysitter connections.'
+    # we always set "approved" to be true here.
+    default_approved = True
+
+    def get_circle(self):
+        circle = self.request.puser.my_circle(Circle.Type.SITTER)
+        return circle
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        # find babysitter pool
+        me = self.request.puser
+        my_parent_circle = me.my_circle(Circle.Type.PARENT)
+        my_parent_list = my_parent_circle.members.filter(membership__active=True, membership__approved=True).exclude(membership__member=me)
+        other_parent_sitter_circle_list = Circle.objects.filter(owner__in=my_parent_list, type=Circle.Type.SITTER.value, area=my_parent_circle.area)
+        # need to sort by member in order to use groupby.
+        sitter_membership_pool = Membership.objects.filter(active=True, approved=True, circle__in=other_parent_sitter_circle_list).exclude(member=me).order_by('member')
+        pool_list = []
+        for member, membership_list in groupby(sitter_membership_pool, lambda m: m.member):
+            pool_list.append(UserConnection(me, member, list(membership_list)))
+        context['pool_list'] = pool_list
+        return context
 
 
 class ManagePersonal(LoginRequiredMixin, UserOnboardRequiredMixin, FormView):

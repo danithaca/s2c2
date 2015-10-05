@@ -3,10 +3,10 @@
 {% load bootstrap %}
 <section id="item-list-app">
   <div class="input-group">
-    <input id="new-item" class="form-control" placeholder="Add friends' email addresses to your contact list" autofocus>
+    <input id="new-item" class="form-control" placeholder="Email address" autofocus>
     <span class="input-group-btn"><button class="btn btn-primary" id="new-item-add-btn">Add</button></span>
   </div>
-  <span class="help-block">Press "Enter" to add.</span>
+  <span class="help-block">{% block help-message %}{% endblock %}</span>
   <div id="item-list" class="row"></div>
 </section>
 
@@ -150,6 +150,7 @@ $(document).ready(function() {
 
   // now start monitor changes
   list.on('add remove', function() {
+    // will not execute if .changes-notice doesn't exist
     $('.changes-notice').removeClass('hidden');
   });
 
@@ -168,6 +169,7 @@ $(document).ready(function() {
 
 <form id="item-list-form" class="form" method="post" autocapitalize="off" {% if form.is_multipart %}enctype="multipart/form-data"{% endif %}>
   {% csrf_token %}
+  {% block extra-block %}{% endblock %}
   {{ form|bootstrap }}
   {% block submit-block %}
   <p class="text-danger hidden changes-notice"><i class="fa fa-exclamation"></i> Changes are not saved.</p>

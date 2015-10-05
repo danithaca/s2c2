@@ -1,4 +1,6 @@
+from collections import defaultdict
 from enum import Enum
+from itertools import groupby
 
 from django.db import models
 from django.conf import settings
@@ -18,7 +20,7 @@ class Circle(models.Model):
         # SUBSCRIBER = 5    # people who suscribed to certain circles
         # LOOP = 6          # the circle of people who added me as favorite.
         PARENT = 7          # parents network in v3 design
-        BABYSITTER = 8      # babysitter list in v3 design
+        SITTER = 8      # babysitter list in v3 design
         TAG = 9             # tag-like circle type in v3 design
         # HELPER = 10       # the circle that tracks the helpers (members) to circle-owner. e.g, daniel helped tyler, and daniel is in tyler's helper list.
 
@@ -38,9 +40,13 @@ class Circle(models.Model):
     area = models.ForeignKey('puser.Area')
 
     def display(self):
+        name = self.owner.get_full_name() or self.owner.username
         if self.type == Circle.Type.PERSONAL.value:
-            name = self.owner.get_full_name() or self.owner.username
             return '%s\'s list' % name
+        elif self.type == Circle.Type.PARENT.value:
+            return '%s\'s connection' % name
+        elif self.type == Circle.Type.SITTER.value:
+            return '%s\'s babysitter' % name
         else:
             return self.name
 
@@ -226,3 +232,21 @@ class Membership(models.Model):
 
     def is_pending_review(self):
         return self.approved is None
+
+
+class UserConnection(object):
+    """
+    This is about how two users are connected. Similar things are in Match. Might need to combine in the future.
+    """
+    def __init__(self, initiate_user, target_user, membership_list=[]):
+        self.initiate_user = initiate_user
+        self.target_user = target_user
+        self.membership_list = membership_list       # this is the membership list that has "target_user" as members.
+
+    def get_circle_list(self):
+        circle_count = defaultdict(int)
+        for membership in self.membership_list:
+            circle_count[membership.circle] += 1
+        circle_list = [(k, v) for k, v in circle_count.items()]
+        circle_sorted_by_count = [t[0] for t in sorted(circle_list, key=lambda l: l[1], reverse=True)]
+        return circle_sorted_by_count
