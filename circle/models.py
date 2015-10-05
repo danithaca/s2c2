@@ -111,7 +111,13 @@ class Circle(models.Model):
         return self.type == Circle.Type.PERSONAL.value
 
     def is_type_public(self):
-        return self.type == self.type == Circle.Type.PUBLIC.value
+        return self.type == Circle.Type.PUBLIC.value
+
+    def is_type_parent(self):
+        return self.type == Circle.Type.PARENT.value
+
+    def is_type_sitter(self):
+        return self.type == Circle.Type.SITTER.value
 
     def count(self, membership_type=None):
         qs = self.membership_set.filter(active=True, approved=True)

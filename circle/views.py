@@ -10,7 +10,7 @@ from django.core.urlresolvers import reverse_lazy
 from django.views.generic import FormView
 from circle.forms import ManagePublicForm, ManagePersonalForm, ManageLoopForm, ManageAgencyForm, EmailListForm
 from circle.models import Membership, Circle, ParentCircle, UserConnection
-from circle.tasks import personal_circle_send_invitation, parent_circle_send_invitation
+from circle.tasks import personal_circle_send_invitation, circle_send_invitation
 from puser.models import PUser
 from p2.utils import UserOnboardRequiredMixin, ControlledFormValidMessageMixin
 
@@ -48,7 +48,7 @@ class BaseCircleView(LoginRequiredMixin, UserOnboardRequiredMixin, ControlledFor
                 if form.cleaned_data.get('send', False):
                     # send notification
                     # if the user is a dummy user, send invitation code instead.
-                    parent_circle_send_invitation.delay(circle, target_puser)
+                    circle_send_invitation.delay(circle, target_puser)
 
         return super().form_valid(form)
 

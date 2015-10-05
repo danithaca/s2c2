@@ -1,0 +1,5 @@
+{% extends 'email_body.txt' %}
+{% load p2_tags %}
+{% block body %}
+You are receiving this email because {% user-full-name circle.owner %} added you as a babysitter on {{ site_url }}. At this point you don't need to do anything. But expect to receive email notifications when {% user-short-name circle.owner %} and his/her other parent friends post babysitting jobs. Learn more about {{ site_name }} at {{ site_url }}
+{%endblock%}
