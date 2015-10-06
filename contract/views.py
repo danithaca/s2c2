@@ -16,7 +16,7 @@ from contract.forms import ContractForm
 from contract.models import Contract, Match, Engagement
 
 
-class ContractDetail(DetailView):
+class ContractDetail(LoginRequiredMixin, DetailView):
     model = Contract
     template_name = 'contract/contract_view/full.html'
 
@@ -119,6 +119,24 @@ class ContractCreate(LoginRequiredMixin, FormValidMessageMixin, ContractUpdateMi
 #
 #     def done(self, request, cleaned_data):
 #         pass
+
+
+class ContractCreateParentView(ContractCreate):
+    template_name = 'contract/contract_edit/create_parent.html'
+
+    def get_initial(self):
+        initial = super().get_initial()
+        initial['price'] = 0
+        return initial
+
+
+class ContractCreateSitterView(ContractCreate):
+    template_name = 'contract/contract_edit/create_sitter.html'
+
+    def get_initial(self):
+        initial = super().get_initial()
+        initial['price'] = 10
+        return initial
 
 
 class ContractEdit(LoginRequiredMixin, FormValidMessageMixin, ContractUpdateMixin, UpdateView):

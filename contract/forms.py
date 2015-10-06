@@ -15,7 +15,9 @@ class ContractForm(forms.ModelForm):
     # it seems "localize" by default is True if USE_TZ (or USE_L10N?) is turned on.
     # event_start = forms.DateTimeField(localize=True)
     # event_end = forms.DateTimeField(localize=True)
-    audience = forms.IntegerField(label='Contact', widget=forms.Select(attrs={'class': 'form-control'}))  # choices=((0, 'Smart Match'), (1, 'My Circle'))
+
+    # audience = forms.IntegerField(label='Contact', widget=forms.Select(attrs={'class': 'form-control'}))  # choices=((0, 'Smart Match'), (1, 'My Circle'))
+    audience = forms.IntegerField(label='Contact', widget=forms.HiddenInput())
 
     class Meta:
         model = Contract

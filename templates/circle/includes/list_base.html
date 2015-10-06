@@ -2,11 +2,11 @@
 {# manage members for both the parents list and the babasitters list. used in both "Connections" and onboard #}
 {% load bootstrap %}
 <section id="item-list-app">
-  <div class="input-group">
+{#  <div class="help-block min-margin-bottom">{% block help-message %}{% endblock %}</div>#}
+  <div class="input-group min-margin-bottom">
     <input id="new-item" class="form-control" placeholder="Email address" autofocus>
     <span class="input-group-btn"><button class="btn btn-primary" id="new-item-add-btn">Add</button></span>
   </div>
-  <span class="help-block">{% block help-message %}{% endblock %}</span>
   <div id="item-list" class="row"></div>
 </section>
 

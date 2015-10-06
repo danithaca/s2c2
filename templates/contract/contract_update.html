@@ -1,4 +1,4 @@
-{% extends "base_s.html" %}
+{% extends "base_m.html" %}
 {% load staticfiles %}
 {% load bootstrap %}
 
@@ -117,7 +117,6 @@
         },*/
         callback: function(result) {
           if (result) {
-            console.log('haha');
             $form.submit();
           }
         }
@@ -166,19 +165,19 @@
   </div>
 
   {#  {{ form.audience|bootstrap }}#}
-  {% with field=form.audience %}
-    <div class="form-group{% include 'form_includes/field_container_error_class.html' %}">
-      <label class="control-label" for="{{ field.id_for_label }}">{{ field.label }}</label>
-      <div class="input-group">
-        {{ field }}
-        <span class="input-group-addon" data-toggle="tooltip" data-container="body" title="Servuno will contact the best candidates first (e.g., people you have interacted before), and then gradually contacts more if the request is not fulfilled. The default option will potentially contact everyone (including friends of friends) "><i class="fa fa-question-circle"></i></span>
-      </div>
-      <div class="form-group{% include 'form_includes/field_container_error_class.html' %}">
-        {% include 'form_includes/field_errors.html' %}
-        {% include 'form_includes/field_help_text.html' %}
-      </div>
-    </div>
-  {% endwith %}
+{#  {% with field=form.audience %}#}
+{#    <div class="form-group{% include 'form_includes/field_container_error_class.html' %}">#}
+{#      <label class="control-label" for="{{ field.id_for_label }}">{{ field.label }}</label>#}
+{#      <div class="input-group">#}
+{#        {{ field }}#}
+{#        <span class="input-group-addon" data-toggle="tooltip" data-container="body" title="Servuno will contact the best candidates first (e.g., people you have interacted before), and then gradually contacts more if the request is not fulfilled. The default option will potentially contact everyone (including friends of friends) "><i class="fa fa-question-circle"></i></span>#}
+{#      </div>#}
+{#      <div class="form-group{% include 'form_includes/field_container_error_class.html' %}">#}
+{#        {% include 'form_includes/field_errors.html' %}#}
+{#        {% include 'form_includes/field_help_text.html' %}#}
+{#      </div>#}
+{#    </div>#}
+{#  {% endwith %}#}
 
   {% with field=form.price %}
   <div class="form-group{% include 'form_includes/field_container_error_class.html' %}">
@@ -213,10 +212,10 @@
   <div class="form-group">
     {% if not form.instance.id %}
       <button type="submit" name="op" class="btn btn-primary" data-message="Confirm to notify your contacts via Email. If the request is for pay, please pay the babysitter offline after service is delivered. If it is a favor exchange, you would agree to return the favor when they need help.">Submit</button>
-      <a href="javascript:history.back();" class="btn btn-default">Back</a>
+{#      <a href="javascript:history.back();" class="btn btn-default">Back</a>#}
     {% else %}
       <button type="submit" name="op" class="btn btn-primary" data-message="People who are in contact will receive this update via Email.">Update</button>
-      <a href="javascript:history.back();" class="btn btn-default">Back</a>
+{#      <a href="javascript:history.back();" class="btn btn-default">Back</a>#}
     {% endif %}
   </div>
 </form>

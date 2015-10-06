@@ -42,6 +42,10 @@
       /*var path = window.location.pathname;
        $('ul.nav>li>a[href="'+ path +'"]').parent().addClass('active');*/
 
+      // turn on "active" for any item that has data-active-url
+      $('[data-active-url]').removeClass('active');
+      $('[data-active-url*="' + window.location.pathname + '"]').addClass('active');
+
       // turn on tooltip, popover
       $('[data-toggle="tooltip"]').tooltip();
 

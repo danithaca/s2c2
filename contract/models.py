@@ -111,6 +111,8 @@ class Contract(StatusMixin, models.Model):
     event_start = models.DateTimeField()
     event_end = models.DateTimeField()
     price = models.DecimalField(max_digits=5, decimal_places=2)
+    # not used now.
+    #favor_index = models.PositiveSmallIntegerField(blank=True, null=False, help_text='0~100 to indicate how much this job is a favor.')
 
     # more details about the contract.
     description = models.TextField(blank=True)

@@ -1,0 +1,8 @@
+{# similar to base_m.html, but added panel for the trunk layout #}
+{% extends "base.html" %}
+{% block page %}
+<div class="row page-content"><div class="col-xs-12 col-sm-offset-1 col-sm-10 col-md-offset-2 col-md-8{#  col-lg-offset-3 col-lg-6 #}">
+  {% block back %}{% endblock %}
+  {% block content %}{% endblock %}
+</div></div>
+{% endblock %}

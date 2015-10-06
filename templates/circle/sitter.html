@@ -1,4 +1,6 @@
-{% extends "circle/manage_base.html" %}
+{% extends "circle/base.html" %}
+
+{% block help-message %}Add babysitters you trust, e.g, grandparents, teenage cousins, and/or professional babysitters you used before. <strong>DO NOT add anyone you don't trust.</strong>{% endblock %}
 
 {% block manage-block %}
   {% include 'circle/includes/list_sitter.html' %}

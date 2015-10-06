@@ -7,7 +7,7 @@ from contract import views
 
 urlpatterns = patterns(
     "",
-    url(r'^(?P<pk>\d+)/$', login_required(views.ContractDetail.as_view()), name='view'),
+    url(r'^(?P<pk>\d+)/$', views.ContractDetail.as_view(), name='view'),
     url(r'^(?P<pk>\d+)/status$', views.ContractChangeStatus.as_view(), name='change_status'),
 
     url(r"^list/$", views.EngagementList.as_view(), name="engagement_list"),
@@ -28,4 +28,10 @@ urlpatterns = patterns(
 
     url(r'^api/my_list/$', views.APIMyEngagementList.as_view(), name='my_list'),
     url(r'^api/preview_query/$', views.ContractPreviewQuery.as_view(), name='preview_query'),
+
+    ########### new paradigm ###########
+
+    url(r"^post/favor/$", views.ContractCreateParentView.as_view(), name="add"),
+    url(r"^post/favor/$", views.ContractCreateParentView.as_view(), name="post_parent"),
+    url(r"^post/paid/$", views.ContractCreateSitterView.as_view(), name="post_sitter"),
 )
