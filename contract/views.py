@@ -145,12 +145,13 @@ class ContractCreateSitterView(ContractCreate):
 
 
 class ContractEdit(LoginRequiredMixin, FormValidMessageMixin, ContractUpdateMixin, UpdateView):
-    form_valid_message = 'Request successfully updated.'
+    form_valid_message = 'Job post successfully updated.'
+    template_name = 'contract/contract_edit/edit.html'
 
     def get_form(self, form_class=None):
         form = super().get_form(form_class)
-        if not form.is_bound:
-            messages.warning(self.request, 'You CANNOT change the date/time or reduce payment. To do so, cancel the request and create a new one.')
+        # if not form.is_bound:
+        #     messages.warning(self.request, 'You CANNOT change the date/time or reduce payment. To do so, cancel the request and create a new one.')
         # todo: double check security issue
         form.fields['event_start'].widget.attrs['readonly'] = True
         form.fields['event_end'].widget.attrs['readonly'] = True
@@ -175,6 +176,11 @@ class ContractEdit(LoginRequiredMixin, FormValidMessageMixin, ContractUpdateMixi
             from contract.tasks import after_contract_updated
             after_contract_updated.delay(form.instance)
         return result
+
+    def get_context_data(self, **kwargs):
+        ctx = super().get_context_data(**kwargs)
+        ctx['show_price'] = True
+        return ctx
 
 
 class ContractChangeStatus(LoginRequiredMixin, JSONResponseMixin, AjaxResponseMixin, View):
