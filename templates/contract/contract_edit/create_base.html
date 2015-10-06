@@ -22,7 +22,7 @@
         //showTodayButton: true,
         keepInvalid: true,
         //allowInputToggle: true,
-        showClose: true,
+        showClose: true
       });
 
       // sync end date if start date is changed.
@@ -45,61 +45,63 @@
        }
        });*/
 
-      var $price = $('#id_price');
-      var $price_info = $('#price-info');
-      var $price_info_container = $('#price-info-container');
-      var $price_favor = $('#price-favor-checkbox');
-      var handlePriceInfo = function() {
-        var start = parseDatetime($event_start.val()), end = parseDatetime($event_end.val()), price = parseInt($price.val());
-        if (price === 0) {
-          $price_favor.prop('checked', true);
-        } else {
-          $price_favor.prop('checked', false);
-        }
-        if (start && end && price >= 0 && end > start) {
-          /*$.get('{% url "contract:preview_query" %}', {start: start, end: end, price: price}, function(result){
-           if (result['success']) {
-           var rate = result['rate'] == 0 ? 'favor exchange' : '$' + result['rate'] + '/hour';
-           $price_info.val(rate + ', ' + result['length']);
-           } else {
-           $price_info.val('');
-           }
-           });*/
-          var duration = moment.duration(end.diff(start, 'seconds'), 'seconds');
-          var rate = (price === 0 ? 'favor exchange' : '$' + parseFloat(Math.round((price / duration.asHours()) * 100) / 100).toFixed(2) + '/hour');
-          $price_info_container.show();
-          // $price_info.val(rate + ', ' + duration.humanize());
-          $price_info.val(rate + ', ' + humanizeDuration(duration.asMilliseconds()));
-        } else {
-          console.log(price);
-          $price_info_container.hide();
-        }
-      };
+      {% if show_price %}
+        var $price = $('#id_price');
+        var $price_info = $('#price-info');
+        var $price_info_container = $('#price-info-container');
+        var $price_favor = $('#price-favor-checkbox');
+        var handlePriceInfo = function() {
+          var start = parseDatetime($event_start.val()), end = parseDatetime($event_end.val()), price = parseInt($price.val());
+          if (price === 0) {
+            $price_favor.prop('checked', true);
+          } else {
+            $price_favor.prop('checked', false);
+          }
+          if (start && end && price >= 0 && end > start) {
+            /*$.get('{% url "contract:preview_query" %}', {start: start, end: end, price: price}, function(result){
+             if (result['success']) {
+             var rate = result['rate'] == 0 ? 'favor exchange' : '$' + result['rate'] + '/hour';
+             $price_info.val(rate + ', ' + result['length']);
+             } else {
+             $price_info.val('');
+             }
+             });*/
+            var duration = moment.duration(end.diff(start, 'seconds'), 'seconds');
+            var rate = (price === 0 ? 'favor exchange' : '$' + parseFloat(Math.round((price / duration.asHours()) * 100) / 100).toFixed(2) + '/hour');
+            $price_info_container.show();
+            // $price_info.val(rate + ', ' + duration.humanize());
+            $price_info.val(rate + ', ' + humanizeDuration(duration.asMilliseconds()));
+          } else {
+            console.log(price);
+            $price_info_container.hide();
+          }
+        };
 
-      // enable handle. datetimepicker "change" event doesn't seem to work.
-      // keypress doesn't to seem work well
+        // enable handle. datetimepicker "change" event doesn't seem to work.
+        // keypress doesn't to seem work well
 
-      handlePriceInfo();
-      //$event_start.change(handlePriceInfo);
-      $event_start.parent().on('dp.change', handlePriceInfo);
-      $event_start.keyup(handlePriceInfo);
-      //$event_start.focusout(handlePriceInfo);
-      //$event_end.change(handlePriceInfo);
-      $event_end.parent().on('dp.change', handlePriceInfo);
-      $event_end.keyup(handlePriceInfo);
-      //$event_end.focusout(handlePriceInfo);
-      $price.change(handlePriceInfo);
-      $price.keyup(handlePriceInfo);
-
-      // handle "favor" checkbox
-      $price_favor.change(function() {
-        if ($price_favor.is(':checked')) {
-          $price.val(0);
-        } else if (!$price_favor.is(':checked')) {
-          $price.val('');
-        }
         handlePriceInfo();
-      });
+        //$event_start.change(handlePriceInfo);
+        $event_start.parent().on('dp.change', handlePriceInfo);
+        $event_start.keyup(handlePriceInfo);
+        //$event_start.focusout(handlePriceInfo);
+        //$event_end.change(handlePriceInfo);
+        $event_end.parent().on('dp.change', handlePriceInfo);
+        $event_end.keyup(handlePriceInfo);
+        //$event_end.focusout(handlePriceInfo);
+        $price.change(handlePriceInfo);
+        $price.keyup(handlePriceInfo);
+
+        // handle "favor" checkbox
+        $price_favor.change(function() {
+          if ($price_favor.is(':checked')) {
+            $price.val(0);
+          } else if (!$price_favor.is(':checked')) {
+            $price.val('');
+          }
+          handlePriceInfo();
+        });
+      {% endif %}
 
       // confirm
       var $form = $('#contract-update');
@@ -127,13 +129,13 @@
   </script>
 {% endblock %}
 
-{% block title %}Find a Babysitter{% endblock %}
-
 {% block content %}
   <ul class="nav nav-pills nav-justified min-margin-bottom">
     <li data-active-url="{% url 'contract:post_parent' %}"><a href="{% url 'contract:post_parent' %}">Find a Parent</a></li>
     <li data-active-url="{% url 'contract:post_sitter' %}"><a href="{% url 'contract:post_sitter' %}">Book a Babysitter</a></li>
   </ul>
+
+  <div class="well">{% block help-message %}{% endblock %}</div>
 
   <form class="form" method="post" id="contract-update">
     {% csrf_token %}
@@ -146,8 +148,8 @@
           {% with field=form.event_start %}
             <label class="control-label" for="{{ field.id_for_label }}">{{ field.label }}</label>
             <div class="input-group date datetimepicker-control">
-              {{ field }}
               <span class="input-group-addon"><i class="fa fa-calendar"></i></span>
+              {{ field }}
             </div>
             {% include 'form_includes/field_errors.html' %}
             {% include 'form_includes/field_help_text.html' %}
@@ -157,8 +159,8 @@
           {% with field=form.event_end %}
             <label class="control-label" for="{{ field.id_for_label }}">{{ field.label }}</label>
             <div class="input-group date datetimepicker-control">
-              {{ field }}
               <span class="input-group-addon"><i class="fa fa-calendar"></i></span>
+              {{ field }}
             </div>
             {% include 'form_includes/field_errors.html' %}
             {% include 'form_includes/field_help_text.html' %}
@@ -170,34 +172,45 @@
       {#      </div>#}
     </div>
 
-    {#  {{ form.audience|bootstrap }}#}
-    {#  {% with field=form.audience %}#}
-    {#    <div class="form-group{% include 'form_includes/field_container_error_class.html' %}">#}
-    {#      <label class="control-label" for="{{ field.id_for_label }}">{{ field.label }}</label>#}
-    {#      <div class="input-group">#}
-    {#        {{ field }}#}
-    {#        <span class="input-group-addon" data-toggle="tooltip" data-container="body" title="Servuno will contact the best candidates first (e.g., people you have interacted before), and then gradually contacts more if the request is not fulfilled. The default option will potentially contact everyone (including friends of friends) "><i class="fa fa-question-circle"></i></span>#}
-    {#      </div>#}
-    {#      <div class="form-group{% include 'form_includes/field_container_error_class.html' %}">#}
-    {#        {% include 'form_includes/field_errors.html' %}#}
-    {#        {% include 'form_includes/field_help_text.html' %}#}
-    {#      </div>#}
-    {#    </div>#}
-    {#  {% endwith %}#}
+{#    {{ form.audience|bootstrap }}#}
+    {% with field=form.audience %}
+      <div class="hidden form-group{% include 'form_includes/field_container_error_class.html' %}">
+        <label class="control-label" for="{{ field.id_for_label }}">{{ field.label }}</label>
+        <div class="input-group">
+          {{ field }}
+          <span class="input-group-addon" data-toggle="tooltip" data-container="body" title="Servuno will contact the best candidates first (e.g., people you have interacted before), and then gradually contacts more if the request is not fulfilled. The default option will potentially contact everyone (including friends of friends) "><i class="fa fa-question-circle"></i></span>
+        </div>
+        <div class="form-group{% include 'form_includes/field_container_error_class.html' %}">
+          {% include 'form_includes/field_errors.html' %}
+          {% include 'form_includes/field_help_text.html' %}
+        </div>
+      </div>
+    {% endwith %}
 
     {% with field=form.price %}
-      <div class="form-group{% include 'form_includes/field_container_error_class.html' %}">
+      <div class="{% if not show_price %}hidden {% endif %}form-group{% include 'form_includes/field_container_error_class.html' %}">
         <label class="control-label" for="{{ field.id_for_label }}">{{ field.label }}</label>
         <div class="row">
           <div class="col-xs-6">
             <div class="input-group">
+              <span class="input-group-addon"><i class="fa fa-dollar"></i></span>
               {{ field }}
-              <span class="input-group-addon">$</span>
             </div>
           </div>
           <div class="col-xs-6">
-            <div class="form-group">
-              <div class="checkbox"><label><input id="price-favor-checkbox" name="price-favor" type="checkbox"> <span>Free (favor)</span></label></div>
+{#              <div class="form-group">#}
+{#                <div class="checkbox"><label><input id="price-favor-checkbox" name="price-favor" type="checkbox"> <span>Free (favor)</span></label></div>#}
+{#              </div>#}
+{#              <div class="form-group has-success has-feedback" id="price-info-container">#}
+{#                <div class="input-group">#}
+{#                  <span class="input-group-addon">$</span>#}
+{#                  <input class="form-control" id="price-info" readonly>#}
+{#                  <span class="glyphicon glyphicon-ok form-control-feedback"></span>#}
+{#                </div>#}
+{#              </div>#}
+            <div class="input-group" id="price-info-container">
+              <span class="input-group-addon"><i class="fa fa-calculator"></i></span>
+              <input class="form-control" id="price-info" readonly>
             </div>
           </div>
         </div>
@@ -208,16 +221,11 @@
       </div>
     {% endwith %}
 
-    <div class="form-group has-success has-feedback" id="price-info-container">
-      <input class="form-control" id="price-info" readonly>
-      <span class="glyphicon glyphicon-ok form-control-feedback"></span>
-    </div>
-
     {{ form.description|bootstrap }}
 
     <div class="form-group">
       {% if not form.instance.id %}
-        <button type="submit" name="op" class="btn btn-primary" data-message="Confirm to notify your contacts via Email. If the request is for pay, please pay the babysitter offline after service is delivered. If it is a favor exchange, you would agree to return the favor when they need help.">Submit</button>
+        <button type="submit" name="op" class="btn btn-primary" data-message="{% block create-confirm-message %}Please confirm.{% endblock %}">Post</button>
         {#      <a href="javascript:history.back();" class="btn btn-default">Back</a>#}
       {% else %}
         <button type="submit" name="op" class="btn btn-primary" data-message="People who are in contact will receive this update via Email.">Update</button>
@@ -225,5 +233,5 @@
       {% endif %}
     </div>
   </form>
-  {% if client.is_isolated %}<div><span class="text-warning" style="margin-right: 10px;"><i class="fa fa-exclamation-circle"></i></span> <span>You have few contacts on Servuno. Please <a href="{% url 'circle:manage_personal' %}">add more contacts</a> and/or <a href="{% url 'circle:manage_public' %}">join more parents circles</a>.</span></div>{% endif %}
+{#  {% if client.is_isolated %}<div><span class="text-warning" style="margin-right: 10px;"><i class="fa fa-exclamation-circle"></i></span> <span>You have few contacts on Servuno. Please <a href="{% url 'circle:manage_personal' %}">add more contacts</a> and/or <a href="{% url 'circle:manage_public' %}">join more parents circles</a>.</span></div>{% endif %}#}
 {% endblock %}

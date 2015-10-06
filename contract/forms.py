@@ -16,8 +16,8 @@ class ContractForm(forms.ModelForm):
     # event_start = forms.DateTimeField(localize=True)
     # event_end = forms.DateTimeField(localize=True)
 
-    # audience = forms.IntegerField(label='Contact', widget=forms.Select(attrs={'class': 'form-control'}))  # choices=((0, 'Smart Match'), (1, 'My Circle'))
-    audience = forms.IntegerField(label='Contact', widget=forms.HiddenInput())
+    audience = forms.IntegerField(label='Contact', widget=forms.Select(attrs={'class': 'form-control'}))  # choices=((0, 'Smart Match'), (1, 'My Circle'))
+    # audience = forms.IntegerField(label='Contact', widget=forms.HiddenInput())
 
     class Meta:
         model = Contract
@@ -33,12 +33,12 @@ class ContractForm(forms.ModelForm):
             # 'event_end': forms.DateTimeInput(attrs={'class': 'form-control', 'placeholder': 'E.g. 12/21/2014 19:00'}),
             'event_end': forms.DateTimeInput(attrs={'class': 'form-control', 'placeholder': 'End date/time'}),
             'area': forms.HiddenInput(),
-            'description': forms.Textarea(attrs={'placeholder': 'Leave a note here', 'rows': 3})
+            'description': forms.Textarea(attrs={'placeholder': 'Type here.', 'rows': 3})
         }
         labels = {
             'event_start': 'From',
             'event_end': 'To',
-            'description': 'Note',
+            'description': 'Note (optional)',
         }
         localized_fields = ['event_start', 'event_end']
         # help_texts = {

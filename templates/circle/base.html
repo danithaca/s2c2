@@ -25,6 +25,6 @@ $(document).ready(function() {
     <li data-active-url="{% url 'circle:parent' %}"><a href="{% url 'circle:parent' %}">Connect to Parents</a></li>
     <li data-active-url="{% url 'circle:sitter' %}"><a href="{% url 'circle:sitter' %}">Add Babysitters</a></li>
   </ul>
-  <div class="help-block min-margin-bottom">{% block help-message %}{% endblock %}</div>
+  <div class="well">{% block help-message %}{% endblock %}</div>
   {% block manage-block %}{% endblock %}
 {% endblock %}

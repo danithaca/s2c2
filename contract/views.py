@@ -138,6 +138,11 @@ class ContractCreateSitterView(ContractCreate):
         initial['price'] = 10
         return initial
 
+    def get_context_data(self, **kwargs):
+        ctx = super().get_context_data(**kwargs)
+        ctx['show_price'] = True
+        return ctx
+
 
 class ContractEdit(LoginRequiredMixin, FormValidMessageMixin, ContractUpdateMixin, UpdateView):
     form_valid_message = 'Request successfully updated.'
