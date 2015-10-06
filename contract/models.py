@@ -288,6 +288,9 @@ class Contract(StatusMixin, models.Model):
     def to_engagement(self):
         return Engagement.from_contract(self)
 
+    def get_client(self):
+        return self.initiate_user.to_puser()
+
 
 class Match(StatusMixin, models.Model):
     """

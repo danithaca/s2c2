@@ -69,7 +69,7 @@
              }
              });*/
             var duration = moment.duration(end.diff(start, 'seconds'), 'seconds');
-            var rate = (price === 0 ? 'favor exchange' : '$' + parseFloat(Math.round((price / duration.asHours()) * 100) / 100).toFixed(2) + '/hour');
+            var rate = (price === 0 ? 'favor' : '$' + parseFloat(Math.round((price / duration.asHours()) * 100) / 100).toFixed(2) + '/hour');
             $price_info_container.show();
             // $price_info.val(rate + ', ' + duration.humanize());
             $price_info.val(rate + ', ' + humanizeDuration(duration.asMilliseconds()));
