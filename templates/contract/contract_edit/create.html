@@ -130,10 +130,14 @@
 {% endblock %}
 
 {% block content %}
-  <ul class="nav nav-pills nav-justified min-margin-bottom">
-    <li data-active-url="{% url 'contract:post_parent' %}"><a href="{% url 'contract:post_parent' %}">Find a Parent</a></li>
-    <li data-active-url="{% url 'contract:post_sitter' %}"><a href="{% url 'contract:post_sitter' %}">Book a Babysitter</a></li>
-  </ul>
+{#  <ul class="nav nav-pills nav-justified min-margin-bottom">#}
+{#    <li data-active-url="{% url 'contract:post_parent' %}"><a href="{% url 'contract:post_parent' %}">Find a Parent</a></li>#}
+{#    <li data-active-url="{% url 'contract:post_sitter' %}"><a href="{% url 'contract:post_sitter' %}">Book a Babysitter</a></li>#}
+{#  </ul>#}
+  <div class="btn-group btn-group-justified min-margin-bottom">
+    <a href="{% url 'contract:post_parent' %}" class="btn btn-default" data-active-url="{% url 'contract:post_parent' %}">Find a Parent</a>
+    <a href="{% url 'contract:post_sitter' %}" class="btn btn-default" data-active-url="{% url 'contract:post_sitter' %}">Book a Babysitter</a>
+  </div>
 
   <div class="well">{% block help-message %}{% endblock %}</div>
 
