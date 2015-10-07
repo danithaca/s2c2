@@ -121,6 +121,11 @@
   margin-bottom: 20px;
 }
 
+.dashboard-header {
+  display: flex;
+  justify-content: space-between;
+}
+
 /******** for contract related *********/
 
 .contract-label-decoration {

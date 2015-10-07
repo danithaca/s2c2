@@ -253,13 +253,13 @@ class PUser(User):
         if self == puser:
             return True
 
-        # trust someone in my personal circle
-        my_personal_circles = Circle.objects.filter(type=Circle.Type.PERSONAL.value, owner=self)
+        # trust someone in my personal/parent/sitter circle
+        my_personal_circles = Circle.objects.filter(type__in=(Circle.Type.PERSONAL.value, Circle.Type.PARENT.value, Circle.Type.SITTER.value), owner=self)
         if Membership.objects.filter(circle__in=my_personal_circles, member=puser, active=True).exists():
             return True
 
-        # trust someone i'm part of her personal circle which I approved
-        their_personal_circles = Circle.objects.filter(type=Circle.Type.PERSONAL.value, owner=puser)
+        # trust someone i'm part of her personal/parent/sitter circle which I approved
+        their_personal_circles = Circle.objects.filter(type__in=(Circle.Type.PERSONAL.value, Circle.Type.PARENT.value, Circle.Type.SITTER.value), owner=puser)
         if Membership.objects.filter(circle__in=their_personal_circles, member=self, approved=True).exists():
             return True
 
@@ -355,6 +355,39 @@ class PUser(User):
             if contract.is_favor():
                 count += 1
         return count
+
+    def count_favors_all(self):
+        # count = 0
+        # for contract in Contract.objects.filter(confirmed_match__target_user=self, status=Contract.Status.SUCCESSFUL.value):
+        #     if contract.is_favor():
+        #         count += 1
+
+        # TODO: this need to think thru. for a parent (not sitter), even paid job could be a favor.
+        return Contract.objects.filter(confirmed_match__target_user=self, status=Contract.Status.SUCCESSFUL.value).count()
+
+    def get_level(self):
+        count = self.count_favors_all()
+        levels = [
+            (0, 0, 'Newborn Angel'),
+            (1, 1, 'Baby Angel'),
+            (2, 3, 'Toddler Angel'),
+            (3, 7, 'Teenage Angel'),
+            (4, 15, 'Young Angel'),
+            (5, 50, 'Arch Angel'),
+        ]
+        next_levels = levels[1:] + [(6, 1000, 'God')]
+        for this_level, next_level in zip(levels, next_levels):
+            if this_level[1] <= count < next_level[1]:
+                break
+        return {
+            'level': this_level[0],
+            'title': this_level[2],
+            'count': count,
+            'next_level': next_level[0],
+            'next_level_title': next_level[2],
+            'next_level_count': next_level[1],
+            'next_level_more': next_level[1] - count,
+        }
 
     def get_login_token(self, force=False):
         try:

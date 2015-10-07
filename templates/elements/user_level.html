@@ -1,0 +1,3 @@
+{% with level_data=user.get_level %}
+<span class="user-level label label-info" title="You helped other parents {{ level_data.count }} time{{ level_data.count|pluralize }}. To achieve the next level '{{ level_data.next_level_title }}', help other parents {{ level_data.next_level_more }} more time{{ level_data.next_level_more|pluralize }}." data-toggle="tooltip">Level {{ level_data.level }} - {{ level_data.title }}</span>
+{% endwith %}

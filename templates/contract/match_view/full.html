@@ -1,4 +1,4 @@
-{% extends "base_l.html" %}
+{% extends "base_branch.html" %}
 {% load staticfiles %}
 {% load bootstrap %}
 {% load p2_tags %}
@@ -124,3 +124,5 @@ $(document).ready(function() {
   {% endif %}{% endif %}
 </div>
 {% endblock %}
+
+{% block title %}Response{% endblock %}
