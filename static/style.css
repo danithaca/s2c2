@@ -162,6 +162,21 @@
   padding-bottom: 6px;
 }*/
 
+.engagement-feed {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+}
+.engagement-feed>div:nth-child(1) {
+  margin-right: 8px;
+}
+/*.engagement-feed>div:nth-child(2) {*/
+  /*align-items: center;*/
+/*/!*}*!/*/
+/*.engagement-feed>div:nth-child(3) {*/
+  /*align-self: flex-end;*/
+/*}*/
+
 .contract-summary .title {
   display: flex;
   flex-wrap: wrap;

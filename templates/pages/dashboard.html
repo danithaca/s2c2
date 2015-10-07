@@ -64,14 +64,33 @@
     </div>
   </div>
 
-{#  {% url 'account_view' as href_account %}#}
-{#  {% include 'pages/dashboard_link.html' with color='info' href=href_account text='View Account' help="Review your personal info." only %}#}
-  {% if contract_feedback_needed_qs and contract_feedback_needed_qs.exists %}
-    <p><strong class="text-danger">Feedback needed:</strong>
-      {% for contract_feedback in contract_feedback_needed_qs %}
-        <a href="{{ contract_feedback.get_absolute_url }}">{{ contract_feedback.event_start|date }} <i class="fa fa-calendar-o"></i></a>{% if not forloop.last %} | {% endif %}
-      {% endfor %}
-    </p>
+{#  {% if contract_feedback_needed_qs and contract_feedback_needed_qs.exists %}#}
+{#    <p><strong class="text-danger">Feedback needed:</strong>#}
+{#      {% for contract_feedback in contract_feedback_needed_qs %}#}
+{#        <a href="{{ contract_feedback.get_absolute_url }}">{{ contract_feedback.event_start|date }} <i class="fa fa-calendar-o"></i></a>{% if not forloop.last %} | {% endif %}#}
+{#      {% endfor %}#}
+{#    </p>#}
+{#  {% endif %}#}
+
+  {% if engagement_recent %}
+    <ul class="nav nav-tabs">
+      <li class="active" title="List of job posts order by last updated." data-toggle="tooltip"><a href="#list-activities" data-toggle="tab">Job posts <span class="badge">{{ engagement_recent|length }}</span></a></li>
+    </ul>
+    <div class="tab-content">
+      <div id="list-activities" class="tab-pane active">
+        <ul class="list-group">
+          {% for engagement in engagement_recent %}
+            <li class="list-group-item">{% include 'contract/engagement_view/feed.html' with engagement=engagement current_user=target_user only %}</li>
+          {% endfor %}
+        </ul>
+      </div>
+    </div>
+  {% else %}
+    <div class="help-block">
+      <p>No job post.</p>
+      <p>To book a babysitter, first you need to <a href="{% url 'circle:parent' %}">build a network</a> of parents and optionally <a href="{% url 'circle:sitter' %}">add trusted babysitters</a>. Then you can tap into your network and either <a href="{% url 'contract:post_parent' %}">find another parent</a> to babysit for you, or <a href="{% url 'contract:post_sitter' %}">book a babysitter</a> from a pool of babysitters shared by your parents friends.</p>
+      <p>You can also <a href="{% url 'account_view' %}">view</a> and <a href="{% url 'account_edit' %}">edit</a>  your profile, or <a href="{% url 'account_picture' %}">upload</a> a profile picture.</p>
+    </div>
   {% endif %}
 
 {#  <p class="{% if not favors_karma %}text-muted{% endif %}">#}

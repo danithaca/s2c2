@@ -69,6 +69,7 @@ $(document).ready(function() {
           <a class="btn btn-primary" href="{% url 'contract:edit' pk=contract.id %}">Edit</a>
           <button class="btn btn-danger" name="change-status" value="cancel">Cancel</button>
         {% elif contract.is_event_expired and contract.is_confirmed %}
+          <p class="text-danger"><i class="fa fa-exclamation-circle"></i> Provide feedback</p>
           <button class="btn btn-success" name="change-status" value="succeed">Successful</button>
           <button class="btn btn-danger" name="change-status" value="fail">Failed</button>
         {% else %}

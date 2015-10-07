@@ -202,6 +202,9 @@ class Contract(StatusMixin, models.Model):
     def is_feedback_provided(self):
         return self.status in (Contract.Status.SUCCESSFUL.value, Contract.Status.FAILED.value)
 
+    def is_feedback_needed(self):
+        return self.is_confirmed() and self.is_event_expired()
+
     def count_accepted_match(self):
         return Match.objects.filter(contract=self, status=Match.Status.ACCEPTED.value).count()
 

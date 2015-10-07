@@ -1,0 +1,39 @@
+{# assume the there's also the "current_user", which is refered to as "You" #}
+{% load p2_tags %}
+{% load static %}
+{% load account_tags %}
+
+<div class="engagement engagement-feed {% if engagement.contract.is_event_expired and not engagement.contract.is_feedback_needed %} pale{% endif %} hover-pointer" data-href="{{ engagement.get_link }}">
+    <div>{# This is image #}
+      {% if engagement.is_main_match %}
+        <a href="{% url 'account_view' pk=engagement.initiate_user.id %}"><img src="{% user_picture_url engagement.initiate_user %}" alt="user picture" class="img-50 img-circle"></a>
+      {% else %}
+        {% if engagement.target_user %}
+          <a href="{% url 'account_view' pk=engagement.target_user.id %}"><img src="{% user_picture_url engagement.target_user %}" alt="user picture" class="img-50 img-circle"></a>
+        {% else %}
+          <img src="{% static 'images/question_200x200.png' %}" alt="not found" class="img-50 img-circle">
+        {% endif %}
+      {% endif %}
+    </div>
+
+    <div> {# this is text #}
+      <span class="text-{{ engagement.display_status.color }}" title="{{ engagement.display_status.label }}" data-toggle="tooltip">
+        {% if engagement.is_main_match %}
+          <a href="{% url 'account_view' pk=engagement.initiate_user.id %}">{% user-full-name engagement.initiate_user %}</a> needed help on <strong><i class="fa fa-clock-o"></i> {{ engagement.contract.event_start|date:'n/j H:i' }}</strong>.
+        {% else %}
+          {% if engagement.target_user %}
+            You booked <a href="{% url 'account_view' pk=engagement.target_user.id %}">{% user-full-name engagement.target_user %}</a> babysit starting at <strong><i class="fa fa-clock-o"></i> {{ engagement.contract.event_start|date:'n/j H:i' }}</strong>.
+          {% else %}
+            You posted a job starting at <strong><i class="fa fa-clock-o"></i> {{ engagement.contract.event_start|date:'n/j H:i' }}</strong>.
+          {% endif %}
+        {% endif %}
+      </span>
+      <br>
+      {% if engagement.is_main_contract and engagement.contract.is_feedback_needed %}
+        <span class="text-danger"><i class="fa fa-exclamation-circle"></i> need feedback</span>
+      {% else %}
+        <span><a href="{{ engagement.get_link }}"><i class="fa fa-arrow-circle-right"></i> view more</a></span>
+      {% endif %}
+      <span class="text-muted hidden-xs">updated {{ engagement.updated|timesince }} ago</span>
+    </div>
+</div>

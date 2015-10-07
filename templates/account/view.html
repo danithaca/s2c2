@@ -10,8 +10,8 @@
       <div class="panel-body text-center">
         {% if full_access %}<a href="{% url 'account_picture' %}" id="link_account_picture">{% endif %}<img src="{% user_picture_url target_user %}" alt="user picture" class="img-rounded img-responsive img-thumbnail">{% if full_access %}</a>{% endif %}
         <h4 class="text-center">{% user-full-name target_user %}</h4>
-        {% if full_access %}<small><a href="{% url 'account_edit' %}" id="link_account_edit"><i class="fa fa-edit"></i> Edit profile</a></small>{% endif %}
-        <span class="text-large">{% include 'elements/user_level.html' with user=target_user only %}</span>
+        {% if full_access %}<div><small><a href="{% url 'account_edit' %}" id="link_account_edit"><i class="fa fa-edit"></i> Edit profile</a></small></div>{% endif %}
+        <div class="text-large">{% include 'elements/user_level.html' with user=target_user only %}</div>
       </div>
     </div>
 
