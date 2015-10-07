@@ -2,39 +2,110 @@
 {% load account_tags %}
 {% load p2_tags %}
 
+{% block title %}View account{% endblock %}
+
 {% block content %}
-<div class="row" data-uid="{{ target_user.id }}">
-  <aside class="col-sm-4">
-
-    <div class="panel panel-default">
-      <div class="panel-body text-center">
-        {% if full_access %}<a href="{% url 'account_picture' %}" id="link_account_picture">{% endif %}<img src="{% user_picture_url target_user %}" alt="user picture" class="img-rounded img-responsive img-thumbnail">{% if full_access %}</a>{% endif %}
-        <h4 class="text-center">{% user-full-name target_user %}</h4>
-        {% if full_access %}<div><small><a href="{% url 'account_edit' %}" id="link_account_edit"><i class="fa fa-edit"></i> Edit profile</a></small></div>{% endif %}
-        <div class="text-large">{% include 'elements/user_level.html' with user=target_user only %}</div>
+<div class="panel panel-default" data-uid="{{ target_user.id }}"><div class="panel-body">
+  <div class="jumbotron">
+    <div class="row vertical-align min-margin-bottom">
+      <div class="col-xs-4 text-center">
+        <a href="{% url 'account_picture' %}"><img src="{% user_picture_url target_user %}" alt="user picture" class="img-rounded img-responsive img-thumbnail"></a>
+        {#        <div><a href="{% url 'account_picture' %}"><i class="fa fa-edit"></i> Edit</a></div>#}
+      </div>
+      <div class="col-xs-8 center-block text-center">
+        <h3>
+          {% user-full-name target_user %}{# {% if full_access %} <small><a href="{% url 'account_edit' %}"><i class="fa fa-edit"></i></a></small>{% endif %} #}
+        </h3>
+        <ul class="list-inline">
+          <li><i class="fa fa-envelope"></i> <a href="mailto:{{ target_user.email }}">{{ target_user.email }}</a></li>
+          {% if target_user.info.phone %}
+            <li><i class="fa fa-phone"></i> <a href="tel:{{ target_user.info.phone }}">{{ target_user.info.phone }}</a></li>
+          {% endif %}
+          {% if target_user.info.address %}
+            <li><i class="fa fa-map-marker"></i> <a href="https://www.google.com/maps/place/{{ target_user.info.address|urlencode }}">{{ target_user.info.address }}</a></li>
+          {% endif %}
+        </ul>
+{#        <div>{% include 'elements/user_level.html' with user=target_user only %}</div>#}
       </div>
     </div>
-
-    <div class="panel panel-default">
-      <div class="panel-heading panel-title">Contact</div>
-      <ul class="list-group">
-        <li class="list-group-item"><i class="fa fa-envelope"></i> <a href="mailto:{{ target_user.email }}">{{ target_user.email }}</a></li>
-        {% if target_user.info.phone %}
-          <li class="list-group-item"><i class="fa fa-phone"></i> <a href="tel:{{ target_user.info.phone }}">{{ target_user.info.phone }}</a></li>
-        {% endif %}
-        {% if target_user.info.address %}
-          <li class="list-group-item"><i class="fa fa-map-marker"></i> <a href="https://www.google.com/maps/place/{{ target_user.info.address|urlencode }}">{{ target_user.info.address }}</a></li>
-        {% endif %}
-      </ul>
-    </div>
-
     {% if target_user.info.note %}
-      <div class="panel panel-default">
-        <div class="panel-heading panel-title">About</div>
-        <div class="panel-body">{{ target_user.info.note|default:"Nothing." }}</div>
-      </div>
+    <div class="row"><div class="col-xs-12">
+      <blockquote>{{ target_user.info.note }}</blockquote>
+    </div></div>
     {% endif %}
+    <div class="row"><div class="col-xs-12">
+      <div class="pull-right">
+        {% include 'elements/user_level.html' with user=target_user only %}
+        {% if not target_user.is_registered %}<span class="label label-danger">not registered</span>{% endif %}
+      </div>
+    </div></div>
+  </div>
 
+  <div class="page-header">
+    <h5>Parents Network</h5>
+  </div>
+  {% if my_parents %}
+    <div class="row">
+      {% for u in my_parents %}
+        <div class="col-xs-12 col-sm-6 col-md-4 col-lg-3">
+          {% include 'account/view/horizontal.html' with user=u %}
+        </div>
+      {% endfor %}
+    </div>
+  {% else %}
+    <p class="">None.</p>
+  {% endif %}
+
+  <div class="page-header">
+    <h5>Paid Babysitters</h5>
+  </div>
+  {% if my_sitters %}
+    <div class="row">
+      {% for u in my_sitters %}
+        <div class="col-xs-12 col-sm-6 col-md-4 col-lg-3">
+          {% include 'account/view/horizontal.html' with user=u %}
+        </div>
+      {% endfor %}
+    </div>
+  {% else %}
+    <p class="">None.</p>
+  {% endif %}
+</div></div>
+
+
+{##}
+{#<div class="row" data-uid="{{ target_user.id }}">#}
+{#  <aside class="col-sm-4">#}
+{##}
+{#    <div class="panel panel-default">#}
+{#      <div class="panel-body text-center">#}
+{#        {% if full_access %}<a href="{% url 'account_picture' %}" id="link_account_picture">{% endif %}<img src="{% user_picture_url target_user %}" alt="user picture" class="img-rounded img-responsive img-thumbnail">{% if full_access %}</a>{% endif %}#}
+{#        <h4 class="text-center">{% user-full-name target_user %}</h4>#}
+{#        {% if full_access %}<div><small><a href="{% url 'account_edit' %}" id="link_account_edit"><i class="fa fa-edit"></i> Edit profile</a></small></div>{% endif %}#}
+{#        <div class="text-large">{% include 'elements/user_level.html' with user=target_user only %}</div>#}
+{#      </div>#}
+{#    </div>#}
+{##}
+{#    <div class="panel panel-default">#}
+{#      <div class="panel-heading panel-title">Contact</div>#}
+{#      <ul class="list-group">#}
+{#        <li class="list-group-item"><i class="fa fa-envelope"></i> <a href="mailto:{{ target_user.email }}">{{ target_user.email }}</a></li>#}
+{#        {% if target_user.info.phone %}#}
+{#          <li class="list-group-item"><i class="fa fa-phone"></i> <a href="tel:{{ target_user.info.phone }}">{{ target_user.info.phone }}</a></li>#}
+{#        {% endif %}#}
+{#        {% if target_user.info.address %}#}
+{#          <li class="list-group-item"><i class="fa fa-map-marker"></i> <a href="https://www.google.com/maps/place/{{ target_user.info.address|urlencode }}">{{ target_user.info.address }}</a></li>#}
+{#        {% endif %}#}
+{#      </ul>#}
+{#    </div>#}
+{##}
+{#    {% if target_user.info.note %}#}
+{#      <div class="panel panel-default">#}
+{#        <div class="panel-heading panel-title">About</div>#}
+{#        <div class="panel-body">{{ target_user.info.note|default:"Nothing." }}</div>#}
+{#      </div>#}
+{#    {% endif %}#}
+{##}
 {#    <div class="panel panel-{% if favors_karma %}warning{% else %}default{% endif %}">#}
 {#      <div class="panel-heading panel-title">Favors Karma <i class="fa fa-question-circle" data-toggle="tooltip" title="Help other parents babysit and have them return the favor when you need help. Paid babysitting is not a favor. Favors will show here 1-2 days after successfully delivered."></i></div>#}
 {#      <div class="panel-body">#}
@@ -51,95 +122,95 @@
 {#        {% endif %}#}
 {#      </div>#}
 {#    </div>#}
-
-  </aside>
-
-  <div class="col-sm-8">
-
-  <div class="panel panel-default">
-    <div class="panel-heading panel-title">Circles {% if full_access %}<small><a href="{% url 'circle:manage_public' %}" id="link_manage_public"><i class="fa fa-edit"></i></a></small>{% endif %}</div>
-    <div class="panel-body">
-    {% if my_memberships %}
-      <div class="row">
-      {% for m in my_memberships %}
-        <div class="col-xs-12 col-sm-6 col-md-4 col-lg-3{% if m.is_disapproved %} membership_disapproved{% endif %}">
-          <div class="panel panel-default">
-            <div class="panel-body">
-              <span title="{% if m.is_disapproved %}Membership is reviewed but not approved. Please remove the circle from your list.{% elif m.is_pending_review %}Membership is pending for review.{% else %}{{ m.circle.description }}{% endif %}" data-toggle="tooltip" class="{% if not m.approved %}text-muted{% endif %}">
-                {% if m.is_disapproved %}<s>{{ m.circle.name }}</s>{% else %}{{ m.circle.name }}{% endif %}<br>
-                <small class="pull-right">{% include 'elements/circle_member_count.html' with count=m.circle.count %}</small>
-              </span>
-            </div>
-          </div>
-        </div>
-      {% endfor %}
-      </div>
-    {% else %}
-      <p class="">None.</p>
-    {% endif %}
-    </div>
-  </div>
-
-  <div class="panel panel-default">
-    <div class="panel-heading panel-title">Agencies {% if full_access %}<small><a href="{% url 'circle:manage_agency' %}" id="link_manage_agency"><i class="fa fa-edit"></i></a></small>{% endif %}</div>
-    <div class="panel-body">
-    {% if my_agencies %}
-      <div class="row">
-      {% for m in my_agencies %}
-        <div class="col-xs-12 col-sm-6 col-md-4 col-lg-3">
-          <div class="panel panel-default">
-            <div class="panel-body">
-              <span title="{{ m.circle.description }}" data-toggle="tooltip">
-                {{ m.circle.name }}<br>
-                <small class="pull-right">{% if m.is_type_normal %}<i class="fa fa-trophy" title="I work for this agency" data-toggle="tooltip"></i>{% endif %} {% include 'elements/circle_member_count.html' with count=m.circle.count %}</small>
-              </span>
-            </div>
-          </div>
-        </div>
-      {% endfor %}
-      </div>
-    {% else %}
-      <p class="">None.</p>
-    {% endif %}
-    </div>
-  </div>
-
-  <div class="panel panel-default">
-    <div class="panel-heading panel-title">Contacts {% if full_access %}<small><a href="{% url 'circle:manage_personal' %}" id="link_manage_personal"><i class="fa fa-edit"></i></a></small>{% endif %}</div>
-    <div class="panel-body">
-      {% if my_listed %}
-        <div class="row">
-          {% for u in my_listed %}
-            <div class="col-xs-12 col-sm-6 col-md-4 col-lg-3">
-              {% include 'account/view/horizontal.html' with user=u %}
-            </div>
-          {% endfor %}
-        </div>
-      {% else %}
-        <p class="">None.</p>
+{##}
+{#  </aside>#}
+{##}
+{#  <div class="col-sm-8">#}
+{##}
+{#  <div class="panel panel-default">#}
+{#    <div class="panel-heading panel-title">Circles {% if full_access %}<small><a href="{% url 'circle:manage_public' %}" id="link_manage_public"><i class="fa fa-edit"></i></a></small>{% endif %}</div>#}
+{#    <div class="panel-body">#}
+{#    {% if my_memberships %}#}
+{#      <div class="row">#}
+{#      {% for m in my_memberships %}#}
+{#        <div class="col-xs-12 col-sm-6 col-md-4 col-lg-3{% if m.is_disapproved %} membership_disapproved{% endif %}">#}
+{#          <div class="panel panel-default">#}
+{#            <div class="panel-body">#}
+{#              <span title="{% if m.is_disapproved %}Membership is reviewed but not approved. Please remove the circle from your list.{% elif m.is_pending_review %}Membership is pending for review.{% else %}{{ m.circle.description }}{% endif %}" data-toggle="tooltip" class="{% if not m.approved %}text-muted{% endif %}">#}
+{#                {% if m.is_disapproved %}<s>{{ m.circle.name }}</s>{% else %}{{ m.circle.name }}{% endif %}<br>#}
+{#                <small class="pull-right">{% include 'elements/circle_member_count.html' with count=m.circle.count %}</small>#}
+{#              </span>#}
+{#            </div>#}
+{#          </div>#}
+{#        </div>#}
+{#      {% endfor %}#}
+{#      </div>#}
+{#    {% else %}#}
+{#      <p class="">None.</p>#}
+{#    {% endif %}#}
+{#    </div>#}
+{#  </div>#}
+{##}
+{#  <div class="panel panel-default">#}
+{#    <div class="panel-heading panel-title">Agencies {% if full_access %}<small><a href="{% url 'circle:manage_agency' %}" id="link_manage_agency"><i class="fa fa-edit"></i></a></small>{% endif %}</div>#}
+{#    <div class="panel-body">#}
+{#    {% if my_agencies %}#}
+{#      <div class="row">#}
+{#      {% for m in my_agencies %}#}
+{#        <div class="col-xs-12 col-sm-6 col-md-4 col-lg-3">#}
+{#          <div class="panel panel-default">#}
+{#            <div class="panel-body">#}
+{#              <span title="{{ m.circle.description }}" data-toggle="tooltip">#}
+{#                {{ m.circle.name }}<br>#}
+{#                <small class="pull-right">{% if m.is_type_normal %}<i class="fa fa-trophy" title="I work for this agency" data-toggle="tooltip"></i>{% endif %} {% include 'elements/circle_member_count.html' with count=m.circle.count %}</small>#}
+{#              </span>#}
+{#            </div>#}
+{#          </div>#}
+{#        </div>#}
+{#      {% endfor %}#}
+{#      </div>#}
+{#    {% else %}#}
+{#      <p class="">None.</p>#}
+{#    {% endif %}#}
+{#    </div>#}
+{#  </div>#}
+{##}
+{#  <div class="panel panel-default">#}
+{#    <div class="panel-heading panel-title">Contacts {% if full_access %}<small><a href="{% url 'circle:manage_personal' %}" id="link_manage_personal"><i class="fa fa-edit"></i></a></small>{% endif %}</div>#}
+{#    <div class="panel-body">#}
+{#      {% if my_listed %}#}
+{#        <div class="row">#}
+{#          {% for u in my_listed %}#}
+{#            <div class="col-xs-12 col-sm-6 col-md-4 col-lg-3">#}
+{#              {% include 'account/view/horizontal.html' with user=u %}#}
+{#            </div>#}
+{#          {% endfor %}#}
+{#        </div>#}
+{#      {% else %}#}
+{#        <p class="">None.</p>#}
         {#      <p class="">None. <a href="{% url 'circle:manage_personal' %}">Click here</a> to manage your personal circle.</p>#}
-      {% endif %}
-    </div>
-  </div>
-
-  <div class="panel panel-default">
-    <div class="panel-heading panel-title">Listed By {% if full_access%}<small><a href="{% url 'circle:manage_loop' %}" id="link_manage_loop"><i class="fa fa-edit"></i></a></small>{% endif %}</div>
-    <div class="panel-body">
-      {% if in_others %}
-      <div class="row">
-        {% for u in in_others %}
-          <div class="col-xs-12 col-sm-6 col-md-4 col-lg-3">
-            {% include 'account/view/horizontal.html' with user=u %}
-          </div>
-        {% endfor %}
-      </div>
-      {% else %}
-        <p class="">None.</p>
+{#      {% endif %}#}
+{#    </div>#}
+{#  </div>#}
+{##}
+{#  <div class="panel panel-default">#}
+{#    <div class="panel-heading panel-title">Listed By {% if full_access%}<small><a href="{% url 'circle:manage_loop' %}" id="link_manage_loop"><i class="fa fa-edit"></i></a></small>{% endif %}</div>#}
+{#    <div class="panel-body">#}
+{#      {% if in_others %}#}
+{#      <div class="row">#}
+{#        {% for u in in_others %}#}
+{#          <div class="col-xs-12 col-sm-6 col-md-4 col-lg-3">#}
+{#            {% include 'account/view/horizontal.html' with user=u %}#}
+{#          </div>#}
+{#        {% endfor %}#}
+{#      </div>#}
+{#      {% else %}#}
+{#        <p class="">None.</p>#}
   {#      <p class="">None. <a href="{% url 'circle:manage_personal' %}">Click here</a> to manage your personal circle.</p>#}
-      {% endif %}
-    </div>
-  </div>
-
-  </div>
-</div>
+{#      {% endif %}#}
+{#    </div>#}
+{#  </div>#}
+{##}
+{#  </div>#}
+{#</div>#}
 {% endblock %}

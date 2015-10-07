@@ -204,6 +204,9 @@ class UserView(LoginRequiredMixin, UserOnboardRequiredMixin, TrustedUserMixin, D
         my_memberships = list(Membership.objects.filter(member=u, circle__type=Circle.Type.PUBLIC.value, circle__area=area, active=True))
         my_agencies = list(Membership.objects.filter(member=u, circle__type=Circle.Type.AGENCY.value, circle__area=area, active=True))
 
+        my_parents = list(PUser.objects.filter(membership__circle__owner=u, membership__circle__area=area, membership__circle__type=Circle.Type.PARENT.value, membership__active=True, membership__approved=True).exclude(membership__member=u).distinct())
+        my_sitters = list(PUser.objects.filter(membership__circle__owner=u, membership__circle__area=area, membership__circle__type=Circle.Type.SITTER.value, membership__active=True, membership__approved=True).exclude(membership__member=u).distinct())
+
         context = {
             'full_access': self.get_object() == self.request.puser,
             'in_others': in_others,
@@ -211,6 +214,8 @@ class UserView(LoginRequiredMixin, UserOnboardRequiredMixin, TrustedUserMixin, D
             'my_circles': my_circles,
             'my_memberships': my_memberships,
             'my_agencies': my_agencies,
+            'my_parents': my_parents,
+            'my_sitters': my_sitters,
         }
 
         # # favors karma
