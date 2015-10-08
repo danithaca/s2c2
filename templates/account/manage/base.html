@@ -1,13 +1,7 @@
-{% extends "base_s.html" %}
+{% extends "base_branch.html" %}
 
 {% block extra_header %}
 {{ form.media }}
-<script type="text/javascript">
-$(document).ready(function() {
-  var path = window.location.pathname;
-  $('#account-manage a[href="'+ path +'"]').parent().addClass('active');
-});
-</script>
 {% block more_header %}{% endblock %}
 {% endblock %}
 
@@ -15,14 +9,12 @@ $(document).ready(function() {
 
 {% block content %}
 <div class="panel panel-default" id="account-manage">
-  <div class="panel-heading">
-    <ul class="nav nav-pills nav-justified">
-      <li><a href="{% url 'account_edit' %}">Edit profile</a></li>
-      <li><a href="{% url 'account_picture' %}">Upload picture</a></li>
-      <li><a href="{% url 'account_password' %}">Change password</a></li>
-    </ul>
-  </div>
   <div class="panel-body">
+    <div class="btn-group btn-group-justified min-margin-bottom">
+      <a href="{% url 'account_edit' %}" class="btn btn-default" data-active-url="{% url 'account_edit' %}"><i class="fa fa-info"></i> Profile</a>
+      <a href="{% url 'account_picture' %}" class="btn btn-default" data-active-url="{% url 'account_picture' %}"><i class="fa fa-image"></i> Picture</a>
+      <a href="{% url 'account_password' %}" class="btn btn-default" data-active-url="{% url 'account_password' %}"><i class="fa fa-key"></i> Password</a>
+    </div>
     {% block manage-block %}{% endblock %}
   </div>
 </div>

@@ -14,10 +14,12 @@ urlpatterns = patterns(
     # url(r"^onboard/signup/$", views.OnboardSignup.as_view(), name="onboard_signup"),
     url(r"^onboard/about/$", views.OnboardAbout.as_view(), name="onboard_about"),
     url(r"^onboard/profile/$", views.OnboardProfile.as_view(), name="onboard_profile"),
-    url(r"^onboard/personal/$", views.OnboardPersonalCircle.as_view(), name="onboard_personal"),
-    url(r"^onboard/public/$", views.OnboardPublicCircle.as_view(), name="onboard_public"),
-    url(r"^onboard/agency/$", views.OnboardAgencyCircle.as_view(), name="onboard_agency"),
-    url(r"^onboard/picture/$", views.OnboardPicture.as_view(), name="onboard_picture"),
+    url(r"^onboard/parent/$", views.OnboardParentCircle.as_view(), name="onboard_parent"),
+    url(r"^onboard/sitter/$", views.OnboardSitterCircle.as_view(), name="onboard_sitter"),
+    # url(r"^onboard/personal/$", views.OnboardPersonalCircle.as_view(), name="onboard_personal"),
+    # url(r"^onboard/public/$", views.OnboardPublicCircle.as_view(), name="onboard_public"),
+    # url(r"^onboard/agency/$", views.OnboardAgencyCircle.as_view(), name="onboard_agency"),
+    # url(r"^onboard/picture/$", views.OnboardPicture.as_view(), name="onboard_picture"),
 
     # todo: allow other people view account
     url(r"^$", views.UserView.as_view(), name="account_view"),

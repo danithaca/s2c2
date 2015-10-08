@@ -111,6 +111,8 @@ class Contract(StatusMixin, models.Model):
     event_start = models.DateTimeField()
     event_end = models.DateTimeField()
     price = models.DecimalField(max_digits=5, decimal_places=2)
+    # not used now.
+    #favor_index = models.PositiveSmallIntegerField(blank=True, null=False, help_text='0~100 to indicate how much this job is a favor.')
 
     # more details about the contract.
     description = models.TextField(blank=True)
@@ -200,6 +202,9 @@ class Contract(StatusMixin, models.Model):
     def is_feedback_provided(self):
         return self.status in (Contract.Status.SUCCESSFUL.value, Contract.Status.FAILED.value)
 
+    def is_feedback_needed(self):
+        return self.is_confirmed() and self.is_event_expired()
+
     def count_accepted_match(self):
         return Match.objects.filter(contract=self, status=Match.Status.ACCEPTED.value).count()
 
@@ -285,6 +290,9 @@ class Contract(StatusMixin, models.Model):
 
     def to_engagement(self):
         return Engagement.from_contract(self)
+
+    def get_client(self):
+        return self.initiate_user.to_puser()
 
 
 class Match(StatusMixin, models.Model):

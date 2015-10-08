@@ -1,0 +1,230 @@
+{# this is almost the same as "create" #}
+{# TODO: figure out a way to dedup. #}
+{% extends 'base_branch.html' %}
+
+{% load staticfiles %}
+{% load bootstrap %}
+
+{% block extra_header %}
+  {{ form.media }}
+  <script src='{% static 'fullcalendar/lib/moment.min.js' %}'></script>
+  <script src='{% static 'js/humanize_duration.js' %}'></script>
+  <script src="//cdnjs.cloudflare.com/ajax/libs/bootbox.js/4.4.0/bootbox.min.js"></script>
+  <script type="text/javascript">
+    $(document).ready(function() {
+      var datetime_format = 'MM/DD/YYYY HH:mm';
+      var widget_separate = $('#viewport-xs-detector').is(':hidden') ? false : true;
+      // enable datetimepicker
+      $('.datetimepicker-control').datetimepicker({
+        format: datetime_format,
+        minDate: moment().subtract(1, 'hours'),
+        stepping: 10,
+        useCurrent: true,
+        sideBySide: widget_separate,
+        //showTodayButton: true,
+        keepInvalid: true,
+        //allowInputToggle: true,
+        showClose: true
+      });
+
+      // sync end date if start date is changed.
+      var $event_start = $('#id_event_start');
+      var $event_end = $('#id_event_end');
+      if (!$event_start.val() && !$event_end.val()) {
+        // when both fields are empty. set default value.
+        var start_timestamp = moment().add(1, 'hours').minute(0);
+        $event_start.val(start_timestamp.format(datetime_format));
+        $event_end.val(start_timestamp.add(1, 'hours').format(datetime_format));
+      }
+      /*$event_start.focusout(function () {
+       if ($event_start.val() && !$event_end.val()) {
+       $event_end.val($event_start.val());
+       }
+       });
+       $event_end.focusout(function () {
+       if ($event_end.val() && !$event_start.val()) {
+       $event_start.val($event_end.val());
+       }
+       });*/
+
+      {% if show_price %}
+        var $price = $('#id_price');
+        var $price_info = $('#price-info');
+        var $price_info_container = $('#price-info-container');
+        var $price_favor = $('#price-favor-checkbox');
+        var handlePriceInfo = function() {
+          var start = parseDatetime($event_start.val()), end = parseDatetime($event_end.val()), price = parseInt($price.val());
+          if (price === 0) {
+            $price_favor.prop('checked', true);
+          } else {
+            $price_favor.prop('checked', false);
+          }
+          if (start && end && price >= 0 && end > start) {
+            /*$.get('{% url "contract:preview_query" %}', {start: start, end: end, price: price}, function(result){
+             if (result['success']) {
+             var rate = result['rate'] == 0 ? 'favor exchange' : '$' + result['rate'] + '/hour';
+             $price_info.val(rate + ', ' + result['length']);
+             } else {
+             $price_info.val('');
+             }
+             });*/
+            var duration = moment.duration(end.diff(start, 'seconds'), 'seconds');
+            var rate = (price === 0 ? 'favor' : '$' + parseFloat(Math.round((price / duration.asHours()) * 100) / 100).toFixed(2) + '/hour');
+            $price_info_container.show();
+            // $price_info.val(rate + ', ' + duration.humanize());
+            $price_info.val(rate + ', ' + humanizeDuration(duration.asMilliseconds()));
+          } else {
+            console.log(price);
+            $price_info_container.hide();
+          }
+        };
+
+        // enable handle. datetimepicker "change" event doesn't seem to work.
+        // keypress doesn't to seem work well
+
+        handlePriceInfo();
+        //$event_start.change(handlePriceInfo);
+        $event_start.parent().on('dp.change', handlePriceInfo);
+        $event_start.keyup(handlePriceInfo);
+        //$event_start.focusout(handlePriceInfo);
+        //$event_end.change(handlePriceInfo);
+        $event_end.parent().on('dp.change', handlePriceInfo);
+        $event_end.keyup(handlePriceInfo);
+        //$event_end.focusout(handlePriceInfo);
+        $price.change(handlePriceInfo);
+        $price.keyup(handlePriceInfo);
+
+        // handle "favor" checkbox
+        $price_favor.change(function() {
+          if ($price_favor.is(':checked')) {
+            $price.val(0);
+          } else if (!$price_favor.is(':checked')) {
+            $price.val('');
+          }
+          handlePriceInfo();
+        });
+      {% endif %}
+
+      // confirm
+      var $form = $('#contract-update');
+      var $form_button = $form.find('button[name="op"]');
+      // we can't do $form.submit() because then any submit will trigger. we only want to track button click.
+      // submit() returns "false" to prevent form submission, but bootbox is non-blocking and will always return true.
+      $form_button.click(function(event) {
+        var msg = $(this).data('message');
+        event.preventDefault();
+        bootbox.confirm({
+          title: 'Confirm',
+          message: msg ? msg : 'Confirm to proceed.',
+          /*buttons: {
+           cancel: {label: 'Cancel'},
+           confirm: {label: 'Confirm'}
+           },*/
+          callback: function(result) {
+            if (result) {
+              $form.submit();
+            }
+          }
+        });
+      });
+    });
+  </script>
+{% endblock %}
+
+{% block content %}<div class="panel"><div class="panel-body">
+  <div class="well">{% block help-message %}You CANNOT change the date/time or reduce payment. To do so, cancel the request and create a new one.{% endblock %}</div>
+
+  <form class="form" method="post" id="contract-update">
+    {% csrf_token %}
+    {% include 'form_includes/form_errors.html' %}
+    {% include 'form_includes/hidden_fields.html' %}
+
+    <div class="form-group{% if form.event_start.errors or form.event_end.errors %} has-error{% endif %}">
+      <div class="row">
+        <div class="col-xs-6">
+          {% with field=form.event_start %}
+            <label class="control-label" for="{{ field.id_for_label }}">{{ field.label }}</label>
+            <div class="input-group date datetimepicker-control">
+              <span class="input-group-addon"><i class="fa fa-calendar"></i></span>
+              {{ field }}
+            </div>
+            {% include 'form_includes/field_errors.html' %}
+            {% include 'form_includes/field_help_text.html' %}
+          {% endwith %}
+        </div>
+        <div class="col-xs-6">
+          {% with field=form.event_end %}
+            <label class="control-label" for="{{ field.id_for_label }}">{{ field.label }}</label>
+            <div class="input-group date datetimepicker-control">
+              <span class="input-group-addon"><i class="fa fa-calendar"></i></span>
+              {{ field }}
+            </div>
+            {% include 'form_includes/field_errors.html' %}
+            {% include 'form_includes/field_help_text.html' %}
+          {% endwith %}
+        </div>
+      </div>
+      {#      <div class="col-sm-offset-2 col-sm-10">#}
+      {#        <p class="help-block">Specify the start and end date/time when you need to be served.</p>#}
+      {#      </div>#}
+    </div>
+
+    {#    {{ form.audience|bootstrap }}#}
+    {% with field=form.audience %}
+      <div class="hidden form-group{% include 'form_includes/field_container_error_class.html' %}">
+        <label class="control-label" for="{{ field.id_for_label }}">{{ field.label }}</label>
+        <div class="input-group">
+          {{ field }}
+          <span class="input-group-addon" data-toggle="tooltip" data-container="body" title="Servuno will contact the best candidates first (e.g., people you have interacted before), and then gradually contacts more if the request is not fulfilled. The default option will potentially contact everyone (including friends of friends) "><i class="fa fa-question-circle"></i></span>
+        </div>
+        <div class="form-group{% include 'form_includes/field_container_error_class.html' %}">
+          {% include 'form_includes/field_errors.html' %}
+          {% include 'form_includes/field_help_text.html' %}
+        </div>
+      </div>
+    {% endwith %}
+
+    {% with field=form.price %}
+      <div class="{% if not show_price %}hidden {% endif %}form-group{% include 'form_includes/field_container_error_class.html' %}">
+        <label class="control-label" for="{{ field.id_for_label }}">{{ field.label }}</label>
+        <div class="row">
+          <div class="col-xs-6">
+            <div class="input-group">
+              <span class="input-group-addon"><i class="fa fa-dollar"></i></span>
+              {{ field }}
+            </div>
+          </div>
+          <div class="col-xs-6">
+            {#              <div class="form-group">#}
+            {#                <div class="checkbox"><label><input id="price-favor-checkbox" name="price-favor" type="checkbox"> <span>Free (favor)</span></label></div>#}
+            {#              </div>#}
+            {#              <div class="form-group has-success has-feedback" id="price-info-container">#}
+            {#                <div class="input-group">#}
+            {#                  <span class="input-group-addon">$</span>#}
+            {#                  <input class="form-control" id="price-info" readonly>#}
+            {#                  <span class="glyphicon glyphicon-ok form-control-feedback"></span>#}
+            {#                </div>#}
+            {#              </div>#}
+            <div class="input-group" id="price-info-container">
+              <span class="input-group-addon"><i class="fa fa-calculator"></i></span>
+              <input class="form-control" id="price-info" readonly>
+            </div>
+          </div>
+        </div>
+        <div class="form-group{% include 'form_includes/field_container_error_class.html' %}">
+          {% include 'form_includes/field_errors.html' %}
+          {% include 'form_includes/field_help_text.html' %}
+        </div>
+      </div>
+    {% endwith %}
+
+    {{ form.description|bootstrap }}
+
+    <div class="form-group">
+      <button type="submit" name="op" class="btn btn-primary" data-message="People who are in contact will receive this update via Email.">Update</button>
+    </div>
+  </form>
+  {#  {% if client.is_isolated %}<div><span class="text-warning" style="margin-right: 10px;"><i class="fa fa-exclamation-circle"></i></span> <span>You have few contacts on Servuno. Please <a href="{% url 'circle:manage_personal' %}">add more contacts</a> and/or <a href="{% url 'circle:manage_public' %}">join more parents circles</a>.</span></div>{% endif %}#}
+</div></div>{% endblock %}
+
+{% block title %}Edit a Job Post{% endblock %}

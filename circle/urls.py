@@ -11,4 +11,5 @@ urlpatterns = patterns(
     url(r"^manage/loop/", views.ManageLoop.as_view(), name="manage_loop"),
 
     url(r"^parent/$", views.ParentCircleView.as_view(), name="parent"),
+    url(r"^sitter/$", views.SitterCircleView.as_view(), name="sitter"),
 )

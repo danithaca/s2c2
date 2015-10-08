@@ -19,7 +19,7 @@ urlpatterns = patterns(
     #url(r"^user/", include("puser.urls", namespace='user')),
 
     url(r'^connect/', include('circle.urls', namespace='circle')),
-    url(r'^contract/', include('contract.urls', namespace='contract')),
+    url(r'^job/', include('contract.urls', namespace='contract')),
     url(r'^shout/', include('shout.urls', namespace='shout')),
 
     url(r'^admin/', include(admin.site.urls)),

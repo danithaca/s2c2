@@ -59,20 +59,24 @@ class DashboardView(LoginRequiredMixin, TemplateView):
         if headline:
             ctx['engagement_headline'] = headline
 
-        # favors karma
-        karma = defaultdict(int)
-        for favor in puser.engagement_favors():
-            direction = 0
-            if favor.is_main_contract():
-                direction = -1
-            elif favor.is_match_confirmed():
-                direction = 1
-            u = favor.passive_user()
-            assert u is not None, 'Contract has problem: %d' % favor.contract.id
-            karma[u] += direction
-        ctx['favors_karma'] = [(u, f) for u, f in karma.items() if f != 0]
+        # engagement list
+        engagement_list = sorted(puser.engagement_list(lambda qs: qs.filter(initiate_user=puser).order_by('-updated')[:20]) + puser.engagement_list(lambda qs: qs.filter(match__target_user=puser).order_by('-match__updated')[:20]), key=lambda e: e.updated(), reverse=True)
+        ctx['engagement_recent'] = engagement_list[:20]
 
-        # feedback needed
-        ctx['contract_feedback_needed_qs'] = puser.contract_feedback_needed_queryset()
+        # # favors karma
+        # karma = defaultdict(int)
+        # for favor in puser.engagement_favors():
+        #     direction = 0
+        #     if favor.is_main_contract():
+        #         direction = -1
+        #     elif favor.is_match_confirmed():
+        #         direction = 1
+        #     u = favor.passive_user()
+        #     assert u is not None, 'Contract has problem: %d' % favor.contract.id
+        #     karma[u] += direction
+        # ctx['favors_karma'] = [(u, f) for u, f in karma.items() if f != 0]
+
+        # # feedback needed
+        # ctx['contract_feedback_needed_qs'] = puser.contract_feedback_needed_queryset()
 
         return ctx

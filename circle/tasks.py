@@ -48,8 +48,11 @@ def personal_circle_send_invitation(circle, target_user):
 
 
 @shared_task
-def parent_circle_send_invitation(circle, target_user):
-    target_user = PUser.from_user(target_user)
+def circle_send_invitation(circle, target_user):
+    """
+    This is the hub that sends out invitation to users (new or existing) when they are added to a circle.
+    """
+    target_user = target_user.to_puser()
     from shout.notify import notify_agent
     #link = reverse('circle:parent')
 
@@ -61,4 +64,7 @@ def parent_circle_send_invitation(circle, target_user):
     if not target_user.is_registered():
         context['signup_warning'] = True
 
-    notify_agent.send(circle.owner, target_user, 'circle/messages/parent_added', context)
+    if circle.is_type_parent():
+        notify_agent.send(circle.owner, target_user, 'circle/messages/parent_added', context)
+    elif circle.is_type_sitter():
+        notify_agent.send(circle.owner, target_user, 'circle/messages/sitter_added', context)

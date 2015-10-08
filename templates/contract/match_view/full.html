@@ -1,4 +1,4 @@
-{% extends "base_l.html" %}
+{% extends "base_branch.html" %}
 {% load staticfiles %}
 {% load bootstrap %}
 {% load p2_tags %}
@@ -34,8 +34,8 @@ $(document).ready(function() {
     // for staff member, allow create and preview match.
     $('.contract-summary').addClass('hover-pointer');
     $('.contract-summary').click(function () {
-      {# instead of hard code here, maybe use 'url'? can't figure out why i hard coded earlier with client side code. #}
-      window.location = '/contract/' + $(this).data('contract-id');
+{#      window.location = '/job/' + $(this).data('contract-id');#}
+      window.location = '{% url 'contract:view' pk=match.contract.id %}'
     });
   {% endif %}
 });
@@ -124,3 +124,5 @@ $(document).ready(function() {
   {% endif %}{% endif %}
 </div>
 {% endblock %}
+
+{% block title %}Response{% endblock %}

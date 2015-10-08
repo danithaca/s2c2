@@ -4,10 +4,10 @@
 {% load tz %}
 
 <div class="engagement panel panel-{{ engagement.display_status.color }} hover-pointer engagement-headline" data-href="{{ engagement.get_link }}">
-  <div class="panel-heading panel-title">Upcoming</div>
+{#  <div class="panel-heading panel-title">Upcoming</div>#}
   <div class="panel-body">
     <div class="row vertical-align">
-      <div class="col-xs-4 center-block">
+      <div class="col-xs-3 center-block">
       {# only show "client" if the main user is "server", and vice versa #}
       {% if engagement.is_main_match %}
         {% include 'account/view/compact.html' with user=engagement.initiate_user icon='elements/icon_serve.html' color=engagement.display_status.color only %}
@@ -20,7 +20,7 @@
       {% endif %}
       </div>
 
-      <div class="col-xs-8">
+      <div class="col-xs-9">
         <h4 class="text-center">{{ engagement.contract.event_start|timeuntil }}</h4>
         <ul class="list-inline text-center">
           <li><i class="fa fa-clock-o"></i> <strong>{{ engagement.contract.event_start|date:'H:i, M. j' }}</strong></li>

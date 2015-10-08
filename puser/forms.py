@@ -69,6 +69,27 @@ class UserInfoForm(ModelForm):
         }
 
 
+class UserInfoOnboardForm(ModelForm):
+    required_css_class = 'required'
+    first_name = fields_for_model(User, fields=['first_name'])['first_name']
+    last_name = fields_for_model(User, fields=['last_name'])['last_name']
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['first_name'].required = True
+        self.fields['last_name'].required = True
+
+    class Meta:
+        model = Info
+        fields = ['first_name', 'last_name', 'area']
+        labels = {
+            'area': 'Activity area',
+        }
+        help_texts = {
+            'area': 'This is where most of the babysitting activities take place. Limited to Ann Arbor and Ypsilanti at the time being.',
+        }
+
+
 class UserPictureForm(ModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
