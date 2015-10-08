@@ -75,6 +75,7 @@
   {% if engagement_recent %}
     <ul class="nav nav-tabs">
       <li class="active" title="List of job posts order by last updated." data-toggle="tooltip"><a href="#list-activities" data-toggle="tab">Job posts <span class="badge">{{ engagement_recent|length }}</span></a></li>
+      <li title="List of users who have interacted with you successfully on babysitting." data-toggle="tooltip"><a href="#list-interactions" data-toggle="tab">Users interacted <span class="badge">{{ interactions|length }}</span></a></li>
     </ul>
     <div class="tab-content">
       <div id="list-activities" class="tab-pane active">
@@ -83,6 +84,17 @@
             <li class="list-group-item">{% include 'contract/engagement_view/feed.html' with engagement=engagement current_user=target_user only %}</li>
           {% endfor %}
         </ul>
+      </div>
+      <div id="list-interactions" class="tab-pane">
+        {% if interactions %}
+          <div class="row">
+            {% for k, v in interactions %}
+              <div class="col-xs-12 col-sm-6 col-md-4">{% include 'account/view/horizontal_interactions.html' with user=k interactions_count=v only %}</div>
+            {% endfor %}
+          </div>
+        {% else %}
+          You have not interacted with any other user on the site.
+        {% endif %}
       </div>
     </div>
   {% else %}

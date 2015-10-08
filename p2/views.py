@@ -5,6 +5,7 @@ from django.core.urlresolvers import reverse
 from django.shortcuts import redirect
 from account.forms import LoginEmailForm
 from django.views.generic import TemplateView
+from contract.models import Contract
 
 from puser.forms import SignupBasicForm
 
@@ -62,6 +63,16 @@ class DashboardView(LoginRequiredMixin, TemplateView):
         # engagement list
         engagement_list = sorted(puser.engagement_list(lambda qs: qs.filter(initiate_user=puser).order_by('-updated')[:20]) + puser.engagement_list(lambda qs: qs.filter(match__target_user=puser).order_by('-match__updated')[:20]), key=lambda e: e.updated(), reverse=True)
         ctx['engagement_recent'] = engagement_list[:20]
+
+        # TODO: this is potential performance concern. use cache
+        # interactions
+        interactions_list = puser.engagement_list(lambda qs: qs.filter(initiate_user=puser, status=Contract.Status.SUCCESSFUL.value)) + puser.engagement_list(lambda qs: qs.filter(confirmed_match__target_user=puser, status=Contract.Status.SUCCESSFUL.value))
+        interactions = defaultdict(int)
+        for engagement in interactions_list:
+            target_user = engagement.passive_user()
+            assert target_user is not None and target_user != puser
+            interactions[target_user] += 1
+        ctx['interactions'] = interactions.items()
 
         # # favors karma
         # karma = defaultdict(int)

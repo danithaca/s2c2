@@ -12,5 +12,6 @@
   </div>
   <div class="text-center{% if not user.get_full_name %} word-break{% endif %}">
     <a href="{% url 'account_view' pk=user.id %}">{% user_display user %}</a>
+    {% block extra %}{% endblock %}
   </div>
 </div></div></div>
