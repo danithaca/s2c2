@@ -20,10 +20,10 @@ from rest_framework.generics import RetrieveAPIView
 
 from circle.forms import SignupFavoriteForm, SignupCircleForm
 from circle.models import Circle, Membership
-from circle.views import ManagePersonal, ManagePublic, ManageAgency
+from circle.views import ManagePersonal, ManagePublic, ManageAgency, ParentCircleView, SitterCircleView
 from login_token.models import Token
 from p2.utils import UserOnboardRequiredMixin, auto_user_name
-from puser.forms import SignupBasicForm, UserInfoForm, UserPictureForm, LoginEmailAdvForm
+from puser.forms import SignupBasicForm, UserInfoForm, UserPictureForm, LoginEmailAdvForm, UserInfoOnboardForm
 from puser.models import Info, PUser
 from puser.serializers import UserSerializer
 from shout.tasks import notify_send
@@ -256,8 +256,8 @@ class MultiStepViewsMixin(ContextMixin):
 
     @classmethod
     def get_steps_meta(cls):
-        step_order = ['OnboardAbout', 'OnboardProfile', 'OnboardPublicCircle', 'OnboardAgencyCircle', 'OnboardPersonalCircle', 'OnboardPicture']
-        step_url = [reverse('onboard_about'), reverse('onboard_profile'), reverse('onboard_public'), reverse('onboard_agency'), reverse('onboard_personal'),  reverse('onboard_picture')]
+        step_order = ['OnboardAbout', 'OnboardProfile', 'OnboardParentCircle', 'OnboardSitterCircle']
+        step_url = [reverse('onboard_about'), reverse('onboard_profile'), reverse('onboard_parent'), reverse('onboard_sitter')]
         next_step_url = list(step_url)
         next_step_url.append(cls.final_url)
         del(next_step_url[0])
@@ -337,6 +337,19 @@ class OnboardAbout(MultiStepViewsMixin, TemplateView):
 class OnboardProfile(MultiStepViewsMixin, UserEdit):
     template_name = 'account/onboard/form.html'
     step_title = 'Update Profile'
+    form_class = UserInfoOnboardForm
+
+
+class OnboardParentCircle(MultiStepViewsMixin, ParentCircleView):
+    template_name = 'account/onboard/parent.html'
+    step_title = 'Connect to Parents'
+    step_note = 'Add other parents your trust who can babysit for you occasionally on the basis of reciprocity. DO NOT add anyone you don\'t trust.'
+
+
+class OnboardSitterCircle(MultiStepViewsMixin, SitterCircleView):
+    template_name = 'account/onboard/sitter.html'
+    step_title = 'Add Paid Babysitters'
+    step_note = 'Add babysitters you trust, e.g, grandparents, teenage cousins, and/or professional babysitters you used before. They will be shared among your parents connections added in the previous step. DO NOT add anyone you don\'t trust.'
 
 
 class OnboardPersonalCircle(MultiStepViewsMixin, ManagePersonal):
