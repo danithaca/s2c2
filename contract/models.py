@@ -102,8 +102,8 @@ class Contract(StatusMixin, models.Model):
         SMART = 1           # smart match algorithm
         CIRCLE = 2          # individual circle
 
-    # initiate_user = models.ForeignKey(settings.AUTH_USER_MODEL)
-    initiate_user = models.ForeignKey('puser.PUser')
+    initiate_user = models.ForeignKey(settings.AUTH_USER_MODEL)
+    # initiate_user = models.ForeignKey()
     confirmed_match = models.OneToOneField('Match', blank=True, null=True, related_name='confirmed_contract')     # user string for classname per django doc.
 
     created = models.DateTimeField(auto_now_add=True)
@@ -309,7 +309,7 @@ class Match(StatusMixin, models.Model):
         CANCELED = 5            # the initiate_user canceled the match for some reason.
 
     contract = models.ForeignKey(Contract)
-    target_user = models.ForeignKey('puser.PUser')
+    target_user = models.ForeignKey(settings.AUTH_USER_MODEL)
 
     created = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True)

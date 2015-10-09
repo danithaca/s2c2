@@ -70,44 +70,44 @@ $(document).ready(function() {
     {% endif %}
   </div>
 
-  <div class="panel-body"><div class="row">
-    <div class="col-xs-12 col-sm-6">
-      {# make tooltip in "p" to prevent getting truncated. but then it shows funny in match_view #}
-      <p title="You are contacted because of these tags." data-toggle="tooltip"><strong>Tagged in:</strong>
-        {% for circle in match.circles.all %}
-          <span class="label label-primary">{{ circle.display }}</span>
-        {% empty %}
-          - None -
-        {% endfor %}
-      </p>
-      <p data-toggle="tooltip" title="This shows the number of times you and {% user-short-name contract.initiate_user %} helped each other."><strong>Previous interactions:</strong>
-        {% if not match.count_served and not match.count_served_reverse %}
-          - None -
-        {% else %}
-          {% with count=match.count_served client=contract.initiate_user server=match.target_user %}{% if count %}
-            You ({% user-short-name server %}) helped <em>{% user-short-name client %}</em> <span class="label label-info"><i class="fa fa-exchange"></i> {{ count }}</span> time{{ count|pluralize }}{% if match.count_served_reverse%};{% endif %}
-          {% endif %}{% endwith %}
-          {% with count=match.count_served_reverse server=contract.initiate_user client=match.target_user %}{% if count %}
-            <em>{% user-short-name server %}</em> helped you ({% user-short-name client %}) <span class="label label-info"><i class="fa fa-exchange"></i> {{ count }}</span> time{{ count|pluralize }}
-          {% endif %}{% endwith %}
-        {% endif %}
-      </p>
-      <p data-toggle="tooltip" title="Favors owed between you and {% user-short-name contract.initiate_user %}. Only successfully completed 'free' babysitting count as favors."><strong>Favors karma:</strong>
-      {% with count=match.count_favors_karma other=contract.initiate_user me=match.target_user %}{% if count %}
-        {% if count > 0 %}
-          <em>{% user-short-name other %}</em> owes you ({% user-short-name me %}) <span class="label label-success"><i class="fa fa-balance-scale"></i> {{ count }}</span> favor{{ count|pluralize }}
-        {% else %}
-          You ({% user-short-name me %}) owe <em>{% user-short-name other %}</em> <span class="label label-danger"><i class="fa fa-balance-scale"></i> {{ count|negate }}</span> favor{{ count|negate|pluralize }}
-        {% endif %}
-      {% else %}
-        - None -
-      {% endif %}{% endwith %}
-      </p>
+  <div class="panel-body">
+    {# make tooltip in "p" to prevent getting truncated. but then it shows funny in match_view #}
+    <p>
+      {% for circle in match.circles.all %}
+        <span class="label label-primary" title="Your tag (the reason that you receive the post)" data-toggle="tooltip">{{ circle.display }}</span>
+      {% endfor %}
+      {% with count=match.count_served_total %}
+        {% include 'elements/interactions.html' with count=count help="Total number of previous interactions on babysitting between you and the requester." only%}
+      {% endwith %}
+    </p>
+{#    <p>#}
+{#      <strong>Previous interactions:</strong>#}
+{#      {% if match.count_served or match.count_served_reverse %}#}
+{#        {% with count=match.count_served client=contract.initiate_user server=match.target_user %}{% if count %}#}
+{#          You ({% user-short-name server %}) helped <em>{% user-short-name client %}</em> <span class="label label-info"><i class="fa fa-exchange"></i> {{ count }}</span> time{{ count|pluralize }}{% if match.count_served_reverse%};{% endif %}#}
+{#        {% endif %}{% endwith %}#}
+{#        {% with count=match.count_served_reverse server=contract.initiate_user client=match.target_user %}{% if count %}#}
+{#          <em>{% user-short-name server %}</em> helped you ({% user-short-name client %}) <span class="label label-info"><i class="fa fa-exchange"></i> {{ count }}</span> time{{ count|pluralize }}#}
+{#        {% endif %}{% endwith %}#}
+{#      {% endif %}#}
+{#    </p>#}
+
+{#      <p data-toggle="tooltip" title="Favors owed between you and {% user-short-name contract.initiate_user %}. Only successfully completed 'free' babysitting count as favors."><strong>Favors karma:</strong>#}
+{#      {% with count=match.count_favors_karma other=contract.initiate_user me=match.target_user %}{% if count %}#}
+{#        {% if count > 0 %}#}
+{#          <em>{% user-short-name other %}</em> owes you ({% user-short-name me %}) <span class="label label-success"><i class="fa fa-balance-scale"></i> {{ count }}</span> favor{{ count|pluralize }}#}
+{#        {% else %}#}
+{#          You ({% user-short-name me %}) owe <em>{% user-short-name other %}</em> <span class="label label-danger"><i class="fa fa-balance-scale"></i> {{ count|negate }}</span> favor{{ count|negate|pluralize }}#}
+{#        {% endif %}#}
+{#      {% else %}#}
+{#        - None -#}
+{#      {% endif %}{% endwith %}#}
+{#      </p>#}
+    <div class="form-group">
+      <label class="control-label" for="match-response">Note (optional)</label>
+      <textarea class="form-control" rows="3" placeholder="Type in here." id="match-response"{% if match.is_responded or contract.is_event_expired %} readonly{% endif %}>{{ match.response }}</textarea>
     </div>
-    <div class="col-xs-12 col-sm-6">
-      <textarea class="form-control" rows="3" placeholder="Optional note" id="match-response"{% if match.is_responded or contract.is_event_expired %} readonly{% endif %}>{{ match.response }}</textarea>
-    </div>
-  </div></div>
+  </div>
 
   {% if match.target_user == user or user.is_staff %}{% if not contract.is_event_expired %}
     <div class="panel-footer text-center">
