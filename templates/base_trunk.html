@@ -3,11 +3,16 @@
 {% block page %}
 <div class="row page-content"><div class="col-xs-12 col-sm-offset-1 col-sm-10 col-md-offset-2 col-md-8{#  col-lg-offset-3 col-lg-6 #}"><div class="panel panel-default">
   <div class="panel-heading">
-    <ul class="nav nav-tabs nav-justified">
-      <li data-active-url="{% url 'dashboard' %}"><a href="{% url 'dashboard' %}"><i class="fa fa-home"></i> Dashboard</a></li>
-      <li data-active-url="{% url 'circle:parent' %},{% url 'circle:sitter' %}"><a href="{% url 'circle:parent' %}"><i class="fa fa-users"></i> Build Network</a></li>
-      <li data-active-url="{% url 'contract:post_parent' %},{% url 'contract:post_sitter' %}"><a href="{% url 'contract:post_parent' %}"><i class="fa fa-child"></i> Post Job</a></li>
-    </ul>
+{#    <ul class="nav nav-tabs nav-justified">#}
+{#      <li data-active-url="{% url 'dashboard' %}"><a href="{% url 'dashboard' %}"><i class="fa fa-home"></i> Dashboard</a></li>#}
+{#      <li data-active-url="{% url 'circle:parent' %},{% url 'circle:sitter' %}"><a href="{% url 'circle:parent' %}"><i class="fa fa-users"></i> Build Network</a></li>#}
+{#      <li data-active-url="{% url 'contract:post_parent' %},{% url 'contract:post_sitter' %}"><a href="{% url 'contract:post_parent' %}"><i class="fa fa-child"></i> Post Job</a></li>#}
+{#    </ul>#}
+    <div class="btn-group btn-group-justified">
+      <a href="{% url 'dashboard' %}" class="btn btn-primary" data-active-url="{% url 'dashboard' %}"><i class="fa fa-home"></i><span class="hidden-xs"> Dashboard</span></a>
+      <a href="{% url 'circle:parent' %}" class="btn btn-warning" data-active-url="{% url 'circle:parent' %},{% url 'circle:sitter' %}"><i class="fa fa-users"></i><span class="hidden-xs"> Build Network</span></a>
+      <a href="{% url 'contract:post_parent' %}" class="btn btn-success" data-active-url="{% url 'contract:post_parent' %},{% url 'contract:post_sitter' %}"><i class="fa fa-child"></i><span class="hidden-xs"> Post Job</span></a>
+    </div>
   </div>
   <div class="panel-body">
     {% block content %}{% endblock %}

@@ -99,7 +99,6 @@
     </div>
   {% else %}
     <div class="help-block">
-      <p>No job post.</p>
       <p>To book a babysitter, first you need to <a href="{% url 'circle:parent' %}">build a network</a> of parents and optionally <a href="{% url 'circle:sitter' %}">add trusted babysitters</a>. Then you can tap into your network and either <a href="{% url 'contract:post_parent' %}">find another parent</a> to babysit for you, or <a href="{% url 'contract:post_sitter' %}">book a babysitter</a> from a pool of babysitters shared by your parents friends.</p>
       <p>You can also <a href="{% url 'account_view' %}">view</a> and <a href="{% url 'account_edit' %}">edit</a>  your profile, or <a href="{% url 'account_picture' %}">upload</a> a profile picture.</p>
     </div>
