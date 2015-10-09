@@ -77,7 +77,7 @@ $(document).ready(function() {
         <span class="label label-primary" title="Your tag (the reason that you receive the post)" data-toggle="tooltip">{{ circle.display }}</span>
       {% endfor %}
       {% with count=match.count_served_total %}
-        {% include 'elements/interactions.html' with count=count help="Total number of previous interactions on babysitting between you and the requester." only%}
+        {% if count %}{% include 'elements/interactions.html' with count=count help="Total number of previous interactions on babysitting between you and the requester." only%}{% endif %}
       {% endwith %}
     </p>
 {#    <p>#}

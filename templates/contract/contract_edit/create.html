@@ -237,5 +237,9 @@
       {% endif %}
     </div>
   </form>
-{#  {% if client.is_isolated %}<div><span class="text-warning" style="margin-right: 10px;"><i class="fa fa-exclamation-circle"></i></span> <span>You have few contacts on Servuno. Please <a href="{% url 'circle:manage_personal' %}">add more contacts</a> and/or <a href="{% url 'circle:manage_public' %}">join more parents circles</a>.</span></div>{% endif %}#}
+{#  {% if client.to_puser.is_isolated %}#}
+{#    <div class="alert alert-warning fade in">#}
+{#      {% include 'elements/prompt_network.html' %}#}
+{#    </div>#}
+{#  {% endif %}#}
 {% endblock %}

@@ -40,8 +40,8 @@ class ContractDetail(LoginRequiredMixin, DetailView):
         if tabs:
             ctx['matches_tabs'] = tabs
 
-        if self.request.puser.id == contract.initiate_user.id and self.request.puser.is_isolated():
-            messages.warning(self.request, 'You have few contacts on Servuno. Please <a href="%s">add more contacts</a> and/or <a href="%s">join more parents circles</a>.' % (reverse_lazy('circle:manage_personal'), reverse_lazy('circle:manage_public')), extra_tags='safe')
+        # if self.request.puser.id == contract.initiate_user.id and self.request.puser.is_isolated():
+        #     messages.warning(self.request, 'You have few contacts on Servuno. Please <a href="%s">add other parents</a> and/or <a href="%s">add paid babysitters</a>.' % (reverse_lazy('circle:parent'), reverse_lazy('circle:sitter')), extra_tags='safe')
 
         return ctx
 

@@ -421,9 +421,9 @@ class PUser(User):
 
     def is_isolated(self):
         # we count non-active/approved here.
-        count_personal = Membership.objects.filter(circle__owner=self, circle__type=Circle.Type.PERSONAL.value).count()
-        count_public = Membership.objects.filter(member=self, circle__type = Circle.Type.PUBLIC.value).count()
-        if count_personal + count_public <= 5:
+        count_parent = Membership.objects.filter(circle__owner=self, circle__type=Circle.Type.PARENT.value, active=True, approved=True).count()
+        count_sitter = Membership.objects.filter(circle__owner=self, circle__type=Circle.Type.SITTER.value, active=True, approved=True).count()
+        if count_parent + count_sitter <= 3:
             return True
         else:
             return False

@@ -22,12 +22,12 @@
       {% with interactions=match.count_served_total %}
       {% if interactions %}
         <p class="text-center">
-          <span class="label label-info match-interactions-label" data-toggle="tooltip" title="You and {% user-short-name match.target_user %} helped each other {{ interactions }} time{{ interactions|pluralize }}, including favors and non-favors"><i class="fa fa-exchange"></i> {{ interactions }}</span>
-          {% with count=match.count_favors_karma other=match.target_user me=match.contract.initiate_user %}{% if count > 0 %}
-            <span class="label label-success match-favors-label" data-toggle="tooltip" title="You ({% user-short-name me %}) owe {% user-short-name other %} {{ count }} favor{{ count|pluralize }}"><i class="fa fa-balance-scale"></i> {{ count }}</span>
-          {% elif count < 0 %}
-            <span class="label label-danger match-favors-label" data-toggle="tooltip" title="{% user-short-name other %} owes you ({% user-short-name me %}) {{ count|negate }} favor{{ count|negate|pluralize }}"><i class="fa fa-balance-scale"></i> {{ count|negate }}</span>
-          {% endif %}{% endwith %}
+          <span class="label label-info match-interactions-label" data-toggle="tooltip" title="You and {% user-short-name match.target_user %} helped each other {{ interactions }} time{{ interactions|pluralize }}"><i class="fa fa-exchange"></i> {{ interactions }}</span>
+{#          {% with count=match.count_favors_karma other=match.target_user me=match.contract.initiate_user %}{% if count > 0 %}#}
+{#            <span class="label label-success match-favors-label" data-toggle="tooltip" title="You ({% user-short-name me %}) owe {% user-short-name other %} {{ count }} favor{{ count|pluralize }}"><i class="fa fa-balance-scale"></i> {{ count }}</span>#}
+{#          {% elif count < 0 %}#}
+{#            <span class="label label-danger match-favors-label" data-toggle="tooltip" title="{% user-short-name other %} owes you ({% user-short-name me %}) {{ count|negate }} favor{{ count|negate|pluralize }}"><i class="fa fa-balance-scale"></i> {{ count|negate }}</span>#}
+{#          {% endif %}{% endwith %}#}
         </p>
       {% endif %}
       {% endwith %}
