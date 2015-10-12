@@ -1,5 +1,41 @@
 {# similar to base_m.html, but added panel for the trunk layout #}
 {% extends "base.html" %}
+
+{% block template_extra_header %}{% if target_user.to_puser.is_isolated %}
+  <link href="//cdnjs.cloudflare.com/ajax/libs/bootstrap-tour/0.10.1/css/bootstrap-tour.min.css" rel="stylesheet">
+  <script src="//cdnjs.cloudflare.com/ajax/libs/bootstrap-tour/0.10.1/js/bootstrap-tour.min.js"></script>
+
+  <script>
+  $(document).ready(function() {
+    if (!$.cookie('servuno_usage_tour')) {
+      $.cookie('servuno_usage_tour', true, {expires: 14, path: '/'});
+      window.localStorage.removeItem('tour_end');
+      window.localStorage.removeItem('tour_current_step');
+    }
+
+    var tour = new Tour({
+      steps: [
+        {
+          element: "#trunk-tab-network i",
+          title: "First, build a network",
+          content: "You don't have enough connections. Please build a network of at least 3 parents or babysitters in order to make the best use out of site.",
+          placement: 'bottom'
+        },
+        {
+          element: "#trunk-tab-post i",
+          title: "Then, post a job",
+          content: "Need a babysitter? Post a job here and Servuno will find a babysitter from your network of parents and their babysitters.",
+          placement: 'bottom'
+        }
+      ],
+      // placement: 'bottom'
+    });
+    tour.init();
+    tour.start();
+  });
+  </script>
+{% endif %}{% endblock %}
+
 {% block page %}
 <div class="row page-content"><div class="col-xs-12 col-sm-offset-1 col-sm-10 col-md-offset-2 col-md-8{#  col-lg-offset-3 col-lg-6 #}"><div class="panel panel-default">
   <div class="panel-heading">
@@ -10,8 +46,8 @@
 {#    </ul>#}
     <div class="btn-group btn-group-justified">
       <a href="{% url 'dashboard' %}" class="btn btn-primary" data-active-url="{% url 'dashboard' %}"><i class="fa fa-home"></i><span class="hidden-xs"> Dashboard</span></a>
-      <a href="{% url 'circle:parent' %}" class="btn btn-warning" data-active-url="{% url 'circle:parent' %},{% url 'circle:sitter' %}"><i class="fa fa-users"></i><span class="hidden-xs"> Build Network</span></a>
-      <a href="{% url 'contract:post_parent' %}" class="btn btn-success" data-active-url="{% url 'contract:post_parent' %},{% url 'contract:post_sitter' %}"><i class="fa fa-child"></i><span class="hidden-xs"> Post Job</span></a>
+      <a id="trunk-tab-network" href="{% url 'circle:parent' %}" class="btn btn-warning" data-active-url="{% url 'circle:parent' %},{% url 'circle:sitter' %}"><i class="fa fa-users"></i><span class="hidden-xs"> Build Network</span></a>
+      <a id="trunk-tab-post" href="{% url 'contract:post_parent' %}" class="btn btn-success" data-active-url="{% url 'contract:post_parent' %},{% url 'contract:post_sitter' %}"><i class="fa fa-child"></i><span class="hidden-xs"> Post Job</span></a>
     </div>
   </div>
   <div class="panel-body">
