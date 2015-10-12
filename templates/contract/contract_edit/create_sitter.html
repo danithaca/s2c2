@@ -4,4 +4,4 @@
 
 {% block create-confirm-message %}Babysitters in your network will be notified via Email.{% endblock %}
 
-{% block help-message %}Book a paid babysitter from your network (yours and your friends' babysitters). Servuno will first contact the best matches, and gradually contact more (including your parent friends) if no one accepts your job.{% endblock %}
+{% block help-message %}Book a paid babysitter from your network (yours and your friends' babysitters). Servuno will first contact the best matches, and gradually contact more if no one accepts your job. <a href="{% url 'circle:sitter' %}">Add babysitters</a> into your network or <a href="{% url 'circle:parent' %}">add parents</a> to increase your reach.{% endblock %}

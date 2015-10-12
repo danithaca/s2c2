@@ -4,4 +4,8 @@
 
 {% block create-confirm-message %}Parents in your network will be notified via Email.{% endblock %}
 
-{% block help-message %}Find another parent to babysit for you on the basis of reciprocity without paying.{% endblock %}
+{% block help-message %}Find another parent to babysit for you on the basis of reciprocity without paying. <a href="{% url 'circle:parent' %}">Add parents</a> into your network to increase the chance of finding one.{% endblock %}
+
+{#{% block create-submit-extra %}#}
+{#  <a class="pull-right" href="{% url 'circle:parent' %}">Add Parents</a>#}
+{#{% endblock %}#}

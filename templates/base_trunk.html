@@ -8,6 +8,7 @@
   <script>
   $(document).ready(function() {
     if (!$.cookie('servuno_usage_tour')) {
+      // restart tour in 14 days.
       $.cookie('servuno_usage_tour', true, {expires: 14, path: '/'});
       window.localStorage.removeItem('tour_end');
       window.localStorage.removeItem('tour_current_step');
