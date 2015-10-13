@@ -2,6 +2,7 @@ from itertools import groupby
 import json
 
 from account.mixins import LoginRequiredMixin
+from braces.views import FormValidMessageMixin
 from django.contrib import messages
 from django.core.urlresolvers import reverse_lazy, reverse
 
@@ -251,9 +252,10 @@ class ManageLoop(LoginRequiredMixin, FormView):
         return super().form_valid(form)
 
 
-class UserConnectionView(LoginRequiredMixin, FormView):
+class UserConnectionView(LoginRequiredMixin, FormValidMessageMixin, FormView):
     template_name = 'pages/basic_form.html'
     form_class = UserConnectionForm
+    form_valid_message = 'Updated successfully.'
 
     def dispatch(self, request, *args, **kwargs):
         self.initiate_user = request.puser
@@ -267,13 +269,19 @@ class UserConnectionView(LoginRequiredMixin, FormView):
             return bad_request(request)
         return super().dispatch(request, *args, **kwargs)
 
-    def get_initial(self):
-        initial = super().get_initial()
-        # this is area aware.
-        area = self.initiate_user.get_area()
-        initial['parent_circle'] = Membership.objects.filter(member=self.target_user, circle__owner=self.initiate_user, circle__type=Circle.Type.PARENT.value, circle__area=area, active=True, approved=True).exists()
-        initial['sitter_circle'] = Membership.objects.filter(member=self.target_user, circle__owner=self.initiate_user, circle__type=Circle.Type.SITTER.value, circle__area=area, active=True, approved=True).exists()
-        return initial
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        kwargs['initiate_user'] = self.initiate_user
+        kwargs['target_user'] = self.target_user
+        return kwargs
+
+    # def get_initial(self):
+    #     initial = super().get_initial()
+    #     # this is area aware.
+    #     area = self.initiate_user.get_area()
+    #     initial['parent_circle'] = Membership.objects.filter(member=self.target_user, circle__owner=self.initiate_user, circle__type=Circle.Type.PARENT.value, circle__area=area, active=True, approved=True).exists()
+    #     initial['sitter_circle'] = Membership.objects.filter(member=self.target_user, circle__owner=self.initiate_user, circle__type=Circle.Type.SITTER.value, circle__area=area, active=True, approved=True).exists()
+    #     return initial
 
     def form_valid(self, form):
         for field_name, circle_type in (('parent_circle', Circle.Type.PARENT), ('sitter_circle', Circle.Type.SITTER)):

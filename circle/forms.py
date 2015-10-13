@@ -224,3 +224,10 @@ class UserConnectionForm(forms.Form):
     # target_user = forms.ModelChoiceField(queryset=PUser.objects.all())
     parent_circle = forms.BooleanField(required=False, label='Connect as parent')
     sitter_circle = forms.BooleanField(required=False, label='Connect as paid babysitter')
+
+    def __init__(self, initiate_user=None, target_user=None, *args, **kwargs):
+        assert initiate_user is not None and target_user is not None
+        super().__init__(*args, **kwargs)
+        area = initiate_user.get_area()
+        self.initial['parent_circle'] = Membership.objects.filter(member=target_user, circle__owner=initiate_user, circle__type=Circle.Type.PARENT.value, circle__area=area, active=True, approved=True).exists()
+        self.initial['sitter_circle'] = Membership.objects.filter(member=target_user, circle__owner=initiate_user, circle__type=Circle.Type.SITTER.value, circle__area=area, active=True, approved=True).exists()

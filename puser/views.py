@@ -18,7 +18,7 @@ from formtools.wizard.views import SessionWizardView
 from django.contrib import messages
 from rest_framework.generics import RetrieveAPIView
 
-from circle.forms import SignupFavoriteForm, SignupCircleForm
+from circle.forms import SignupFavoriteForm, SignupCircleForm, UserConnectionForm
 from circle.models import Circle, Membership
 from circle.views import ManagePersonal, ManagePublic, ManageAgency, ParentCircleView, SitterCircleView
 from login_token.models import Token
@@ -205,7 +205,8 @@ class UserView(LoginRequiredMixin, UserOnboardRequiredMixin, TrustedUserMixin, D
         if u != self.request.puser:
             context.update({
                 'interactions': self.request.puser.count_interactions(u),
-                'current_user_shared_circles': self.request.puser.get_shared_connection(u).get_circle_list()
+                'current_user_shared_circles': self.request.puser.get_shared_connection(u).get_circle_list(),
+                'user_connection_form': UserConnectionForm(initiate_user=self.request.puser, target_user=u),
             })
 
         if u.is_registered() and u.has_area():
