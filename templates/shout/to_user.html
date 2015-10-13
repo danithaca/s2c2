@@ -7,11 +7,12 @@
 {% block back %}{% include 'elements/back_link.html' with previous=True %}{% endblock %}
 
 {% block content %}
-<div class="panel panel-default"><div class="panel-body">
-  <p class="">
+<div class="panel panel-default">
+  <div class="panel-heading">
     <strong class="margin-right-10">TO: </strong>
     {% include 'account/view/inline.html' with user=to_user only %}
-  </p>
+  </div>
+  <div class="panel-body">
   <form class="form" method="post">
     {% csrf_token %}
     {{ form|bootstrap }}
