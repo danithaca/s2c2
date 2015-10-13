@@ -15,7 +15,7 @@ from localflavor.us.models import PhoneNumberField, USStateField
 from django.core import checks
 from django.conf import settings
 
-from circle.models import Membership, Circle, ParentCircle
+from circle.models import Membership, Circle, ParentCircle, UserConnection
 
 from contract.models import Contract, Match, Engagement
 from login_token.models import Token
@@ -365,6 +365,11 @@ class PUser(User):
         # TODO: this need to think thru. for a parent (not sitter), even paid job could be a favor.
         return Contract.objects.filter(confirmed_match__target_user=self, status=Contract.Status.SUCCESSFUL.value).count()
 
+    def count_interactions(self, target_user):
+        c1 = self.count_served(target_user)
+        c2 = target_user.to_puser().count_served(self)
+        return c1 + c2
+
     def get_level(self):
         count = self.count_favors_all()
         levels = [
@@ -399,6 +404,16 @@ class PUser(User):
                 return token.token
             else:
                 return None
+
+    def get_shared_connection(self, target_user):
+        # shared connection: 1) directly in my personal network (parent/sitter), 2) in my parents friends' network (both parents and sitters).
+        # potentially will have the "tag" shared connection
+
+        # regardless of area. get all users (for circle owners)
+        my_parent_list = [self] + list(PUser.objects.filter(membership__active=True, membership__approved=True, membership__circle__owner=self, membership__circle__type=Circle.Type.PARENT.value).distinct())
+        # get all members who are in the personal circles of the previous parent list.
+        membership_list = Membership.objects.filter(member=target_user, active=True, approved=True, circle__owner__in=my_parent_list, circle__type__in=(Circle.Type.PARENT.value, Circle.Type.SITTER.value))
+        return UserConnection(self, target_user, list(membership_list))
 
     ######## methods that check user's status #########
     # is_active: from django system. inactive means the user cannot login (perhaps a spam user), and cannot use the site.

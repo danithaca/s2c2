@@ -208,6 +208,7 @@ class UserView(LoginRequiredMixin, UserOnboardRequiredMixin, TrustedUserMixin, D
         my_sitters = list(PUser.objects.filter(membership__circle__owner=u, membership__circle__area=area, membership__circle__type=Circle.Type.SITTER.value, membership__active=True, membership__approved=True).exclude(membership__member=u).distinct())
 
         context = {
+            'current_user': self.request.puser,
             'full_access': self.get_object() == self.request.puser,
             'in_others': in_others,
             'my_listed': my_listed,
@@ -217,6 +218,10 @@ class UserView(LoginRequiredMixin, UserOnboardRequiredMixin, TrustedUserMixin, D
             'my_parents': my_parents,
             'my_sitters': my_sitters,
         }
+
+        if u != self.request.puser:
+            context['interactions'] = self.request.puser.count_interactions(u)
+            context['current_user_shared_circles'] = self.request.puser.get_shared_connection(u).get_circle_list()
 
         # # favors karma
         # karma = defaultdict(int)

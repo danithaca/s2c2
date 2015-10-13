@@ -1,1 +1,6 @@
-<span class="label label-info interactions-label" data-toggle="tooltip" title="{{ help|default:'Previous number of interactions on babysitting.' }}"><i class="fa fa-exchange"></i> {{ count }}</span>
+{% load p2_tags %}
+{% if initiate_user and target_user %}
+  <span class="label label-info interactions-label" data-toggle="tooltip" title="Previous number of interactions on babysitting between {% user-short-name initiate_user %} and {% user-short-name target_user %}"><i class="fa fa-exchange"></i> {{ count }}</span>
+{% else %}
+  <span class="label label-info interactions-label" data-toggle="tooltip" title="{{ help|default:'Previous number of interactions on babysitting.' }}"><i class="fa fa-exchange"></i> {{ count }}</span>
+{% endif %}

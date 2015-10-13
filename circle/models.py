@@ -249,6 +249,10 @@ class UserConnection(object):
         self.target_user = target_user
         self.membership_list = membership_list       # this is the membership list that has "target_user" as members.
 
+    def add_membership(self, membership):
+        assert membership.member == self.target_user
+        self.membership_list.append(membership)
+
     def get_circle_list(self):
         circle_count = defaultdict(int)
         for membership in self.membership_list:

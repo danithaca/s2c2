@@ -9,8 +9,12 @@
   <div class="well">
     <div class="row min-margin-bottom"><div class="col-xs-12">
       <span>
-        {% include 'elements/user_level.html' with user=target_user only %}
         {% if not target_user.is_registered %}<span class="label label-danger">not registered</span>{% endif %}
+        {% include 'elements/user_level.html' with user=target_user only %}
+        {% if interactions %}{% include 'elements/interactions.html' with count=interactions help='Previous number of interactions with this user on babysitting.' %}{% endif %}
+        {% for circle in current_user_shared_circles %}
+          <span class="label label-primary">{{ circle.display }}</span>
+        {% endfor %}
       </span>
       <span class="pull-right"><a href="{% url 'shout:user' uid=target_user.id %}"><i class="fa fa-bullhorn"></i> Send message</a></span>
     </div></div>
