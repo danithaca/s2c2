@@ -52,34 +52,36 @@
     {% endif %}
   </div>
 
-  <div class="page-header">
-    <h5>Parents Network</h5>
-  </div>
-  {% if my_parents %}
-    <div class="row">
-      {% for u in my_parents %}
-        <div class="col-xs-12 col-sm-6 col-md-4 col-lg-3">
-          {% include 'account/view/horizontal.html' with user=u %}
-        </div>
-      {% endfor %}
+  {% if target_user.is_registered %}
+    <div class="page-header">
+      <h5>Parents Network</h5>
     </div>
-  {% else %}
-    <p class="">None.</p>
-  {% endif %}
+    {% if my_parents %}
+      <div class="row">
+        {% for u in my_parents %}
+          <div class="col-xs-12 col-sm-6 col-md-4 col-lg-3">
+            {% include 'account/view/horizontal.html' with user=u %}
+          </div>
+        {% endfor %}
+      </div>
+    {% else %}
+      <p class="">None.</p>
+    {% endif %}
 
-  <div class="page-header">
-    <h5>Paid Babysitters</h5>
-  </div>
-  {% if my_sitters %}
-    <div class="row">
-      {% for u in my_sitters %}
-        <div class="col-xs-12 col-sm-6 col-md-4 col-lg-3">
-          {% include 'account/view/horizontal.html' with user=u %}
-        </div>
-      {% endfor %}
+    <div class="page-header">
+      <h5>Paid Babysitters</h5>
     </div>
-  {% else %}
-    <p class="">None.</p>
+    {% if my_sitters %}
+      <div class="row">
+        {% for u in my_sitters %}
+          <div class="col-xs-12 col-sm-6 col-md-4 col-lg-3">
+            {% include 'account/view/horizontal.html' with user=u %}
+          </div>
+        {% endfor %}
+      </div>
+    {% else %}
+      <p class="">None.</p>
+    {% endif %}
   {% endif %}
 </div></div>
 

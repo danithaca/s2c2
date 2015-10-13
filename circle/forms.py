@@ -4,7 +4,7 @@ import re
 from django import forms
 
 from circle.models import Circle, SupersetRel, Membership
-from puser.models import Area
+from puser.models import Area, PUser
 from p2.templatetags.p2_tags import p2_tag_user_full_name
 from p2.utils import is_valid_email, get_int
 
@@ -216,3 +216,11 @@ class ManageLoopForm(forms.Form):
         data = [{'membership_id': m.id, 'name': p2_tag_user_full_name(m.circle.owner), 'approved': m.approved, 'picture': user_picture_url(None, m.circle.owner)} for m in self.puser.membership_queryset_loop()]
         self.membership_data = data
         self.fields['data'].initial = json.dumps(data)
+
+
+# update user connection from initiate_user to target_user.
+class UserConnectionForm(forms.Form):
+    # initiate_user = forms.ModelChoiceField(queryset=PUser.objects.all())
+    # target_user = forms.ModelChoiceField(queryset=PUser.objects.all())
+    parent_circle = forms.BooleanField(required=False, label='Connect as parent')
+    sitter_circle = forms.BooleanField(required=False, label='Connect as paid babysitter')

@@ -197,31 +197,37 @@ class UserView(LoginRequiredMixin, UserOnboardRequiredMixin, TrustedUserMixin, D
 
     def get_context_data(self, **kwargs):
         u = self.get_object()
-        area = u.get_area()
-        in_others = list(PUser.objects.filter(owner__type=Circle.Type.PERSONAL.value, owner__area=area, owner__membership__member=u, owner__membership__active=True, owner__membership__approved=True).exclude(owner__owner=u).distinct())
-        my_listed = list(PUser.objects.filter(membership__circle__owner=u, membership__circle__area=area, membership__circle__type=Circle.Type.PERSONAL.value, membership__active=True, membership__approved=True).exclude(membership__member=u).distinct())
-        my_circles = list(Circle.objects.filter(membership__member=u, membership__circle__type=Circle.Type.PUBLIC.value, membership__circle__area=area, membership__active=True, membership__approved=True).distinct())
-        my_memberships = list(Membership.objects.filter(member=u, circle__type=Circle.Type.PUBLIC.value, circle__area=area, active=True))
-        my_agencies = list(Membership.objects.filter(member=u, circle__type=Circle.Type.AGENCY.value, circle__area=area, active=True))
-
-        my_parents = list(PUser.objects.filter(membership__circle__owner=u, membership__circle__area=area, membership__circle__type=Circle.Type.PARENT.value, membership__active=True, membership__approved=True).exclude(membership__member=u).distinct())
-        my_sitters = list(PUser.objects.filter(membership__circle__owner=u, membership__circle__area=area, membership__circle__type=Circle.Type.SITTER.value, membership__active=True, membership__approved=True).exclude(membership__member=u).distinct())
-
         context = {
             'current_user': self.request.puser,
             'full_access': self.get_object() == self.request.puser,
-            'in_others': in_others,
-            'my_listed': my_listed,
-            'my_circles': my_circles,
-            'my_memberships': my_memberships,
-            'my_agencies': my_agencies,
-            'my_parents': my_parents,
-            'my_sitters': my_sitters,
         }
 
         if u != self.request.puser:
-            context['interactions'] = self.request.puser.count_interactions(u)
-            context['current_user_shared_circles'] = self.request.puser.get_shared_connection(u).get_circle_list()
+            context.update({
+                'interactions': self.request.puser.count_interactions(u),
+                'current_user_shared_circles': self.request.puser.get_shared_connection(u).get_circle_list()
+            })
+
+        if u.is_registered() and u.has_area():
+            area = u.get_area()
+            in_others = list(PUser.objects.filter(owner__type=Circle.Type.PERSONAL.value, owner__area=area, owner__membership__member=u, owner__membership__active=True, owner__membership__approved=True).exclude(owner__owner=u).distinct())
+            my_listed = list(PUser.objects.filter(membership__circle__owner=u, membership__circle__area=area, membership__circle__type=Circle.Type.PERSONAL.value, membership__active=True, membership__approved=True).exclude(membership__member=u).distinct())
+            my_circles = list(Circle.objects.filter(membership__member=u, membership__circle__type=Circle.Type.PUBLIC.value, membership__circle__area=area, membership__active=True, membership__approved=True).distinct())
+            my_memberships = list(Membership.objects.filter(member=u, circle__type=Circle.Type.PUBLIC.value, circle__area=area, active=True))
+            my_agencies = list(Membership.objects.filter(member=u, circle__type=Circle.Type.AGENCY.value, circle__area=area, active=True))
+
+            my_parents = list(PUser.objects.filter(membership__circle__owner=u, membership__circle__area=area, membership__circle__type=Circle.Type.PARENT.value, membership__active=True, membership__approved=True).exclude(membership__member=u).distinct())
+            my_sitters = list(PUser.objects.filter(membership__circle__owner=u, membership__circle__area=area, membership__circle__type=Circle.Type.SITTER.value, membership__active=True, membership__approved=True).exclude(membership__member=u).distinct())
+
+            context.update({
+                'in_others': in_others,
+                'my_listed': my_listed,
+                'my_circles': my_circles,
+                'my_memberships': my_memberships,
+                'my_agencies': my_agencies,
+                'my_parents': my_parents,
+                'my_sitters': my_sitters,
+            })
 
         # # favors karma
         # karma = defaultdict(int)

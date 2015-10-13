@@ -20,7 +20,7 @@ class Circle(models.Model):
         # SUBSCRIBER = 5    # people who suscribed to certain circles
         # LOOP = 6          # the circle of people who added me as favorite.
         PARENT = 7          # parents network in v3 design
-        SITTER = 8      # babysitter list in v3 design
+        SITTER = 8          # babysitter list in v3 design
         TAG = 9             # tag-like circle type in v3 design
         # HELPER = 10       # the circle that tracks the helpers (members) to circle-owner. e.g, daniel helped tyler, and daniel is in tyler's helper list.
 

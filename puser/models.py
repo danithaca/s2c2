@@ -1,4 +1,5 @@
 from datetime import timedelta
+from enum import Enum
 
 from account.models import Account, EmailAddress
 from account.signals import password_changed
@@ -53,6 +54,11 @@ class Area(models.Model):
         return Area.objects.get(pk=1)
 
 
+class UserRole(Enum):
+    PARENT = 7
+    SITTER = 8
+
+
 class Info(models.Model):
     """
     The extended field for p2 Users.
@@ -64,6 +70,7 @@ class Info(models.Model):
     phone = PhoneNumberField(blank=True)
     note = models.TextField(blank=True)
     homepage = models.URLField(blank=True)
+    role = models.PositiveSmallIntegerField(choices=[(t.value, t.name.capitalize()) for t in UserRole], blank=True, null=True)
 
     picture_original = ImageCropField(upload_to='picture', blank=True, null=True)
     picture_cropping = ImageRatioField('picture_original', '200x200')
@@ -408,11 +415,11 @@ class PUser(User):
     def get_shared_connection(self, target_user):
         # shared connection: 1) directly in my personal network (parent/sitter), 2) in my parents friends' network (both parents and sitters).
         # potentially will have the "tag" shared connection
-
-        # regardless of area. get all users (for circle owners)
-        my_parent_list = [self] + list(PUser.objects.filter(membership__active=True, membership__approved=True, membership__circle__owner=self, membership__circle__type=Circle.Type.PARENT.value).distinct())
+        # get all users (for circle owners) in current area
+        area = self.get_area()
+        my_parent_list = [self] + list(PUser.objects.filter(membership__active=True, membership__approved=True, membership__circle__owner=self, membership__circle__type=Circle.Type.PARENT.value, membership__circle__area=area).distinct())
         # get all members who are in the personal circles of the previous parent list.
-        membership_list = Membership.objects.filter(member=target_user, active=True, approved=True, circle__owner__in=my_parent_list, circle__type__in=(Circle.Type.PARENT.value, Circle.Type.SITTER.value))
+        membership_list = Membership.objects.filter(member=target_user, active=True, approved=True, circle__owner__in=my_parent_list, circle__type__in=(Circle.Type.PARENT.value, Circle.Type.SITTER.value), circle__area=area)
         return UserConnection(self, target_user, list(membership_list))
 
     ######## methods that check user's status #########

@@ -3,12 +3,14 @@ import json
 
 from account.mixins import LoginRequiredMixin
 from django.contrib import messages
-from django.core.urlresolvers import reverse_lazy
+from django.core.urlresolvers import reverse_lazy, reverse
 
 
 # Create your views here.
+from django.views.defaults import bad_request
 from django.views.generic import FormView
-from circle.forms import ManagePublicForm, ManagePersonalForm, ManageLoopForm, ManageAgencyForm, EmailListForm
+from circle.forms import ManagePublicForm, ManagePersonalForm, ManageLoopForm, ManageAgencyForm, EmailListForm, \
+    UserConnectionForm
 from circle.models import Membership, Circle, ParentCircle, UserConnection
 from circle.tasks import personal_circle_send_invitation, circle_send_invitation
 from puser.models import PUser
@@ -247,3 +249,44 @@ class ManageLoop(LoginRequiredMixin, FormView):
             if updated:
                 messages.success(self.request, 'Successfully updated.')
         return super().form_valid(form)
+
+
+class UserConnectionView(LoginRequiredMixin, FormView):
+    template_name = 'pages/basic_form.html'
+    form_class = UserConnectionForm
+
+    def dispatch(self, request, *args, **kwargs):
+        self.initiate_user = request.puser
+        self.target_user = None
+        try:
+            self.target_user = PUser.objects.get(pk=kwargs.get('uid', None))
+        except:
+            pass
+
+        if request.method.lower() == 'get' and self.target_user is None:
+            return bad_request(request)
+        return super().dispatch(request, *args, **kwargs)
+
+    def get_initial(self):
+        initial = super().get_initial()
+        # this is area aware.
+        area = self.initiate_user.get_area()
+        initial['parent_circle'] = Membership.objects.filter(member=self.target_user, circle__owner=self.initiate_user, circle__type=Circle.Type.PARENT.value, circle__area=area, active=True, approved=True).exists()
+        initial['sitter_circle'] = Membership.objects.filter(member=self.target_user, circle__owner=self.initiate_user, circle__type=Circle.Type.SITTER.value, circle__area=area, active=True, approved=True).exists()
+        return initial
+
+    def form_valid(self, form):
+        for field_name, circle_type in (('parent_circle', Circle.Type.PARENT), ('sitter_circle', Circle.Type.SITTER)):
+            my_circle = self.initiate_user.my_circle(circle_type)
+            new_value = form.cleaned_data[field_name]
+            old_value = form.initial[field_name]
+            if new_value != old_value:
+                if new_value:
+                    # todo: here we just approve.
+                    my_circle.activate_membership(self.target_user, approved=True)
+                else:
+                    my_circle.deactivate_membership(self.target_user)
+        return super().form_valid(form)
+
+    def get_success_url(self):
+        return reverse('account_view', kwargs={'pk': self.target_user.id})
