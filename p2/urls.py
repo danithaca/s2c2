@@ -20,7 +20,7 @@ urlpatterns = patterns(
 
     url(r'^connect/', include('circle.urls', namespace='circle')),
     url(r'^job/', include('contract.urls', namespace='contract')),
-    url(r'^shout/', include('shout.urls', namespace='shout')),
+    url(r'^message/', include('shout.urls', namespace='shout')),
 
     url(r'^admin/', include(admin.site.urls)),
     url(r'^experiment/$', views.ExperimentView.as_view(), name='experiment'),

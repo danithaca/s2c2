@@ -39,7 +39,6 @@ class ShoutToCircleForm(forms.ModelForm):
 
 
 class ShoutMessageOnlyForm(forms.ModelForm):
-
     class Meta:
         model = Shout
         fields = ['body']
@@ -48,4 +47,21 @@ class ShoutMessageOnlyForm(forms.ModelForm):
         }
         widgets = {
             'body': forms.Textarea(attrs={'placeholder': 'Please type your message here. We appreciate your feedback!', 'rows': 4})
+        }
+
+
+class ShoutToUserForm(forms.ModelForm):
+    class Meta:
+        model = Shout
+        # fields = ['body', 'from_user', 'to_users']
+        fields = ['body']
+        labels = {
+            'body': ''      # 'Message'
+        }
+        widgets = {
+            'body': forms.Textarea(attrs={'placeholder': 'Type your message here.', 'rows': 4}),
+            # if those are "HiddenInput", then Form cannot parse correctly.
+            # using CSS hidden would work, but too many users will clutter performance
+            # 'from_user': forms.HiddenInput(),
+            # 'to_users': forms.HiddenInput(),
         }

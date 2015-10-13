@@ -1,0 +1,23 @@
+{% extends "base_branch.html" %}
+{% load staticfiles %}
+{% load bootstrap %}
+
+{% block title %}Send message{% endblock %}
+
+{% block back %}{% include 'elements/back_link.html' with previous=True %}{% endblock %}
+
+{% block content %}
+<div class="panel panel-default"><div class="panel-body">
+  <p class="">
+    <strong class="margin-right-10">TO: </strong>
+    {% include 'account/view/inline.html' with user=to_user only %}
+  </p>
+  <form class="form" method="post">
+    {% csrf_token %}
+    {{ form|bootstrap }}
+    <div class="form-group">
+      <button type="submit" class="btn btn-primary">Send</button>
+    </div>
+  </form>
+</div></div>
+{% endblock %}

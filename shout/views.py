@@ -1,9 +1,11 @@
-from braces.views import LoginRequiredMixin
+from braces.views import LoginRequiredMixin, FormValidMessageMixin
 from django.contrib import messages
-from django.core.urlresolvers import reverse_lazy
+from django.core.urlresolvers import reverse_lazy, reverse
+from django.views.defaults import bad_request
 from django.views.generic import CreateView
+from puser.models import PUser
 
-from shout.forms import ShoutToCircleForm, ShoutMessageOnlyForm
+from shout.forms import ShoutToCircleForm, ShoutMessageOnlyForm, ShoutToUserForm
 from shout.models import Shout
 from shout.tasks import shout_to_circle
 
@@ -56,3 +58,50 @@ class ShoutToAdmin(CreateView):
         messages.success(self.request, 'Message sent successfully.')
         return result
 
+
+class ShoutToUser(LoginRequiredMixin, FormValidMessageMixin, CreateView):
+    model = Shout
+    form_class = ShoutToUserForm
+    template_name = 'shout/to_user.html'
+    form_valid_message = 'Message sent successfully.'
+
+    def dispatch(self, request, *args, **kwargs):
+        self.from_user = self.request.puser
+        uid = kwargs.get('uid', None)
+        try:
+            self.to_user = PUser.objects.get(pk=uid)
+        except:
+            self.to_user = None
+        return super().dispatch(request, *args, **kwargs)
+
+    # todo: perhaps need a "captcha" form for the not trusted user.
+    def get(self, request, *args, **kwargs):
+        if self.to_user is None:
+            return bad_request(request)
+        return super().get(request, *args, **kwargs)
+
+    # def get_initial(self):
+    #     initial = super().get_initial()
+    #     initial['from_user'] = self.from_user
+    #     initial['to_users'] = [self.to_user]
+    #     return initial
+
+    def form_valid(self, form):
+        shout = form.instance
+        shout.audience_type = Shout.AudienceType.USER.value
+        shout.from_user = self.from_user
+        result = super().form_valid(form)
+        # m2m need to save separately
+        shout.to_users = [self.to_user]
+        shout.save()
+        # deliver right away
+        shout.deliver()
+        return result
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['to_user'] = self.to_user
+        return context
+
+    def get_success_url(self):
+        return reverse('account_view', kwargs={'pk': self.to_user.pk})

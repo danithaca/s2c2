@@ -42,5 +42,10 @@ class Shout(models.Model):
                 from_user = self.from_user
             notify_agent.send(from_user, None, 'shout/messages/shout_to_admin', ctx)
 
+        if self.audience_type == Shout.AudienceType.USER.value:
+            ctx = {'message': self.body}
+            for to_user in self.to_users.all():
+                notify_agent.send(self.from_user, to_user, 'shout/messages/shout_to_user', ctx)
+
         self.delivered = True
         self.save()

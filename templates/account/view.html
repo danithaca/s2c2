@@ -6,7 +6,14 @@
 
 {% block content %}
 <div class="panel panel-default" data-uid="{{ target_user.id }}"><div class="panel-body">
-  <div class="jumbotron">
+  <div class="well">
+    <div class="row min-margin-bottom"><div class="col-xs-12">
+      <span>
+        {% include 'elements/user_level.html' with user=target_user only %}
+        {% if not target_user.is_registered %}<span class="label label-danger">not registered</span>{% endif %}
+      </span>
+      <span class="pull-right"><a href="{% url 'shout:user' uid=target_user.id %}"><i class="fa fa-bullhorn"></i> Send message</a></span>
+    </div></div>
     <div class="row vertical-align min-margin-bottom">
       <div class="col-xs-4 text-center">
         <a href="{% url 'account_picture' %}"><img src="{% user_picture_url target_user %}" alt="user picture" class="img-rounded img-responsive img-thumbnail"></a>
@@ -17,12 +24,14 @@
           {% user-full-name target_user %}{# {% if full_access %} <small><a href="{% url 'account_edit' %}"><i class="fa fa-edit"></i></a></small>{% endif %} #}
         </h3>
         <ul class="list-inline">
-          <li><i class="fa fa-envelope"></i> <a href="mailto:{{ target_user.email }}">{{ target_user.email }}</a></li>
+{#          <li><i class="fa fa-envelope"></i> <a href="mailto:{{ target_user.email }}">{{ target_user.email }}</a></li>#}
+          <li><i class="fa fa-envelope"></i> {{ target_user.email }}</li>
           {% if target_user.info.phone %}
-            <li><i class="fa fa-phone"></i> <a href="tel:{{ target_user.info.phone }}">{{ target_user.info.phone }}</a></li>
+{#            <li><i class="fa fa-phone"></i> <a href="tel:{{ target_user.info.phone }}">{{ target_user.info.phone }}</a></li>#}
+            <li><i class="fa fa-phone"></i> {{ target_user.info.phone }}</li>
           {% endif %}
           {% if target_user.info.address %}
-            <li><i class="fa fa-map-marker"></i> <a href="https://www.google.com/maps/place/{{ target_user.info.address|urlencode }}">{{ target_user.info.address }}</a></li>
+            <li>{# <i class="fa fa-map-marker"></i> #}{{ target_user.info.address }} <a href="https://www.google.com/maps/place/{{ target_user.info.address|urlencode }}" target="_blank"><i class="fa fa-external-link"></i></a></li>
           {% endif %}
         </ul>
 {#        <div>{% include 'elements/user_level.html' with user=target_user only %}</div>#}
@@ -33,12 +42,6 @@
       <blockquote>{{ target_user.info.note }}</blockquote>
     </div></div>
     {% endif %}
-    <div class="row"><div class="col-xs-12">
-      <div class="pull-right">
-        {% include 'elements/user_level.html' with user=target_user only %}
-        {% if not target_user.is_registered %}<span class="label label-danger">not registered</span>{% endif %}
-      </div>
-    </div></div>
   </div>
 
   <div class="page-header">

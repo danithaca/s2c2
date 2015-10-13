@@ -49,6 +49,12 @@
       // turn on tooltip, popover
       $('[data-toggle="tooltip"]').tooltip();
 
+      // previous link
+      $('a.go-back').click(function() {
+        window.history.back();
+        return false;
+      });
+
       // glow "about" link for first time user
       if (!$.cookie('servuno_visited')) {
         var $about = $('#nav-about');

@@ -4,6 +4,7 @@ import sys
 import warnings
 from braces.views import FormValidMessageMixin
 from django.contrib import messages
+from django.contrib.auth import REDIRECT_FIELD_NAME
 
 from django.contrib.messages import get_messages
 from django.contrib.sites.models import Site
@@ -117,3 +118,15 @@ class ControlledFormValidMessageMixin(FormValidMessageMixin):
         if self.show_message:
             messages.success(self.request, self.get_form_valid_message(), fail_silently=True)
         return response
+
+
+# this doesn't address POST
+# class SuccessUrlRedirectMixin(object):
+#     redirect_field_name = REDIRECT_FIELD_NAME
+#
+#     def get_success_url(self):
+#         redirect_url = self.request.GET.get(self.redirect_field_name, None)
+#         if redirect_url:
+#             return redirect_url
+#         else:
+#             return super().get_success_url()

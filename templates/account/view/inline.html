@@ -1,0 +1,7 @@
+{% load p2_tags %}
+{% if user.is_registered %}
+  <span title="{{ user.email }}" data-toggle="tooltip" class="word-break"><img src="{% user_picture_url user %}" class="img-circle img-18"> <a href="{% url 'account_view' pk=user.id %}">{% user-full-name user %}</a></span>
+{#  <span title="{{ user.email }}" data-toggle="tooltip" class="word-break"><img src="{% user_picture_url user %}" class="img-circle img-18"> {% user-full-name user %}</span>#}
+{% else %}
+  <span title="User is not registered." data-toggle="tooltip" class="word-break">{{ user.email }}</span>
+{% endif %}
