@@ -13,7 +13,11 @@
         {% include 'elements/user_level.html' with user=target_user only %}
         {% if interactions %}{% include 'elements/interactions.html' with count=interactions help='Previous number of interactions with this user on babysitting.' %}{% endif %}
         {% for circle in current_user_shared_circles %}
-          <span class="label label-primary">{{ circle.display }}</span>
+          {% if circle.owner == current_user %}
+            <span class="label label-success">{{ circle.display }}</span>
+          {% else %}
+            <span class="label label-primary">{{ circle.display }}</span>
+          {% endif %}
         {% endfor %}
       </span>
       <span class="pull-right"><a href="{% url 'shout:user' uid=target_user.id %}"><i class="fa fa-bullhorn"></i> Send message</a></span>
