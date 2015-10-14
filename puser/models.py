@@ -450,6 +450,13 @@ class PUser(User):
         else:
             return False
 
+    def get_full_name(self):
+        name = super().get_full_name()
+        if not name:
+            name = self.email
+        return name
+
+
 # @receiver(password_changed, sender=PasswordResetTokenView)
 # @receiver(password_changed, sender=ChangePasswordView)
 @receiver(password_changed)

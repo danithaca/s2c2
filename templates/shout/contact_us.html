@@ -1,15 +1,5 @@
-{% extends "base_s.html" %}
-{% load staticfiles %}
-{% load bootstrap %}
+{% extends "shout/to_user.html" %}
 
-{% block title %}Contact us{% endblock %}
+{% block title %}Site feedback{% endblock %}
 
-{% block content %}
-<form class="form" method="post">
-  {% csrf_token %}
-  {{ form|bootstrap }}
-  <div class="form-group">
-    <button type="submit" class="btn btn-primary">Send</button>
-  </div>
-</form>
-{% endblock %}
+{% block to_user %}the Servuno team{% endblock %}

@@ -49,6 +49,9 @@ function initialize_app() {
             this.set('display_name', user_data.display_name);
             this.set('picture', user_data.picture);
           }
+{#          if (!user_data.display_name) {#}
+{#            this.set('display_name', this.get('email'));#}
+{#          }#}
         },
         error: function() {
           this.set('display_name', this.get('email'));
@@ -175,7 +178,7 @@ $(document).ready(function() {
   <p class="text-danger hidden changes-notice"><i class="fa fa-exclamation"></i> Changes are not saved.</p>
   <div class="form-group">
     <button class="btn btn-primary" type="submit">Save Changes</button>
-    <a class="btn btn-default" title='About "Contacts"' data-content="Add people you trust so that Servuno can help you find babysitters from them and their contacts. The more contacts you add here, the better chance you'll find a babysitter." data-toggle="popover"><i class="fa fa-question-circle"></i></a>
+{#    <a class="btn btn-default" title='About "Contacts"' data-content="Add people you trust so that Servuno can help you find babysitters from them and their contacts. The more contacts you add here, the better chance you'll find a babysitter." data-toggle="popover"><i class="fa fa-question-circle"></i></a>#}
   </div>
   {% endblock %}
 </form>

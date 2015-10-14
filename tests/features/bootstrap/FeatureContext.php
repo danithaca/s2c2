@@ -415,10 +415,24 @@ class FeatureContext extends MinkContext implements SnippetAcceptingContext
    */
   public function checkElementHidden($element)
   {
-    $js = "return $('{$element}').is(':hidden');";
+    $js = "return $(\"{$element}\").is(':hidden');";
     if (!$this->getSession()->evaluateScript($js)) {
       throw new Exception("Element {$element} is not hidden.");
     }
+  }
+
+
+  /**
+   * @When I click the :element element
+   */
+  public function clickElement($element)
+  {
+    $snippet = "$(\"{$element}\").click();";
+    $js = "(function () {\n  $snippet  \n})();";
+    $this->getSession()->executeScript($js);
+    // wait 1 second for selenium to catch up on the browser side.
+    $this->pauseSeconds(1);
+    $this->getSession()->wait(500, 'false');
   }
 
   /**

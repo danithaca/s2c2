@@ -38,3 +38,13 @@ live:
   extensions:
     Behat\MinkExtension:
       base_url: http://servuno.com
+
+test:
+  suites:
+    default:
+      filters:
+        tags: "~@dev"
+      disable_emails: true
+  extensions:
+    Behat\MinkExtension:
+      base_url: http://test.servuno.com:8001

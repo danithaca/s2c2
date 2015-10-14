@@ -10,7 +10,7 @@
 <div class="panel panel-default">
   <div class="panel-heading">
     <strong class="margin-right-10">TO: </strong>
-    {% include 'account/view/inline.html' with user=to_user only %}
+    {% block to_user %}{% include 'account/view/inline.html' with user=to_user only %}{% endblock %}
   </div>
   <div class="panel-body">
   <form class="form" method="post">

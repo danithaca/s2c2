@@ -46,7 +46,11 @@
   </div></div>
   <div class="row vertical-align min-margin-bottom">
     <div class="col-xs-4 text-center">
-      <a href="{% url 'account_picture' %}"><img src="{% user_picture_url target_user %}" alt="user picture" class="img-rounded img-responsive img-thumbnail"></a>
+      {% if full_access %}
+        <a href="{% url 'account_picture' %}"><img src="{% user_picture_url target_user %}" alt="user picture" class="img-rounded img-responsive img-thumbnail"></a>
+      {% else %}
+        <img src="{% user_picture_url target_user %}" alt="user picture" class="img-rounded img-responsive img-thumbnail">
+      {% endif %}
       {#        <div><a href="{% url 'account_picture' %}"><i class="fa fa-edit"></i> Edit</a></div>#}
     </div>
     <div class="col-xs-8 center-block text-center">
@@ -67,7 +71,7 @@
       {% if current_user != target_user %}
         <ul class="list-inline">
           <li><a class="btn btn-primary btn-xs" href="{% url 'shout:user' uid=target_user.id %}"><i class="fa fa-bullhorn"></i> Message</a></li>
-          <li><a class="btn btn-primary btn-xs" href="" data-toggle="modal" data-target="#modal-form"><i class="fa fa-user-plus"></i> Connect</a></li>
+          <li><a class="btn btn-primary btn-xs" href="" data-toggle="modal" data-target="#modal-form" id="user-connect-button"><i class="fa fa-user-plus"></i> Connect</a></li>
         </ul>
       {% endif %}
     </div>

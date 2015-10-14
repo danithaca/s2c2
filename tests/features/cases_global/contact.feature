@@ -5,7 +5,7 @@ Feature: contact us
     Given I am on the homepage
     Then I should see "Contact Us"
     When I follow "Contact Us"
-    Then I should be on "/shout/contact/"
+    Then I should be on "/message/feedback/"
     When I fill in "body" with "hello world"
     And I press "Send"
     Then I should be on ":ANONYMOUS_LANDING"
@@ -22,7 +22,7 @@ Feature: contact us
     Given I am on the homepage
     Then I should see "Contact Us"
     When I follow "Contact Us"
-    Then I should be on "/shout/contact/"
+    Then I should be on "/message/feedback/"
     When I fill in "body" with "hello world"
     And I press "Send"
     Then I should be on ":LOGIN_LANDING"

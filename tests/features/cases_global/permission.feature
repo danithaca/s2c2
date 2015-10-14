@@ -5,17 +5,19 @@ Feature: check user permission with contract
 
   @core
   Scenario: view contract
-    Given I am on "/contract/3"
+    Given I am on "/job/3"
     Then I should be on "/account/login/"
 
   @core
   Scenario: add contract
-    Given I am on "/contract/add"
+    Given I am on "/job/post/favor"
+    Then I should be on "/account/login/"
+    Given I am on "/job/post/paid"
     Then I should be on "/account/login/"
 
   @core
   Scenario: view contract
-    Given I am on "/contract/"
+    Given I am on "/job/"
     Then I should be on "/account/login/"
 
   @core
