@@ -508,6 +508,9 @@ class Engagement(object):
         else:
             return self.initiate_user
 
+    def is_reversed(self):
+        return self.contract.is_reversed()
+
 ############################ signals ###############################
 
 # todo: signals should be declared in AppConfig.ready() according to https://docs.djangoproject.com/en/1.8/ref/signals/
