@@ -20,7 +20,7 @@ from rest_framework.generics import RetrieveAPIView
 
 from circle.forms import SignupFavoriteForm, SignupCircleForm, UserConnectionForm
 from circle.models import Circle, Membership
-from circle.views import ManagePersonal, ManagePublic, ManageAgency, ParentCircleView, SitterCircleView
+from circle.views import ParentCircleView, SitterCircleView
 from login_token.models import Token
 from p2.utils import UserOnboardRequiredMixin, auto_user_name
 from puser.forms import SignupBasicForm, UserInfoForm, UserPictureForm, LoginEmailAdvForm, UserInfoOnboardForm
@@ -366,120 +366,11 @@ class OnboardSitterCircle(MultiStepViewsMixin, SitterCircleView):
     show_message = True
 
 
-class OnboardPersonalCircle(MultiStepViewsMixin, ManagePersonal):
-    template_name = 'account/onboard/manage_personal.html'
-    step_title = 'Add Contacts'
-    step_note = 'Add people you trust so that Servuno can help you find babysitters from them and their contacts. The more contacts you add here, the better chance you will find a babysitter.'
-
-    # this only applies to the onboarding process. not in Edit account.
-    def get_initial(self):
-        initial = super().get_initial()
-        # if initial['faovorite'] already exists, we don't override it.
-        if not initial.get('favorite', ''):
-            puser = PUser.from_user(self.request.user)
-            qs = puser.membership_queryset_loop()
-            if qs.count() > 0:
-                initial['favorite'] = '/n'.join(set([membership.circle.owner.email for membership in qs]))
-                initial['force_save'] = True
-        #  if not initial.get('favorite', '') and self.request.session.get('signup_inviter_email', ''):
-        #     initial['favorite'] = self.request.session['signup_inviter_email']
-        #     initial['force_save'] = True
-        return initial
-
-
-class OnboardPublicCircle(MultiStepViewsMixin, ManagePublic):
-    template_name = 'account/onboard/manage_public.html'
-    step_title = 'Join Parents Circles'
-    step_note = "Reach out to fellow parents you don't know yet but are trustworthy based on common background. Existing members of the circles will review and approve your admission if it is valid."
-
-
-class OnboardAgencyCircle(MultiStepViewsMixin, ManageAgency):
-    template_name = 'account/onboard/manage_agency.html'
-    step_title = 'Subscribe to Agencies'
-    step_note = "Subscribe to the child care agencies your trust, and Servuno's Smart Matching algorithm will help you find babysitters managed by those agencies. (If you are a caregiver, please contact us for more details.)"
-
-
 class OnboardPicture(MultiStepViewsMixin, UserPicture):
     template_name = 'account/onboard/form.html'
     form_valid_message = "Welcome! You can find a babysitter now or wait for others to find help from you."
     step_title = 'Upload Picture'
     # step_note = 'Let other users see you!'
-
-
-# deprecated in favor of multiple formviews.
-class OnboardWizard(SessionWizardView):
-    form_list = [
-        ('basic', SignupBasicForm),
-        ('info', UserInfoForm),
-        ('favorite', SignupFavoriteForm),
-        ('subscribe', SignupCircleForm),
-    ]
-    # template_name = 'account/onboard/onboard_default.html'
-
-    file_storage = FileSystemStorage(tempfile.tempdir)
-
-    step_meta_data = {
-        'basic': {
-            'title': 'Create an account',
-            'description': 'Fill in basic account information',
-            'help_text': 'Please fill in basic account information',
-        },
-        'info': {
-            'title': 'Edit profile',
-            'description': 'Fill in basic account information',
-            'help_text': 'Please fill in basic account information',
-        },
-        'favorite': {
-            'title': 'Add favorite people',
-            'description': 'Add a list of people to your favorite list',
-            'help_text': 'Add a list of people to your favorite list',
-        },
-        'subscribe': {
-            'title': 'Join circles',
-            'description': 'Join circles of people you trust',
-            'help_text': 'Subscribe to a few circles to allow peoples in the trusted circles babysit for you.',
-            'template': 'account/onboard/onboard_subscribe.html',
-        },
-    }
-
-    def get_context_data(self, form, **kwargs):
-        context = super(OnboardWizard, self).get_context_data(form=form, **kwargs)
-
-        # process all steps meta data to display the vertical tabs
-        context['step_meta_data'] = []
-        for i, f in enumerate(self.form_list):
-            # have to be pass by value
-            d = {}
-            d.update(self.step_meta_data[f])
-
-            d['step'] = i + 1
-            if self.steps.current == f:
-                d['status'] = 'active'
-            elif 'status' in d:
-                # do nothing. keep the status as is
-                pass
-            else:
-                d['status'] = 'disabled'
-
-            context['step_meta_data'].append(d)
-
-        # add the current step meta data
-        context['current_step_meta_data'] = self.step_meta_data[self.steps.current]
-
-        return context
-
-    def process_step(self, form):
-        # this hook is post-process, meaning the current step is validated.
-        # set status to be '' to avoid set as 'disabled'
-        self.step_meta_data[self.steps.current]['status'] = ''
-        return super(OnboardWizard, self).process_step(form)
-
-    def get_template_names(self):
-        return self.step_meta_data[self.steps.current].get('template', 'account/onboard/onboard_default.html')
-
-    def done(self, form_list, form_dict, **kwargs):
-        messages.success(self.request, 'Sign up successful. Please verify email.')
-        return redirect('/')
 
 
 ################## views for API ########################

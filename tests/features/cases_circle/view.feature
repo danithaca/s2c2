@@ -26,6 +26,7 @@ Feature: view contacts
     # this user is under represented.
     Given I am logged in as user "test2@servuno.com" with password "password"
     And I am on "/dashboard/"
+    Then pause 5 seconds
     Then I should see "End Tour"
 #    Then I should see a ".tour-tour" element
 #    Given I am on "/contract/add/"
