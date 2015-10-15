@@ -6,13 +6,12 @@ Feature: pre registered user
   @javascript
   Scenario: set up stage
     Given I am logged in as user "test@servuno.com" with password "password"
-    And I am on "/circle/manage/personal"
+    And I am on "/connect/parent/"
     Then I should not see "to-be-deleted-dummy@servuno.com"
-    When I fill in "new-contact" with "to-be-deleted-dummy@servuno.com to-be-deleted-dummy2@servuno.com"
-    And I press "new-contact-add-btn"
+    When I fill in "new-item" with "to-be-deleted-dummy@servuno.com to-be-deleted-dummy2@servuno.com"
+    And I press "new-item-add-btn"
     Then I should see "to-be-deleted-dummy@servuno.com"
     When I press "Save Changes"
-    Then I should be on "/account/"
     Then I should see "to-be-deleted-dummy@servuno.com"
 
 

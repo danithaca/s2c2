@@ -54,11 +54,11 @@
   <div class="jumbotron dashboard-title">
     <div class="row">
       <div class="col-xs-4 text-center">
-        <a href="{% url 'account_picture' %}"><img src="{% user_picture_url target_user %}" alt="user picture" class="img-rounded img-responsive img-thumbnail"></a>
+        <a href="{% url 'account_picture' %}" id="link_dashboard_picture"><img src="{% user_picture_url target_user %}" alt="user picture" class="img-rounded img-responsive img-thumbnail"></a>
 {#        <div><a href="{% url 'account_picture' %}"><i class="fa fa-edit"></i> Edit</a></div>#}
       </div>
       <div class="col-xs-8 center-block text-center">
-        <h3><a href="{% url 'account_view' %}">{% user-full-name target_user %}</a> <small><a href="{% url 'account_edit' %}"><i class="fa fa-edit"></i></a></small></h3>
+        <h3><a href="{% url 'account_view' %}" id="link_dashboard_account_view">{% user-full-name target_user %}</a> <small><a href="{% url 'account_edit' %}" id="link_dashboard_account_edit"><i class="fa fa-edit"></i></a></small></h3>
         <div class="text-large">{% include 'elements/user_level.html' with user=target_user only %}</div>
       </div>
     </div>

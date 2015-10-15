@@ -47,7 +47,7 @@ Feature: password change
 
     # change password
     When I follow "Edit account"
-    And I follow "Change password"
+    And I follow "Password"
     And I fill in the following:
       | New password              | password |
       | New password confirmation | password |

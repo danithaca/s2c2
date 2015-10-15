@@ -47,7 +47,7 @@
   <div class="row vertical-align min-margin-bottom">
     <div class="col-xs-4 text-center">
       {% if full_access %}
-        <a href="{% url 'account_picture' %}"><img src="{% user_picture_url target_user %}" alt="user picture" class="img-rounded img-responsive img-thumbnail"></a>
+        <a href="{% url 'account_picture' %}" id="link_account_picture"><img src="{% user_picture_url target_user %}" alt="user picture" class="img-rounded img-responsive img-thumbnail"></a>
       {% else %}
         <img src="{% user_picture_url target_user %}" alt="user picture" class="img-rounded img-responsive img-thumbnail">
       {% endif %}

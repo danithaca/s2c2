@@ -6,13 +6,12 @@ Feature: Test referral user
   @javascript
   Scenario: set up stage
     Given I am logged in as user "test@servuno.com" with password "password"
-    And I am on "/circle/manage/personal"
+    And I am on "/connect/parent/"
     Then I should not see "to-be-deleted-referral@servuno.com"
-    When I fill in "new-contact" with "to-be-deleted-referral@servuno.com"
-    And I press "new-contact-add-btn"
+    When I fill in "new-item" with "to-be-deleted-referral@servuno.com"
+    And I press "new-item-add-btn"
     Then I should see "to-be-deleted-referral@servuno.com"
     When I press "Save Changes"
-    Then I should be on "/account/"
     Then I should see "to-be-deleted-referral@servuno.com"
 
 
@@ -21,7 +20,7 @@ Feature: Test referral user
     # give it a few seconds to response
     Then pause 3 seconds
     When I open the last email from "test@servuno.com" to "to-be-deleted-referral@servuno.com"
-    And check email subject contains "invited"
+    And check email subject contains "connected"
     When I follow the email link like "account/signup/?token="
     Then I should be on "/account/signup/"
     And the "Email" field should contain "to-be-deleted-referral@servuno.com"
@@ -31,31 +30,24 @@ Feature: Test referral user
       | Password (again) | password |
     And I press "Sign up"
     Then I should be on ":SIGNUP_LANDING"
-    And I should see "Key Features"
-
     When I follow "Next"
     Then I should be on "/account/onboard/profile/"
     When I fill in the following:
       | First name | 2BD |
       | Last name  | Bot |
+    When I press "Next"
 
-    When I press "Next"
-    Then I should be on "/account/onboard/public/"
-    When I press "Next"
-    Then I should be on "/account/onboard/agency/"
-
-    When I press "Next"
-    Then I should be on "/account/onboard/personal/"
+    Then I should be on "/account/onboard/parent/"
     # if this is the referred user, by default the referrer should appear here.
-    And I should see "test@servuno.com"
+    And I should see "John Smith"
 
     When I press "Next"
-    Then I should be on "/account/onboard/picture/"
+    Then I should be on "/account/onboard/sitter/"
     When I press "Next"
     Then I should be on ":LOGIN_LANDING"
 
-    Given I am on "/circle/manage/personal/"
-    Then I should see "test@servuno.com"
+    Given I am on "/connect/parent/"
+    Then I should see "John Smith"
 
     Given I am on "/account/"
     Then the response should contain "test@servuno.com"
@@ -64,11 +56,8 @@ Feature: Test referral user
   @javascript
   Scenario: clean up - remove from circle
     Given I am logged in as user "test@servuno.com" with password "password"
-    And I am on "/circle/manage/personal/"
-    When I run the following Javascript:
-      """
-      $('li[data-email="to-be-deleted-referral@servuno.com"] i.fa-remove').click();
-      """
+    And I am on "/connect/parent/"
+    When I click the "li[data-email='to-be-deleted-referral@servuno.com'] .destroy" element
     Then I should not see "to-be-deleted-referral@servuno.com"
 
   Scenario: clean up - remove user
