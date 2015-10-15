@@ -103,10 +103,14 @@ class ContractCreate(LoginRequiredMixin, FormValidMessageMixin, ContractUpdateMi
     #     # form.fields['area'].widget.attrs['disabled'] = True
     #     return form
 
+    def alter_contract(self, contract):
+        pass
+
     def form_valid(self, form):
         contract = form.instance
         contract.initiate_user = self.request.puser
         contract.status = Contract.Status.INITIATED.value
+        self.alter_contract(contract)
         return super().form_valid(form)
 
 # this is hard to implement because the preview doesn't handle cbv well, unless perhaps use mixins.
@@ -142,6 +146,13 @@ class ContractCreateSitterView(ContractCreate):
         ctx = super().get_context_data(**kwargs)
         ctx['show_price'] = True
         return ctx
+
+
+class ContractCreateOfferView(ContractCreateParentView):
+    template_name = 'contract/contract_edit/create_offer.html'
+
+    def alter_contract(self, contract):
+        contract.reversed = True
 
 
 class ContractEdit(LoginRequiredMixin, FormValidMessageMixin, ContractUpdateMixin, UpdateView):

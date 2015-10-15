@@ -18,6 +18,7 @@ urlpatterns = patterns(
     url(r"^post/favor/$", views.ContractCreateParentView.as_view(), name="add"),
     url(r"^post/favor/$", views.ContractCreateParentView.as_view(), name="post_parent"),
     url(r"^post/paid/$", views.ContractCreateSitterView.as_view(), name="post_sitter"),
+    url(r"^post/offer/$", views.ContractCreateOfferView.as_view(), name="post_offer"),
 
     url(r"^(?P<pk>\d+)/edit/$", views.ContractEdit.as_view(), name="edit"),
 

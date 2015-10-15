@@ -115,6 +115,9 @@ class Contract(StatusMixin, models.Model):
     # not used now.
     #favor_index = models.PositiveSmallIntegerField(blank=True, null=False, help_text='0~100 to indicate how much this job is a favor.')
 
+    # where this is an offer of help instead of looking for help
+    reversed = models.BooleanField(default=False)
+
     # more details about the contract.
     description = models.TextField(blank=True)
 
@@ -283,6 +286,9 @@ class Contract(StatusMixin, models.Model):
     def is_favor(self):
         # return self.price <= 0.1 or self.hourly_rate() <= 0.1
         return self.price <= 0
+
+    def is_reversed(self):
+        return self.reversed
 
     def parse_audience_data(self):
         if self.audience_type == Contract.AudienceType.CIRCLE.value:

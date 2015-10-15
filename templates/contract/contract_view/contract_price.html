@@ -1,0 +1,15 @@
+{% if contract.is_reversed %}
+<span class="contract-price" data-reversed="true" title="The parent is offering help babysit for another family on the basis of reciprocity. This is not a request to find help and thus offers no compensation" data-toggle="tooltip">
+  <i class="fa fa-gift"></i>
+  <strong class="text-success">help offer</strong>
+</span>
+{% else %}
+<span class="contract-price" data-price="{{ contract.price }}" title="Compensation for this job" data-toggle="tooltip">
+  <i class="fa fa-money"></i>
+  {% if not contract.is_favor %}
+    <strong>${{ contract.price }}</strong> (${{ contract.hourly_rate }}/hour)
+  {% else %}
+    <strong>$0</strong> (reciprocity <span class="fa fa-info-circle" data-toggle="tooltip" title="Help other parents babysit and receive help when you need it."></span>)
+  {% endif %}
+</span>
+{% endif %}

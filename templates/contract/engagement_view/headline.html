@@ -24,13 +24,7 @@
         <h4 class="text-center">{{ engagement.contract.event_start|timeuntil }}</h4>
         <ul class="list-inline text-center">
           <li><i class="fa fa-clock-o"></i> <strong>{{ engagement.contract.event_start|date:'H:i, M. j' }}</strong></li>
-          <li><i class="fa fa-money"></i>
-            {% if engagement.contract.price > 0 %}
-              <strong>${{ engagement.contract.price }}</strong>
-            {% else %}
-              <strong>$0</strong> (favor exchange)
-            {% endif %}
-          </li>
+          <li>{% include 'contract/contract_view/contract_price.html' with contract=engagement.contract %}</li>
         </ul>
         {% if engagement.contract.description %}
           <p class="text-center">{{ engagement.contract.description|truncatechars:100 }}</p>

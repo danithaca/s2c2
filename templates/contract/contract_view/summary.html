@@ -20,13 +20,7 @@
 {#            <em>ongoing</em>)#}
 {#          {% endif %}#}
         </li>
-        <li><i class="fa fa-money"></i>
-          {% if not contract.is_favor %}
-            <strong>${{ contract.price }}</strong> (${{ contract.hourly_rate }}/hour)
-          {% else %}
-            <strong>$0</strong> (favor exchange <span class="fa fa-info-circle" data-toggle="tooltip" title="Servuno will keep track of the number of favors done and remind people to return the favors."></span>)
-          {% endif %}
-        </li>
+        <li>{% include 'contract/contract_view/contract_price.html' with contract=contract only%}</li>
       </ul>
       <ul class="list-inline">
         <li><i class="fa fa-users"></i> <em>{{ contract.count_total_match }}</em> notified</li>
