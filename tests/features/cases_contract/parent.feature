@@ -43,10 +43,9 @@ Feature: create/view a job for parents
 
   Scenario: check email
     When I open the last email from "test@servuno.com" to "test1@servuno.com"
-    Then check email subject contains "John Smith needs help babysitting"
+    Then check email contains "Template: contract/messages/match_engaged_normal"
+    Then check email subject contains "John Smith"
     And check email contains "Compensation: $0"
-    And check email contains "Please respond if you can help or not"
     And check email contains "/job/response/"
     And check email contains "reciprocity"
-    And check email contains "favor"
 

@@ -115,7 +115,7 @@ def after_match_engaged(match):
         'interactions_count': match.count_served_total(),
         'favors_count': -match.count_favors_karma(),        # this should be positive
     }
-    if match.contract.is_reversed():
+    if not match.contract.is_reversed():
         notify_agent.send(match.contract.initiate_user, match.target_user, 'contract/messages/match_engaged_normal', context)
     else:
         notify_agent.send(match.contract.initiate_user, match.target_user, 'contract/messages/match_engaged_reversed', context)

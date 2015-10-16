@@ -134,8 +134,8 @@ Feature: create/view/update/respond to a job for sitter
   Scenario: check email
     When I open the last email
     Then check email sent from "test1@servuno.com" to "test@servuno.com"
-    And check email subject contains "accepted your request"
-    And check email contains "Review and confirm here"
+    And check email subject contains "accepted"
+    And check email contains "Template: contract/messages/match_accepted"
 
 
   @javascript
@@ -169,7 +169,7 @@ Feature: create/view/update/respond to a job for sitter
     When I click the "div[data-slug='test1-bot'] button.btn-success" element
     When I click the "button[data-bb-handler='confirm']" element
     Then I should see "Active - Confirmed"
-    And I should see a "div[data-slug='test1-bot'] .label-success" element
+    And I should see a "div[data-slug='test1-bot'] div[data-match-status='accepted-confirmed']" element
     And I should see "Expired"
     And I should see "Undo"
     And I should see "export to GCal"
@@ -179,13 +179,13 @@ Feature: create/view/update/respond to a job for sitter
     # give some time for celery to catch up.
     Then pause 10 seconds
     When I open the last email from "test@servuno.com" to "test1@servuno.com"
-    Then check email subject contains "John Smith confirmed your offer"
-    And check email contains "John Smith confirmed your offer of help. Details of the request"
-    And check email contains "Please contact John directly if you need to change, cancel, or ask for more information. You can response to the email directly or use the following information"
+    Then check email subject contains "confirmed"
+    And check email contains "confirmed"
+    And check email contains "Template: contract/messages/contract_confirmed_send"
 
     When I open the last email from "test1@servuno.com" to "test@servuno.com"
     Then check email subject contains "Confirmation"
-    And check email contains "You have confirmed the offer from Test1 Bot."
+    And check email contains "Template: contract/messages/contract_confirmed_review"
 
 
   @javascript
@@ -201,11 +201,13 @@ Feature: create/view/update/respond to a job for sitter
 
     # check email
     When I open the last email from "test@servuno.com" to "test1@servuno.com"
-    Then check email subject contains "John Smith canceled your confirmed offer"
+    Then check email subject contains "John Smith"
+    And check email contains "Template: contract/messages/contract_reverted"
 
     When I press "Cancel"
     When I click the "button[data-bb-handler='confirm']" element
     Then I should see "Canceled"
 
     When I open the last email from "test@servuno.com" to "test1@servuno.com"
-    Then check email subject contains "Request canceled"
+    Then check email subject contains "canceled"
+    And check email contains "Template: contract/messages/contract_canceled"

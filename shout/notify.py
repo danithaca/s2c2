@@ -6,7 +6,7 @@ from django.contrib.sites.models import Site
 from django.core.mail import EmailMessage, get_connection
 from django.template.loader import render_to_string
 
-from p2 import settings
+from django.conf import settings
 from puser.models import PUser
 
 
@@ -28,6 +28,7 @@ class Notify(object):
             'site_domain': current_site.domain,
             'site_url': 'http://%s' % current_site.domain,
             'current_site': current_site,
+            'DEBUG': settings.DEBUG,
         }
 
     def get_site_admin_user(self):
@@ -58,7 +59,6 @@ class Notify(object):
         context['from_user'] = PUser.from_user(from_user)
         context['to_user'] = PUser.from_user(to_user)
         context['template_id'] = tpl_prefix
-        context['debug'] = settings.DEBUG
         if ctx:
             context.update(ctx)
 

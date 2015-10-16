@@ -1,6 +1,6 @@
 {% load account_tags %}
 {% load p2_tags %}
-<div class="match-summary" data-match-id="{{ match.id }}"{#  data-toggle="tooltip" title="{{ match.display_status.label }}. {{ match.display_status.explanation }}" #}>
+<div class="match-summary" data-match-id="{{ match.id }}" data-match-status="{{ match.display_status.label|slugify }}"{#  data-toggle="tooltip" title="{{ match.display_status.label }}. {{ match.display_status.explanation }}" #}>
   <div class="row vertical-align">
     <div class="col-xs-4">
       {% include 'account/view/compact.html' with user=match.target_user icon='elements/icon_server.html' color=match.display_status.color only %}
