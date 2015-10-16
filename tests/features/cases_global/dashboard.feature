@@ -51,7 +51,7 @@ Feature: check dashboard
     Given I am logged in as user "test@servuno.com" with password "password"
     Then I should see a ".engagement-feed" element
     When I click the ".engagement-feed" element
-    Then the url should match "/job/\d+/"
+    Then the url should match "/job/.*/"
 
     When I move backward one page
     When I click the "#list-interactions" element
