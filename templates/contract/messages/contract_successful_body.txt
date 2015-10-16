@@ -1,5 +1,6 @@
 {% extends 'email_body.txt' %}
 {% load p2_tags %}
 {% block body %}
-Congratulations! The {{ contract.is_favor|yesno:'favor,service' }} you have done for {% user-full-name client %} has been marked as successful and recorded in {{ site_name }}. Review it at: {{ site_url }}{{ match.get_absolute_url }}?login_token={{ server_token }}
+Congratulations! Your engagement with {% user-full-name client %} has been marked as successful and recorded in {{ site_name }}.
+{# Review it at: {{ site_url }}{{ match.get_absolute_url }}?login_token={{ server_token }} #}
 {%endblock%}

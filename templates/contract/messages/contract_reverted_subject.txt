@@ -1,2 +1,3 @@
-{% load account_tags %}
-[{{ site_name }}] {% user_display initiate_user %} canceled your confirmed offer
+{% extends 'email_subject.txt' %}
+{% load p2_tags %}
+{% block subject %}Warning: {% user-full-name contract.initiate_user %} changed confirmation{% endblock %}

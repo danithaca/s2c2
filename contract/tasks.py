@@ -115,7 +115,10 @@ def after_match_engaged(match):
         'interactions_count': match.count_served_total(),
         'favors_count': -match.count_favors_karma(),        # this should be positive
     }
-    notify_agent.send(match.contract.initiate_user, match.target_user, 'contract/messages/match_engaged', context)
+    if match.contract.is_reversed():
+        notify_agent.send(match.contract.initiate_user, match.target_user, 'contract/messages/match_engaged_normal', context)
+    else:
+        notify_agent.send(match.contract.initiate_user, match.target_user, 'contract/messages/match_engaged_reversed', context)
 
 
 @shared_task
@@ -124,7 +127,7 @@ def after_contract_reverted(contract, match):
 
     # shout to the affected target user
     notify_agent.send(contract.initiate_user, match.target_user, 'contract/messages/contract_reverted',
-                      {'match': match, 'contract': contract, 'initiate_user': contract.initiate_user})
+                      {'match': match, 'contract': contract})
     # next, shout to the initiate user
     # notify_agent.send(site_admin_user, contract.initiate_user, 'contract/messages/contract_reverted_review',
     #                   {'match': match, 'contract': contract, 'target_user': match.target_user})

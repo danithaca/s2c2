@@ -1,3 +1,3 @@
 {% extends 'email_subject.txt' %}
 {% load p2_tags %}
-{% block subject %}{% user-full-name client %} created a request{% endblock %}
+{% block subject %}{% user-full-name client %} posted a job{% endblock %}

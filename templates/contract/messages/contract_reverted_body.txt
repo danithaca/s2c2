@@ -1,17 +1,12 @@
-{% load account_tags %}
-{% user_display initiate_user %} canceled your confirmed offer. Here are the details:
+{% extends 'email_body.txt' %}
+{% load p2_tags %}
+{% block body %}
+{% user-full-name contract.initiate_user %} reverted your confirmation on this job post:
 
-When: {{ contract.event_start }} ~ {{ contract.event_end }}
-Price: {{ contract.price }}
-Note: {{ contract.description }}
+{% include 'elements/email_contract.txt' with contract=contract%}
 
-You can response to the email to contact {% user_display initiate_user %}. Or use the following information:
+Review your response here:
 
-Name: {{ initiate_user.get_full_name }}
-Email: {{ initiate_user.email }}
-Phone: {{ initiate_user.info.phone }}
-Address: {{ initiate_user.info.address }}
+{{ site_url}}{{ match.get_absolute_url }} {# not using login_token to prevent any user login when the email is shared #}
+{% endblock %}
 
-Review the request here:
-
-{{ site_url}}{{ match.get_absolute_url }}

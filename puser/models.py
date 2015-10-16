@@ -350,7 +350,7 @@ class PUser(User):
         Count how many times the current puser (as "server") has served the client.
         """
         assert isinstance(client, User)     # PUser is also an instance of user.
-        return Contract.objects.filter(confirmed_match__target_user=self, initiate_user=client, status=Contract.Status.SUCCESSFUL.value).count()
+        return Contract.objects.filter(status=Contract.Status.SUCCESSFUL.value).filter(Q(confirmed_match__target_user=self, initiate_user=client, reversed=False) | Q(initiate_user=self, confirmed_match__target_user=client, reversed=True)).count()
 
     def count_favors(self, client):
         """
@@ -358,7 +358,7 @@ class PUser(User):
         """
         assert isinstance(client, User)     # PUser is also an instance of user.
         count = 0
-        for contract in Contract.objects.filter(confirmed_match__target_user=self, initiate_user=client, status=Contract.Status.SUCCESSFUL.value):
+        for contract in Contract.objects.filter(status=Contract.Status.SUCCESSFUL.value).filter(Q(confirmed_match__target_user=self, initiate_user=client, reversed=False) | Q(initiate_user=self, confirmed_match__target_user=client, reversed=True)):
             if contract.is_favor():
                 count += 1
         return count
@@ -370,12 +370,10 @@ class PUser(User):
         #         count += 1
 
         # TODO: this need to think thru. for a parent (not sitter), even paid job could be a favor.
-        return Contract.objects.filter(confirmed_match__target_user=self, status=Contract.Status.SUCCESSFUL.value).count()
+        return Contract.objects.filter(status=Contract.Status.SUCCESSFUL.value).filter(Q(confirmed_match__target_user=self, reversed=False) | Q(initiate_user=self, reversed=True)).count()
 
     def count_interactions(self, target_user):
-        c1 = self.count_served(target_user)
-        c2 = target_user.to_puser().count_served(self)
-        return c1 + c2
+        return Contract.objects.filter(status=Contract.Status.SUCCESSFUL.value).filter(Q(confirmed_match__target_user=self, initiate_user=target_user) | Q(initiate_user=self, confirmed_match__target_user=target_user)).count()
 
     def get_level(self):
         count = self.count_favors_all()

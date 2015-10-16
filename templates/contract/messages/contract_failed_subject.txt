@@ -1,2 +1,2 @@
-{% load account_tags %}
-[{{ site_name }}] Contract failed alert
+{% extends 'email_subject.txt' %}
+{% block subject %}Contract failed alert{% endblock %}

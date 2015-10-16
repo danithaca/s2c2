@@ -1,3 +1,3 @@
 {% extends 'email_subject.txt' %}
 {% load p2_tags %}
-{% block subject %}Reminder: {% user-short-name server %} is about to help you{% endblock %}
+{% block subject %}Reminder: your engagement with {% user-short-name server %} is about to begin{% endblock %}

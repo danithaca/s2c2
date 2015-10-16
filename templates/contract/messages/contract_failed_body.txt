@@ -1,4 +1,8 @@
+{% extends 'email_body.txt' %}
+{% block body %}
 Contract failed. Check it at:
 
 {{ site_url }}{{ contract.get_absolute_url }}
 {{ site_url }}/admin/contract/contract/{{ contract.id }}
+{% endblock %}
+

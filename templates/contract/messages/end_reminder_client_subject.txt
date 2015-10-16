@@ -1,2 +1,3 @@
+{% extends 'email_subject.txt' %}
 {% load p2_tags %}
-[{{ site_name }}] How did it go with {% user-short-name server %}?
+{% block body %}Leave a feedback for {% user-short-name server %}{% endblock %}

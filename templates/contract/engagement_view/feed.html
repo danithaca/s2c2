@@ -18,6 +18,18 @@
 
     <div> {# this is text #}
       <span class="text-{{ engagement.display_status.color }}" title="{{ engagement.display_status.label }}" data-toggle="tooltip">
+      {% if engagement.is_reversed %} {# first, look at if this is reversed #}
+        {% if engagement.is_main_match %}
+          <a href="{% url 'account_view' pk=engagement.initiate_user.id %}">{% user-full-name engagement.initiate_user %}</a> offered to babysit on <strong><i class="fa fa-clock-o"></i> {{ engagement.contract.event_start|date:'n/j H:i' }}</strong>.
+        {% else %}
+          {% if engagement.target_user %}
+            You agreed to babysit for <a href="{% url 'account_view' pk=engagement.target_user.id %}">{% user-full-name engagement.target_user %}</a> starting at <strong><i class="fa fa-clock-o"></i> {{ engagement.contract.event_start|date:'n/j H:i' }}</strong>.
+          {% else %}
+            You offered to babysit starting at <strong><i class="fa fa-clock-o"></i> {{ engagement.contract.event_start|date:'n/j H:i' }}</strong>.
+          {% endif %}
+        {% endif %}
+        <span class="label label-success">help offer!</span>
+      {% else %}
         {% if engagement.is_main_match %}
           <a href="{% url 'account_view' pk=engagement.initiate_user.id %}">{% user-full-name engagement.initiate_user %}</a> needed help on <strong><i class="fa fa-clock-o"></i> {{ engagement.contract.event_start|date:'n/j H:i' }}</strong>.
         {% else %}
@@ -27,6 +39,7 @@
             You posted a job starting at <strong><i class="fa fa-clock-o"></i> {{ engagement.contract.event_start|date:'n/j H:i' }}</strong>.
           {% endif %}
         {% endif %}
+      {% endif %}
       </span>
       <br>
       {% if engagement.is_main_contract and engagement.contract.is_feedback_needed %}

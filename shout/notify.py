@@ -57,6 +57,8 @@ class Notify(object):
         context = self.default_context()
         context['from_user'] = PUser.from_user(from_user)
         context['to_user'] = PUser.from_user(to_user)
+        context['template_id'] = tpl_prefix
+        context['debug'] = settings.DEBUG
         if ctx:
             context.update(ctx)
 

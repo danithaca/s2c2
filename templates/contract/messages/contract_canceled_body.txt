@@ -1,6 +1,12 @@
+{% extends 'email_body.txt' %}
 {% load p2_tags %}
-{% user-short-name contract.initiate_user %} canceled request:
+{% block body %}
+{% user-full-name contract.initiate_user %} canceled the job post:
+
+{% include 'elements/email_contract.txt' with contract=contract %}
 
 Review details here:
 
 {{ site_url }}{{ match.get_absolute_url }}
+
+{% endblock %}

@@ -1,7 +1,7 @@
 {% extends 'email_body.txt' %}
 {% load p2_tags %}
 {% block body %}
-{% user-full-name match.target_user %} accepted your babysitting request. You have a total of {{ contract.count_accepted_match }} offer{{ contract.count_accepted_match|pluralize }}.
+{% user-full-name match.target_user %} accepted your job post. You have a total of {{ contract.count_accepted_match }} offer{{ contract.count_accepted_match|pluralize }}.
 
 Review and confirm here:
 

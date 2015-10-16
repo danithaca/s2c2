@@ -1,9 +1,12 @@
+{% extends 'email_body.txt' %}
 {% load p2_tags %}
-{% user-short-name contract.initiate_user %} updated request:
+{% block body %}
+{% user-full-name contract.initiate_user %} updated the job post:
 
-Payment: ${{ contract.price }}
-{{ contract.description }}
+{% include 'elements/email_contract.txt' with contract=contract%}
 
-Review details here:
+If you don't want to receive further update on this job post, please mark your response as "Decline". Leave or change your response at:
 
-{{ site_url }}{{ match.get_absolute_url }}
+{{ site_url }}{{ match.get_absolute_url }}{% if match.target_user.to_puser.get_login_token %}?login_token={{ match.target_user.to_puser.get_login_token }}{% endif %}
+
+{% endblock %}

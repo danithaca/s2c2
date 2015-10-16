@@ -1,7 +1,7 @@
 {% extends 'email_body.txt' %}
 {% load p2_tags %}
 {% block body %}
-This is to confirm you have created a babysitting request:
+This is to confirm you have posted a job on Servuno:
 
 {% include 'elements/email_contract.txt' with contract=contract %}
 

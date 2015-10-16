@@ -1,15 +1,15 @@
 {% extends 'email_body.txt' %}
 {% load p2_tags %}
 {% block body %}
-You have confirmed the offer from {% user-full-name target_user %}. You can response to the email to contact {% user-short-name target_user %}. Or use the following contact:
+You have confirmed your job post with {% user-full-name target_user %}. {% user-short-name target_user %}'s contact info:
 
 {% include 'elements/email_user_info.txt' with user=target_user %}
 
-{% if not contract.is_favor %}
+{% if not contract.is_reversed and not contract.is_favor %}
 You agreed to pay ${{ contract.price }} for the service. Don't forget to pay after the service is delivered.
 {% endif %}
 
-Review the request here:
+Review the job post here:
 
 {{ site_url}}{{ contract.get_absolute_url }}{% if initiate_user.get_login_token %}?login_token={{ initiate_user.get_login_token }}{% endif %}
 {%endblock%}

@@ -1,0 +1,14 @@
+{% extends 'email_body.txt' %}
+{% load p2_tags %}
+{% block body %}
+{% user-full-name contract.initiate_user %} offers help babysit for a family. The offer is based on the principle of reciprocity, where parents agree to swap favors babysit for each other. Details of the offer:
+
+{% include 'elements/email_contract.txt' with contract=contract %}
+{% user-short-name contract.initiate_user %}'s contact info:
+
+{% include 'elements/email_user_info.txt' with user=contract.initiate_user %}
+
+Please respond here:
+
+{{ site_url }}{{ match.get_absolute_url }}?login_token={{ server_token }}
+{%endblock%}

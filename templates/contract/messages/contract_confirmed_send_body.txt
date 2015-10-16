@@ -1,12 +1,14 @@
 {% extends 'email_body.txt' %}
 {% load p2_tags %}
 {% block body %}
-{% user-full-name initiate_user %} confirmed your offer of help. Details of the request:
+{% user-full-name initiate_user %} confirmed your response to the job post:
 
 {% include 'elements/email_contract.txt' with contract=contract %}
-Review: {{ site_url}}{{ match.get_absolute_url }}{% if target_user.get_login_token %}?login_token={{ target_user.get_login_token }}{% endif %}
 
-Please contact {% user-short-name initiate_user %} directly if you need to change, cancel, or ask for more information. You can response to the email directly or use the following information:
+Review your response here:
+{{ site_url}}{{ match.get_absolute_url }}{% if target_user.get_login_token %}?login_token={{ target_user.get_login_token }}{% endif %}
+
+Please contact {% user-short-name initiate_user %} directly if you need to change, cancel, or ask for more information. {% user-short-name initiate_user %}'s contact:
 
 {% include 'elements/email_user_info.txt' with user=initiate_user %}
 {%endblock%}

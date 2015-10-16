@@ -1,3 +1,4 @@
 {% autoescape off %}When: {{ contract.display_event_range }}
-Compensation: {% if not contract.is_favor %}${{ contract.price }} (${{ contract.hourly_rate }}/hour){% else %}$0 (favor exchange){% endif %}
+{% if contract.is_reversed %}What: offering help babysit (not looking for help){% else %}What: looking for a babysitter
+Compensation: {% if not contract.is_favor %}${{ contract.price }} (${{ contract.hourly_rate }}/hour){% else %}$0 (reciprocity){% endif %}{% endif %}
 Note: {{ contract.description|default:'- None -' }}{% endautoescape %}

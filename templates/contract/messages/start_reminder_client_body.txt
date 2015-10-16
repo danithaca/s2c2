@@ -1,9 +1,7 @@
 {% extends 'email_body.txt' %}
 {% load p2_tags %}
 {% block body %}
-Hi {% user-full-name client %},
-
-This is a friendly reminder that {% user-full-name server %} is about to help you babysit at {{ event_start }}. Please don't forget to pay ${{ contract.price }} after the service is completed. Check out the details at:
+This is a reminder that your engagement with {% user-full-name server %} is about to begin at {{ event_start }}. {% if not contract.is_favor and not contract.is_reversed %}Don't forget to pay ${{ contract.price }} after the service is delivered. {% endif %}Check out the details at:
 
 {{ site_url}}{{ contract.get_absolute_url }}?login_token={{ client.get_login_token }}
 {%endblock%}

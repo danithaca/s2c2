@@ -1,7 +1,7 @@
 {% extends 'email_body.txt' %}
 {% load p2_tags %}
 {% block body %}
-{% user-full-name client %} created a request:
+{% user-full-name client %} posted a job:
 
 {% include 'elements/email_contract.txt' with contract=contract %}
 {%endblock%}
