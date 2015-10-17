@@ -47,7 +47,7 @@
 {#    </ul>#}
     <div class="btn-group btn-group-justified">
       <a href="{% url 'dashboard' %}" class="btn btn-primary" data-active-url="{% url 'dashboard' %}"><i class="fa fa-home"></i><span class="hidden-xs"> Dashboard</span></a>
-      <a id="trunk-tab-network" href="{% url 'circle:parent' %}" class="btn btn-warning" data-active-url="{% url 'circle:parent' %},{% url 'circle:sitter' %}"><i class="fa fa-users"></i><span class="hidden-xs"> Build Network</span></a>
+      <a id="trunk-tab-network" href="{% url 'circle:parent' %}" class="btn btn-warning" data-active-url="{% url 'circle:parent' %},{% url 'circle:sitter' %},{% url 'circle:tag' %}"><i class="fa fa-users"></i><span class="hidden-xs"> Build Network</span></a>
       <a id="trunk-tab-post" href="{% url 'contract:post_parent' %}" class="btn btn-success" data-active-url="{% url 'contract:post_parent' %},{% url 'contract:post_sitter' %},{% url 'contract:post_offer' %}"><i class="fa fa-child"></i><span class="hidden-xs"> Post Job</span></a>
     </div>
   </div>

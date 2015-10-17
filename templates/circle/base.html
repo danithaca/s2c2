@@ -28,6 +28,7 @@ $(document).ready(function() {
   <div class="btn-group btn-group-justified min-margin-bottom">
     <a href="{% url 'circle:parent' %}" class="btn btn-default" data-active-url="{% url 'circle:parent' %}">Connect to Parents</a>
     <a href="{% url 'circle:sitter' %}" class="btn btn-default" data-active-url="{% url 'circle:sitter' %}">Add Babysitters</a>
+    <a href="{% url 'circle:tag' %}" class="btn btn-default" data-active-url="{% url 'circle:tag' %}">Join Groups</a>
   </div>
   <div class="well">{% block help-message %}{% endblock %}</div>
   {% block manage-block %}{% endblock %}

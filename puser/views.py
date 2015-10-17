@@ -18,7 +18,7 @@ from formtools.wizard.views import SessionWizardView
 from django.contrib import messages
 from rest_framework.generics import RetrieveAPIView
 
-from circle.forms import SignupFavoriteForm, SignupCircleForm, UserConnectionForm
+from circle.forms import UserConnectionForm
 from circle.models import Circle, Membership
 from circle.views import ParentCircleView, SitterCircleView
 from login_token.models import Token

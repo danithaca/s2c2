@@ -1,6 +1,5 @@
 from collections import defaultdict
 from enum import Enum
-from itertools import groupby
 
 from django.db import models
 from django.conf import settings
@@ -21,7 +20,8 @@ class Circle(models.Model):
         # LOOP = 6          # the circle of people who added me as favorite.
         PARENT = 7          # parents network in v3 design
         SITTER = 8          # babysitter list in v3 design
-        TAG = 9             # tag-like circle type in v3 design
+        # PUBLIC vs. TAG: tag membership is approved by default. flat hierarchy.
+        TAG = 9             # tag-like circle type in v3 design.
         # HELPER = 10       # the circle that tracks the helpers (members) to circle-owner. e.g, daniel helped tyler, and daniel is in tyler's helper list.
 
     name = models.CharField(max_length=200)
@@ -218,6 +218,9 @@ class Membership(models.Model):
 
     created = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True)
+
+    # allow the member or circle owner add note to the membership
+    note = models.TextField(blank=True)
 
     class Meta:
         # here we assume a user won't have multiple "membership" instances to the same circle.

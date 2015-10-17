@@ -170,6 +170,12 @@ class PUser(User):
         })
         return circle
 
+    def get_tag_circle_set(self, area=None):
+        if area is None:
+            area = self.get_area()
+        membership = self.membership_set.filter(circle__type=Circle.Type.TAG.value, active=True, approved=True, circle__area=area)
+        return set([m.circle for m in membership])
+
     # public circles the user joined (and approved)
     def get_public_circle_set(self, area=None):
         if area is None:

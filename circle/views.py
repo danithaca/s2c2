@@ -9,9 +9,8 @@ from django.core.urlresolvers import reverse_lazy, reverse
 
 # Create your views here.
 from django.views.defaults import bad_request
-from django.views.generic import FormView
-from circle.forms import ManagePublicForm, ManagePersonalForm, ManageLoopForm, ManageAgencyForm, EmailListForm, \
-    UserConnectionForm
+from django.views.generic import FormView, CreateView
+from circle.forms import EmailListForm, UserConnectionForm, TagUserForm, CircleAddForm
 from circle.models import Membership, Circle, ParentCircle, UserConnection
 from circle.tasks import personal_circle_send_invitation, circle_send_invitation
 from puser.models import PUser
@@ -100,6 +99,59 @@ class SitterCircleView(BaseCircleView):
             pool_list.append(UserConnection(me, member, list(membership_list)))
         context['pool_list'] = pool_list
         return context
+
+
+class TagCircleUserView(LoginRequiredMixin, UserOnboardRequiredMixin, ControlledFormValidMessageMixin, FormView):
+    form_class = TagUserForm
+    template_name = 'circle/tag.html'
+    success_url = reverse_lazy('circle:tag')
+    form_valid_message = 'Successfully updated.'
+
+    def form_valid(self, form):
+        if form.has_changed():
+            new_tags = set(form.cleaned_data['tags'])
+            old_tags = set(form.initial['tags'])
+            user = self.request.puser
+            self.show_message = True
+
+            for tag_circle in old_tags - new_tags:
+                tag_circle.deactivate_membership(user)
+
+            for tag_circle in new_tags - old_tags:
+                tag_circle.activate_membership(user, approved=True)
+
+        return super().form_valid(form)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['create_form'] = CircleAddForm()
+        return context
+
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        kwargs['target_user'] = self.request.puser
+        return kwargs
+
+    def get_initial(self):
+        initial = super().get_initial()
+        tags = self.request.puser.get_tag_circle_set()
+        if len(tags) > 0:
+            initial['tags'] = list(tags)
+        return initial
+
+
+class TagAddView(LoginRequiredMixin, UserOnboardRequiredMixin, CreateView):
+    model = Circle
+    form_class = CircleAddForm
+    template_name = 'pages/basic_form.html'
+    success_url = reverse_lazy('circle:tag')
+
+    def form_valid(self, form):
+        circle = form.instance
+        circle.type = Circle.Type.TAG.value
+        circle.owner = self.request.puser
+        circle.area = self.request.puser.get_area()
+        return super().form_valid(form)
 
 
 class UserConnectionView(LoginRequiredMixin, FormValidMessageMixin, FormView):
