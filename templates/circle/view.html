@@ -1,0 +1,11 @@
+{% extends 'base_branch.html' %}
+
+{% block title %}View Group{% endblock %}
+{% block back %}{% include 'elements/back_link.html' with previous=True %}{% endblock %}
+
+{% block content %}
+<div class="panel panel-default" data-id="{{ circle.id }}">
+  <div class="panel-heading"><h4>{{ circle.name }}</h4><p>{{ circle.description }}</p></div>
+  <div class="panel-body">{% include 'circle/includes/list_tag.html' %}</div>
+</div>
+{% endblock %}

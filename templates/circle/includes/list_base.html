@@ -5,7 +5,7 @@
 {#  <div class="help-block min-margin-bottom">{% block help-message %}{% endblock %}</div>#}
   <div class="input-group min-margin-bottom">
     <input id="new-item" class="form-control" placeholder="Email address" autofocus>
-    <span class="input-group-btn"><button class="btn btn-primary" id="new-item-add-btn">Add</button></span>
+    <span class="input-group-btn"><button class="btn btn-primary" id="new-item-add-btn">{% block add-button-name %}Add{% endblock %}</button></span>
   </div>
   <div id="item-list" class="row"></div>
 </section>

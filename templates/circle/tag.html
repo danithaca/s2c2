@@ -12,14 +12,31 @@
   $(document).ready(function() {
     var $select = $("select[name='tags']");
 
+    function decorateSelection (state) {
+      if (!state.id) { return state.text; }
+      var $state = $(
+          '<span class="circle-tag hover-pointer" data-id="' + state.id + '">' + state.text + '</span>'
+      );
+      return $state;
+    }
+
     $select.select2({
       // tags: true,
       // tokenSeparators: [',']
+      templateSelection: decorateSelection,
     });
 
     // monitor changes
     $select.on('change', function(e) {
       $('.changes-notice').removeClass('hidden');
+    });
+
+    // click to go to group page
+    $('form').on('click', 'span.circle-tag', function(e) {
+      var id = $(this).data('id');
+      if (id) {
+        window.location = '/connect/group/' + id + '/';
+      }
     });
   });
 </script>

@@ -1,6 +1,6 @@
 from django.conf.urls import patterns, url
 
-from circle import views
+from circle import views, models
 
 urlpatterns = patterns(
     "",
@@ -9,4 +9,6 @@ urlpatterns = patterns(
     url(r"^group/$", views.TagCircleUserView.as_view(), name="tag"),
     url(r"^group/add/$", views.TagAddView.as_view(), name="tag_add"),
     url(r"^user/(?P<uid>\d+)/$", views.UserConnectionView.as_view(), name="user_connection"),
+
+    url(r"^group/(?P<pk>\d+)/$", views.CircleDetails.as_view(type_constraint=models.Circle.Type.TAG), name="tag_view"),
 )

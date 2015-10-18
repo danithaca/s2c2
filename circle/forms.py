@@ -35,7 +35,7 @@ class EmailListForm(forms.Form):
 class TagUserForm(forms.Form):
     # tags = NoValidationMultipleChoiceField(choices=((1, 'Option 1'), (2, 'Option 2')), label='', help_text='Type to add.')
     # tags = forms.MultipleChoiceField(choices=((1, 'Option 1'), (2, 'Option 2')), label='', help_text='Type to add.')
-    tags = forms.ModelMultipleChoiceField(queryset=Circle.objects.filter(type=Circle.Type.TAG.value), label='', help_text='Type to add.')
+    tags = forms.ModelMultipleChoiceField(queryset=Circle.objects.filter(type=Circle.Type.TAG.value), label='', help_text='Type to search.')
 
     def __init__(self, target_user=None, *args, **kwargs):
         super().__init__(*args, **kwargs)

@@ -9,7 +9,8 @@ from django.core.urlresolvers import reverse_lazy, reverse
 
 # Create your views here.
 from django.views.defaults import bad_request
-from django.views.generic import FormView, CreateView
+from django.views.generic import FormView, CreateView, DetailView
+from django.views.generic.detail import SingleObjectTemplateResponseMixin, SingleObjectMixin
 from circle.forms import EmailListForm, UserConnectionForm, TagUserForm, CircleAddForm
 from circle.models import Membership, Circle, ParentCircle, UserConnection
 from circle.tasks import personal_circle_send_invitation, circle_send_invitation
@@ -152,6 +153,39 @@ class TagAddView(LoginRequiredMixin, UserOnboardRequiredMixin, CreateView):
         circle.owner = self.request.puser
         circle.area = self.request.puser.get_area()
         return super().form_valid(form)
+
+
+class CircleDetails(SingleObjectTemplateResponseMixin, SingleObjectMixin, BaseCircleView):
+    type_constraint = None
+    model = Circle
+    template_name = 'circle/view.html'
+    context_object_name = 'circle'
+
+    form_valid_message = 'Added successfully.'
+    # we always set "approved" to be true here.
+    default_approved = True
+
+    # we want to use DetailsView, but instead we used BaseCircleView. Therefore, here we override a little of DetailsView.get()
+    def get(self, request, *args, **kwargs):
+        self.object = self.get_object()
+        return super().get(request, *args, **kwargs)
+
+    def get_queryset(self):
+        if self.type_constraint is None or not isinstance(self.type_constraint, Circle.Type):
+            return super().get_queryset()
+        else:
+            return Circle.objects.filter(type=self.type_constraint.value)
+
+    # todo: this should move to BaseCircleView?
+    def get_circle(self):
+        return self.get_object()
+
+    def get_old_email_qs(self):
+        circle = self.get_circle()
+        return Membership.objects.filter(circle=circle, active=True).order_by('updated').values_list('member__email', flat=True).distinct()
+
+    def get_success_url(self):
+        return reverse('circle:tag_view', kwargs={'pk': self.get_object().id})
 
 
 class UserConnectionView(LoginRequiredMixin, FormValidMessageMixin, FormView):
