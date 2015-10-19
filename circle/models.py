@@ -128,6 +128,16 @@ class Circle(models.Model):
     def is_empty(self):
         return self.count() == 0
 
+    def is_valid_member(self, user):
+        try:
+            membership = self.get_membership(user)
+            if membership.active and membership.approved:
+                return True
+            else:
+                return False
+        except Membership.DoesNotExist:
+            return False
+
 
 class ParentCircleManager(models.Manager):
     def get_queryset(self):
@@ -232,6 +242,9 @@ class Membership(models.Model):
 
     def is_type_partial(self):
         return self.type == Membership.Type.PARTIAL.value
+
+    def is_admin(self):
+        return self.type == Membership.Type.ADMIN.value or self.member == self.circle.owner
 
     def __str__(self):
         return '%s (%s)' % (self.member.get_name(), self.circle.display())

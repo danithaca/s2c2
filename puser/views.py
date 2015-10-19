@@ -9,14 +9,13 @@ from braces.views import UserPassesTestMixin, FormValidMessageMixin
 from django.contrib.auth.decorators import login_required
 from django.contrib import auth
 from django.contrib.auth import forms as auth_forms
-from django.core.files.storage import FileSystemStorage
 from django.core.urlresolvers import reverse_lazy, reverse
 from django.shortcuts import redirect
 from django.views.generic import FormView, TemplateView, UpdateView, DetailView
 from django.views.generic.base import ContextMixin
-from formtools.wizard.views import SessionWizardView
 from django.contrib import messages
 from rest_framework.generics import RetrieveAPIView
+from rest_framework.response import Response
 
 from circle.forms import UserConnectionForm
 from circle.models import Circle, Membership
@@ -211,21 +210,22 @@ class UserView(LoginRequiredMixin, UserOnboardRequiredMixin, TrustedUserMixin, D
 
         if u.is_registered() and u.has_area():
             area = u.get_area()
-            in_others = list(PUser.objects.filter(owner__type=Circle.Type.PERSONAL.value, owner__area=area, owner__membership__member=u, owner__membership__active=True, owner__membership__approved=True).exclude(owner__owner=u).distinct())
-            my_listed = list(PUser.objects.filter(membership__circle__owner=u, membership__circle__area=area, membership__circle__type=Circle.Type.PERSONAL.value, membership__active=True, membership__approved=True).exclude(membership__member=u).distinct())
-            my_circles = list(Circle.objects.filter(membership__member=u, membership__circle__type=Circle.Type.PUBLIC.value, membership__circle__area=area, membership__active=True, membership__approved=True).distinct())
-            my_memberships = list(Membership.objects.filter(member=u, circle__type=Circle.Type.PUBLIC.value, circle__area=area, active=True))
-            my_agencies = list(Membership.objects.filter(member=u, circle__type=Circle.Type.AGENCY.value, circle__area=area, active=True))
+            # in_others = list(PUser.objects.filter(owner__type=Circle.Type.PERSONAL.value, owner__area=area, owner__membership__member=u, owner__membership__active=True, owner__membership__approved=True).exclude(owner__owner=u).distinct())
+            # my_listed = list(PUser.objects.filter(membership__circle__owner=u, membership__circle__area=area, membership__circle__type=Circle.Type.PERSONAL.value, membership__active=True, membership__approved=True).exclude(membership__member=u).distinct())
+            # my_circles = list(Circle.objects.filter(membership__member=u, membership__circle__type=Circle.Type.PUBLIC.value, membership__circle__area=area, membership__active=True, membership__approved=True).distinct())
+            # my_memberships = list(Membership.objects.filter(member=u, circle__type=Circle.Type.PUBLIC.value, circle__area=area, active=True))
+            # my_agencies = list(Membership.objects.filter(member=u, circle__type=Circle.Type.AGENCY.value, circle__area=area, active=True))
 
             my_parents = list(PUser.objects.filter(membership__circle__owner=u, membership__circle__area=area, membership__circle__type=Circle.Type.PARENT.value, membership__active=True, membership__approved=True).exclude(membership__member=u).distinct())
             my_sitters = list(PUser.objects.filter(membership__circle__owner=u, membership__circle__area=area, membership__circle__type=Circle.Type.SITTER.value, membership__active=True, membership__approved=True).exclude(membership__member=u).distinct())
+            my_memberships = list(Membership.objects.filter(member=u, circle__type=Circle.Type.TAG.value, circle__area=area, active=True))
 
             context.update({
-                'in_others': in_others,
-                'my_listed': my_listed,
-                'my_circles': my_circles,
+                # 'in_others': in_others,
+                # 'my_listed': my_listed,
+                # 'my_circles': my_circles,
                 'my_memberships': my_memberships,
-                'my_agencies': my_agencies,
+                # 'my_agencies': my_agencies,
                 'my_parents': my_parents,
                 'my_sitters': my_sitters,
             })
@@ -381,3 +381,21 @@ class APIGetByEmail(LoginRequiredMixin, RetrieveAPIView):
     serializer_class = UserSerializer
     queryset = PUser.objects.filter(is_active=True).exclude(token__is_user_registered=False)
     # queryset = PUser.objects.filter(is_active=True)
+
+    # purpose of the override is to add "membership note" if there's a Circle parameter
+    def retrieve(self, request, *args, **kwargs):
+        circle_id = request.GET.get('circle', None)
+        if circle_id:
+            try:
+                circle = Circle.objects.get(pk=circle_id)
+                target_user = self.get_object()
+                membership = circle.get_membership(target_user)
+                if membership.note:
+                    serializer = self.get_serializer(target_user)
+                    data = serializer.data
+                    data['note'] = membership.note
+                    # the only alternative that doesn't do super().
+                    return Response(data)
+            except:
+                pass
+        return super().retrieve(request, *args, **kwargs)

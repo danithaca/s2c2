@@ -5,7 +5,7 @@
 {#  <div class="help-block min-margin-bottom">{% block help-message %}{% endblock %}</div>#}
   <div class="input-group min-margin-bottom">
     <input id="new-item" class="form-control" placeholder="Email address" autofocus>
-    <span class="input-group-btn"><button class="btn btn-primary" id="new-item-add-btn">{% block add-button-name %}Add{% endblock %}</button></span>
+    <span class="input-group-btn"><button class="btn btn-primary" id="new-item-add-btn"><i class="fa fa-user-plus"></i> {% block add-button-name %}Add{% endblock %}</button></span>
   </div>
   <div id="item-list" class="row"></div>
 </section>
@@ -18,6 +18,7 @@
     <span title="Not a user." data-toggle="tooltip" class="word-break"><%= email %></span>
     <% } %>
     <span class="text-danger destroy hover-pointer pull-right" title="Click to remove" data-toggle="tooltip"><i class="fa fa-trash-o"></i></span>
+    <% if (note) { %><br><span class="text-muted"><%= note %></span><% } %>
   </div>
 </script>
 
@@ -32,22 +33,28 @@ function initialize_app() {
       user_id: null,
       email: '',
       display_name: '',
-      picture: ''
+      picture: '',
+      note: ''
     },
     idAttribute: 'email',
     localStorage: app.localStorage,
 
     // retrive additional data from server
     initialize: function() {
+      var extra = {% if circle %}'?circle={{ circle.id }}'{% else %}''{% endif %};
       $.ajax({
-        url: '/account/api/email/' + this.get('email') + '/',   // todo: this is hard coded. needs to change if url is changed.
+        url: '/account/api/email/' + this.get('email') + '/' + extra,   // todo: this is hard coded. needs to change if url is changed.
         context: this,
         success: function(user_data) {
+          console.log(user_data);
           if (user_data) {
             // might need to use "cid"
             this.set('user_id', user_data.id);
             this.set('display_name', user_data.display_name);
             this.set('picture', user_data.picture);
+            if (user_data.note) {
+              this.set('note', user_data.note)
+            }
           }
 {#          if (!user_data.display_name) {#}
 {#            this.set('display_name', this.get('email'));#}

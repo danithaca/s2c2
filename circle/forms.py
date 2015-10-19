@@ -71,3 +71,40 @@ class UserConnectionForm(forms.Form):
         area = initiate_user.get_area()
         self.initial['parent_circle'] = Membership.objects.filter(member=target_user, circle__owner=initiate_user, circle__type=Circle.Type.PARENT.value, circle__area=area, active=True, approved=True).exists()
         self.initial['sitter_circle'] = Membership.objects.filter(member=target_user, circle__owner=initiate_user, circle__type=Circle.Type.SITTER.value, circle__area=area, active=True, approved=True).exists()
+
+
+class MembershipForm(forms.ModelForm):
+    redirect = forms.CharField(required=False, widget=forms.HiddenInput)
+
+    class Meta:
+        model = Membership
+        fields = ['circle', 'member', 'active', 'approved', 'type', 'note']
+        labels = {
+            'note': '',
+        }
+        widgets = {
+            'circle': forms.HiddenInput(),
+            'member': forms.HiddenInput(),
+            'active': forms.HiddenInput(),
+            'approved': forms.HiddenInput(),
+            'type': forms.HiddenInput(),
+            'note': forms.Textarea(attrs={'placeholder': 'Type in your affliation with this group.', 'rows': 3}),
+        }
+
+    # def __init__(self, circle=None, member=None, active=None, approved=None, type=None, *args, **kwargs):
+    #     super().__init__(*args, **kwargs)
+    #     if circle is not None:
+    #         self.fields['circle'].initial = circle
+    #         self.fields['circle'].widget = forms.HiddenInput()
+    #     if member is not None:
+    #         self.fields['member'].initial = member
+    #         self.fields['member'].widget = forms.HiddenInput()
+    #     if active is not None:
+    #         self.fields['active'].initial = active
+    #         self.fields['active'].widget = forms.HiddenInput()
+    #     if approved is not None:
+    #         self.fields['approved'].initial = approved
+    #         self.fields['approved'].widget = forms.HiddenInput()
+    #     if type is not None:
+    #         self.fields['type'].initial = type
+    #         self.fields['type'].widget = forms.HiddenInput()

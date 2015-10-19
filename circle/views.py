@@ -3,17 +3,16 @@ import json
 
 from account.mixins import LoginRequiredMixin
 from braces.views import FormValidMessageMixin
-from django.contrib import messages
 from django.core.urlresolvers import reverse_lazy, reverse
 
 
 # Create your views here.
 from django.views.defaults import bad_request
-from django.views.generic import FormView, CreateView, DetailView
+from django.views.generic import FormView, CreateView
 from django.views.generic.detail import SingleObjectTemplateResponseMixin, SingleObjectMixin
-from circle.forms import EmailListForm, UserConnectionForm, TagUserForm, CircleAddForm
+from circle.forms import EmailListForm, UserConnectionForm, TagUserForm, CircleAddForm, MembershipForm
 from circle.models import Membership, Circle, ParentCircle, UserConnection
-from circle.tasks import personal_circle_send_invitation, circle_send_invitation
+from circle.tasks import circle_send_invitation
 from puser.models import PUser
 from p2.utils import UserOnboardRequiredMixin, ControlledFormValidMessageMixin
 
@@ -187,6 +186,26 @@ class CircleDetails(SingleObjectTemplateResponseMixin, SingleObjectMixin, BaseCi
     def get_success_url(self):
         return reverse('circle:tag_view', kwargs={'pk': self.get_object().id})
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        circle = self.get_object()
+        current_membership = None
+        if circle.is_valid_member(self.request.puser):
+            current_membership = circle.get_membership(self.request.puser)
+            context['current_membership'] = current_membership
+
+        join_form = MembershipForm(initial={
+            'circle': circle,
+            'member': self.request.puser,
+            'active': True,
+            'approved': True,
+            'type': Membership.Type.NORMAL.value,
+            # 'note': None if current_membership is None else current_membership.note,
+        }, instance=current_membership)
+
+        context['join_form'] = join_form
+        return context
+
 
 class UserConnectionView(LoginRequiredMixin, FormValidMessageMixin, FormView):
     template_name = 'pages/basic_form.html'
@@ -234,3 +253,68 @@ class UserConnectionView(LoginRequiredMixin, FormValidMessageMixin, FormView):
 
     def get_success_url(self):
         return reverse('account_view', kwargs={'pk': self.target_user.id})
+
+
+class MembershipUpdateView(LoginRequiredMixin, UserOnboardRequiredMixin, CreateView):
+    model = Membership
+    form_class = MembershipForm
+    template_name = 'pages/basic_form.html'
+
+    default_active = True
+    default_approved = True
+    default_type = Membership.Type.NORMAL.value
+
+    def dispatch(self, request, *args, **kwargs):
+        self.current_user = request.puser
+        self.circle = None
+        self.existing_membership = None
+
+        try:
+            self.circle = Circle.objects.get(pk=kwargs.get('circle_id', None))
+        except:
+            pass
+        if self.circle is None:
+            return bad_request(request)
+
+        try:
+            # set existing_memberhip if any.
+            self.existing_membership = Membership.objects.get(circle=self.circle, member=self.current_user)
+        except:
+            pass
+
+        return super().dispatch(request, *args, **kwargs)
+
+    def form_valid(self, form):
+        # if self.existing_membership is not None:
+        #     self.existing_membership.active = form.cleaned_data['active']
+        #     self.existing_membership.approved = form.cleaned_data['approved']
+        #     self.existing_membership.note = form.cleaned_data['note']
+        #     self.existing_membership.save()
+        #     # this is called by CreateView.form_valid().
+        #     return super(ModelFormMixin, self).form_valid(form)
+        # else:
+        #     return super().form_valid(form)
+        self.redirect_url = form.cleaned_data['redirect']
+        if 'leave' in form.data:
+            form.instance.active = False
+        return super().form_valid(form)
+
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        kwargs['initial'] = {
+            'circle': self.circle,
+            'member': self.current_user,
+            'active': self.default_active,
+            'approved': self.default_approved,
+            'type': self.default_type,
+        }
+        # this will make it a "Update", not "Create".
+        if self.existing_membership is not None:
+            kwargs['instance'] = self.existing_membership
+        return kwargs
+
+    def get_success_url(self):
+        if self.redirect_url:
+            return self.redirect_url
+        else:
+            return reverse('circle:tag_view', kwargs={'pk': self.circle.id})
