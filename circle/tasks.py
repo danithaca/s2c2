@@ -48,7 +48,7 @@ def personal_circle_send_invitation(circle, target_user):
 
 
 @shared_task
-def circle_send_invitation(circle, target_user):
+def circle_send_invitation(circle, target_user, send_user):
     """
     This is the hub that sends out invitation to users (new or existing) when they are added to a circle.
     """
@@ -64,7 +64,12 @@ def circle_send_invitation(circle, target_user):
     if not target_user.is_registered():
         context['signup_warning'] = True
 
+    if send_user is None:
+        send_user = circle.owner
+
     if circle.is_type_parent():
-        notify_agent.send(circle.owner, target_user, 'circle/messages/parent_added', context)
+        notify_agent.send(send_user, target_user, 'circle/messages/parent_added', context)
     elif circle.is_type_sitter():
-        notify_agent.send(circle.owner, target_user, 'circle/messages/sitter_added', context)
+        notify_agent.send(send_user, target_user, 'circle/messages/sitter_added', context)
+    elif circle.is_type_tag():
+        notify_agent.send(send_user, target_user, 'circle/messages/group_invited', context)

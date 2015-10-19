@@ -1,0 +1,17 @@
+{% load bootstrap %}
+<div class="modal fade" id="{{ form_id|default_if_none:'modal-form' }}"><div class="modal-dialog"><div class="modal-content">
+  <form class="form-horizontal" method="post" action="{{ form_url }}">
+    <div class="modal-header">
+      <button type="button" class="close" data-dismiss="modal">&times;</button>
+      <h4 class="modal-title">{{ modal_title }}</h4>
+    </div>
+    <div class="modal-body">
+      {% csrf_token %}
+      {{ form|bootstrap_horizontal }}
+    </div>
+    <div class="modal-footer">
+      <input type="submit" value="{{ button_name|default_if_none:'Submit' }}" class="btn btn-primary" id="{{ form_id|default_if_none:'modal_form' }}-submit">
+      <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+    </div>
+  </form>
+</div></div></div>

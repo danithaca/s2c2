@@ -43,7 +43,7 @@ class TagUserForm(forms.Form):
             self.fields['tags'].queryset = Circle.objects.filter(type=Circle.Type.TAG.value, area=target_user.get_area())
 
 
-class CircleAddForm(forms.ModelForm):
+class CircleForm(forms.ModelForm):
     required_css_class = 'required'
 
     class Meta:

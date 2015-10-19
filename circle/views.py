@@ -8,9 +8,9 @@ from django.core.urlresolvers import reverse_lazy, reverse
 
 # Create your views here.
 from django.views.defaults import bad_request
-from django.views.generic import FormView, CreateView
+from django.views.generic import FormView, CreateView, UpdateView
 from django.views.generic.detail import SingleObjectTemplateResponseMixin, SingleObjectMixin
-from circle.forms import EmailListForm, UserConnectionForm, TagUserForm, CircleAddForm, MembershipForm
+from circle.forms import EmailListForm, UserConnectionForm, TagUserForm, CircleForm, MembershipForm
 from circle.models import Membership, Circle, ParentCircle, UserConnection
 from circle.tasks import circle_send_invitation
 from puser.models import PUser
@@ -50,7 +50,8 @@ class BaseCircleView(LoginRequiredMixin, UserOnboardRequiredMixin, ControlledFor
                 if form.cleaned_data.get('send', False):
                     # send notification
                     # if the user is a dummy user, send invitation code instead.
-                    circle_send_invitation.delay(circle, target_puser)
+                    current_user = self.request.user.to_puser()     # this is to make a separate copy of the user to prevent "change dict" error at runtime
+                    circle_send_invitation.delay(circle, target_puser, current_user)
 
         return super().form_valid(form)
 
@@ -124,7 +125,7 @@ class TagCircleUserView(LoginRequiredMixin, UserOnboardRequiredMixin, Controlled
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['create_form'] = CircleAddForm()
+        context['create_form'] = CircleForm()
         return context
 
     def get_form_kwargs(self):
@@ -142,7 +143,7 @@ class TagCircleUserView(LoginRequiredMixin, UserOnboardRequiredMixin, Controlled
 
 class TagAddView(LoginRequiredMixin, UserOnboardRequiredMixin, CreateView):
     model = Circle
-    form_class = CircleAddForm
+    form_class = CircleForm
     template_name = 'pages/basic_form.html'
     success_url = reverse_lazy('circle:tag')
 
@@ -152,6 +153,22 @@ class TagAddView(LoginRequiredMixin, UserOnboardRequiredMixin, CreateView):
         circle.owner = self.request.puser
         circle.area = self.request.puser.get_area()
         return super().form_valid(form)
+
+
+class TagEditView(LoginRequiredMixin, UserOnboardRequiredMixin, UpdateView):
+    model = Circle
+    form_class = CircleForm
+    template_name = 'pages/basic_form.html'
+
+    def get_success_url(self):
+        return reverse('circle:tag_view', kwargs={'pk': self.object.id})
+
+    # def form_valid(self, form):
+    #     circle = form.instance
+    #     circle.type = Circle.Type.TAG.value
+    #     circle.owner = self.request.puser
+    #     circle.area = self.request.puser.get_area()
+    #     return super().form_valid(form)
 
 
 class CircleDetails(SingleObjectTemplateResponseMixin, SingleObjectMixin, BaseCircleView):
@@ -204,6 +221,7 @@ class CircleDetails(SingleObjectTemplateResponseMixin, SingleObjectMixin, BaseCi
         }, instance=current_membership)
 
         context['join_form'] = join_form
+        context['edit_form'] = CircleForm(instance=circle)
         return context
 
 

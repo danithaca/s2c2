@@ -1,5 +1,6 @@
 from collections import defaultdict
 from enum import Enum
+from django.core.urlresolvers import reverse
 
 from django.db import models
 from django.conf import settings
@@ -119,6 +120,9 @@ class Circle(models.Model):
     def is_type_sitter(self):
         return self.type == Circle.Type.SITTER.value
 
+    def is_type_tag(self):
+        return self.type == Circle.Type.TAG.value
+
     def count(self, membership_type=None):
         qs = self.membership_set.filter(active=True, approved=True)
         if type is not None:
@@ -137,6 +141,9 @@ class Circle(models.Model):
                 return False
         except Membership.DoesNotExist:
             return False
+
+    def get_absolute_url(self):
+        return reverse('circle:tag_view', kwargs={'pk': self.id})
 
 
 class ParentCircleManager(models.Manager):

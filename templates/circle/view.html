@@ -8,7 +8,10 @@
 <div class="panel panel-default" data-id="{{ circle.id }}"{% if current_membership %} data-membership-id="{{ current_membership.id }}"{% endif %}>
   <div class="panel-heading">
     <p>{% if current_membership %}
-      <a href="" class="btn btn-info btn-xs" data-toggle="modal" data-target="#join-modal-form"><i class="fa fa-edit"></i> {% if current_membership.is_admin %}Member/Admin{% else %}Member{% endif %}</a>
+      <a href="" class="btn btn-info btn-xs" data-toggle="modal" data-target="#join-modal-form"><i class="fa fa-user"></i> {% if current_membership.is_admin %}Member/Admin{% else %}Member{% endif %}</a>
+      {% if current_membership.is_admin %}
+        <a href="" class="btn btn-warning btn-xs" data-toggle="modal" data-target="#edit-group-modal-form"><i class="fa fa-edit"></i> Edit Group</a>
+      {% endif %}
       {% else %}
       <a href="" class="btn btn-primary btn-xs" data-toggle="modal" data-target="#join-modal-form"><i class="fa fa-plus"></i> Join</a>
     {% endif %}</p>
@@ -34,10 +37,32 @@
         <input type="submit" name="update" value="Update" class="btn btn-primary" id="modal-form-submit">
         <input type="submit" name="leave" value="Leave" class="btn btn-danger" id="modal-form-submit">
       {% else %}
-        <input type="submit" name="update" value="Join" class="btn btn-primary" id="modal-form-submit">
+        <input type="submit" name="update" value="Join" class="btn btn-primary" id="join-modal-form-submit">
       {% endif %}
       <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
     </div>
   </form>
 </div></div></div>
+
+{# edit group modal #}
+{#{% url 'circle:tag_edit' pk=circle.id as edit_link %}#}
+{#{% include 'includes/modal_form.html' with form_id='edit-group-modal-form' form_url=edit_link modal_title='Edit Group' form=edit_form button_name='Submit' only %}#}
+
+<div class="modal fade" id="edit-group-modal-form"><div class="modal-dialog"><div class="modal-content">
+  <form class="form-horizontal" method="post" action="{% url 'circle:tag_edit' pk=circle.id %}">
+    <div class="modal-header">
+      <button type="button" class="close" data-dismiss="modal">&times;</button>
+      <h4 class="modal-title">Edit Group</h4>
+    </div>
+    <div class="modal-body">
+      {% csrf_token %}
+      {{ edit_form|bootstrap_horizontal }}
+    </div>
+    <div class="modal-footer">
+      <input type="submit" value="Submit" class="btn btn-primary" id="edit-group-modal-form-submit">
+      <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+    </div>
+  </form>
+</div></div></div>
+
 {% endblock %}
