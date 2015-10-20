@@ -126,6 +126,21 @@ class TagCircleUserView(LoginRequiredMixin, UserOnboardRequiredMixin, Controlled
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['create_form'] = CircleForm()
+        context['join_form'] = MembershipForm(initial={
+            'member': self.request.puser,
+            'active': True,
+            'approved': True,
+            'type': Membership.Type .NORMAL.value,
+            'redirect': reverse('circle:tag'),
+        })
+
+        area = self.request.puser.get_area()
+        mapping = {m.circle: m for m in Membership.objects.filter(circle__type=Circle.Type.TAG.value, member=self.request.puser, active=True, approved=True, circle__area=area)}
+        context['all_tags'] = []
+        for circle in Circle.objects.filter(type=Circle.Type.TAG.value, area=area):
+            if circle in mapping:
+                circle.user_membership = mapping[circle]
+            context['all_tags'].append(circle)
         return context
 
     def get_form_kwargs(self):
