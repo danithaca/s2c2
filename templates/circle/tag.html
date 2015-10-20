@@ -57,20 +57,20 @@
 {% endblock %}
 
 {% block manage-block %}
-  <a href="" class="btn btn-primary btn-xs" data-toggle="modal" data-target="#create-modal-form"><i class="fa fa-plus-square"></i> Add new group</a>
+  <a href="" class="btn btn-primary btn-xs" id="button-add-group" data-toggle="modal" data-target="#create-modal-form"><i class="fa fa-plus-square"></i> Add new group</a>
   <form class="form" method="post">
     {% csrf_token %}
     {{ form|bootstrap }}
 
     <div class="browse-groups">
-      <p><a data-toggle="collapse" href="#browse-groups-content"><i class="fa fa-arrow-circle-right"></i> Browse all groups available</a></p>
+      <p><a data-toggle="collapse" href="#browse-groups-content" id="browse-all-link"><i class="fa fa-arrow-circle-right"></i> Browse all groups available</a></p>
       <div class="collapse" id="browse-groups-content">
         {% if not all_tags %}
           <p>None.</p>
         {% else %}
           <ul class="list-group">
             {% for circle in all_tags %}
-              <li class="list-group-item" data-slug="{{ circle.title|slugify }}">
+              <li class="list-group-item" data-slug="{{ circle.name|slugify }}">
 {#                <input type="checkbox" class="switch" name="circle" value="{{ circle.id }}"{% if circle.active %} checked{% endif %}>#}
                 {{ circle.name }}
                 <small class="text-muted">{{ circle.description }}</small>
@@ -107,7 +107,7 @@
         {{ create_form|bootstrap_horizontal }}
       </div>
       <div class="modal-footer">
-        <input type="submit" value="Add" class="btn btn-primary" id="modal-form-submit">
+        <input type="submit" value="Add" class="btn btn-primary" id="create-modal-form-submit">
         <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
       </div>
     </form>
@@ -134,8 +134,8 @@
         </div>
         <div class="modal-footer">
           <% if (current_membership) { %>
-            <input type="submit" name="update" value="Update" class="btn btn-primary" id="modal-form-submit">
-            <input type="submit" name="leave" value="Leave" class="btn btn-danger" id="modal-form-submit">
+            <input type="submit" name="update" value="Update" class="btn btn-primary" id="join-modal-form-submit">
+            <input type="submit" name="leave" value="Leave" class="btn btn-danger" id="join-modal-form-submit-alt">
           <% } else { %>
             <input type="submit" name="update" value="Join" class="btn btn-primary" id="join-modal-form-submit">
           <% } %>

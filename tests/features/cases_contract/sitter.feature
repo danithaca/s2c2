@@ -63,7 +63,7 @@ Feature: create/view/update/respond to a job for sitter
   Scenario: view contract
     Given I am logged in as user "test@servuno.com" with password "password"
     And I am on the homepage
-    When I click the ".engagement-feed:first" element
+    When I arbitrarily click the ".engagement-feed:first" element
     Then the URL should match "/job/\d+/"
     And I should see "Edit"
     And I should see "Active"

@@ -178,7 +178,10 @@ class TagAddView(LoginRequiredMixin, UserOnboardRequiredMixin, CreateView):
         circle.type = Circle.Type.TAG.value
         circle.owner = self.request.puser
         circle.area = self.request.puser.get_area()
-        return super().form_valid(form)
+        result = super().form_valid(form)
+        # add the user who created the new group
+        circle.activate_membership(self.request.puser, Membership.Type.ADMIN.value, True)
+        return result
 
 
 class TagEditView(LoginRequiredMixin, UserOnboardRequiredMixin, UpdateView):

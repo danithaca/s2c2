@@ -427,6 +427,16 @@ class FeatureContext extends MinkContext implements SnippetAcceptingContext
    */
   public function clickElement($element)
   {
+    $this->assertElementOnPage($element);
+    $this->forceClickElement($element);
+  }
+
+
+  /**
+   * @When I arbitrarily click the :element element
+   */
+  public function forceClickElement($element)
+  {
     $snippet = "$(\"{$element}\").click();";
     $js = "(function () {\n  $snippet  \n})();";
     $this->getSession()->executeScript($js);

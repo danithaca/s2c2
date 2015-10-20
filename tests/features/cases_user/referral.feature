@@ -57,7 +57,7 @@ Feature: Test referral user
   Scenario: clean up - remove from circle
     Given I am logged in as user "test@servuno.com" with password "password"
     And I am on "/connect/parent/"
-    When I click the "li[data-email='to-be-deleted-referral@servuno.com'] .destroy" element
+    When I arbitrarily click the "li[data-email='to-be-deleted-referral@servuno.com'] .destroy" element
     Then I should not see "to-be-deleted-referral@servuno.com"
 
   Scenario: clean up - remove user

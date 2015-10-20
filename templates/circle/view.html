@@ -8,12 +8,12 @@
 <div class="panel panel-default" data-id="{{ circle.id }}"{% if current_membership %} data-membership-id="{{ current_membership.id }}"{% endif %}>
   <div class="panel-heading">
     <p>{% if current_membership %}
-      <a href="" class="btn btn-info btn-xs" data-toggle="modal" data-target="#join-modal-form"><i class="fa fa-user"></i> {% if current_membership.is_admin %}Member/Admin{% else %}Member{% endif %}</a>
+      <a href="" class="btn btn-info btn-xs join-button" data-toggle="modal" data-target="#join-modal-form"><i class="fa fa-user"></i> {% if current_membership.is_admin %}Member/Admin{% else %}Member{% endif %}</a>
       {% if current_membership.is_admin %}
-        <a href="" class="btn btn-warning btn-xs" data-toggle="modal" data-target="#edit-group-modal-form"><i class="fa fa-edit"></i> Edit Group</a>
+        <a href="" class="btn btn-warning btn-xs" data-toggle="modal" data-target="#edit-group-modal-form" id="group-edit-button"><i class="fa fa-edit"></i> Edit Group</a>
       {% endif %}
       {% else %}
-      <a href="" class="btn btn-primary btn-xs" data-toggle="modal" data-target="#join-modal-form"><i class="fa fa-plus"></i> Join</a>
+      <a href="" class="btn btn-primary btn-xs join-button" data-toggle="modal" data-target="#join-modal-form"><i class="fa fa-plus"></i> Join</a>
     {% endif %}</p>
     <h4 class="text-center">{{ circle.name }}{% if circle.homepage %}<small> <a href="{{ circle.homepage }}" target="_blank"><i class="fa fa-external-link"></i></a></small>{% endif %}</h4>
     <p class="text-center">{{ circle.description }}</p>
@@ -34,8 +34,8 @@
     </div>
     <div class="modal-footer">
       {% if current_membership %}
-        <input type="submit" name="update" value="Update" class="btn btn-primary" id="modal-form-submit">
-        <input type="submit" name="leave" value="Leave" class="btn btn-danger" id="modal-form-submit">
+        <input type="submit" name="update" value="Update" class="btn btn-primary" id="join-modal-form-submit">
+        <input type="submit" name="leave" value="Leave" class="btn btn-danger" id="join-modal-form-submit-alt">
       {% else %}
         <input type="submit" name="update" value="Join" class="btn btn-primary" id="join-modal-form-submit">
       {% endif %}
