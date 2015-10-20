@@ -13,6 +13,12 @@ class EmailListForm(forms.Form):
     force_save = forms.BooleanField(widget=forms.HiddenInput, initial=False, required=False)
     send = forms.BooleanField(initial=True, required=False, label='Notify newly added contacts')
 
+    def __init__(self, *args, **kwargs):
+        self.full_access = kwargs.pop('full_access', None)
+        super().__init__(*args, **kwargs)
+        if self.full_access is False:
+            self.fields['send'].widget = forms.HiddenInput()
+
     def clean(self):
         cleaned_data = super().clean()
         favorite = cleaned_data.get('favorite')

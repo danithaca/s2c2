@@ -3,10 +3,12 @@
 {% load bootstrap %}
 <section id="item-list-app">
 {#  <div class="help-block min-margin-bottom">{% block help-message %}{% endblock %}</div>#}
-  <div class="input-group min-margin-bottom">
-    <input id="new-item" class="form-control" placeholder="Email address" autofocus>
-    <span class="input-group-btn"><button class="btn btn-primary" id="new-item-add-btn"><i class="fa fa-user-plus"></i> {% block add-button-name %}Add{% endblock %}</button></span>
-  </div>
+  {% if full_access %}
+    <div class="input-group min-margin-bottom">
+      <input id="new-item" class="form-control" placeholder="Email address" autofocus>
+      <span class="input-group-btn"><button class="btn btn-primary" id="new-item-add-btn"><i class="fa fa-user-plus"></i> {% block add-button-name %}Add{% endblock %}</button></span>
+    </div>
+  {% endif %}
   <div id="item-list" class="row"></div>
 </section>
 
@@ -17,7 +19,7 @@
     <% } else { %>
     <span title="Not a user." data-toggle="tooltip" class="word-break"><%= email %></span>
     <% } %>
-    <span class="text-danger destroy hover-pointer pull-right" title="Click to remove" data-toggle="tooltip"><i class="fa fa-trash-o"></i></span>
+    {% if full_access %}<span class="text-danger destroy hover-pointer pull-right" title="Click to remove" data-toggle="tooltip"><i class="fa fa-trash-o"></i></span>{% endif %}
     <% if (note) { %><br><span class="text-muted"><%= note %></span><% } %>
   </div>
 </script>
@@ -182,10 +184,12 @@ $(document).ready(function() {
   {% block extra-block %}{% endblock %}
   {{ form|bootstrap }}
   {% block submit-block %}
-  <p class="text-danger hidden changes-notice"><i class="fa fa-exclamation"></i> Changes are not saved.</p>
-  <div class="form-group">
-    <button class="btn btn-primary" type="submit">Save Changes</button>
-{#    <a class="btn btn-default" title='About "Contacts"' data-content="Add people you trust so that Servuno can help you find babysitters from them and their contacts. The more contacts you add here, the better chance you'll find a babysitter." data-toggle="popover"><i class="fa fa-question-circle"></i></a>#}
-  </div>
+  {% if full_access %}
+    <p class="text-danger hidden changes-notice"><i class="fa fa-exclamation"></i> Changes are not saved.</p>
+    <div class="form-group">
+      <button class="btn btn-primary" type="submit">Save Changes</button>
+  {#    <a class="btn btn-default" title='About "Contacts"' data-content="Add people you trust so that Servuno can help you find babysitters from them and their contacts. The more contacts you add here, the better chance you'll find a babysitter." data-toggle="popover"><i class="fa fa-question-circle"></i></a>#}
+    </div>
+  {% endif %}
   {% endblock %}
 </form>

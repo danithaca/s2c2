@@ -20,6 +20,7 @@ from p2.utils import UserOnboardRequiredMixin, ControlledFormValidMessageMixin
 class BaseCircleView(LoginRequiredMixin, UserOnboardRequiredMixin, ControlledFormValidMessageMixin, FormView):
     form_class = EmailListForm
     default_approved = None
+    full_access = True
 
     def get_old_email_qs(self):
         circle = self.get_circle()
@@ -60,6 +61,16 @@ class BaseCircleView(LoginRequiredMixin, UserOnboardRequiredMixin, ControlledFor
         email_qs = self.get_old_email_qs()
         initial['favorite'] = '\n'.join(list(email_qs))
         return initial
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['full_access'] = self.full_access
+        return context
+
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        kwargs['full_access'] = self.full_access
+        return kwargs
 
 
 class ParentCircleView(BaseCircleView):
@@ -199,6 +210,12 @@ class CircleDetails(SingleObjectTemplateResponseMixin, SingleObjectMixin, BaseCi
     # we want to use DetailsView, but instead we used BaseCircleView. Therefore, here we override a little of DetailsView.get()
     def get(self, request, *args, **kwargs):
         self.object = self.get_object()
+        try:
+            membership = self.object.get_membership(self.request.puser)
+            if not membership.is_admin():
+                self.full_access = False
+        except:
+            self.full_access = False
         return super().get(request, *args, **kwargs)
 
     def get_queryset(self):
