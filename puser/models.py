@@ -276,8 +276,8 @@ class PUser(User):
         if Membership.objects.filter(circle__in=their_personal_circles, member=self, approved=True).exists():
             return True
 
-        # trust someone in the public circles where I'm a member of.
-        my_public_circles = Circle.objects.filter(type=Circle.Type.PUBLIC.value, membership__member=self, membership__active=True, membership__approved=True)
+        # trust someone in the public/TAG circles where I'm a member of.
+        my_public_circles = Circle.objects.filter(type__in=(Circle.Type.PUBLIC.value, Circle.Type.TAG.value), membership__member=self, membership__active=True, membership__approved=True)
         if Membership.objects.filter(circle__in=my_public_circles, member=puser, active=True, approved=True).exists():
             return True
 
