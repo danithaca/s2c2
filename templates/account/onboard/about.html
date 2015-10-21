@@ -4,17 +4,98 @@
 {% block step-block %}
   <p class="well"><span class="lead">About Servuno</span>{% include 'elements/slogan.html' %}</p>
 
-  <h6 class="page-header">How it Works</h6>
-  <p>{% include 'elements/how_it_works.html' %}</p>
+{#  <h6 class="page-header">How it Works</h6>#}
+{#  <p>{% include 'elements/how_it_works.html' %}</p>#}
+{##}
+{#  <h6 class="page-header">Key Features</h6>#}
+{#  <div class="row">#}
+{#    {% include 'account/onboard/includes/about_feature.html' with fa="fa-exchange" title="Parents Favor Exchange" note="Want a short-term babysitter for free? Partner with other parents for favor exchange and let Servuno keep track of who owes whom." only %}#}
+{#    {% include 'account/onboard/includes/about_feature.html' with fa="fa-beer" title="Absolutely Free" note="Frustrated with sites that let you 'sign up' for free but pay to 'use'? There is no catch 22 here in Servuno. You only pay your babysitters." only %}#}
+{#    {% include 'account/onboard/includes/about_feature.html' with fa="fa-random" title="Smart Matching <i class='fa fa-registered'></i>" note="We have a smart algorithm that matches your babysitting request to the best potential babysitters. No hassel to filter by yourself." only %}#}
+{#    {% include 'account/onboard/includes/about_feature.html' with fa="fa-paint-brush" title="Minimalistic Design" note="We aim to give you a zen-like experience with simple interface and hide all complexity at the backend." only %}#}
+{#    {% include 'account/onboard/includes/about_feature.html' with fa="fa-street-view" title="Short-term Babysitters" note="This is Servuno's focus. If you want to find long term nannies, try find a short-term babysitter first and then negotiate offline for long-term opportunities." only %}#}
+{#    {% include 'account/onboard/includes/about_feature.html' with fa="fa-shopping-cart" title="On Demand" note="You only use Servuno when you need it. We'll keep everyone notified with email." only %}#}
+{#  </div>#}
 
-  <h6 class="page-header">Key Features</h6>
-  <div class="row">
-    {% include 'account/onboard/includes/about_feature.html' with fa="fa-exchange" title="Parents Favor Exchange" note="Want a short-term babysitter for free? Partner with other parents for favor exchange and let Servuno keep track of who owes whom." only %}
-    {% include 'account/onboard/includes/about_feature.html' with fa="fa-beer" title="Absolutely Free" note="Frustrated with sites that let you 'sign up' for free but pay to 'use'? There is no catch 22 here in Servuno. You only pay your babysitters." only %}
-    {% include 'account/onboard/includes/about_feature.html' with fa="fa-random" title="Smart Matching <i class='fa fa-registered'></i>" note="We have a smart algorithm that matches your babysitting request to the best potential babysitters. No hassel to filter by yourself." only %}
-    {% include 'account/onboard/includes/about_feature.html' with fa="fa-paint-brush" title="Minimalistic Design" note="We aim to give you a zen-like experience with simple interface and hide all complexity at the backend." only %}
-    {% include 'account/onboard/includes/about_feature.html' with fa="fa-street-view" title="Short-term Babysitters" note="This is Servuno's focus. If you want to find long term nannies, try find a short-term babysitter first and then negotiate offline for long-term opportunities." only %}
-    {% include 'account/onboard/includes/about_feature.html' with fa="fa-shopping-cart" title="On Demand" note="You only use Servuno when you need it. We'll keep everyone notified with email." only %}
+  <div class="center-block text-center">
+    <div class="row"><div class="col-xs-offset-3 col-xs-6">
+      <h4 class="text-success"><i class="fa fa-laptop"></i> Sign Up</h4>
+      <p>Create an account. It's easy!</p>
+      <h4><i class="fa fa-arrow-down"></i></h4>
+    </div></div>
+
+    <div class="row"><div class="col-xs-offset-3 col-xs-6">
+      <h4 class="text-success"><i class="fa fa-users"></i> Connect to Families</h4>
+      <p>Build a parent network to trade babysitting</p>
+      <h4><i class="fa fa-arrow-down"></i></h4>
+    </div></div>
+
+    <div class="row"><div class="col-xs-offset-3 col-xs-6">
+      <h4 class="text-success"><i class="fa fa-female"></i> Add Babysitters</h4>
+      <p>Collectively build a pool of babysitters you have used before</p>
+    </div></div>
+
+    <div class="row">
+      <div class="col-xs-6">
+        <div class="about-step-block">
+          <h4><i class="fa fa-arrow-down rotate-45"></i></h4>
+          <h4 class="text-primary"><i class="fa fa-pencil"></i> Post a "Trade" Job</h4>
+          <p>Servuno will contact your parent friends added in the previous step for help babysit on the basis of reciprocity</p>
+          <h4><i class="fa fa-arrow-down"></i></h4>
+        </div>
+      </div>
+      <div class="col-xs-6">
+        <div class="about-step-block">
+          <h4><i class="fa fa-arrow-right rotate-45"></i></h4>
+          <h4 class="text-warning"><i class="fa fa-pencil"></i> Post a Paid Job</h4>
+          <p>Servuno will contact your babysitters added in the previous step, as well as your friends babysitters. No babysitter can sign up on the site unless invited</p>
+          <h4><i class="fa fa-arrow-down"></i></h4>
+        </div>
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="col-xs-6">
+        <div class="about-step-block">
+          <h4 class="text-primary"><i class="fa fa-home"></i> Pick a Family</h4>
+          <p>From those who responded yes, pick one to babysit for you</p>
+          <h4><i class="fa fa-arrow-down"></i></h4>
+
+        </div>
+      </div>
+      <div class="col-xs-6">
+        <div class="about-step-block">
+          <h4 class="text-warning"><i class="fa fa-car"></i> Hire a Babysitter</h4>
+          <p>From those who responded yes, pick one to babysit for you. No interview is needed because either you or your friends used the babysitter before</p>
+          <h4><i class="fa fa-arrow-down"></i></h4>
+        </div>
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="col-xs-6">
+        <div class="about-step-block">
+          <h4 class="text-primary"><i class="fa fa-child"></i> Have Kids Play Together</h4>
+          <p>... while you go on a date night, run some errands, etc.</p>
+          <h4><i class="fa fa-arrow-right rotate-45"></i></h4>
+        </div>
+      </div>
+      <div class="col-xs-6">
+        <div class="about-step-block">
+          <h4 class="text-warning"><i class="fa fa-dollar"></i> Pay for your care </h4>
+          <p>Right now you have to pay the babysitter offline. Online payment will be added later.</p>
+          <h4><i class="fa fa-arrow-down rotate-45"></i></h4>
+        </div>
+      </div>
+    </div>
+
+    <div class="row"><div class="col-xs-offset-2 col-xs-8">
+      <h4 class="text-success"><i class="fa fa-lightbulb-o"></i> Lastly, you can ...</h4>
+      <ul>
+        <li><strong>Join parents groups</strong> to reach out to other families with similar background</li>
+        <li><strong>Post an offer to help other parents babysit</strong> on your convenience, while build up karma.</li>
+      </ul>
+    </div></div>
   </div>
 
   <div><a href="{% url 'onboard_profile' %}" class="btn btn-primary">Next <i class="fa fa-angle-double-right"></i></a></div>

@@ -74,6 +74,14 @@
 
 .tab-pane { padding-top: 16px; }
 
+.rotate-45 {
+  -webkit-transform: rotate(45deg);
+  -moz-transform: rotate(45deg);
+  -ms-transform: rotate(45deg);
+  -o-transform: rotate(45deg);
+  transform: rotate(45deg);
+}
+
 
 /******** onboard/base *********/
 
