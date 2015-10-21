@@ -216,8 +216,8 @@ class UserView(LoginRequiredMixin, UserOnboardRequiredMixin, TrustedUserMixin, D
             # my_memberships = list(Membership.objects.filter(member=u, circle__type=Circle.Type.PUBLIC.value, circle__area=area, active=True))
             # my_agencies = list(Membership.objects.filter(member=u, circle__type=Circle.Type.AGENCY.value, circle__area=area, active=True))
 
-            my_parents = list(PUser.objects.filter(membership__circle__owner=u, membership__circle__area=area, membership__circle__type=Circle.Type.PARENT.value, membership__active=True, membership__approved=True).exclude(membership__member=u).distinct())
-            my_sitters = list(PUser.objects.filter(membership__circle__owner=u, membership__circle__area=area, membership__circle__type=Circle.Type.SITTER.value, membership__active=True, membership__approved=True).exclude(membership__member=u).distinct())
+            my_parents = list(Membership.objects.filter(circle=u.my_circle(Circle.Type.PARENT), active=True, approved=True).exclude(member=u).order_by('created'))
+            my_sitters = list(Membership.objects.filter(circle=u.my_circle(Circle.Type.SITTER), active=True, approved=True).exclude(member=u).order_by('created'))
             my_memberships = list(Membership.objects.filter(member=u, circle__type=Circle.Type.TAG.value, circle__area=area, active=True))
 
             context.update({

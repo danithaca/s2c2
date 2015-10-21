@@ -262,6 +262,9 @@ class Membership(models.Model):
     def is_pending_review(self):
         return self.approved is None
 
+    def is_star(self):
+        return self.is_admin() or self.type == Membership.Type.FAVORITE.value
+
 
 class UserConnection(object):
     """

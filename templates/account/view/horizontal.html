@@ -12,6 +12,8 @@
   </div>
   <div class="text-center{% if not user.get_full_name %} word-break{% endif %}">
     <a href="{% url 'account_view' pk=user.id %}">{% user_display user %}</a>
+    {% if star %}<i class="fa fa-star text-warning"></i>{% endif %}
     {% block extra %}{% endblock %}
   </div>
-</div></div></div>
+
+</div>{% if note %}<div class="text-muted">{{ note }}</div>{% endif %}</div></div>
