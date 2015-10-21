@@ -109,7 +109,7 @@ class L2Recommender(RecommenderStrategy):
     def recommend_smart(self, contract):
         if not contract.is_active() or contract.is_event_expired():
             return
-        count = 0
+        client = contract.get_client()
 
         # first, run L1 recommender.
         count = self.recommend_basic(contract)
@@ -117,10 +117,15 @@ class L2Recommender(RecommenderStrategy):
         # next, if it's not a favor, add friends' friends
         if not contract.is_favor():
             count += self.recommend_sitter_pool(contract)
+        else:
+            # or, if it's a favor, take "family" member's social network
+            my_parent_circle = client.my_circle(Circle.Type.PARENT, contract.area)
+            family_membership = Membership.objects.filter(circle=my_parent_circle, active=True, approved=True, type=Membership.Type.FAVORITE.value)
+            for m in family_membership:
+                count += self.recommend_circle(contract, m.member.to_puser().my_circle(Circle.Type.PARENT))
 
-        # next, recommend other parents
+        # next, recommend other parents in my network to take paid job
         if count == 0:
-            client = contract.get_client()
             circle = client.my_circle(Circle.Type.PARENT, contract.area)
             count += self.recommend_circle(contract, circle)
 

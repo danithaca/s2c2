@@ -10,7 +10,7 @@ from django.core.urlresolvers import reverse_lazy, reverse
 from django.views.defaults import bad_request
 from django.views.generic import FormView, CreateView, UpdateView
 from django.views.generic.detail import SingleObjectTemplateResponseMixin, SingleObjectMixin
-from circle.forms import EmailListForm, UserConnectionForm, TagUserForm, CircleForm, MembershipForm
+from circle.forms import EmailListForm, UserConnectionForm, TagUserForm, CircleForm, MembershipForm, MembershipEditForm
 from circle.models import Membership, Circle, ParentCircle, UserConnection
 from circle.tasks import circle_send_invitation
 from puser.models import PUser
@@ -62,9 +62,15 @@ class BaseCircleView(LoginRequiredMixin, UserOnboardRequiredMixin, ControlledFor
         initial['favorite'] = '\n'.join(list(email_qs))
         return initial
 
+    def get_membership_edit_form(self):
+        raise NotImplementedError()
+
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['full_access'] = self.full_access
+        if 'circle' not in context:
+            context['circle'] = self.get_circle()
+        context['edit_membership_form'] = self.get_membership_edit_form()
         return context
 
     def get_form_kwargs(self):
@@ -84,6 +90,16 @@ class ParentCircleView(BaseCircleView):
         circle = self.request.puser.my_circle(Circle.Type.PARENT)
         assert isinstance(circle, ParentCircle)
         return circle
+
+    def get_membership_edit_form(self):
+        form = MembershipEditForm(initial={'redirect': self.success_url})
+        form.fields['note'].label = 'Endorsement'
+        form.fields['type'].widget.choices = (
+            (Membership.Type.NORMAL.value, 'Regular'),
+            (Membership.Type.FAVORITE.value, 'Immediate family member (spouse, grandparents)'),
+        )
+        form.fields['type'].help_text = 'Mark as family member to allow Servuno propagate your job posts across social networks.'
+        return form
 
 
 class SitterCircleView(BaseCircleView):
@@ -111,6 +127,16 @@ class SitterCircleView(BaseCircleView):
             pool_list.append(UserConnection(me, member, list(membership_list)))
         context['pool_list'] = pool_list
         return context
+
+    def get_membership_edit_form(self):
+        form = MembershipEditForm(initial={'redirect': self.success_url})
+        form.fields['note'].label = 'Endorsement'
+        form.fields['type'].widget.choices = (
+            (Membership.Type.NORMAL.value, 'Regular'),
+            (Membership.Type.FAVORITE.value, 'Preferred babysitter'),
+        )
+        form.fields['type'].help_text = 'Mark as preferred babysitter to instruct Servuno contact this person first when you make a job post.'
+        return form
 
 
 class TagCircleUserView(LoginRequiredMixin, UserOnboardRequiredMixin, ControlledFormValidMessageMixin, FormView):
@@ -259,6 +285,16 @@ class CircleDetails(SingleObjectTemplateResponseMixin, SingleObjectMixin, BaseCi
         context['edit_form'] = CircleForm(instance=circle)
         return context
 
+    def get_membership_edit_form(self):
+        form = MembershipEditForm(initial={'redirect': self.get_success_url()})
+        form.fields['note'].label = 'Group Affiliation'
+        form.fields['type'].widget.choices = (
+            (Membership.Type.NORMAL.value, 'Regular'),
+            (Membership.Type.FAVORITE.value, 'Administrator'),
+        )
+        form.fields['type'].help_text = 'Mark as admin to allow the user make changes to the group.'
+        return form
+
 
 class UserConnectionView(LoginRequiredMixin, FormValidMessageMixin, FormView):
     template_name = 'pages/basic_form.html'
@@ -371,3 +407,19 @@ class MembershipUpdateView(LoginRequiredMixin, UserOnboardRequiredMixin, CreateV
             return self.redirect_url
         else:
             return reverse('circle:tag_view', kwargs={'pk': self.circle.id})
+
+
+class MembershipEditView(LoginRequiredMixin, UserOnboardRequiredMixin, UpdateView):
+    model = Membership
+    form_class = MembershipEditForm
+    template_name = 'pages/basic_form.html'
+
+    def form_valid(self, form):
+        self.redirect_url = form.cleaned_data['redirect']
+        return super().form_valid(form)
+
+    def get_success_url(self):
+        if self.redirect_url:
+            return self.redirect_url
+        else:
+            return '/'

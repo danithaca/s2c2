@@ -214,7 +214,7 @@ class Membership(models.Model):
         NORMAL = 1
         ADMIN = 2
         PARTIAL = 3         # this is a passive membership that only receive notifications, e.g., subscribe to a agency circle
-        HOMO = 4            # counted as the same user, or sharing the same kids.
+        FAVORITE = 4            # counted as the same user, or sharing the same kids.
 
     member = models.ForeignKey(settings.AUTH_USER_MODEL)
     circle = models.ForeignKey(Circle)

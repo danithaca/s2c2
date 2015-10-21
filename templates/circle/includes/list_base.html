@@ -14,12 +14,17 @@
 
 <script type="text/template" id="item-template">
   <div class="thumbnail">
-    <% if (user_id) { %>
+    <% if (user_id && registered) { %>
     <span title="<%= email %>" data-toggle="tooltip" class="word-break"><% if (picture) { %><img src="<%= picture %>" class="img-circle img-18"><% } %> <a href="/account/<%= user_id %>/"><%= display_name %></a></span>
     <% } else { %>
     <span title="Not a user." data-toggle="tooltip" class="word-break"><%= email %></span>
     <% } %>
-    {% if full_access %}<span class="text-danger destroy hover-pointer pull-right" title="Click to remove" data-toggle="tooltip"><i class="fa fa-trash-o"></i></span>{% endif %}
+    {% if full_access %}
+      <span class="pull-right command-list">
+        <% if (membership_id) { %><span class="text-warning hover-pointer membership-edit-button" title="Click to edit" data-toggle="tooltip" data-membership-id="<%= membership_id %>"><% if (star) { %><i class="fa fa-star"></i><% } else { %><i class="fa fa-star-o"></i><% } %></span><% } %>
+        <span class="text-danger destroy hover-pointer" title="Click to remove" data-toggle="tooltip"><i class="fa fa-trash-o"></i></span>
+      </span>
+    {% endif %}
     <% if (note) { %><br><span class="text-muted"><%= note %></span><% } %>
   </div>
 </script>
@@ -36,7 +41,11 @@ function initialize_app() {
       email: '',
       display_name: '',
       picture: '',
-      note: ''
+      registered: null,
+      note: '',
+      star: false,
+      membership_id: null,
+      membership_type: null,
     },
     idAttribute: 'email',
     localStorage: app.localStorage,
@@ -48,14 +57,24 @@ function initialize_app() {
         url: '/account/api/email/' + this.get('email') + '/' + extra,   // todo: this is hard coded. needs to change if url is changed.
         context: this,
         success: function(user_data) {
-          console.log(user_data);
+          // console.log(user_data);
           if (user_data) {
             // might need to use "cid"
             this.set('user_id', user_data.id);
             this.set('display_name', user_data.display_name);
             this.set('picture', user_data.picture);
+            this.set('registered', user_data.registered);
+            if (user_data.membership_id) {
+              this.set('membership_id', user_data.membership_id);
+            }
+            if (user_data.membership_type) {
+              this.set('membership_type', user_data.membership_type);
+            }
             if (user_data.note) {
-              this.set('note', user_data.note)
+              this.set('note', user_data.note);
+            }
+            if (user_data.star) {
+              this.set('star', user_data.star);
             }
           }
 {#          if (!user_data.display_name) {#}
@@ -95,10 +114,21 @@ function initialize_app() {
       this.model.on('change', this.render, this);
     },
     events: {
-      'click .destroy': 'destroy'
+      'click .destroy': 'destroy',
+      'click .membership-edit-button': 'membership_edit'
     },
     destroy: function(){
       this.model.destroy();
+    },
+    membership_edit: function(){
+      var $modal_container = $('#edit-membership-modal-form');
+      var modal_content = $(_.template($('#edit-membership-modal-form-template').html())({
+        post_url: '/connect/membership/' + this.model.get('membership_id') + '/edit/'
+      }));
+      modal_content.find('select[name="type"]').val(this.model.get('membership_type'));
+      modal_content.find('textarea[name="note"]').val(this.model.get('note'));
+      $modal_container.html(modal_content);
+      $modal_container.modal('toggle');
     }
   });
 
@@ -175,9 +205,30 @@ $(document).ready(function() {
     var updated_list = list.map(function(m) { return m.get('email'); }).join('\n');
     $favorite.val(updated_list);
   });
-
 });
 </script>
+
+{# membership edit modal form #}
+<script type="text/template" id="edit-membership-modal-form-template">
+  <div class="modal-dialog"><div class="modal-content">
+    <form class="form-horizontal" method="post" action="<%= post_url %>">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal">&times;</button>
+        <h4 class="modal-title">Edit Status</h4>
+      </div>
+      <div class="modal-body">
+        {% csrf_token %}
+        {{ edit_membership_form|bootstrap_horizontal }}
+      </div>
+      <div class="modal-footer">
+        <input type="submit" name="update" value="Submit" class="btn btn-primary" id="edit-membership-modal-form-submit">
+        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+      </div>
+    </form>
+  </div></div>
+</script>
+{# modal container #}
+<div class="modal fade" id="edit-membership-modal-form"></div>
 
 <form id="item-list-form" class="form" method="post" autocapitalize="off" {% if form.is_multipart %}enctype="multipart/form-data"{% endif %}>
   {% csrf_token %}

@@ -97,6 +97,28 @@ class MembershipForm(forms.ModelForm):
             'note': forms.Textarea(attrs={'placeholder': 'Type in your affliation with this group.', 'rows': 3}),
         }
 
+
+class MembershipEditForm(forms.ModelForm):
+    redirect = forms.CharField(required=False, widget=forms.HiddenInput)
+
+    # def __init__(self, *args, **kwargs):
+    #     choices = kwargs.pop('choices', None)
+    #     if choices:
+    #         self.fields['type'].choices = choices
+    #     help_message = kwargs.pop('help')
+
+    class Meta:
+        model = Membership
+        fields = ['note', 'type']
+        labels = {
+            'type': 'Mark As',
+            'note': 'Note',
+        }
+        widgets = {
+            # 'type': forms.HiddenInput(),
+            'note': forms.Textarea(attrs={'placeholder': 'Leave an optional note.', 'rows': 3}),
+        }
+
     # def __init__(self, circle=None, member=None, active=None, approved=None, type=None, *args, **kwargs):
     #     super().__init__(*args, **kwargs)
     #     if circle is not None:

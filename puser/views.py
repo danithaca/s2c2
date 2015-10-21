@@ -379,7 +379,7 @@ class OnboardPicture(MultiStepViewsMixin, UserPicture):
 class APIGetByEmail(LoginRequiredMixin, RetrieveAPIView):
     lookup_field = 'email'
     serializer_class = UserSerializer
-    queryset = PUser.objects.filter(is_active=True).exclude(token__is_user_registered=False)
+    queryset = PUser.objects.filter(is_active=True)
     # queryset = PUser.objects.filter(is_active=True)
 
     # purpose of the override is to add "membership note" if there's a Circle parameter
@@ -390,12 +390,16 @@ class APIGetByEmail(LoginRequiredMixin, RetrieveAPIView):
                 circle = Circle.objects.get(pk=circle_id)
                 target_user = self.get_object()
                 membership = circle.get_membership(target_user)
+                serializer = self.get_serializer(target_user)
+                data = serializer.data
+                data['membership_id'] = membership.id
+                data['membership_type'] = membership.type
                 if membership.note:
-                    serializer = self.get_serializer(target_user)
-                    data = serializer.data
                     data['note'] = membership.note
-                    # the only alternative that doesn't do super().
-                    return Response(data)
+                if membership.type == Membership.Type.FAVORITE.value or membership.is_admin():
+                    data['star'] = True
+                # the only alternative that doesn't do super().
+                return Response(data)
             except:
                 pass
         return super().retrieve(request, *args, **kwargs)

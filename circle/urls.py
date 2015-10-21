@@ -15,4 +15,5 @@ urlpatterns = patterns(
 
     url(r"^group/(?P<pk>\d+)/$", views.CircleDetails.as_view(type_constraint=models.Circle.Type.TAG), name="tag_view"),
     url(r"^group/(?P<circle_id>\d+)/join/$", views.MembershipUpdateView.as_view(), name="membership_update"),
+    url(r"^membership/(?P<pk>\d+)/edit/$", views.MembershipEditView.as_view(), name="membership_edit"),
 )
