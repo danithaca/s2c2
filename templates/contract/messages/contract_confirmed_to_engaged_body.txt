@@ -1,0 +1,8 @@
+{% extends 'email_body.txt' %}
+{% load p2_tags %}
+{% block body %}
+You are receiving this email because you were previously contacted regarding {% user-full-name initiate_user %}'s job post on babysitting ({{ contract.display_event_range }}). The job post was fulfilled successfully and there is no need to respond. Please feel free to review and respond to the job post in case anything changes:
+{{ site_url}}{{ match.get_absolute_url }}{% if target_user.get_login_token %}?login_token={{ target_user.get_login_token }}{% endif %}
+
+{# If you don't wish to receive posts from {% user-full-name initiate_user %} or from Servuno, please contact us at admin@servuno.com.#}
+{%endblock%}

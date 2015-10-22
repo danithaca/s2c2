@@ -1,0 +1,9 @@
+{% extends 'email_body.txt' %}
+{% load p2_tags %}
+{% block body %}
+Thank you for accepting {% user-full-name initiate_user %}'s recent job post on babysitting ({{ contract.display_event_range }}). However, {% user-short-name initiate_user %} picked another person to engage with. On behalf of {% user-short-name initiate_user %}, we appreciate your time and involvement, and please continue to interact with {% user-short-name initiate_user %} in the future.
+
+You can review the job post here:
+{{ site_url}}{{ match.get_absolute_url }}{% if target_user.get_login_token %}?login_token={{ target_user.get_login_token }}{% endif %}
+
+{%endblock%}

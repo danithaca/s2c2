@@ -33,6 +33,8 @@ def after_contract_activated(contract):
 def after_contract_confirmed(contract):
     from shout.notify import notify_agent
     from puser.models import PUser
+    from contract.models import Match
+
     confirmed_match = contract.confirmed_match
     initiate_user = PUser.from_user(contract.initiate_user)
     target_user = PUser.from_user(confirmed_match.target_user)
@@ -42,6 +44,14 @@ def after_contract_confirmed(contract):
     # next, shout to the initiate user
     notify_agent.send(confirmed_match.target_user, contract.initiate_user, 'contract/messages/contract_confirmed_review',
                       {'match': confirmed_match, 'contract': contract, 'initiate_user': initiate_user, 'target_user': target_user})
+    # finally, shout to other people accepted/not responded.
+    for match in contract.match_set.filter(status__in=(Match.Status.ENGAGED.value, Match.Status.ACCEPTED.value)).exclude(pk=confirmed_match.pk):
+        if match.is_accepted():
+            notify_agent.send(contract.initiate_user, match.target_user, 'contract/messages/contract_confirmed_to_accepted',
+                          {'match': match, 'contract': contract, 'initiate_user': initiate_user, 'target_user': match.target_user})
+        else:
+            notify_agent.send(contract.initiate_user, match.target_user, 'contract/messages/contract_confirmed_to_engaged',
+                          {'match': match, 'contract': contract, 'initiate_user': initiate_user, 'target_user': match.target_user})
     # schedule reminder tasks
     # fixme: if contract is confirmed and then undo and then confirmed again. we want to make sure it doesn't have problems
     before_contract_starts.apply_async((contract,), eta=contract.event_start - timedelta(hours=1))
