@@ -1,3 +1,4 @@
+{# if the job poster canceled the job, send this email to all people previously contact for this job post #}
 {% extends 'email_body.txt' %}
 {% load p2_tags %}
 {% block body %}

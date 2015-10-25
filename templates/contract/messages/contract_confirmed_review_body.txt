@@ -1,3 +1,4 @@
+{# when the job poster confirmed someone to help #}
 {% extends 'email_body.txt' %}
 {% load p2_tags %}
 {% block body %}

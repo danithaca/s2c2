@@ -1,3 +1,4 @@
+{# sned to the job poster to confirm job post/activation #}
 {% extends 'email_body.txt' %}
 {% load p2_tags %}
 {% block body %}
