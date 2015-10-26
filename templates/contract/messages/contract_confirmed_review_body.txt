@@ -6,6 +6,9 @@ You have confirmed your job post with {% user-full-name target_user %}. {% user-
 
 {% include 'elements/email_user_info.txt' with user=target_user %}
 
+Export to Google Calendar:
+{% gcal-url contract.to_engagement %}
+
 {% if not contract.is_reversed and not contract.is_favor %}
 You agreed to pay ${{ contract.price }} for the service. Don't forget to pay after the service is delivered.
 {% endif %}

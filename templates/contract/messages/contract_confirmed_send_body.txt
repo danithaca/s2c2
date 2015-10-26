@@ -5,6 +5,9 @@
 
 {% include 'elements/email_contract.txt' with contract=contract %}
 
+Export to Google Calendar:
+{% gcal-url match.to_engagement %}
+
 Review your response here:
 {{ site_url}}{{ match.get_absolute_url }}{% if target_user.get_login_token %}?login_token={{ target_user.get_login_token }}{% endif %}
 
