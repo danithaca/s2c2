@@ -38,6 +38,10 @@ class ExperimentView(TemplateView):
     template_name = 'pages/experiment.html'
 
 
+class LogoView(TemplateView):
+    template_name = 'pages/logo.html'
+
+
 class LandingView(TemplateView):
     template_name = 'landing_p2.html'
 
