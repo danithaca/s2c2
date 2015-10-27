@@ -60,7 +60,7 @@ INSTALLED_APPS = (
     'sitetree',
 
     # customized
-    'p2',
+    'p2.apps.P2Config',
     'puser.apps.PUserConfig',
     'circle.apps.CircleConfig',
     'contract',
