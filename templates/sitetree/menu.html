@@ -1,14 +1,22 @@
 {% load sitetree %}
-<ul class="nav navbar-nav">
-    {% for item in sitetree_items %}
-        <li class="{% if item.has_children %}dropdown{% endif %} {% if item.is_current or item.in_current_branch %}active{% endif %}">
-            <a href="{% if item.has_children %}#{% else %}{% sitetree_url for item %}{% endif %}" {% if item.has_children %}class="dropdown-toggle" data-toggle="dropdown"{% endif %}>
-                {{ item.title_resolved }}
-                {% if item.has_children %}<b class="caret"></b>{% endif %}
-            </a>
-            {% if item.has_children %}
-                {% sitetree_children of item for menu template "sitetree/menu_bootstrap3_dropdown.html" %}
-            {% endif %}
-        </li>
-    {% endfor %}
+{% load p2_tags %}
+<ul class="nav navbar-nav navbar-right">
+  {% for item in sitetree_items %}
+    <li class="{% if item.has_children %}dropdown{% endif %} {% if item.is_current or item.in_current_branch %}active{% endif %}" {% if item.hint %}title="{{ item.hint }}"{% endif %} {% if item.alias %}id="menu-item-{{ item.alias }}"{% endif %}>
+      <a href="{% if item.has_children %}#{% else %}{% sitetree_url for item %}{% endif %}"
+         {% if item.has_children %}class="dropdown-toggle" data-toggle="dropdown"{% endif %}>
+        {% if item.alias == 'tab-account' %}
+          <img src="{% user_picture_url user %}" class="img-circle img-18">
+          {% user-short-name user %}
+        {% else %}
+          {% if item.fa_icon %}<i class="fa fa-{{ item.fa_icon }}"></i>{% endif %}
+          {{ item.title_resolved }}
+        {% endif %}
+        {% if item.has_children %}<b class="caret"></b>{% endif %}
+      </a>
+      {% if item.has_children %}
+        {% sitetree_children of item for menu template "sitetree/menu_dropdown.html" %}
+      {% endif %}
+    </li>
+  {% endfor %}
 </ul>

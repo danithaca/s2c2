@@ -4,6 +4,8 @@ from django.contrib.admin import SimpleListFilter
 from django.contrib.auth.admin import UserAdmin
 from django.contrib.auth.models import User
 from image_cropping import ImageCroppingMixin
+from django.utils.translation import ugettext_lazy as _
+from sitetree.admin import TreeItemAdmin, override_item_admin
 
 from login_token.models import Token
 from puser.models import Info, Area
@@ -67,3 +69,22 @@ admin.site.register(User, UserInfoAdmin)
 @admin.register(Area)
 class AreaAdmin(admin.ModelAdmin):
     list_display = ('name', 'state', )
+
+
+class MenuItemAdmin(TreeItemAdmin):
+    fieldsets = (
+        (_('Basic settings'), {
+            'fields': ('parent', 'title', 'url', 'urlaspattern', 'hint', 'description', 'alias', 'fa_icon', 'css_id')
+        }),
+        (_('Access settings'), {
+            # 'classes': ('collapse',),
+            'fields': ('access_loggedin', 'access_guest', 'access_restricted', 'access_permissions', 'access_perm_type')
+        }),
+        (_('Display settings'), {
+            #'classes': ('collapse',),
+            'fields': ('hidden', 'inmenu', 'inbreadcrumbs', 'insitetree')
+        }),
+    )
+
+
+override_item_admin(MenuItemAdmin)

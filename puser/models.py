@@ -15,6 +15,7 @@ from localflavor.us.models import PhoneNumberField, USStateField
 
 from django.core import checks
 from django.conf import settings
+from sitetree.models import TreeItemBase
 
 from circle.models import Membership, Circle, ParentCircle, UserConnection
 
@@ -476,3 +477,8 @@ def handle_pre_registered_user_after_password_change(sender, user, **kwargs):
 @receiver(password_changed, sender=PasswordResetTokenView)
 def verify_email_after_password_reset(sender, user, **kwargs):
     EmailAddress.objects.filter(user=user, email=user.email, verified=False).update(verified=True)
+
+
+class MenuItem(TreeItemBase):
+    fa_icon = models.CharField(help_text='Font awesome icon', blank=True, max_length=50)
+    css_id = models.CharField(help_text='CSS ID', blank=True, max_length=50)

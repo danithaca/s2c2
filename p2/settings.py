@@ -60,7 +60,7 @@ INSTALLED_APPS = (
     'sitetree',
 
     # customized
-    'p2.apps.P2Config',
+    'p2',
     'puser.apps.PUserConfig',
     'circle.apps.CircleConfig',
     'contract',
@@ -224,6 +224,9 @@ LOGIN_REDIRECT_URL = '/'
 LOGIN_URL = reverse_lazy('account_login')
 LOGOUT_URL = reverse_lazy('account_logout')
 
+################# menu #################
+
+SITETREE_MODEL_TREE_ITEM = 'puser.MenuItem'
 
 ################# loggin ###################
 

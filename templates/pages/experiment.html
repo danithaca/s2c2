@@ -3,7 +3,7 @@
 
 {% block content %}
 {% sitetree_breadcrumbs from 'main' %}
-{#{% sitetree_menu from 'main' %}#}
-{% sitetree_page_title from 'main' %}
+{% sitetree_menu from 'main' include 'trunk' %}
+<h3>{% sitetree_page_title from 'main' %}</h3>
 {% sitetree_tree from 'main' %}
 {% endblock %}
