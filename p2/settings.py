@@ -57,6 +57,7 @@ INSTALLED_APPS = (
     'kombu.transport.django',  # for celery
     'djcelery', # for celery
     'login_token',
+    'sitetree',
 
     # customized
     'p2',
