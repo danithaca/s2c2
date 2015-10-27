@@ -1,6 +1,7 @@
 p2/settings_local.py
 assets
 logfiles
+*.sqlite3
 
 .vagrant/
 
