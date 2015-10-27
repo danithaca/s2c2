@@ -45,7 +45,7 @@ class Circle(models.Model):
         if self.type == Circle.Type.PERSONAL.value:
             return '%s\'s list' % name
         elif self.type == Circle.Type.PARENT.value:
-            return '%s\'s connection' % name
+            return '%s\'s friend' % name
         elif self.type == Circle.Type.SITTER.value:
             return '%s\'s babysitter' % name
         else:
