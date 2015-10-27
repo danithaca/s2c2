@@ -55,15 +55,16 @@ class ContractForm(forms.ModelForm):
         css = {'all': ('https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.14.30/css/bootstrap-datetimepicker.min.css',)}
 
     def __init__(self, *args, **kwargs):
-        audience_choices = [(0, '-- Select automatically --')]
+        audience_choices = [(0, 'My network on Servuno')]
         client = kwargs.pop('client', None)
         if client:
             circles = []
             # circles.append(client.get_personal_circle())
             # circles.extend(client.get_public_circle_set())
             # circles.extend(client.get_agency_circle_set())
-            circles.append(client.my_circle(Circle.Type.PARENT))
-            circles.append(client.my_circle(Circle.Type.SITTER))
+            # circles.append(client.my_circle(Circle.Type.PARENT))
+            # circles.append(client.my_circle(Circle.Type.SITTER))
+            circles.extend(client.get_tag_circle_set())
             for circle in circles:
                 audience_choices.append((circle.id, circle.display()))
 

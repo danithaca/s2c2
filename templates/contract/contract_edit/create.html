@@ -179,11 +179,11 @@
 
 {#    {{ form.audience|bootstrap }}#}
     {% with field=form.audience %}
-      <div class="hidden form-group{% include 'form_includes/field_container_error_class.html' %}">
+      <div class="{% if not show_target %}hidden {% endif %}form-group{% include 'form_includes/field_container_error_class.html' %}">
         <label class="control-label" for="{{ field.id_for_label }}">{{ field.label }}</label>
         <div class="input-group">
           {{ field }}
-          <span class="input-group-addon" data-toggle="tooltip" data-container="body" title="Servuno will contact the best candidates first (e.g., people you have interacted before), and then gradually contacts more if the request is not fulfilled. The default option will potentially contact everyone (including friends of friends) "><i class="fa fa-question-circle"></i></span>
+          <span class="input-group-addon" data-toggle="tooltip" data-container="body" title="Servuno will contact the best candidates first (e.g., people you have interacted before), and then gradually contacts more if the request is not fulfilled."><i class="fa fa-question-circle"></i></span>
         </div>
         <div class="form-group{% include 'form_includes/field_container_error_class.html' %}">
           {% include 'form_includes/field_errors.html' %}

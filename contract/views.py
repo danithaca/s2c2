@@ -133,6 +133,11 @@ class ContractCreateParentView(ContractCreate):
         initial['price'] = 0
         return initial
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['show_target'] = True
+        return context
+
 
 class ContractCreateSitterView(ContractCreate):
     template_name = 'contract/contract_edit/create_sitter.html'
