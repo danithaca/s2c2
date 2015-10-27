@@ -66,7 +66,7 @@
           placement: 'left',
           container: 'body'
         });
-        $.cookie('servuno_visited', true, {expires: 90, path: '/'});
+        $.cookie('servuno_visited', true, {expires: 30, path: '/'});
       }
 
       // load jotForm
@@ -125,30 +125,37 @@
 
 <body>
 {% if user %}<!-- logged in as {{ user.email }} -->{% endif %}
-<nav class="navbar navbar-default" role="navigation">
-  <div class="container-fluid">
-    <div>{# navboar-header makes the other stuff wrap #}
-      <a class="navbar-brand" id="servuno-brand" href="/">{# <img alt="servuno brand" src="{% static 'images/brand.png' %}"> #}<span class="text-primary">S</span><span class="text-danger">e</span><span class="text-warning">r</span><span class="text-primary">v</span><span class="text-success">u</span><span class="text-danger">n</span><span class="text-info">o</span> <sup class="text-small">beta</sup></a>
-      <span class="navbar-text hidden-xs">It takes a village to raise a child</span>
-    </div>
-    <div>
-      {% if user and user.is_authenticated %}
-        <div class="dropdown user-admin navbar-text pull-right">
-          <a class="dropdown-toggle navbar-link pull-right" data-toggle="dropdown" data-target="#" href="#"><img src="{% user_picture_url user %}" class="img-circle img-18"> {% user-short-name user %} <span class="caret"></span></a>
-          <ul class="dropdown-menu" role="menu">
-            <li><a href="{% url 'dashboard' %}">Dashboard</a></li>
-            <li class="divider"></li>
-            <li><a href="{% url 'account_view' %}">View account</a></li>
-            <li><a href="{% url 'account_edit' %}">Edit account</a></li>
-            <li><a href="{% url 'account_logout' %}">Logout</a></li>
-          </ul>
-        </div>
-      {% else %}
-        <p class="navbar-text pull-right"><a href="{% url 'about' %}" id="nav-about" class="navbar-link pull-right"><i class="fa fa-question-circle"></i> About</a></p>
-      {% endif %}
-    </div>
+<nav class="navbar navbar-default" role="navigation"><div class="container-fluid">
+  <div class="navbar-header">{# navboar-header makes the other stuff wrap #}
+    <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar-content">
+      <span class="sr-only">Toggle navigation</span>
+      <span class="icon-bar"></span>
+      <span class="icon-bar"></span>
+      <span class="icon-bar"></span>
+    </button>
+    <a class="navbar-brand" id="servuno-brand" href="/">{# <img alt="servuno brand" src="{% static 'images/brand.png' %}"> #}<span class="text-primary">S</span><span class="text-danger">e</span><span class="text-warning">r</span><span class="text-primary">v</span><span class="text-success">u</span><span class="text-danger">n</span><span class="text-info">o</span> <sup class="text-small">beta</sup></a>
+    <span class="navbar-text hidden-xs">It takes a village to raise a child</span>
   </div>
-</nav>
+  <div id="navbar-content" class="collapse navbar-collapse"><ul class="nav navbar-nav navbar-right">
+    {% if user and user.is_authenticated %}
+      <li class="dropdown user-admin">
+        <a class="dropdown-toggle" data-toggle="dropdown" data-target="#" href="#"><img src="{% user_picture_url user %}" class="img-circle img-18"> {% user-short-name user %} <span class="caret"></span></a>
+        <ul class="dropdown-menu" role="menu">
+          <li><a href="{% url 'account_view' %}">View account</a></li>
+          <li><a href="{% url 'account_edit' %}">Edit account</a></li>
+          <li><a href="{% url 'account_logout' %}">Logout</a></li>
+          <li class="divider"></li>
+          <li><a href="{% url 'about' %}" id="nav-about"><i class="fa fa-book"></i> About</a></li>
+          <li><a href="{% url 'shout:contact' %}" id="nav-contact"><i class="fa fa-envelope-o"></i> Contact</a></li>
+        </ul>
+      </li>
+    {% else %}
+      <li data-active-url="{% url 'account_login' %}"><a href="{% url 'account_login' %}"><i class="fa fa-sign-in"></i> Log In</a></li>
+      <li data-active-url="{% url 'account_signup' %}"><a href="{% url 'account_signup' %}"><i class="fa fa-laptop"></i> Sign Up</a></li>
+      {# <p class="navbar-text pull-right"><a href="{% url 'about' %}" id="nav-about" class="navbar-link pull-right"><i class="fa fa-question-circle"></i> About</a></p>#}
+    {% endif %}
+  </ul></div>
+</div></nav>
 
 <div class="container" id="main-page">
   {% for message in messages %}
@@ -164,10 +171,10 @@
   <div class="page-footer">
     <hr>
 {#    <div class="row"><div class="col-xs-12 col-sm-offset-2 col-sm-8 col-md-offset-3 col-md-6">#}
-    <ul class="list-inline text-center">
-      <li><a href="{% url 'about' %}" id="nav-about"><i class="fa fa-book"></i> About Servuno</a></li>
-      <li><a href="{% url 'shout:contact' %}" id="nav-about"><i class="fa fa-envelope-o"></i> Contact Us</a></li>
-    </ul>
+{#    <ul class="list-inline text-center">#}
+{#      <li><a href="{% url 'about' %}" id="nav-about"><i class="fa fa-book"></i> About Servuno</a></li>#}
+{#      <li><a href="{% url 'shout:contact' %}" id="nav-contact"><i class="fa fa-envelope-o"></i> Contact Us</a></li>#}
+{#    </ul>#}
 {#    </div></div>#}
 
     <p class="text-center text-muted" style="font-size:80%">

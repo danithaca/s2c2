@@ -12,7 +12,8 @@ from puser.forms import SignupBasicForm
 
 def home(request):
     if request.user.is_anonymous():
-        return redirect(reverse('account_signup'))
+        # return redirect(reverse('account_signup'))
+        return redirect(reverse('about'))
     else:
         # find engagement for the user
         puser = request.puser
