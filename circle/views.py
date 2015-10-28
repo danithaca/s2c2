@@ -8,7 +8,7 @@ from django.core.urlresolvers import reverse_lazy, reverse
 
 # Create your views here.
 from django.views.defaults import bad_request
-from django.views.generic import FormView, CreateView, UpdateView
+from django.views.generic import FormView, CreateView, UpdateView, TemplateView
 from django.views.generic.detail import SingleObjectTemplateResponseMixin, SingleObjectMixin
 from circle.forms import EmailListForm, UserConnectionForm, TagUserForm, CircleForm, MembershipForm, MembershipEditForm
 from circle.models import Membership, Circle, ParentCircle, UserConnection
@@ -113,20 +113,20 @@ class SitterCircleView(BaseCircleView):
         circle = self.request.puser.my_circle(Circle.Type.SITTER)
         return circle
 
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        # find babysitter pool
-        me = self.request.puser
-        my_parent_circle = me.my_circle(Circle.Type.PARENT)
-        my_parent_list = my_parent_circle.members.filter(membership__active=True, membership__approved=True).exclude(membership__member=me)
-        other_parent_sitter_circle_list = Circle.objects.filter(owner__in=my_parent_list, type=Circle.Type.SITTER.value, area=my_parent_circle.area)
-        # need to sort by member in order to use groupby.
-        sitter_membership_pool = Membership.objects.filter(active=True, approved=True, circle__in=other_parent_sitter_circle_list).exclude(member=me).order_by('member')
-        pool_list = []
-        for member, membership_list in groupby(sitter_membership_pool, lambda m: m.member):
-            pool_list.append(UserConnection(me, member, list(membership_list)))
-        context['pool_list'] = pool_list
-        return context
+    # def get_context_data(self, **kwargs):
+    #     context = super().get_context_data(**kwargs)
+    #     # find babysitter pool
+    #     me = self.request.puser
+    #     my_parent_circle = me.my_circle(Circle.Type.PARENT)
+    #     my_parent_list = my_parent_circle.members.filter(membership__active=True, membership__approved=True).exclude(membership__member=me)
+    #     other_parent_sitter_circle_list = Circle.objects.filter(owner__in=my_parent_list, type=Circle.Type.SITTER.value, area=my_parent_circle.area)
+    #     # need to sort by member in order to use groupby.
+    #     sitter_membership_pool = Membership.objects.filter(active=True, approved=True, circle__in=other_parent_sitter_circle_list).exclude(member=me).order_by('member')
+    #     pool_list = []
+    #     for member, membership_list in groupby(sitter_membership_pool, lambda m: m.member):
+    #         pool_list.append(UserConnection(me, member, list(membership_list)))
+    #     context['pool_list'] = pool_list
+    #     return context
 
     def get_membership_edit_form(self):
         form = MembershipEditForm(initial={'redirect': self.success_url})
@@ -423,3 +423,49 @@ class MembershipEditView(LoginRequiredMixin, UserOnboardRequiredMixin, UpdateVie
             return self.redirect_url
         else:
             return '/'
+
+
+class ListMembersView(LoginRequiredMixin, UserOnboardRequiredMixin, TemplateView):
+    template_name = 'circle/network.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        target_user = self.request.puser
+        if target_user.is_registered():
+            my_parents = list(Membership.objects.filter(circle=target_user.my_circle(Circle.Type.PARENT), active=True, approved=True).exclude(member=target_user).order_by('-updated'))
+            my_sitters = list(Membership.objects.filter(circle=target_user.my_circle(Circle.Type.SITTER), active=True, approved=True).exclude(member=target_user).order_by('-updated'))
+            context.update({
+                'my_parents': my_parents,
+                'my_sitters': my_sitters,
+            })
+        return context
+
+
+class BasePoolView(LoginRequiredMixin, UserOnboardRequiredMixin, TemplateView):
+    template_name = 'circle/pool/base.html'
+    circle_type = None
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        # find babysitter pool
+        me = self.request.puser
+        my_parent_circle = me.my_circle(Circle.Type.PARENT)
+        my_parent_list = my_parent_circle.members.filter(membership__active=True, membership__approved=True).exclude(membership__member=me)
+        extended_circle_list = Circle.objects.filter(owner__in=my_parent_list, type=self.circle_type, area=my_parent_circle.area)
+        # need to sort by member in order to use groupby.
+        extended_membership_list = Membership.objects.filter(active=True, approved=True, circle__in=extended_circle_list).exclude(member=me).order_by('member')
+        pool_list = []
+        for member, membership_list in groupby(extended_membership_list, lambda m: m.member):
+            pool_list.append(UserConnection(me, member, list(membership_list)))
+        context['pool_list'] = pool_list
+        return context
+
+
+class SitterPoolView(BasePoolView):
+    template_name = 'circle/pool/sitter.html'
+    circle_type = Circle.Type.SITTER.value
+
+
+class ParentPoolView(BasePoolView):
+    template_name = 'circle/pool/parent.html'
+    circle_type = Circle.Type.PARENT.value

@@ -66,7 +66,7 @@ class DashboardView(LoginRequiredMixin, TemplateView):
             ctx['engagement_headline'] = headline
 
         # engagement list
-        display_limit = 20
+        display_limit = 5
         engagement_list = sorted(puser.engagement_list(lambda qs: qs.filter(initiate_user=puser).order_by('-updated')[:display_limit]) + puser.engagement_list(lambda qs: qs.filter(match__target_user=puser).order_by('-match__updated')[:display_limit]), key=lambda e: e.updated(), reverse=True)
         ctx['engagement_recent'] = engagement_list[:display_limit]
 

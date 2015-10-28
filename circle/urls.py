@@ -6,6 +6,10 @@ urlpatterns = patterns(
     "",
     url(r"^parent/$", views.ParentCircleView.as_view(), name="parent"),
     url(r"^sitter/$", views.SitterCircleView.as_view(), name="sitter"),
+    url(r"^view/$", views.ListMembersView.as_view(), name="list_network"),
+
+    url(r"^sitter/pool/$", views.SitterPoolView.as_view(), name="sitter_pool"),
+    url(r"^parent/pool/$", views.ParentPoolView.as_view(), name="parent_pool"),
 
     url(r"^group/$", views.TagCircleUserView.as_view(), name="tag"),
     url(r"^group/add/$", views.TagAddView.as_view(), name="tag_add"),
