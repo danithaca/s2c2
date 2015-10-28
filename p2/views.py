@@ -35,6 +35,15 @@ class AboutView(TemplateView):
     template_name = 'pages/about.html'
 
 
+class TourView(LoginRequiredMixin, TemplateView):
+    template_name = 'pages/tour.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['current_user'] = self.request.puser
+        return context
+
+
 class ExperimentView(TemplateView):
     template_name = 'pages/experiment.html'
 

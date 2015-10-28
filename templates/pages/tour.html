@@ -1,0 +1,86 @@
+{% extends 'base.html' %}
+
+{% block extra_header %}
+  <link href="//cdnjs.cloudflare.com/ajax/libs/bootstrap-tour/0.10.1/css/bootstrap-tour.min.css" rel="stylesheet">
+  <script src="//cdnjs.cloudflare.com/ajax/libs/bootstrap-tour/0.10.1/js/bootstrap-tour.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/bootbox.js/4.4.0/bootbox.min.js"></script>
+
+  <script>
+    $(document).ready(function() {
+      /*if (!$.cookie('servuno_usage_tour')) {
+        // restart tour in 14 days.
+        $.cookie('servuno_usage_tour', true, {expires: 14, path: '/'});
+        window.localStorage.removeItem('tour_end');
+        window.localStorage.removeItem('tour_current_step');
+      }*/
+
+      var tour = new Tour({
+        steps: [
+          {
+            element: "#menu-item-tab-connect a.dropdown-toggle i",
+            title: "First, build a network",
+            content: "Add parents and babysitters you trust into your network so that you can find help when you need it. Those connections are also valuable resources to share with your friends who need help babysit.",
+            placement: 'bottom'
+          },
+          {
+            element: "#menu-item-tab-post a.dropdown-toggle i",
+            title: "Then, post a job",
+            content: "When you need a babysitter, post a job here and Servuno will match a babysitter from your network of parents and their babysitters. You can also offer help to another family while find a playdate for your kids.",
+            placement: 'bottom'
+          },
+          {
+            element: "#menu-item-tab-discover a.dropdown-toggle i",
+            title: "Make new friends",
+            content: "Don't have many connections? You can discover other parents from groups such as your children's classroom.",
+            placement: 'bottom'
+          },
+          {
+            element: "#menu-item-tab-help a.dropdown-toggle i",
+            title: "Need help?",
+            content: "Find resources here if you have any questions about using the site.",
+            placement: 'bottom'
+          },
+        ],
+
+        storage: false,
+        // placement: 'bottom'
+      });
+
+      bootbox.alert('Welcome to Servuno! You will see a brief tour next about how to use the site.', function() {
+        $('button.navbar-toggle').click();
+        tour.init();
+        tour.start();
+      });
+    });
+  </script>
+{% endblock %}
+
+{% block content %}
+{% if current_user.is_registered %}
+  <h4>What do you want to do?</h4>
+  <p>Please choose the following:</p>
+  <ul class="list-group">
+    <li class="list-group-item"><a href="{% url 'dashboard' %}"><i class="fa fa-home"></i> Home</a></li>
+    <li class="list-group-item"><a href="{% url 'about' %}"><i class="fa fa-book"></i> Learn More</a></li>
+    <li class="list-group-item"><a href="{% url 'onboard_start' %}"><i class="fa fa-refresh"></i> Onboard</a></li>
+    <li class="list-group-item"><a href="{% url 'account_edit' %}"><i class="fa fa-refresh"></i> Edit Profile</a></li>
+  </ul>
+{#  <div class="row">#}
+{#    <div class="col-xs-offset-3 col-xs-6"><a href="{% url 'dashboard' %}" class="btn btn-lg btn-block btn-success"><i class="fa fa-home"></i> Home</a></div>#}
+{#    <div class="col-xs-offset-3 col-xs-6"><a href="{% url 'about' %}" class="btn btn-lg btn-block btn-primary"><i class="fa fa-book"></i> Learn More</a></div>#}
+{#    <div class="col-xs-offset-3 col-xs-6"><a href="{% url 'onboard_start' %}" class="btn btn-lg btn-block btn-default"><i class="fa fa-refresh"></i> Onboard</a></div>#}
+{#    <div class="col-xs-offset-3 col-xs-6"><a href="{% url 'account_edit' %}" class="btn btn-lg btn-block btn-default"><i class="fa fa-refresh"></i> Edit Profile</a></div>#}
+{#  </div>#}
+{% else %}
+  <h4>It appears you have not signed up yet</h4>
+  <p>Choose the following:</p>
+  <ul class="list-group">
+    <li class="list-group-item"><a href="{% url 'account_signup' %}"><i class="fa fa-laptop"></i> Sign Up!</a></li>
+    <li class="list-group-item"><a href="{% url 'about' %}"><i class="fa fa-book"></i> Learn More</a></li>
+  </ul>
+{#  <div class="row">#}
+{#    <div class="col-xs-offset-3 col-xs-6"><a href="{% url 'account_signup' %}" class="btn btn-lg btn-block btn-success"><i class="fa fa-laptop"></i> Sign Up!</a></div>#}
+{#    <div class="col-xs-offset-3 col-xs-6"><a href="{% url 'about' %}" class="btn btn-lg btn-block btn-primary"><i class="fa fa-book"></i> Learn More</a></div>#}
+{#  </div>#}
+{% endif %}
+{% endblock %}

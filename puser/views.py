@@ -264,7 +264,7 @@ class MultiStepViewsMixin(ContextMixin):
     This is to help with multiple views, different from FormWizard
     """
 
-    final_url = '/'
+    final_url = reverse_lazy('tour')
 
     @classmethod
     def get_steps_meta(cls):
@@ -362,8 +362,8 @@ class OnboardSitterCircle(MultiStepViewsMixin, SitterCircleView):
     template_name = 'account/onboard/sitter.html'
     step_title = 'Add Paid Babysitters'
     step_note = 'Add babysitters you trust, e.g, grandparents, teenage cousins, and/or professional babysitters you used before. They will be shared among your parents connections added in the previous step. DO NOT add anyone you don\'t trust.'
-    form_valid_message = "Welcome! You can find a babysitter now or wait for others to find help from you."
-    show_message = True
+    # form_valid_message = "Welcome! You can find a babysitter now or wait for others to find help from you."
+    # show_message = True
 
 
 class OnboardPicture(MultiStepViewsMixin, UserPicture):
