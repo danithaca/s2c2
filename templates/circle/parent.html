@@ -1,7 +1,7 @@
 {% extends "circle/base.html" %}
 
-{% block help-message %}Add other parents your trust who can babysit for you occasionally. <strong>DO NOT add anyone you don't trust.</strong>{% endblock %}
+{% block content-introduction %}Add other parents your trust who can babysit for you occasionally. <strong>DO NOT add anyone you don't trust.</strong>{% endblock %}
 
-{% block manage-block %}
+{% block content %}
   {% include 'circle/includes/list_parent.html' %}
 {% endblock %}

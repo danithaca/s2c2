@@ -1,10 +1,8 @@
 {% extends 'contract/contract_edit/create.html' %}
 
-{% block title %}Offer Help{% endblock %}
-
 {% block create-confirm-message %}Parents in your network will be notified via Email.{% endblock %}
 
-{% block help-message %}Want a palydate for your kids? Get some extra time and energy? Make an offer here to help other parents babysit and build your karma so that when you need help babysit, those parents will help you! <a href="{% url 'circle:parent' %}">Add parents</a> into your network to increase your reach.{% endblock %}
+{% block content-introduction %}Want a palydate for your kids? Get some extra time and energy? Make an offer here to help other parents babysit and build your karma so that when you need help babysit, those parents will help you! <a href="{% url 'circle:parent' %}">Add parents</a> into your network to increase your reach.{% endblock %}
 
 {#{% block create-submit-extra %}#}
 {#  <a class="pull-right" href="{% url 'circle:parent' %}">Add Parents</a>#}

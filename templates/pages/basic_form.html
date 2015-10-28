@@ -1,10 +1,8 @@
-{% extends "base_branch.html" %}
+{% extends "base.html" %}
 {% load staticfiles %}
 {% load bootstrap %}
 
 {% block title %}Basic form{% endblock %}
-
-{% block back %}{% include 'elements/back_link.html' with previous=True %}{% endblock %}
 
 {% block content %}
   <form class="form" method="post">

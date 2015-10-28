@@ -101,6 +101,8 @@ class ShoutToUser(LoginRequiredMixin, FormValidMessageMixin, CreateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['to_user'] = self.to_user
+        # this is added for sitetree
+        context['target_user'] = self.to_user
         return context
 
     def get_success_url(self):

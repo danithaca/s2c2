@@ -1,4 +1,4 @@
-{% extends 'base_tree.html' %}
+{% extends 'base.html' %}
 {% load account_tags %}
 {% load p2_tags %}
 {% load bootstrap %}
@@ -12,73 +12,72 @@
 {#  });#}
 {#</script>#}
 {#{% endblock %}#}
+{% block panel-attributes %}data-uid="{{ target_user.id }}"{% endblock %}
 
 {% block content-header %}
-  <div class="panel-heading" data-uid="{{ target_user.id }}">
-    {#  {% if current_user != target_user %}#}
-    {#  <div class="row"><div class="col-xs-12">#}
-    {#    <ul class="nav nav-pills pull-right">#}
-    {#      <li><a href="{% url 'shout:user' uid=target_user.id %}"><i class="fa fa-bullhorn"></i> Message</a></li>#}
-    {#      <li><a href="" data-toggle="modal" data-target="#modal-form"><i class="fa fa-user-plus"></i> Connect</a></li>#}
-    {#    </ul>#}
-    {#  </div></div>#}
-    {#  {% endif %}#}
-    <div class="row min-margin-bottom"><div class="col-xs-12">
-    <span>
-      {% if not target_user.is_registered %}<span class="label label-danger">not registered</span>{% endif %}
-      {% include 'elements/user_level.html' with user=target_user only %}
-      {% if interactions %}{% include 'elements/interactions.html' with count=interactions help='Previous number of interactions with this user on babysitting.' %}{% endif %}
-      {% for circle in current_user_shared_circles %}
-        {% if circle.owner == current_user %}
-          <span class="label label-success">{{ circle.display }}</span>
-        {% else %}
-          <span class="label label-primary">{{ circle.display }}</span>
-        {% endif %}
-      {% endfor %}
-    </span>
-      {#    <span class="pull-right">#}
-      {#      <a href="{% url 'shout:user' uid=target_user.id %}"><i class="fa fa-bullhorn"></i> Send message</a> |#}
-      {#      <a href="" data-toggle="modal" data-target="#modal-form"><i class="fa fa-user-plus"></i> Connect</a>#}
-      {#    </span>#}
-    </div></div>
-    <div class="row vertical-align min-margin-bottom">
-      <div class="col-xs-4 text-center">
-        {% if full_access %}
-          <a href="{% url 'account_picture' %}" id="link_account_picture"><img src="{% user_picture_url target_user %}" alt="user picture" class="img-rounded img-responsive img-thumbnail"></a>
-        {% else %}
-          <img src="{% user_picture_url target_user %}" alt="user picture" class="img-rounded img-responsive img-thumbnail">
-        {% endif %}
-        {#        <div><a href="{% url 'account_picture' %}"><i class="fa fa-edit"></i> Edit</a></div>#}
-      </div>
-      <div class="col-xs-8 center-block text-center">
-        <h3>
-          {% user-full-name target_user %}{# {% if full_access %} <small><a href="{% url 'account_edit' %}"><i class="fa fa-edit"></i></a></small>{% endif %} #}
-        </h3>
-        <ul class="list-inline">
-          {#          <li><i class="fa fa-envelope"></i> <a href="mailto:{{ target_user.email }}">{{ target_user.email }}</a></li>#}
-          <li><i class="fa fa-envelope"></i> {{ target_user.email }}</li>
-          {% if target_user.info.phone %}
-            {#            <li><i class="fa fa-phone"></i> <a href="tel:{{ target_user.info.phone }}">{{ target_user.info.phone }}</a></li>#}
-            <li><i class="fa fa-phone"></i> {{ target_user.info.phone }}</li>
-          {% endif %}
-          {% if target_user.info.address %}
-            <li>{# <i class="fa fa-map-marker"></i> #}{{ target_user.info.address }} <a href="https://www.google.com/maps/place/{{ target_user.info.address|urlencode }}" target="_blank"><i class="fa fa-external-link"></i></a></li>
-          {% endif %}
-        </ul>
-        {% if current_user != target_user %}
-          <ul class="list-inline">
-            <li><a class="btn btn-primary btn-xs" href="{% url 'shout:user' uid=target_user.id %}"><i class="fa fa-bullhorn"></i> Message</a></li>
-            <li><a class="btn btn-primary btn-xs" href="" data-toggle="modal" data-target="#modal-form" id="user-connect-button"><i class="fa fa-user-plus"></i> Connect</a></li>
-          </ul>
-        {% endif %}
-      </div>
+  {#  {% if current_user != target_user %}#}
+  {#  <div class="row"><div class="col-xs-12">#}
+  {#    <ul class="nav nav-pills pull-right">#}
+  {#      <li><a href="{% url 'shout:user' uid=target_user.id %}"><i class="fa fa-bullhorn"></i> Message</a></li>#}
+  {#      <li><a href="" data-toggle="modal" data-target="#modal-form"><i class="fa fa-user-plus"></i> Connect</a></li>#}
+  {#    </ul>#}
+  {#  </div></div>#}
+  {#  {% endif %}#}
+  <div class="row min-margin-bottom"><div class="col-xs-12">
+  <span>
+    {% if not target_user.is_registered %}<span class="label label-danger">not registered</span>{% endif %}
+    {% include 'elements/user_level.html' with user=target_user only %}
+    {% if interactions %}{% include 'elements/interactions.html' with count=interactions help='Previous number of interactions with this user on babysitting.' %}{% endif %}
+    {% for circle in current_user_shared_circles %}
+      {% if circle.owner == current_user %}
+        <span class="label label-success">{{ circle.display }}</span>
+      {% else %}
+        <span class="label label-primary">{{ circle.display }}</span>
+      {% endif %}
+    {% endfor %}
+  </span>
+    {#    <span class="pull-right">#}
+    {#      <a href="{% url 'shout:user' uid=target_user.id %}"><i class="fa fa-bullhorn"></i> Send message</a> |#}
+    {#      <a href="" data-toggle="modal" data-target="#modal-form"><i class="fa fa-user-plus"></i> Connect</a>#}
+    {#    </span>#}
+  </div></div>
+  <div class="row vertical-align min-margin-bottom">
+    <div class="col-xs-4 text-center">
+      {% if full_access %}
+        <a href="{% url 'account_picture' %}" id="link_account_picture"><img src="{% user_picture_url target_user %}" alt="user picture" class="img-rounded img-responsive img-thumbnail"></a>
+      {% else %}
+        <img src="{% user_picture_url target_user %}" alt="user picture" class="img-rounded img-responsive img-thumbnail">
+      {% endif %}
+      {#        <div><a href="{% url 'account_picture' %}"><i class="fa fa-edit"></i> Edit</a></div>#}
     </div>
-    {% if target_user.info.note %}
-      <div class="row"><div class="col-xs-12">
-        <blockquote>{{ target_user.info.note }}</blockquote>
-      </div></div>
-    {% endif %}
+    <div class="col-xs-8 center-block text-center">
+      <h3>
+        {% user-full-name target_user %}{# {% if full_access %} <small><a href="{% url 'account_edit' %}"><i class="fa fa-edit"></i></a></small>{% endif %} #}
+      </h3>
+      <ul class="list-inline">
+        {#          <li><i class="fa fa-envelope"></i> <a href="mailto:{{ target_user.email }}">{{ target_user.email }}</a></li>#}
+        <li><i class="fa fa-envelope"></i> {{ target_user.email }}</li>
+        {% if target_user.info.phone %}
+          {#            <li><i class="fa fa-phone"></i> <a href="tel:{{ target_user.info.phone }}">{{ target_user.info.phone }}</a></li>#}
+          <li><i class="fa fa-phone"></i> {{ target_user.info.phone }}</li>
+        {% endif %}
+        {% if target_user.info.address %}
+          <li>{# <i class="fa fa-map-marker"></i> #}{{ target_user.info.address }} <a href="https://www.google.com/maps/place/{{ target_user.info.address|urlencode }}" target="_blank"><i class="fa fa-external-link"></i></a></li>
+        {% endif %}
+      </ul>
+      {% if current_user != target_user %}
+        <ul class="list-inline">
+          <li><a class="btn btn-primary btn-xs" href="{% url 'shout:user' uid=target_user.id %}"><i class="fa fa-bullhorn"></i> Message</a></li>
+          <li><a class="btn btn-primary btn-xs" href="" data-toggle="modal" data-target="#modal-form" id="user-connect-button"><i class="fa fa-user-plus"></i> Connect</a></li>
+        </ul>
+      {% endif %}
+    </div>
   </div>
+  {% if target_user.info.note %}
+    <div class="row"><div class="col-xs-12">
+      <blockquote>{{ target_user.info.note }}</blockquote>
+    </div></div>
+  {% endif %}
 {% endblock %}
 
 {% block content %}

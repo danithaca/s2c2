@@ -1,18 +1,13 @@
-{% extends "base_branch.html" %}
+{% extends "base.html" %}
 {% load staticfiles %}
 {% load bootstrap %}
 
-{% block title %}Send message{% endblock %}
-
-{% block back %}{% include 'elements/back_link.html' with previous=True %}{% endblock %}
+{% block content-header %}
+  <strong class="margin-right-10">TO: </strong>
+  {% block to_user %}{% include 'account/view/inline.html' with user=to_user only %}{% endblock %}
+{% endblock %}
 
 {% block content %}
-<div class="panel panel-default">
-  <div class="panel-heading">
-    <strong class="margin-right-10">TO: </strong>
-    {% block to_user %}{% include 'account/view/inline.html' with user=to_user only %}{% endblock %}
-  </div>
-  <div class="panel-body">
   <form class="form" method="post">
     {% csrf_token %}
     {{ form|bootstrap }}
@@ -20,5 +15,4 @@
       <button type="submit" class="btn btn-primary">Send</button>
     </div>
   </form>
-</div></div>
 {% endblock %}

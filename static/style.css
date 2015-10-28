@@ -82,6 +82,8 @@
   transform: rotate(45deg);
 }
 
+.hidden-if-none:empty { display: none; }
+
 
 /******** onboard/base *********/
 

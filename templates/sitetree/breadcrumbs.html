@@ -6,12 +6,12 @@
   {% if breadcrumb_home %}<li><a href="{% sitetree_url for breadcrumb_home %}">{% if breadcrumb_home.fa_icon %}<i class="fa fa-{{ breadcrumb_home.fa_icon }}"></i>{% endif %} {{ breadcrumb_home.title }}</a></li>{% endif %}
   {% for item in sitetree_items %}
     {% if not forloop.last %}
-      <li class="{% if item.has_children %}dropdown{% endif %}" {% if item.hint %}title="{{ item.hint }}"{% endif %} {% if item.alias %}id="breadcrumb-{{ item.alias }}"{% endif %}>
-        <a href="{% if item.has_children %}#{% else %}{% sitetree_url for item %}{% endif %}" {% if item.has_children %}class="dropdown-toggle" data-toggle="dropdown"{% endif %}>
+      <li class="{% if item.url == '#' %}dropdown{% endif %}" {% if item.hint %}title="{{ item.hint }}"{% endif %} {% if item.alias %}id="breadcrumb-{{ item.alias }}"{% endif %}>
+        <a href="{% sitetree_url for item %}" {% if item.url == '#' %}class="dropdown-toggle" data-toggle="dropdown"{% endif %}>
           {% if item.fa_icon %}<i class="fa fa-{{ item.fa_icon }}"></i>{% endif %}
           {{ item.title_resolved }}
         </a>
-        {% if item.has_children %}
+        {% if item.url == '#' %}
           {% sitetree_children of item for menu template "sitetree/breadcrumbs_dropdown.html" %}
         {% endif %}
       </li>

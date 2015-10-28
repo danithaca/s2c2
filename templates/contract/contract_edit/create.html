@@ -1,9 +1,9 @@
-{% extends 'base_tree.html' %}
+{% extends 'base.html' %}
 
 {% load staticfiles %}
 {% load bootstrap %}
 
-{% block extra_header %}
+{% block template_extra_header %}
   {{ form.media }}
   <script src='{% static 'fullcalendar/lib/moment.min.js' %}'></script>
   <script src='{% static 'js/humanize_duration.js' %}'></script>
@@ -130,8 +130,6 @@
 {% endblock %}
 
 {% block content %}
-  <div class="well">{% block help-message %}{% endblock %}</div>
-
   <form class="form" method="post" id="contract-update">
     {% csrf_token %}
     {% include 'form_includes/form_errors.html' %}
