@@ -1,4 +1,4 @@
-{% extends "base_branch.html" %}
+{% extends "base.html" %}
 {% load staticfiles %}
 {% load bootstrap %}
 {% load p2_tags %}
@@ -56,8 +56,9 @@ $(document).ready(function() {
 </script>
 {% endblock %}
 
-{% block content %}
-  <div class="panel panel-default">
+{% block headline %}
+  <div class="panel panel-{{ contract.display_status.color }}">
+    <div class="panel-heading">Job post from {% user-full-name contract.initiate_user %}</div>
     <div class="panel-body">
       {% include 'contract/contract_view/summary.html' with contract=contract display_mode="contract" %}
     </div>
@@ -78,7 +79,10 @@ $(document).ready(function() {
       </div>
     {% endif %}
   </div>
+{% endblock %}
 
+
+{% block content %}
   {% if matches_tabs %}
     <div class="matches-tabs">
       <ul class="nav nav-tabs nav-justified">
@@ -123,7 +127,4 @@ $(document).ready(function() {
       {% include 'elements/prompt_network.html' %}
     </div>
   {% endif %}
-
 {% endblock %}
-
-{% block title %}Job{% endblock %}

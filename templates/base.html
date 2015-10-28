@@ -202,12 +202,13 @@
     {% endfor %}
     {% block breadcrumbs %}{% sitetree_breadcrumbs from 'main' %}{% endblock %}
     {% block headline %}{% endblock %}
-    <div class="panel panel-default" {% block panel-attributes %}{% endblock %}>
+    <div class="panel {% block panel-classes %}panel-default{% endblock %}" {% block panel-attributes %}{% endblock %}>
       <div class="panel-heading hidden-if-none">{% block content-header %}{% endblock %}</div>
       <div class="panel-body">
         <div class="well hidden-if-none">{% block content-introduction %}{% endblock %}</div>
         {% block content %}{% endblock %}
       </div>
+      <div class="panel-footer hidden-if-none">{% block content-footer %}{% endblock %}</div>
     </div>
   </div></div>{% endblock %}
 

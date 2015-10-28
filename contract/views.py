@@ -55,7 +55,7 @@ class ContractList(ListView):
 class ContractUpdateMixin(object):
     model = Contract
     form_class = ContractForm
-    template_name = 'contract/contract_update.html'
+    template_name = 'contract/contract_edit/edit.html'
 
     def get_form_kwargs(self):
         kwargs = super().get_form_kwargs()

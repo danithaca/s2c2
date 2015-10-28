@@ -1,6 +1,6 @@
 {# this is almost the same as "create" #}
 {# TODO: figure out a way to dedup. #}
-{% extends 'base_branch.html' %}
+{% extends 'base.html' %}
 
 {% load staticfiles %}
 {% load bootstrap %}
@@ -131,9 +131,11 @@
   </script>
 {% endblock %}
 
-{% block content %}<div class="panel"><div class="panel-body">
-  <div class="well">{% block help-message %}You CANNOT change the date/time or reduce payment. To do so, cancel the request and create a new one.{% endblock %}</div>
+{% block content-introduction %}
+  You CANNOT change the date/time or reduce payment. To do so, cancel the request and create a new one.
+{% endblock %}
 
+{% block content %}
   <form class="form" method="post" id="contract-update">
     {% csrf_token %}
     {% include 'form_includes/form_errors.html' %}
@@ -225,6 +227,4 @@
     </div>
   </form>
   {#  {% if client.is_isolated %}<div><span class="text-warning" style="margin-right: 10px;"><i class="fa fa-exclamation-circle"></i></span> <span>You have few contacts on Servuno. Please <a href="{% url 'circle:manage_personal' %}">add more contacts</a> and/or <a href="{% url 'circle:manage_public' %}">join more parents circles</a>.</span></div>{% endif %}#}
-</div></div>{% endblock %}
-
-{% block title %}Edit a Job Post{% endblock %}
+{% endblock %}

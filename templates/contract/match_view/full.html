@@ -1,4 +1,4 @@
-{% extends "base_branch.html" %}
+{% extends "base.html" %}
 {% load staticfiles %}
 {% load bootstrap %}
 {% load p2_tags %}
@@ -42,44 +42,51 @@ $(document).ready(function() {
 </script>
 {% endblock %}
 
-{% block content %}
-<div class="panel panel-default">
-  <div class="panel-body">
-    {% if contract.is_confirmed %}
-      {% if contract.confirmed_match == match %}
-        {% include 'contract/contract_view/summary.html' with contract=contract display_mode='my_confirmed_match' %}
+{% block headline %}
+  <div class="panel panel-{{ contract.display_status.color }}">
+    <div class="panel-heading">Job post from {% user-full-name contract.initiate_user %}</div>
+    <div class="panel-body">
+      {% if contract.is_confirmed %}
+        {% if contract.confirmed_match == match %}
+          {% include 'contract/contract_view/summary.html' with contract=contract display_mode='my_confirmed_match' %}
+        {% else %}
+          {% include 'contract/contract_view/summary.html' with contract=contract display_mode='other_confirmed_match' %}
+        {% endif %}
       {% else %}
-        {% include 'contract/contract_view/summary.html' with contract=contract display_mode='other_confirmed_match' %}
+        {% include 'contract/contract_view/summary.html' with contract=contract match_override=match display_mode="match" %}
       {% endif %}
-    {% else %}
-      {% include 'contract/contract_view/summary.html' with contract=contract match_override=match display_mode="match" %}
-    {% endif %}
+    </div>
   </div>
-</div>
+{% endblock %}
 
-<div class="match-details panel panel-{{ match.display_status.color }}" data-match-id="{{ match.id }}">
-  <div class="panel-heading panel-title">
+{% block panel-classes %}panel-{{ match.display_status.color }} match-details{% endblock %}
+{% block panel-attributes %}data-match-id="{{ match.id }}"{% endblock %}
+
+{% block content-introduction %}
+  <span class="text-{{ match.display_status.color }}">
     {% if match.is_responded %}
-      <span title="{{ match.display_status.explanation }}" data-toggle="tooltip">{{ match.display_status.label }}</span>
+      Your response is: <span title="{{ match.display_status.explanation }}" data-toggle="tooltip">{{ match.display_status.label }}</span>
     {% elif not contract.is_event_expired and not contract.is_confirmed %}
-      <strong>Your response?</strong> <small>- leave a response now; you might change it later</small>
+      <strong>Please respond to the job post</strong> <small>(you might change it later if needed)</small>
     {% elif not contract.is_event_expired and contract.is_confirmed %}
-      <strong>Expired </strong> <small>- you might still leave a response <i class="fa fa-question-circle" title="{% user-short-name contract.initiate_user %} found and confirmed a babysitter ({% user-short-name contract.confirmed_match.target_user %}), and the request is expired. You might still leave a response in case the situation changes." data-toggle="tooltip"></i></small>
+      <strong>The job post is fulfilled by another person </strong> <small>- you might still leave a response <i class="fa fa-question-circle" title="{% user-short-name contract.initiate_user %} found and confirmed a babysitter ({% user-short-name contract.confirmed_match.target_user %}), and the request is expired. You might still leave a response in case the situation changes." data-toggle="tooltip"></i></small>
     {% else %}
-      Expired
+      The job post was expired. No response is needed.
     {% endif %}
-  </div>
+  </span>
+{% endblock %}
 
-  <div class="panel-body">
-    {# make tooltip in "p" to prevent getting truncated. but then it shows funny in match_view #}
-    <p>
-      {% for circle in match.circles.all %}
-        <span class="label label-primary" title="Your tag (the reason that you receive the post)" data-toggle="tooltip">{{ circle.display }}</span>
-      {% endfor %}
-      {% with count=match.count_served_total %}
-        {% if count %}{% include 'elements/interactions.html' with count=count help="Total number of previous interactions on babysitting between you and the requester." only%}{% endif %}
-      {% endwith %}
-    </p>
+{% block content %}
+  {# make tooltip in "p" to prevent getting truncated. but then it shows funny in match_view #}
+  <p>
+    <strong>Your connection: </strong>
+    {% for circle in match.circles.all %}
+      <span class="label label-primary" title="Your tag (the reason that you receive the post)" data-toggle="tooltip">{{ circle.display }}</span>
+    {% endfor %}
+    {% with count=match.count_served_total %}
+      {% if count %}{% include 'elements/interactions.html' with count=count help="Total number of previous interactions on babysitting between you and the requester." only%}{% endif %}
+    {% endwith %}
+  </p>
 {#    <p>#}
 {#      <strong>Previous interactions:</strong>#}
 {#      {% if match.count_served or match.count_served_reverse %}#}
@@ -103,14 +110,13 @@ $(document).ready(function() {
 {#        - None -#}
 {#      {% endif %}{% endwith %}#}
 {#      </p>#}
-    <div class="form-group">
-      <label class="control-label" for="match-response">Note (optional)</label>
-      <textarea class="form-control" rows="3" placeholder="Type in here." id="match-response"{% if match.is_responded or contract.is_event_expired %} readonly{% endif %}>{{ match.response }}</textarea>
-    </div>
+  <div class="form-group">
+    <label class="control-label" for="match-response">Response note (optional)</label>
+    <textarea class="form-control" rows="3" placeholder="Type in here." id="match-response"{% if match.is_responded or contract.is_event_expired %} readonly{% endif %}>{{ match.response }}</textarea>
   </div>
 
   {% if match.target_user == user or user.is_staff %}{% if not contract.is_event_expired %}
-    <div class="panel-footer text-center">
+    <div class="text-center">
       <div id="match-non-edit-bar">
         {# we always want the "accept" button available so people can update the note. #}
         <button class="btn btn-success" name="match" data-url="{% url 'contract:match_accept' pk=match.id %}" title="Choose 'Accept' if you might help {% user-short-name contract.initiate_user %} babysit. Specify your conditions (if any) in the text box above, and {% user-short-name contract.initiate_user %} will decide whether to receive your help." data-toggle="tooltip">Accept</button>
@@ -122,7 +128,4 @@ $(document).ready(function() {
       </div>
     </div>
   {% endif %}{% endif %}
-</div>
 {% endblock %}
-
-{% block title %}Response{% endblock %}
