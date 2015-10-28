@@ -1,8 +1,6 @@
 {% extends "base_tree.html" %}
 {% load p2_tags %}
 
-{% block title %}Dashboard{% endblock %}
-
 {% block extra_header %}
 <script type="text/javascript">
   $(document).ready(function() {
@@ -28,15 +26,18 @@
 </script>
 {% endblock %}
 
+{% block headline %}
+  {% if engagement_headline %}
+    {% include 'contract/engagement_view/headline.html' with engagement=engagement_headline %}
+  {% endif %}
+{% endblock %}
+
 {% block content %}
 {#  {% if target_user.is_onboard %}#}
 {#  <div class="page-header">#}
 {#    <h4><img class="img-circle img-50" src="{% user_picture_url target_user %}"> {% user-full-name user %}</h4>#}
 {#  </div>#}
 {#  {% endif %}#}
-  {% if engagement_headline %}
-    {% include 'contract/engagement_view/headline.html' with engagement=engagement_headline %}
-  {% endif %}
 
 {#  {% url 'contract:add' as href_contract_add %}#}
 {#  {% include 'pages/dashboard_link.html' with color='success' href=href_contract_add text='Find a Babysitter' help="Want a babysitter either for a fee or for free (favor exchange)? Click the button and make a request." only %}#}
@@ -58,7 +59,7 @@
 {#        <div><a href="{% url 'account_picture' %}"><i class="fa fa-edit"></i> Edit</a></div>#}
       </div>
       <div class="col-xs-8 center-block text-center">
-        <h3><a href="{% url 'account_view' %}" id="link_dashboard_account_view">{% user-full-name target_user %}</a> <small><a href="{% url 'account_edit' %}" id="link_dashboard_account_edit"><i class="fa fa-edit"></i></a></small></h3>
+        <h3><a href="{% url 'account_edit' %}" id="link_dashboard_account_edit">{% user-full-name target_user %}</a></h3>
         <div class="text-large">{% include 'elements/user_level.html' with user=target_user only %}</div>
       </div>
     </div>

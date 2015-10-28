@@ -1,4 +1,7 @@
 {% extends "base.html" %}
+{% load sitetree %}
+
+{% block title %}{% sitetree_page_title from 'main' %}{% endblock %}
 
 {# don't show site messges on top #}
 {% block site-messages %}{% endblock %}
@@ -7,10 +10,10 @@
 {% for message in messages %}
   {% include "includes/message.html" with message=message only %}
 {% endfor %}
-<ol class="breadcrumb">
-  <li><a href="/"><i class="fa fa-home"></i> Home</a></li>
-</ol>
+{% block breadcrumbs %}{% sitetree_breadcrumbs from 'main' %}{% endblock %}
+{% block headline %}{% endblock %}
 <div class="panel panel-default">
+  {% block content-header %}{% endblock %}
   <div class="panel-body">
     {% block content %}{% endblock %}
   </div>

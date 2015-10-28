@@ -74,7 +74,7 @@ class AreaAdmin(admin.ModelAdmin):
 class MenuItemAdmin(TreeItemAdmin):
     fieldsets = (
         (_('Basic settings'), {
-            'fields': ('parent', 'title', 'url', 'urlaspattern', 'hint', 'description', 'alias', 'fa_icon', 'css_id')
+            'fields': ('parent', 'title', 'url', 'urlaspattern', 'hint', 'description', 'alias', 'fa_icon')
         }),
         (_('Access settings'), {
             # 'classes': ('collapse',),

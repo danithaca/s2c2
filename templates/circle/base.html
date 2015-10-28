@@ -1,4 +1,4 @@
-{% extends "base_trunk.html" %}
+{% extends "base_tree.html" %}
 
 {% block extra_header %}
 <link href="//cdnjs.cloudflare.com/ajax/libs/bootstrap-switch/3.3.2/css/bootstrap3/bootstrap-switch.min.css" rel="stylesheet">
@@ -18,18 +18,7 @@ $(document).ready(function() {
 {% block more_header %}{% endblock %}
 {% endblock %}
 
-{% block title %}Build a Network{% endblock %}
-
 {% block content %}
-{#  <ul class="nav nav-pills nav-justified min-margin-bottom">#}
-{#    <li data-active-url="{% url 'circle:parent' %}"><a href="{% url 'circle:parent' %}">Connect to Parents</a></li>#}
-{#    <li data-active-url="{% url 'circle:sitter' %}"><a href="{% url 'circle:sitter' %}">Add Babysitters</a></li>#}
-{#  </ul>#}
-  <div class="btn-group btn-group-justified min-margin-bottom">
-    <a href="{% url 'circle:parent' %}" class="btn btn-default" data-active-url="{% url 'circle:parent' %}">Connect to Parents</a>
-    <a href="{% url 'circle:sitter' %}" class="btn btn-default" data-active-url="{% url 'circle:sitter' %}">Add Babysitters</a>
-    <a href="{% url 'circle:tag' %}" class="btn btn-default" data-active-url="{% url 'circle:tag' %}">Join Groups</a>
-  </div>
   <div class="well">{% block help-message %}{% endblock %}</div>
   {% block manage-block %}{% endblock %}
 {% endblock %}

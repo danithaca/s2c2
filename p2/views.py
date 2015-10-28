@@ -44,7 +44,7 @@ class LogoView(TemplateView):
 
 
 class LandingView(TemplateView):
-    template_name = 'landing_p2.html'
+    template_name = 'pages/landing.html'
 
     def get_context_data(self, **kwargs):
         ctx = super().get_context_data(**kwargs)
