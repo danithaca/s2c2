@@ -18,7 +18,7 @@ def home(request):
         # find engagement for the user
         puser = request.puser
         if not puser.is_onboard():
-            return redirect(reverse('onboard_start'))
+            return redirect(reverse('tour'))
         # elif puser.engagement_queryset().exists():
         #     return redirect(reverse('contract:engagement_list'))
         # else:

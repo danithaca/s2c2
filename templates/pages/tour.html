@@ -46,10 +46,12 @@
         // placement: 'bottom'
       });
 
-      bootbox.alert('Welcome to Servuno! You will see a brief tour next about how to use the site.', function() {
-        $('button.navbar-toggle').click();
-        tour.init();
-        tour.start();
+      bootbox.confirm('Welcome to Servuno! Do you want a brief tour of the site?', function(result) {
+        if (result) {
+          $('button.navbar-toggle').click();
+          tour.init();
+          tour.start();
+        }
       });
     });
   </script>

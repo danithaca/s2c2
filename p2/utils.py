@@ -105,8 +105,8 @@ def deprecated(func):
 
 class UserOnboardRequiredMixin(object):
     def dispatch(self, request, *args, **kwargs):
-        if not request.puser.has_area():
-            return redirect('onboard_start')
+        if not request.puser.is_onboard():
+            return redirect('tour')
         return super().dispatch(request, *args, **kwargs)
 
 
