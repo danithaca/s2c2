@@ -9,6 +9,7 @@ urlpatterns = patterns(
     url(r'^$', views.home, name='home'),
     url(r'^help/$', views.HelpView.as_view(), name='help'),
     url(r'^tour/$', views.TourView.as_view(), name='tour'),
+    url(r'^sitemap/$', views.SitemapView.as_view(), name='sitemap'),
     url(r'^about/$', views.AboutView.as_view(), name='about'),
     url(r'^landing/$', views.LandingView.as_view(), name='landing'),
 

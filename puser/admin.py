@@ -82,7 +82,7 @@ class MenuItemAdmin(TreeItemAdmin):
         }),
         (_('Display settings'), {
             #'classes': ('collapse',),
-            'fields': ('hidden', 'inmenu', 'inbreadcrumbs', 'insitetree')
+            'fields': ('hidden', 'inmenu', 'inbreadcrumbs', 'insitetree', 'importance')
         }),
     )
 

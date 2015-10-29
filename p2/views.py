@@ -44,6 +44,10 @@ class TourView(LoginRequiredMixin, TemplateView):
         return context
 
 
+class SitemapView(LoginRequiredMixin, TemplateView):
+    template_name = 'pages/sitemap.html'
+
+
 class ExperimentView(TemplateView):
     template_name = 'pages/experiment.html'
 
