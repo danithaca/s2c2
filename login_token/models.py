@@ -1,16 +1,29 @@
 import hashlib
 import random
+import string
 
 from django.core import checks
 from django.db import models
-from django.conf import settings
 from django.contrib.auth import get_user_model
 
+from login_token.conf import settings
+assert settings.LOGIN_TOKEN_LENGTH <= 64 and isinstance(settings.LOGIN_TOKEN_LENGTH, int)
 
-def generate_token(email):
-    # copied from account.SignupCode (in hookset.py)
-    bits = [email, str(random.SystemRandom().getrandbits(512))]
-    return hashlib.sha256("".join(bits).encode("utf-8")).hexdigest()
+
+# def generate_token_email(email):
+#     # copied from account.SignupCode (in hookset.py). this will be 64-char long
+#     bits = [email, str(random.SystemRandom().getrandbits(512))]
+#     return hashlib.sha256("".join(bits).encode("utf-8")).hexdigest()
+
+
+def generate_token():
+    # try a maximum of 1000 times
+    for i in range(1000):
+        token = ''.join(random.SystemRandom().choice(string.ascii_uppercase + string.digits) for _ in range(settings.LOGIN_TOKEN_LENGTH))
+        if Token.find(token) is None:
+            return token
+    else:
+        raise RuntimeError('Cannot generate a unique token')
 
 
 # we could've use signal to create Token whenver user is created
@@ -23,15 +36,19 @@ class Token(models.Model):
     # if the token becomes invalid, either delete it, or generate a new valid token.
     # reason to do this is because otherwise "is_user_registered" would be duplicated in multiple token entries.
     # is_valid = models.BooleanField(default=True)
-    token = models.CharField(max_length=64, unique=True)
+    token = models.CharField(max_length=64, unique=True)        # 64 is the maximum
 
     created = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True)
     accessed = models.DateTimeField(blank=True, null=True)
 
+    def new_token(self):
+        self.token = generate_token()
+        self.save()
+
     @staticmethod
     def generate(user, is_user_registered=None):
-        token_string = generate_token(user.email)
+        token_string = generate_token()
         defaults = {'token': token_string}
         if isinstance(is_user_registered, bool):
             defaults['is_user_registered'] = is_user_registered
@@ -40,13 +57,11 @@ class Token(models.Model):
 
     @staticmethod
     def find(token):
-        if isinstance(token, str) and len(token) == 64:
-            try:
-                token_obj = Token.objects.get(token=token)
-                return token_obj
-            except:
-                pass
-        return None
+        try:
+            token_obj = Token.objects.get(token=token)
+            return token_obj
+        except:
+            return None
 
 
 # this doesn't hanlde missing login_token_token table problem before migrate.

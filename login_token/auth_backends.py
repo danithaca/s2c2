@@ -1,7 +1,7 @@
 from django.contrib.auth.backends import ModelBackend
 
 from login_token.models import Token
-
+from login_token.conf import settings
 
 
 # according to https://docs.djangoproject.com/en/1.8/topics/auth/customizing/#writing-an-authentication-backend
@@ -9,7 +9,7 @@ from login_token.models import Token
 class LoginTokenAuthenticationBackend(ModelBackend):
 
     def authenticate(self, token=''):
-        if not isinstance(token, str) or len(token) != 64:
+        if not isinstance(token, str) or len(token) != settings.LOGIN_TOKEN_LENGTH:
             return None
         try:
             token_obj = Token.objects.get(token=token)

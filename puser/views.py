@@ -1,6 +1,4 @@
 from collections import OrderedDict
-import tempfile
-
 from account.mixins import LoginRequiredMixin
 import account.views
 import account.forms
@@ -21,7 +19,8 @@ from circle.forms import UserConnectionForm
 from circle.models import Circle, Membership
 from circle.views import ParentCircleView, SitterCircleView
 from login_token.models import Token
-from p2.utils import UserOnboardRequiredMixin, auto_user_name
+from login_token.conf import settings as login_token_settings
+from p2.utils import UserOnboardRequiredMixin
 from puser.forms import SignupBasicForm, UserInfoForm, UserPictureForm, LoginEmailAdvForm, UserInfoOnboardForm
 from puser.models import Info, PUser
 from puser.serializers import UserSerializer
@@ -63,7 +62,7 @@ class SignupView(account.views.SignupView):
     # this allows the default email field for Signup code not permitting user change the email address
     def get_form(self, form_class=None):
         form = super().get_form(form_class)
-        if 'token' in self.request.GET and len(self.request.GET['token']) == 64:
+        if 'token' in self.request.GET and len(self.request.GET['token']) == login_token_settings.LOGIN_TOKEN_LENGTH:
             token = Token.find(self.request.GET['token'])
             if token:
                 form.fields['email'].initial = token.user.email

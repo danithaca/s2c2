@@ -1,14 +1,13 @@
 from django.contrib import messages
-from django.conf import settings
+from login_token.conf import settings
 from django.contrib import auth
 
 
 class LoginTokenMiddleware(object):
     def process_request(self, request):
-        token_param = getattr(settings, 'LOGIN_TOKEN_PARAM', 'login_token')
-        if token_param in request.GET:
+        if settings.LOGIN_TOKEN_PARAM in request.GET:
             # now login token is present
-            token_string = request.GET[token_param]
+            token_string = request.GET[settings.LOGIN_TOKEN_PARAM]
 
             # try:
             #     token_obj = Token.objects.get(token=token_string)

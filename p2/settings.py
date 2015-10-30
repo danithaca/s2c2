@@ -224,6 +224,9 @@ LOGIN_REDIRECT_URL = '/'
 LOGIN_URL = reverse_lazy('account_login')
 LOGOUT_URL = reverse_lazy('account_logout')
 
+# login token
+LOGIN_TOKEN_LENGTH = 6
+
 ################# menu #################
 
 SITETREE_MODEL_TREE_ITEM = 'puser.MenuItem'
