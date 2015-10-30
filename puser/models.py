@@ -482,4 +482,4 @@ def verify_email_after_password_reset(sender, user, **kwargs):
 class MenuItem(TreeItemBase):
     fa_icon = models.CharField(help_text='Font awesome icon', blank=True, max_length=50)
     # css_id = models.CharField(help_text='CSS ID', blank=True, max_length=50)
-    importance = models.PositiveSmallIntegerField(help_text='The importance of this item', choices=((0, 'Regular'), (1, 'Highlight'), (-1, 'Muted')), default=0)
+    importance = models.SmallIntegerField(help_text='The importance of this item', choices=((0, 'Regular'), (1, 'Highlight'), (-1, 'Muted')), default=0)
