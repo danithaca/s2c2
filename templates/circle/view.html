@@ -4,15 +4,23 @@
 {% block panel-attributes %}data-id="{{ circle.id }}"{% if current_membership %} data-membership-id="{{ current_membership.id }}"{% endif %}{% endblock %}
 
 {% block content-header %}
-  <p>{% if current_membership %}
-    <a href="" class="btn btn-info btn-xs join-button" data-toggle="modal" data-target="#join-modal-form"><i class="fa fa-user"></i> {% if current_membership.is_admin %}Member/Admin{% else %}Member{% endif %}</a>
-    {% if current_membership.is_admin %}
-      <a href="" class="btn btn-warning btn-xs" data-toggle="modal" data-target="#edit-group-modal-form" id="group-edit-button"><i class="fa fa-edit"></i> Edit Group</a>
+
+  <h4 class="text-center">
+    {% if circle.homepage %}<a href="{{ circle.homepage }}" target="_blank">{% endif %}
+    {{ circle.name }}
+    {% if circle.homepage %}</a>{% endif %}
+  </h4>
+  <ul class="list-inline text-center">
+    {% if current_membership %}
+      <li><a href="" class="btn btn-info btn-xs join-button" data-toggle="modal" data-target="#join-modal-form"><i class="fa fa-user"></i> {% if current_membership.is_admin %}Member/Admin{% else %}Member{% endif %}</a></li>
+      {% if current_membership.is_admin %}
+        <li><a href="" class="btn btn-warning btn-xs" data-toggle="modal" data-target="#edit-group-modal-form" id="group-edit-button"><i class="fa fa-edit"></i> Edit Group</a></li>
+      {% endif %}
+    {% else %}
+      <li><a href="" class="btn btn-primary btn-xs join-button" data-toggle="modal" data-target="#join-modal-form"><i class="fa fa-plus"></i> Join</a></li>
+
     {% endif %}
-  {% else %}
-    <a href="" class="btn btn-primary btn-xs join-button" data-toggle="modal" data-target="#join-modal-form"><i class="fa fa-plus"></i> Join</a>
-  {% endif %}</p>
-  <h4 class="text-center">{{ circle.name }}{% if circle.homepage %}<small> <a href="{{ circle.homepage }}" target="_blank"><i class="fa fa-external-link"></i></a></small>{% endif %}</h4>
+  </ul>
   <p class="text-center">{{ circle.description }}</p>
 {% endblock %}
 

@@ -4,3 +4,4 @@ To confirm this email address, go to:
 {{ activate_url }}
 
 If you did not sign up for this site, you can ignore this message.
+
