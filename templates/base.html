@@ -149,18 +149,7 @@
       </ul>
     {% endif %}
   {% else %}
-    <ul class="nav navbar-nav navbar-right">
-      <li data-active-url="{% url 'account_login' %}"><a href="{% url 'account_login' %}"><i class="fa fa-sign-in"></i> Log In</a></li>
-      <li data-active-url="{% url 'account_signup' %}"><a href="{% url 'account_signup' %}"><i class="fa fa-laptop"></i> Sign Up</a></li>
-{#      <li class="dropdown" id="trunk-tab-help">#}
-{#        <a class="dropdown-toggle" data-toggle="dropdown" data-target="#" href="#"><i class="fa fa-question"></i> Help <span class="caret"></span></a>#}
-{#        <ul class="dropdown-menu">#}
-{#          <li><a href="{% url 'about' %}" id="nav-about">About</a></li>#}
-{#          <li><a href="{% url 'shout:contact' %}">Feedback</a></li>#}
-{#        </ul>#}
-{#      </li>#}
-      {# <p class="navbar-text pull-right"><a href="{% url 'about' %}" id="nav-about" class="navbar-link pull-right"><i class="fa fa-question-circle"></i> About</a></p>#}
-    </ul>
+    {% sitetree_menu from 'prelogin' include 'trunk' %}
   {% endif %}</div>
 </div></nav>
 
