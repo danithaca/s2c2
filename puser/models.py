@@ -224,7 +224,7 @@ class PUser(User):
 
         # create Info(?) and login token.
         if dummy:
-            Token.generate(user, is_user_registered=False)
+            Token.generate(user)
 
         return user
 
@@ -466,15 +466,15 @@ class PUser(User):
 
 # @receiver(password_changed, sender=PasswordResetTokenView)
 # @receiver(password_changed, sender=ChangePasswordView)
-@receiver(password_changed)
-def handle_pre_registered_user_after_password_change(sender, user, **kwargs):
-    try:
-        token = user.token
-        if not token.is_user_registered:
-            token.is_user_registered = True
-            token.save()
-    except Token.DoesNotExist:
-        pass
+# @receiver(password_changed)
+# def handle_pre_registered_user_after_password_change(sender, user, **kwargs):
+#     try:
+#         token = user.token
+#         if not token.is_user_registered:
+#             token.is_user_registered = True
+#             token.save()
+#     except Token.DoesNotExist:
+#         pass
 
 @receiver(password_changed, sender=PasswordResetTokenView)
 def verify_email_after_password_reset(sender, user, **kwargs):

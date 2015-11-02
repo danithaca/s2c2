@@ -88,15 +88,14 @@ class SignupView(account.views.SignupView):
             prereg_user.save()
             try:
                 # remove pre-registration status
-                token = prereg_user.token
-                token.is_user_registered = True
-                token.save()
+                prereg_user.info.registered = True
+                prereg_user.info.save()
 
                 # mark email verified, if token exists
                 # todo: this is not well thought
                 if hasattr(self, 'valid_login_token') and self.valid_login_token is True:
                     prereg_user.emailaddress_set.filter(email=prereg_user.email, verified=False).update(verified=True)
-            except Token.DoesNotExist:
+            except Info.DoesNotExist:
                 pass
             self.login_user()
             redirection = redirect(self.get_success_url())

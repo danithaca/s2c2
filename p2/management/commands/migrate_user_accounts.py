@@ -64,7 +64,7 @@ class Command(BaseCommand):
         token_users = PUser.objects.filter(is_active=True, info__registered=False, token__isnull=True)
         logging.info('# of users to add login_token: %d' % token_users.count())
         for user in token_users:
-            Token.generate(user, is_user_registered=False)
+            Token.generate(user)
 
         ##### handle inactive user: use login_token instead
         # add_token_users = PUser.objects.filter(is_active=False).exclude(token__isnull=False)

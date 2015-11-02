@@ -16,10 +16,10 @@ class Command(BaseCommand):
         cutoff = timezone.make_aware(datetime(year=2015, month=8, day=5))
 
         # registered users after 2015-8-5
-        logging.info('Registered users: %d' % PUser.objects.filter(is_active=True, date_joined__gt=cutoff).exclude(email__icontains='servuno.com').exclude(token__is_user_registered=False).count())
+        logging.info('Registered users: %d' % PUser.objects.filter(is_active=True, date_joined__gt=cutoff).exclude(email__icontains='servuno.com').exclude(info__registered=False).count())
 
         # preregistered users after 2015-8-5
-        logging.info('Pre-registered users: %d' % PUser.objects.filter(is_active=True, date_joined__gt=cutoff).exclude(email__icontains='servuno.com').filter(token__is_user_registered=False).count())
+        logging.info('Pre-registered users: %d' % PUser.objects.filter(is_active=True, date_joined__gt=cutoff, info__registered=False).exclude(email__icontains='servuno.com').count())
 
         # total users after 2015-8-5
         logging.info('Total users: %d' % PUser.objects.filter(is_active=True, date_joined__gt=cutoff).exclude(email__icontains='servuno.com').count())

@@ -31,7 +31,7 @@ def generate_token():
 class Token(models.Model):
     user = models.OneToOneField(to=settings.AUTH_USER_MODEL)
     # used for applications where users might not have explicitly registered yet.
-    is_user_registered = models.BooleanField(default=True)
+    # is_user_registered = models.BooleanField(default=True)
 
     # if the token becomes invalid, either delete it, or generate a new valid token.
     # reason to do this is because otherwise "is_user_registered" would be duplicated in multiple token entries.
@@ -47,11 +47,11 @@ class Token(models.Model):
         self.save()
 
     @staticmethod
-    def generate(user, is_user_registered=None):
+    def generate(user):
         token_string = generate_token()
         defaults = {'token': token_string}
-        if isinstance(is_user_registered, bool):
-            defaults['is_user_registered'] = is_user_registered
+        # if isinstance(is_user_registered, bool):
+        #     defaults['is_user_registered'] = is_user_registered
         token, created = Token.objects.update_or_create(user=user, defaults=defaults)
         return token
 
