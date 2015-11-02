@@ -1,37 +1,18 @@
-{% extends "account/unified.html" %}
+{% extends "account/pre-login.html" %}
 {% load bootstrap %}
-{% block title %}Sign up{% endblock %}
 
-{#{% block content-below %}#}
-{#  <div class="well">#}
-{#    <h3>Servuno <small>{% include 'elements/slogan.html' %}</small></h3>#}
-{#    <h4>How does it work?</h4>#}
-{#    <p>{% include 'elements/how_it_works.html' %}</p>#}
-{#  </div>#}
-{#{% endblock %}#}
-
-{% block page-content %}
-  <div class="panel panel-default">
-    <div class="panel-heading">
-      <ul class="nav nav-pills">
-        <li class="active"><a href="#">Sign up</a></li>
-        <li><a href="{% url 'account_login' %}">Log in</a></li>
-      </ul>
+{% block content %}
+  <form class="form-horizontal" method="post" autocapitalize="off">
+    {% csrf_token %}
+    {{ form|bootstrap_horizontal:'col-sm-3' }}
+    {% if redirect_field_value %}
+      <input type="hidden" name="{{ redirect_field_name }}" value="{{ redirect_field_value }}" />
+    {% endif %}
+    <div class="form-group">
+      <div class="col-sm-offset-3 col-sm-9">
+        <button type="submit" class="btn btn-success">Sign up</button>
+      </div>
     </div>
-    <div class="panel-body">
-      <form class="form-horizontal" method="post" autocapitalize="off">
-        {% csrf_token %}
-        {{ form|bootstrap_horizontal:'col-sm-4' }}
-        {% if redirect_field_value %}
-          <input type="hidden" name="{{ redirect_field_name }}" value="{{ redirect_field_value }}" />
-        {% endif %}
-        <div class="form-group">
-          <div class="col-sm-offset-4 col-sm-8">
-            <button type="submit" class="btn btn-success">Sign up</button>
-          </div>
-        </div>
-      </form>
-    </div>
-  </div>
+  </form>
 {% endblock %}
 

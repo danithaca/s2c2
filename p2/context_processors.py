@@ -9,7 +9,10 @@ def global_templates_vars(request):
         'DEFAULT_FROM_EMAIL': settings.DEFAULT_FROM_EMAIL,
     }
     try:
-        home = MenuItem.objects.get(alias='home', tree__alias='main')
+        if request.user.is_authenticated():
+            home = MenuItem.objects.get(alias='home', tree__alias='main')
+        else:
+            home = MenuItem.objects.get(alias='home', tree__alias='prelogin')
         ctx['breadcrumb_home'] = home
     except MenuItem.DoesNotExist:
         pass

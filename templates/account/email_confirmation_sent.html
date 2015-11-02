@@ -1,10 +1,12 @@
+{# this doesn't seem to be used #}
+
 {% extends "base.html" %}
 
 {% block title %}Confirm your email address{% endblock %}
+{% block breadcrumbs %}{% endblock %}
 
-{% block page %}
-    <h1>Confirm your email address</h1>
-    
-    <p>We have sent you an email to <b>{{ email }}</b> for verification. Follow the link provided to finalize the signup process. If you do not receive it within a few minutes, contact us at <a href="mailto:{{ DEFAULT_FROM_EMAIL }}">{{ DEFAULT_FROM_EMAIL }}</a>.</p>
-    <p><a class="btn btn-primary" href="{{ success_url }}">Go back</a></p>
+{% block content %}
+  <h4>Confirm your email address</h4>
+  <p>We have sent you an email to <b>{{ email }}</b> for verification. Follow the link provided to finalize the signup process. If you do not receive it within a few minutes, contact us at <a href="mailto:{{ DEFAULT_FROM_EMAIL }}">{{ DEFAULT_FROM_EMAIL }}</a>.</p>
+  <p><a class="btn btn-primary" href="{{ success_url }}">Go back</a></p>
 {% endblock %}

@@ -1,22 +1,8 @@
-{% extends "base.html" %}
-{% load staticfiles %}
+{% extends "base_sm.html" %}
+{% load sitetree %}
 
-{% block title %}Servuno{% endblock %}
-
-{% block page %}
-{#  <div class="branding">#}
-{#    <div class="branding-image text-center"><img src="{% static 'logo.png' %}" style="width: 160px; height: 50px;"></div>#}
-{#    <p class="text-center" style="font-size: 150%; font-weight: bold;">Classroom Scheduling Made Easy!</p>#}
-{#    <h1 class="text-center">Servuno<br>#}
-{#      <small>{% include 'elements/slogan.html' %}</small>#}
-{#    </h1>#}
-{#    <hr/>#}
-{#  </div>#}
-  <div class="row">
-    <div class="col-sm-6 col-sm-offset-3">
-      {% block content-above %}{% endblock %}
-      {% block content %}{% endblock %}
-      {% block content-below %}{% endblock %}
-    </div>
-  </div>
+{% block title %}
+  {% if title %}{{ title }}{% else %}{% sitetree_page_title from 'prelogin' %} | Servuno{% endif %}
 {% endblock %}
+
+{% block breadcrumbs %}{% sitetree_breadcrumbs from 'prelogin' %}{% endblock %}

@@ -1,9 +1,11 @@
+{# this doesn't seem to be used #}
 {% extends "base.html" %}
 {% load i18n %}
 
-{% block title %}{% trans "Email confirmed" %}{% endblock %}
+{% block title %}Email confirmed{% endblock %}
+{% block breadcrumbs %}{% endblock %}
 
-{% block page %}
-    <h1>{% trans "Email confirmed" %}</h1>
+{% block content %}
+    <h4>{% trans "Email confirmed" %}</h4>
     <p>{% blocktrans with email=confirmation.email_address.email %}You have confirmed <b>{{ email }}</b>{% endblocktrans %}</p>
 {% endblock %}

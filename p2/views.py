@@ -52,6 +52,10 @@ class ExperimentView(TemplateView):
     template_name = 'pages/experiment.html'
 
 
+class ErrorView(TemplateView):
+    template_name = '404.html'
+
+
 class LogoView(TemplateView):
     template_name = 'pages/logo.html'
 

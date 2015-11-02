@@ -12,7 +12,7 @@
   <!--link rel="icon" href="favicon.ico"-->
 
   <title>{% block title %}
-    {% if title %}{{ title }}{% else %}{% sitetree_page_title from 'main' %} | Servuno{% endif %}
+    {% if title %}{{ title }}{% else %}{% if user and user.is_authenticated %}{% sitetree_page_title from 'main' %} | Servuno{% endif %}{% endif %}
   {% endblock %}</title>
 
   <link href="//maxcdn.bootstrapcdn.com/bootswatch/3.3.5/paper/bootstrap.min.css" rel="stylesheet">
@@ -57,20 +57,20 @@
         window.history.back();
         return false;
       });
-
-      // glow "about" link for first time user
-      if (!$.cookie('servuno_visited')) {
-        var $about = $('#nav-about');
-        $about.addClass('glow-animation');
-        $about.popover({
-          title: 'First time user?',
-          content: 'Read more about Servuno here',
-          trigger: 'hover',
-          placement: 'left',
-          container: 'body'
-        });
-        $.cookie('servuno_visited', true, {expires: 30, path: '/'});
-      }
+{##}
+{#      // glow "about" link for first time user#}
+{#      if (!$.cookie('servuno_visited')) {#}
+{#        var $about = $('#nav-about');#}
+{#        $about.addClass('glow-animation');#}
+{#        $about.popover({#}
+{#          title: 'First time user?',#}
+{#          content: 'Read more about Servuno here',#}
+{#          trigger: 'hover',#}
+{#          placement: 'left',#}
+{#          container: 'body'#}
+{#        });#}
+{#        $.cookie('servuno_visited', true, {expires: 30, path: '/'});#}
+{#      }#}
 
       // load jotForm
       $.getScript('http://www.jotform.com/min/?g=feedback2', function() {
@@ -144,32 +144,32 @@
       {% sitetree_menu from 'main' include 'trunk' %}
     {% else %}
       <ul class="nav navbar-nav navbar-right">
-        <li data-active-url="{% url 'about' %}"><a href="{% url 'about' %}" id="nav-about" class="glow-animation"><i class="fa fa-book"></i> Learn More</a></li>
-        <li data-active-url="{% url 'account_signup' %}"><a href="{% url 'account_signup' %}"><i class="fa fa-laptop"></i> Sign Up ({{ user.email }})</a></li>
+        <li data-active-url="{% url 'about' %}"><a href="{% url 'about' %}" id="nav-about"><i class="fa fa-book"></i> Learn More</a></li>
+        <li data-active-url="{% url 'account_signup' %}"><a href="{% url 'account_signup' %}" class="glow-animation"><i class="fa fa-laptop"></i> Sign Up ({{ user.email }})</a></li>
       </ul>
     {% endif %}
   {% else %}
     <ul class="nav navbar-nav navbar-right">
       <li data-active-url="{% url 'account_login' %}"><a href="{% url 'account_login' %}"><i class="fa fa-sign-in"></i> Log In</a></li>
       <li data-active-url="{% url 'account_signup' %}"><a href="{% url 'account_signup' %}"><i class="fa fa-laptop"></i> Sign Up</a></li>
-      <li class="dropdown" id="trunk-tab-help">
-        <a class="dropdown-toggle" data-toggle="dropdown" data-target="#" href="#"><i class="fa fa-question"></i> Help <span class="caret"></span></a>
-        <ul class="dropdown-menu">
-          <li><a href="{% url 'about' %}" id="nav-about">About</a></li>
-          <li><a href="{% url 'shout:contact' %}">Feedback</a></li>
-        </ul>
-      </li>
+{#      <li class="dropdown" id="trunk-tab-help">#}
+{#        <a class="dropdown-toggle" data-toggle="dropdown" data-target="#" href="#"><i class="fa fa-question"></i> Help <span class="caret"></span></a>#}
+{#        <ul class="dropdown-menu">#}
+{#          <li><a href="{% url 'about' %}" id="nav-about">About</a></li>#}
+{#          <li><a href="{% url 'shout:contact' %}">Feedback</a></li>#}
+{#        </ul>#}
+{#      </li>#}
       {# <p class="navbar-text pull-right"><a href="{% url 'about' %}" id="nav-about" class="navbar-link pull-right"><i class="fa fa-question-circle"></i> About</a></p>#}
     </ul>
   {% endif %}</div>
 </div></nav>
 
 <div class="container" id="main-page">
-  {% block page %}<div class="row page-content"><div class="col-xs-12 col-sm-offset-1 col-sm-10 col-md-offset-2 col-md-8">
+  {% block page %}<div class="row page-content"><div class="{% block page-size %}col-xs-12 col-sm-offset-1 col-sm-10 col-md-offset-2 col-md-8{% endblock %}">
     {% for message in messages %}
       {% include "includes/message.html" with message=message only %}
     {% endfor %}
-    {% block breadcrumbs %}{% sitetree_breadcrumbs from 'main' %}{% endblock %}
+    {% block breadcrumbs %}{% if user and user.is_authenticated %}{% sitetree_breadcrumbs from 'main' %}{% endif %}{% endblock %}
     {% block headline %}{% endblock %}
     <div class="panel {% block panel-classes %}panel-default{% endblock %}" {% block panel-attributes %}{% endblock %}>
       <div class="panel-heading hidden-if-none">{% block content-header %}{% endblock %}</div>
