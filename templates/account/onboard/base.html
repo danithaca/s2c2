@@ -1,6 +1,9 @@
 {% extends "base.html" %}
 
-{% block extra_header %}
+{% block title %}New User Sign UP | Servuno{% endblock %}
+{% block breadcrumbs %}{% endblock %}
+
+{% block template_extra_header %}
 <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-switch/3.3.2/css/bootstrap3/bootstrap-switch.min.css" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-switch/3.3.2/js/bootstrap-switch.min.js"></script>
 
@@ -25,26 +28,16 @@ $(document).ready(function() {
   //$(window).resize(hide_tab);
 });
 </script>
-{% block more_header %}{% endblock %}
 {% endblock %}
 
-{% block title %}New user onboard{% endblock %}
+{% block panel-attributes %}id="onboard-pane"{% endblock %}
 
-{% block content %}
-<div class="panel panel-default" id="onboard-pane">
-  <div class="panel-heading">
-    <ul class="nav nav-tabs nav-justified">
-      {% for name, meta in steps_meta.items %}
-        <li class="{% if meta.position == 0 %}active{% elif meta.position > 0 %}disabled{% endif %}" data-slug="step-{{ forloop.counter }}"><a href="{{ meta.url }}">Step {{ forloop.counter }}<span class="visible-xs-inline">/{{ steps_meta|length }}</span> <i class="fa fa-angle-double-right"></i></a></li>
-      {% endfor %}
-    </ul>
-  </div>
-  <div class="panel-body">
-    {% if step_title %}
-      <p class="well"><span class="lead">{{ step_title }}</span>{{ step_note }}</p>
-    {% endif %}
-    {% block step-block %}{% endblock %}
-  </div>
-</div>
-
+{% block content-header %}
+  <ul class="nav nav-tabs nav-justified">
+    {% for name, meta in steps_meta.items %}
+      <li class="{% if meta.position == 0 %}active{% elif meta.position > 0 %}disabled{% endif %}" data-slug="step-{{ forloop.counter }}"><a href="{{ meta.url }}">Step {{ forloop.counter }}<span class="visible-xs-inline">/{{ steps_meta|length }}</span> <i class="fa fa-angle-double-right"></i></a></li>
+    {% endfor %}
+  </ul>
 {% endblock %}
+
+{% block content-introduction %}{% if step_title %}<span class="lead">{{ step_title }}</span> {{ step_note }}{% endif %}{% endblock %}

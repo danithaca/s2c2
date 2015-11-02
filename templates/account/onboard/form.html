@@ -1,6 +1,6 @@
 {% extends "account/onboard/base.html" %}
 {% load bootstrap %}
-{% block step-block %}
+{% block content %}
 <form class="form-horizontal" method="post" autocapitalize="off" {% if form.is_multipart %}enctype="multipart/form-data"{% endif %}>
   {% csrf_token %}
   {% if form %}{{ form|bootstrap_horizontal:'col-sm-3' }}{% endif %}
