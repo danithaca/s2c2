@@ -14,7 +14,7 @@ from django.conf import settings
 
 from contract.forms import ContractForm
 from contract.models import Contract, Match, Engagement
-from p2.utils import UserOnboardRequiredMixin
+from p2.utils import RegisteredRequiredMixin
 
 
 class ContractDetail(LoginRequiredMixin, DetailView):
@@ -64,7 +64,7 @@ class ContractUpdateMixin(object):
         return kwargs
 
 
-class ContractCreate(LoginRequiredMixin, UserOnboardRequiredMixin, FormValidMessageMixin, ContractUpdateMixin, CreateView):
+class ContractCreate(LoginRequiredMixin, RegisteredRequiredMixin, FormValidMessageMixin, ContractUpdateMixin, CreateView):
     form_valid_message = 'Request successfully created.'
 
     # override widget.

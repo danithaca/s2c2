@@ -1,9 +1,10 @@
 import logging
 
 from account.models import EmailAddress
+from django.contrib.auth.hashers import UNUSABLE_PASSWORD_PREFIX
 from django.contrib.auth.models import User
 from django.core.management import BaseCommand
-from django.db.models import F
+from django.db.models import F, Q
 
 from circle.models import Membership, Circle
 from login_token.models import Token
@@ -11,12 +12,18 @@ from puser.models import PUser, Info
 
 
 class Command(BaseCommand):
-    help = 'Support s2c2 users to be with p2 users'
+    help = 'Check the consistency of user accounts through all the code changes.'
 
     def handle(self, *args, **options):
         logging.root.setLevel(logging.INFO)
-        ######### handle email addresses
-        to_add_users = User.objects.exclude(emailaddress__email=F('email')).filter(is_active=True)
+
+        ##### info of total and inactive users
+        inactive_users_qs = PUser.objects.filter(is_active=False)
+        logging.info('Total # of users: %d' % PUser.objects.all().count())
+        logging.info('Inactive users: %d' % inactive_users_qs.count())
+
+        ##### handle missing EmailAddress objects.
+        to_add_users = PUser.objects.exclude(emailaddress__email=F('email')).filter(is_active=True)
         logging.info('Total users to add EmailAddress: %s' % to_add_users.count())
         for user in to_add_users:
             EmailAddress.objects.add_email(user, user.email)
@@ -32,23 +39,38 @@ class Command(BaseCommand):
             email_address.primary = True
             email_address.save()
 
-        ######### handle inactive user: use login_token instead
-        qs = PUser.objects.filter(is_active=False).exclude(token__isnull=False)
-        logging.info('Total inactive users to switch to LoginToken: %d' % qs.count())
-        for u in qs:
-            Token.generate(u, is_user_registered=False)
-            u.is_active = True
-            u.save()
+        ##### handle missing Info
+        missing_info_users = PUser.objects.filter(info__isnull=True)
+        logging.info('Total users to add Info: %s' % missing_info_users.count())
+        for user in missing_info_users:
+            # try:
+            #     user.info
+            #     assert False, "user info exists: %s" % u.username
+            # except Info.DoesNotExist:
+            #     pass
+            # membership = Membership.objects.filter(member=u, circle__type=Circle.Type.PERSONAL.value).order_by('-updated').first()
+            # if membership:
+            #     Info.objects.create(user=u, area=membership.circle.area)
+            Info.objects.create(user=user, registered=False)
 
-        ######## handle info #######
-        qs = PUser.objects.filter(is_staff=False).filter(info__isnull=True).filter(membership__isnull=False)
-        for u in qs:
-            try:
-                u.info
-                assert False, "user info exists: %s" % u.username
-            except Info.DoesNotExist:
-                pass
-            membership = Membership.objects.filter(member=u, circle__type=Circle.Type.PERSONAL.value).order_by('-updated').first()
-            if membership:
-                Info.objects.create(user=u, area=membership.circle.area)
+        ##### handle Pre-registered users
+        # note: only set registered=False. we don't set registered=True if info is complete.
+        logging.info('Pre-registered users: %d', PUser.objects.filter(info__registered=False).count())
+        to_pre_registered_users = PUser.objects.filter(Q(password__startswith=UNUSABLE_PASSWORD_PREFIX) | Q(first_name='') | Q(last_name='')).exclude(info__registered=False)
+        logging.info('# of users to mark as pre-registered: %d', to_pre_registered_users.count())
+        Info.objects.filter(user__in=to_pre_registered_users).update(registered=False)
+
+        #### add login token to pre-registered users
+        token_users = PUser.objects.filter(is_active=True, info__registered=False, token__isnull=True)
+        logging.info('# of users to add login_token: %d' % token_users.count())
+        for user in token_users:
+            Token.generate(user, is_user_registered=False)
+
+        ##### handle inactive user: use login_token instead
+        # add_token_users = PUser.objects.filter(is_active=False).exclude(token__isnull=False)
+        # logging.info('Total inactive users to switch to LoginToken: %d' % add_token_users.count())
+        # for user in add_token_users:
+        #     Token.generate(user, is_user_registered=False)
+        #     user.is_active = True
+        #     user.save()
 

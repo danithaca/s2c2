@@ -103,7 +103,7 @@ def deprecated(func):
 ################# mixin ####################
 
 
-class UserOnboardRequiredMixin(object):
+class RegisteredRequiredMixin(object):
     def dispatch(self, request, *args, **kwargs):
         if not request.puser.is_onboard():
             return redirect('tour')

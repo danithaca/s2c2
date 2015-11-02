@@ -140,45 +140,14 @@
     <span class="navbar-text hidden-xs">It takes a village to raise a child</span>
   </div>
   <div id="navbar-content" class="collapse navbar-collapse">{% if user and user.is_authenticated %}
-    {% sitetree_menu from 'main' include 'trunk' %}
-{#      <li class="dropdown" id="trunk-tab-post" data-active-url="{% url 'contract:post_parent' %},{% url 'contract:post_sitter' %},{% url 'contract:post_offer' %}">#}
-{#        <a class="dropdown-toggle" data-toggle="dropdown" data-target="#" href="#"><i class="fa fa-child"></i> Post <span class="caret"></span></a>#}
-{#        <ul class="dropdown-menu">#}
-{#          <li data-active-url="{% url 'contract:post_parent' %}"><a href="{% url 'contract:post_parent' %}">Get Help from a Family</a></li>#}
-{#          <li data-active-url="{% url 'contract:post_offer' %}"><a href="{% url 'contract:post_offer' %}">Offer Help to a Family</a></li>#}
-{#          <li data-active-url="{% url 'contract:post_sitter' %}"><a href="{% url 'contract:post_sitter' %}">Book a Babysitter</a></li>#}
-{#        </ul>#}
-{#      </li>#}
-{#      <li class="dropdown" id="trunk-tab-connect" data-active-url="{% url 'circle:parent' %},{% url 'circle:sitter' %}">#}
-{#        <a class="dropdown-toggle" data-toggle="dropdown" data-target="#" href="#"><i class="fa fa-users"></i> Connect <span class="caret"></span></a>#}
-{#        <ul class="dropdown-menu">#}
-{#          <li data-active-url="{% url 'circle:parent' %}"><a href="{% url 'circle:parent' %}">Connect to Parents</a></li>#}
-{#          <li data-active-url="{% url 'circle:sitter' %}"><a href="{% url 'circle:sitter' %}">Add Babysitters</a></li>#}
-{#        </ul>#}
-{#      </li>#}
-{#      <li class="dropdown" id="trunk-tab-discover" data-active-url="{% url 'circle:tag' %}">#}
-{#        <a class="dropdown-toggle" data-toggle="dropdown" data-target="#" href="#"><i class="fa fa-globe"></i> Discover <span class="caret"></span></a>#}
-{#        <ul class="dropdown-menu">#}
-{#          <li data-active-url="{% url 'circle:tag' %}"><a href="{% url 'circle:tag' %}">Join Parents Group</a></li>#}
-{#        </ul>#}
-{#      </li>#}
-{#      <li class="dropdown" id="trunk-tab-help" data-active-url="{% url 'about' %},{% url 'shout:contact' %}">#}
-{#        <a class="dropdown-toggle" data-toggle="dropdown" data-target="#" href="#"><i class="fa fa-question"></i> Help <span class="caret"></span></a>#}
-{#        <ul class="dropdown-menu">#}
-{#          <li data-active-url="{% url 'about' %}"><a href="{% url 'about' %}" id="nav-about">About</a></li>#}
-{#          <li data-active-url="{% url 'shout:contact' %}"><a href="{% url 'shout:contact' %}">Feedback</a></li>#}
-{#        </ul>#}
-{#      </li>#}
-{#      <li class="dropdown user-admin">#}
-{#        <a class="dropdown-toggle" data-toggle="dropdown" data-target="#" href="#"><img src="{% user_picture_url user %}" class="img-circle img-18"> {% user-short-name user %} <span class="caret"></span></a>#}
-{#        <ul class="dropdown-menu" role="menu">#}
-{#          <li><a href="/">Back to Home</a></li>#}
-{#          <li class="divider"></li>#}
-{#          <li><a href="{% url 'account_view' %}">View account</a></li>#}
-{#          <li><a href="{% url 'account_edit' %}">Edit account</a></li>#}
-{#          <li><a href="{% url 'account_logout' %}">Logout</a></li>#}
-{#        </ul>#}
-{#      </li>#}
+    {% if user.info.registered %}
+      {% sitetree_menu from 'main' include 'trunk' %}
+    {% else %}
+      <ul class="nav navbar-nav navbar-right">
+        <li data-active-url="{% url 'about' %}"><a href="{% url 'about' %}" id="nav-about" class="glow-animation"><i class="fa fa-book"></i> Learn More</a></li>
+        <li data-active-url="{% url 'account_signup' %}"><a href="{% url 'account_signup' %}"><i class="fa fa-laptop"></i> Sign Up ({{ user.email }})</a></li>
+      </ul>
+    {% endif %}
   {% else %}
     <ul class="nav navbar-nav navbar-right">
       <li data-active-url="{% url 'account_login' %}"><a href="{% url 'account_login' %}"><i class="fa fa-sign-in"></i> Log In</a></li>

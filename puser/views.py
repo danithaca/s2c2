@@ -20,7 +20,7 @@ from circle.models import Circle, Membership
 from circle.views import ParentCircleView, SitterCircleView
 from login_token.models import Token
 from login_token.conf import settings as login_token_settings
-from p2.utils import UserOnboardRequiredMixin
+from p2.utils import RegisteredRequiredMixin
 from puser.forms import SignupBasicForm, UserInfoForm, UserPictureForm, LoginEmailAdvForm, UserInfoOnboardForm
 from puser.models import Info, PUser
 from puser.serializers import UserSerializer
@@ -178,7 +178,7 @@ class TrustedUserMixin(UserPassesTestMixin):
         return target_user.trusted(user)
 
 
-class UserView(LoginRequiredMixin, UserOnboardRequiredMixin, TrustedUserMixin, DetailView):
+class UserView(LoginRequiredMixin, RegisteredRequiredMixin, TrustedUserMixin, DetailView):
     """
     The main thing to display user profile.
     """

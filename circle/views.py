@@ -14,10 +14,10 @@ from circle.forms import EmailListForm, UserConnectionForm, TagUserForm, CircleF
 from circle.models import Membership, Circle, ParentCircle, UserConnection
 from circle.tasks import circle_send_invitation
 from puser.models import PUser
-from p2.utils import UserOnboardRequiredMixin, ControlledFormValidMessageMixin
+from p2.utils import RegisteredRequiredMixin, ControlledFormValidMessageMixin
 
 
-class BaseCircleView(LoginRequiredMixin, UserOnboardRequiredMixin, ControlledFormValidMessageMixin, FormView):
+class BaseCircleView(LoginRequiredMixin, RegisteredRequiredMixin, ControlledFormValidMessageMixin, FormView):
     form_class = EmailListForm
     default_approved = None
     full_access = True
@@ -139,7 +139,7 @@ class SitterCircleView(BaseCircleView):
         return form
 
 
-class TagCircleUserView(LoginRequiredMixin, UserOnboardRequiredMixin, ControlledFormValidMessageMixin, FormView):
+class TagCircleUserView(LoginRequiredMixin, RegisteredRequiredMixin, ControlledFormValidMessageMixin, FormView):
     form_class = TagUserForm
     template_name = 'circle/tag.html'
     success_url = reverse_lazy('circle:tag')
@@ -193,7 +193,7 @@ class TagCircleUserView(LoginRequiredMixin, UserOnboardRequiredMixin, Controlled
         return initial
 
 
-class TagAddView(LoginRequiredMixin, UserOnboardRequiredMixin, CreateView):
+class TagAddView(LoginRequiredMixin, RegisteredRequiredMixin, CreateView):
     model = Circle
     form_class = CircleForm
     template_name = 'pages/basic_form.html'
@@ -210,7 +210,7 @@ class TagAddView(LoginRequiredMixin, UserOnboardRequiredMixin, CreateView):
         return result
 
 
-class TagEditView(LoginRequiredMixin, UserOnboardRequiredMixin, UpdateView):
+class TagEditView(LoginRequiredMixin, RegisteredRequiredMixin, UpdateView):
     model = Circle
     form_class = CircleForm
     template_name = 'pages/basic_form.html'
@@ -344,7 +344,7 @@ class UserConnectionView(LoginRequiredMixin, FormValidMessageMixin, FormView):
         return reverse('account_view', kwargs={'pk': self.target_user.id})
 
 
-class MembershipUpdateView(LoginRequiredMixin, UserOnboardRequiredMixin, CreateView):
+class MembershipUpdateView(LoginRequiredMixin, RegisteredRequiredMixin, CreateView):
     model = Membership
     form_class = MembershipForm
     template_name = 'pages/basic_form.html'
@@ -409,7 +409,7 @@ class MembershipUpdateView(LoginRequiredMixin, UserOnboardRequiredMixin, CreateV
             return reverse('circle:tag_view', kwargs={'pk': self.circle.id})
 
 
-class MembershipEditView(LoginRequiredMixin, UserOnboardRequiredMixin, UpdateView):
+class MembershipEditView(LoginRequiredMixin, RegisteredRequiredMixin, UpdateView):
     model = Membership
     form_class = MembershipEditForm
     template_name = 'pages/basic_form.html'
@@ -425,7 +425,7 @@ class MembershipEditView(LoginRequiredMixin, UserOnboardRequiredMixin, UpdateVie
             return '/'
 
 
-class ListMembersView(LoginRequiredMixin, UserOnboardRequiredMixin, TemplateView):
+class ListMembersView(LoginRequiredMixin, RegisteredRequiredMixin, TemplateView):
     template_name = 'circle/network.html'
 
     def get_context_data(self, **kwargs):
@@ -441,7 +441,7 @@ class ListMembersView(LoginRequiredMixin, UserOnboardRequiredMixin, TemplateView
         return context
 
 
-class BasePoolView(LoginRequiredMixin, UserOnboardRequiredMixin, TemplateView):
+class BasePoolView(LoginRequiredMixin, RegisteredRequiredMixin, TemplateView):
     template_name = 'circle/pool/base.html'
     circle_type = None
 

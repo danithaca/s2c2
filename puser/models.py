@@ -69,6 +69,7 @@ class Info(models.Model):
     user = models.OneToOneField(settings.AUTH_USER_MODEL, primary_key=True)
     address = models.CharField(max_length=200, blank=True)
     phone = PhoneNumberField(blank=True)
+    phone_backup = PhoneNumberField(blank=True, help_text='Phone number added by other people')
     note = models.TextField(blank=True)
     homepage = models.URLField(blank=True)
     role = models.PositiveSmallIntegerField(choices=[(t.value, t.name.capitalize()) for t in UserRole], blank=True, null=True)
@@ -78,6 +79,9 @@ class Info(models.Model):
 
     # user's home area. it doesn't necessarily mean the user will request/respond to this area only.
     area = models.ForeignKey(Area, default=1)
+
+    # whether this user is pre-registered, or registered.
+    registered = models.BooleanField(default=True)
 
     # note: use User.is_active instead.
     # False:     the user has setup a password, and is able to login (not necessarily filled out anything)
@@ -90,9 +94,7 @@ class Info(models.Model):
     @staticmethod
     def get_or_create_for_user(user):
         assert isinstance(user, User)
-        info, created = Info.objects.get_or_create(user=user, defaults={
-            'area': Area.objects.get(pk=1)
-        })
+        info, created = Info.objects.get_or_create(user=user)
         return info
 
 
@@ -211,15 +213,18 @@ class PUser(User):
         user._disable_account_creation = True
         user.save()
 
-        # now create Account/EmailAddress
+        # now create Account/EmailAddress. "EmailAddress" is created in Account.create()
         Account.create(user=user)
+
+        registered = False if dummy else True
+        if area:
+            info = Info.objects.create(user=user, registered=registered, area=area)
+        else:
+            info = Info.objects.create(user=user, registered=registered)
 
         # create Info(?) and login token.
         if dummy:
             Token.generate(user, is_user_registered=False)
-
-        if area:
-            Info.objects.create(user=user, area=area)
 
         return user
 
@@ -429,22 +434,19 @@ class PUser(User):
 
     ######## methods that check user's status #########
     # is_active: from django system. inactive means the user cannot login (perhaps a spam user), and cannot use the site.
-    # is_registered: shows whether the user is signed up by other people, or has been through the sign up process. not-registered user doesn't have a valid password
-    # is_onboard: user has been through the onboarding process and (should) added first/last name and area.
-    # is_onboard includes is_registered. is_active is orthogonal.
-
+    # 2015/11/2 update: is_onboard and is_registered is the same now. which means fullname/lastname/area/password is all set. Another thing other than that would be considered pre-registered
     # is_isolated: too few contacts. need to add more
 
+    # this could be obsolete in favor of is_registered.
     def is_onboard(self):
-        return self.has_info() and self.info.area and self.first_name
+        return self.is_registered()
 
     def is_registered(self):
-        try:
-            token = self.token
-            return token.is_user_registered
-        except Token.DoesNotExist:
-            # no token by default means already registered.
+        # use the management command to make sure the "registered" field is correct and consistent.
+        if self.has_info() and self.info.registered:
             return True
+        else:
+            return False
 
     def is_isolated(self):
         # we count non-active/approved here.
