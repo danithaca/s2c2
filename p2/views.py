@@ -17,14 +17,14 @@ def home(request):
     else:
         # find engagement for the user
         puser = request.puser
-        if not puser.is_onboard():
-            return redirect(reverse('tour'))
+        if not puser.is_registered():
+            return redirect('account_signup')
         # elif puser.engagement_queryset().exists():
         #     return redirect(reverse('contract:engagement_list'))
         # else:
         #     return redirect(reverse('contract:add'))
         else:
-            return redirect(reverse('dashboard'))
+            return redirect('dashboard')
 
 
 class HelpView(TemplateView):

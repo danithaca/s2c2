@@ -1,0 +1,9 @@
+{% extends 'email_body.txt' %}
+{% block body %}
+Your email is pre-registered from a user referral. Sign up by clicking the link below:
+
+{{ site_url }}{% url 'account_signup' %}?login_token={{ to_user.get_login_token_forced }}
+
+Learn more about {{ site_name }} at: {{ site_url }}{% url 'about' %}
+
+{% endblock %}

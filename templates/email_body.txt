@@ -4,6 +4,6 @@
 Servuno.com | {% include 'elements/slogan.html' %} | {{ site_url }}{% url 'about' %}
 {% if signup_warning and not to_user.is_registered %}
 Sign up at:
-{{ site_url }}{% url 'account_signup' %}{% if to_user.get_login_token %}?token={{ to_user.get_login_token }}{% else %}?email={{ to_user.email }}{% endif %}
+{{ site_url }}{% url 'account_signup' %}{% if to_user.get_login_token %}?login_token={{ to_user.get_login_token }}{% else %}?email={{ to_user.email }}{% endif %}
 {% endif %}
 {% if DEBUG %}Template: {{ template_id }}{% endif %}

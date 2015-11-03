@@ -240,7 +240,7 @@ class PUser(User):
 
     @staticmethod
     def get_by_email(email):
-        return PUser.objects.get(email=email)
+        return PUser.objects.get(Q(email=email) | Q(emailaddress__email=email))
 
     def has_info(self):
         try:
@@ -422,6 +422,9 @@ class PUser(User):
             else:
                 return None
 
+    def get_login_token_forced(self):
+        return self.get_login_token(force=True)
+
     def get_shared_connection(self, target_user):
         # shared connection: 1) directly in my personal network (parent/sitter), 2) in my parents friends' network (both parents and sitters).
         # potentially will have the "tag" shared connection
@@ -485,3 +488,9 @@ class MenuItem(TreeItemBase):
     fa_icon = models.CharField(help_text='Font awesome icon', blank=True, max_length=50)
     # css_id = models.CharField(help_text='CSS ID', blank=True, max_length=50)
     importance = models.SmallIntegerField(help_text='The importance of this item', choices=((0, 'Regular'), (1, 'Highlight'), (-1, 'Muted')), default=0)
+
+
+class Waiting(models.Model):
+    email = models.EmailField(unique=True)
+    created = models.DateTimeField(auto_now_add=True)
+    user = models.ForeignKey(PUser, blank=True, null=True, default=None)

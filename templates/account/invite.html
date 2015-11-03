@@ -1,18 +1,16 @@
-{% extends "account/onboard/base.html" %}
+{% extends "account/pre-login.html" %}
 {% load bootstrap %}
+
+{% block content-introduction %}Sign up is by invitation only. If you don't have an invitation code, please leave your email and we will invite you later.{% endblock %}
 
 {% block content %}
   <form class="form-horizontal" method="post" autocapitalize="off">
     {% csrf_token %}
     {{ form|bootstrap_horizontal:'col-sm-3' }}
-    {% if redirect_field_value %}
-      <input type="hidden" name="{{ redirect_field_name }}" value="{{ redirect_field_value }}" />
-    {% endif %}
     <div class="form-group">
       <div class="col-sm-offset-3 col-sm-9">
-        <button type="submit" class="btn btn-success">Sign up</button>
+        <button type="submit" class="btn btn-success">Sign Up</button>
       </div>
     </div>
   </form>
 {% endblock %}
-

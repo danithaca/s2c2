@@ -9,6 +9,7 @@ urlpatterns = patterns(
     url(r"^password/$", views.SimpleChangePasswordView.as_view(), name="account_password"),
     # url(r"^signup/$", views.OnboardWizard.as_view(), name="account_signup"),
     url(r"^signup/$", views.SignupView.as_view(), name="account_signup"),
+    url(r"^join/$", views.InviteView.as_view(), name="account_invite"),
 
     url(r"^onboard/$", views.OnboardAbout.as_view(), name="onboard_start"),
     # url(r"^onboard/signup/$", views.OnboardSignup.as_view(), name="onboard_signup"),

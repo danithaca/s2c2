@@ -33,6 +33,10 @@
 {#    {% include 'pages/about_feature.html' with fa="fa-street-view" title="Short-term Babysitters" note="This is Servuno's focus. If you want to find long term nannies, try find a short-term babysitter first and then negotiate offline for long-term opportunities." only %}#}
 {#    {% include 'pages/about_feature.html' with fa="fa-shopping-cart" title="On Demand" note="You only use Servuno when you need it. We'll keep everyone notified with email." only %}#}
 {#  </div>#}
+  {% for message in messages %}
+    {% include "includes/message.html" with message=message only %}
+  {% endfor %}
+
   <p>
     <img src="{% static 'images/story_1.png' %}" class="img-responsive center-block">
   </p>
@@ -119,6 +123,6 @@
   </div>
 
   {% if user.is_anonymous %}
-    <div class="text-center"><a href="{% url 'account_signup' %}" class="btn btn-lg btn-success">Sign Up Now!</a></div>
+    <div class="text-center"><a href="{% url 'account_invite' %}" class="btn btn-lg btn-success">Sign Up Now!</a></div>
   {% endif %}
 {% endblock %}

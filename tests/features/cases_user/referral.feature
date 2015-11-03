@@ -21,7 +21,7 @@ Feature: Test referral user
     Then pause 3 seconds
     When I open the last email from "test@servuno.com" to "to-be-deleted-referral@servuno.com"
     And check email subject contains "connected"
-    When I follow the email link like "account/signup/?token="
+    When I follow the email link like "account/signup/?login_token="
     Then I should be on "/account/signup/"
     And the "Email" field should contain "to-be-deleted-referral@servuno.com"
 

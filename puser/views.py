@@ -1,15 +1,17 @@
 from collections import OrderedDict
 from account.mixins import LoginRequiredMixin
+from account.models import SignupCode
 import account.views
 import account.forms
 from account.conf import settings
-from braces.views import UserPassesTestMixin, FormValidMessageMixin
+from braces.views import UserPassesTestMixin, FormValidMessageMixin, AnonymousRequiredMixin
 from django.contrib.auth.decorators import login_required
 from django.contrib import auth
 from django.contrib.auth import forms as auth_forms
 from django.core.urlresolvers import reverse_lazy, reverse
+from django.http import HttpResponseRedirect
 from django.shortcuts import redirect
-from django.views.generic import FormView, TemplateView, UpdateView, DetailView
+from django.views.generic import FormView, TemplateView, UpdateView, DetailView, CreateView
 from django.views.generic.base import ContextMixin
 from django.contrib import messages
 from rest_framework.generics import RetrieveAPIView
@@ -21,8 +23,9 @@ from circle.views import ParentCircleView, SitterCircleView
 from login_token.models import Token
 from login_token.conf import settings as login_token_settings
 from p2.utils import RegisteredRequiredMixin
-from puser.forms import SignupBasicForm, UserInfoForm, UserPictureForm, LoginEmailAdvForm, UserInfoOnboardForm
-from puser.models import Info, PUser
+from puser.forms import SignupBasicForm, UserInfoForm, UserPictureForm, LoginEmailAdvForm, UserInfoOnboardForm, \
+    SignupFullForm, WaitingForm
+from puser.models import Info, PUser, Waiting
 from puser.serializers import UserSerializer
 from shout.tasks import notify_send
 from p2.utils import auto_user_name
@@ -39,6 +42,12 @@ class LoginView(account.views.LoginView):
     # switching to use Email-only login form
     form_class = LoginEmailAdvForm
 
+    def get_initial(self):
+        initial = super().get_initial()
+        if 'email' in self.request.GET:
+            initial['email'] = self.request.GET['email']
+        return initial
+
 
 class SimpleChangePasswordView(account.views.ChangePasswordView):
     form_class = auth_forms.SetPasswordForm
@@ -46,65 +55,6 @@ class SimpleChangePasswordView(account.views.ChangePasswordView):
     def form_valid(self, form):
         form.cleaned_data['password_new'] = form.cleaned_data['new_password1']
         return super().form_valid(form)
-
-
-class SignupView(account.views.SignupView):
-    form_class = SignupBasicForm
-
-    def generate_username(self, form):
-        return auto_user_name(form.cleaned_data['email'])
-
-    def send_email_confirmation(self, email_address):
-        # confirmation email is sent blocking. not through Notify.
-        # could override here, or use a different Account Hookset
-        super().send_email_confirmation(email_address)
-
-    # this allows the default email field for Signup code not permitting user change the email address
-    def get_form(self, form_class=None):
-        form = super().get_form(form_class)
-        if 'token' in self.request.GET and len(self.request.GET['token']) == login_token_settings.LOGIN_TOKEN_LENGTH:
-            token = Token.find(self.request.GET['token'])
-            if token:
-                form.fields['email'].initial = token.user.email
-                form.fields['email'].widget.attrs = {
-                    'readonly': True
-                }
-                self.valid_login_token = True
-        elif self.signup_code:
-            form.fields['email'].widget.attrs = {
-                'readonly': True
-            }
-        elif 'email' in self.request.GET:
-            form.fields['email'].initial = self.request.GET['email']
-        return form
-
-    def form_valid(self, form):
-        prereg_user = form.cleaned_data.get('pre_registered_user', None)
-        if prereg_user:
-            self.created_user = prereg_user
-            password = form.cleaned_data.get("password")
-            assert password
-            prereg_user.set_password(password)
-            prereg_user.save()
-            try:
-                # remove pre-registration status
-                prereg_user.info.registered = True
-                prereg_user.info.save()
-
-                # mark email verified, if token exists
-                # todo: this is not well thought
-                if hasattr(self, 'valid_login_token') and self.valid_login_token is True:
-                    prereg_user.emailaddress_set.filter(email=prereg_user.email, verified=False).update(verified=True)
-            except Info.DoesNotExist:
-                pass
-            self.login_user()
-            redirection = redirect(self.get_success_url())
-        else:
-            redirection = super().form_valid(form)
-
-        # send admin notice
-        notify_send.delay(None, None, 'account/email/admin_new_user_signup', ctx={'user': self.created_user})
-        return redirection
 
 
 class UserEdit(LoginRequiredMixin, FormView):
@@ -147,6 +97,48 @@ class UserEdit(LoginRequiredMixin, FormView):
 
             messages.success(self.request, 'Profile successfully updated.')
         return super(UserEdit, self).form_valid(form)
+
+
+class InviteView(AnonymousRequiredMixin, FormView):
+    form_class = WaitingForm
+    template_name = 'account/invite.html'
+    authenticated_redirect_url = reverse_lazy('account_view')
+    success_url = '/'
+
+    def form_valid(self, form):
+        email = form.cleaned_data['email']
+        try:
+            existing_user = PUser.get_by_email(email)
+            if existing_user.is_registered():
+                # if user is a registered user => go to login with the email
+                messages.info(self.request, 'A user with email %s is already signed up. Please log in instead.' % email)
+                return HttpResponseRedirect('%s?email=%s' % (reverse('account_login'), email))
+            else:
+                # if pre-registered => send email with signup info
+                notify_send.delay(None, existing_user, 'account/email/invite_instructions')
+                messages.info(self.request, 'Our record shows that the email %s is pre-registered. An email has been sent out with instrucions on how to sign up and log in to the site.' % email)
+                return redirect('account_invite')
+        except:
+            # email is not associated with an existing user
+            # regardless of what we do, first save to waiting list if not in it yet.
+            if not Waiting.objects.filter(email=email).exists():
+                Waiting.objects.create(email=email)
+
+            # try signup code
+            code_str = form.cleaned_data['invitation_code']
+            if code_str:
+                try:
+                    SignupCode.check_code(code_str)
+                    # now there is a valid code
+                    # => regardless of whether the email is in waiting list or not, redirect to signup.
+                    redirect_url = '%s?code=%s&email=%s' % (reverse('account_signup'), code_str, email)
+                    return HttpResponseRedirect(redirect_url)
+                except SignupCode.InvalidCode:
+                    pass
+
+            # there is not a valid code_str => redirect to '/'
+            messages.info(self.request, 'Thank you! Your email is added to the wait list.')
+            return HttpResponseRedirect(self.success_url)
 
 
 class UserPicture(LoginRequiredMixin, FormValidMessageMixin, UpdateView):
@@ -266,8 +258,8 @@ class MultiStepViewsMixin(ContextMixin):
 
     @classmethod
     def get_steps_meta(cls):
-        step_order = ['OnboardAbout', 'OnboardProfile', 'OnboardParentCircle', 'OnboardSitterCircle']
-        step_url = [reverse('onboard_about'), reverse('onboard_profile'), reverse('onboard_parent'), reverse('onboard_sitter')]
+        step_order = ['SignupView', 'OnboardProfile', 'OnboardParentCircle', 'OnboardSitterCircle']
+        step_url = [reverse('account_signup'), reverse('onboard_profile'), reverse('onboard_parent'), reverse('onboard_sitter')]
         next_step_url = list(step_url)
         next_step_url.append(cls.final_url)
         del(next_step_url[0])
@@ -322,23 +314,93 @@ class MultiStepViewsMixin(ContextMixin):
             return ''
 
 
-# class OnboardSignup(MultiStepViewsMixin, SignupView):
-#     pass
-    # this is not used because SignupView reloaded get_success_url(). Set SIGNUP REDIRECT URL instead.
-    # success_url = reverse_lazy('onboard_profile')
+class SignupView(MultiStepViewsMixin, account.views.SignupView):
+    step_title = 'Create an Account'
+    form_class = SignupFullForm
 
-    # def dispatch(self, request, *args, **kwargs):
-    #     if request.user.is_authenticated():
-    #         if request.method.lower() == 'get':
-    #             return
-    #     return super().dispatch(request, *args, **kwargs)
+    def get(self, *args, **kwargs):
+        if self.request.user.is_authenticated():
+            self.created_user = self.request.user
+        if not self.is_open():
+            return self.closed()
+        return super(account.views.SignupView, self).post(*args, **kwargs)
 
-    # def get_form(self, form_class=None):
-    #     form = super().get_form(form_class)
-    #     if self.request.user.is_authenticated():
-    #         for field_name in form.fields:
-    #             form.fields[field_name].widget.attrs['readonly'] = True
-    #     return form
+    def post(self, *args, **kwargs):
+        if self.request.user.is_authenticated():
+            self.created_user = self.request.user
+        if not self.is_open():
+            return self.closed()
+        return super(account.views.SignupView, self).post(*args, **kwargs)
+
+    def is_open(self):
+        if self.created_user:
+            return True
+        return super().is_open()
+
+    def closed(self):
+        return redirect('account_invite')
+
+    def generate_username(self, form):
+        return auto_user_name(form.cleaned_data['email'])
+
+    def send_email_confirmation(self, email_address):
+        # confirmation email is sent blocking. not through Notify.
+        # could override here, or use a different Account Hookset
+        super().send_email_confirmation(email_address)
+
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        if self.created_user:
+            kwargs['instance'] = self.created_user
+        return kwargs
+
+    # this allows the default email field for Signup code not permitting user change the email address
+    def get_form(self, form_class=None):
+        form = super().get_form(form_class)
+        if 'token' in self.request.GET and len(self.request.GET['token']) == login_token_settings.LOGIN_TOKEN_LENGTH:
+            token = Token.find(self.request.GET['token'])
+            if token:
+                form.fields['email'].initial = token.user.email
+                form.fields['email'].widget.attrs = {
+                    'readonly': True
+                }
+                self.valid_login_token = True
+        elif self.signup_code:
+            form.fields['email'].widget.attrs = {
+                'readonly': True
+            }
+        elif 'email' in self.request.GET:
+            form.fields['email'].initial = self.request.GET['email']
+        return form
+
+    def form_valid(self, form):
+        prereg_user = form.cleaned_data.get('pre_registered_user', None)
+        if prereg_user:
+            self.created_user = prereg_user
+            password = form.cleaned_data.get("password")
+            assert password
+            prereg_user.set_password(password)
+            prereg_user.save()
+            try:
+                # remove pre-registration status
+                prereg_user.info.registered = True
+                prereg_user.info.save()
+
+                # mark email verified, if token exists
+                # todo: this is not well thought
+                if hasattr(self, 'valid_login_token') and self.valid_login_token is True:
+                    prereg_user.emailaddress_set.filter(email=prereg_user.email, verified=False).update(verified=True)
+            except Info.DoesNotExist:
+                pass
+            self.login_user()
+            redirection = redirect(self.get_success_url())
+        else:
+            redirection = super().form_valid(form)
+
+        # send admin notice
+        notify_send.delay(None, None, 'account/email/admin_new_user_signup', ctx={'user': self.created_user})
+        return redirection
+
 
 class OnboardAbout(MultiStepViewsMixin, TemplateView):
     template_name = 'account/onboard/about.html'

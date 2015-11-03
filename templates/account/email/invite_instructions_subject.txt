@@ -1,0 +1,3 @@
+{# send when pre-registered user tried to signup in "invitation" step #}
+{% extends 'email_subject.txt' %}
+{% block subject %}{{ site_name }} sign up instructions{% endblock %}

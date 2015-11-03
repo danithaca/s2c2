@@ -4,7 +4,7 @@ from django import forms
 from django.contrib.auth.models import User
 from django.forms import ModelForm, fields_for_model
 
-from puser.models import Info, PUser
+from puser.models import Info, PUser, Waiting
 
 
 class SignupBasicForm(account.views.SignupForm):
@@ -28,6 +28,44 @@ class SignupBasicForm(account.views.SignupForm):
         except PUser.DoesNotExist:
             pass
         return super().clean_email()
+
+
+class SignupFullForm(ModelForm, account.views.SignupForm):
+    required_css_class = 'required'
+    area = fields_for_model(Info, fields=['area'])['area']
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # this is suggested from the documentation
+        del self.fields["username"]
+        # this is "OrderedDict
+        self.fields.move_to_end('email', False)
+        self.fields['first_name'].required = True
+        self.fields['last_name'].required = True
+        self.fields['area'].label = 'Activity area'
+        self.fields['area'].help_text = 'This is where most of the babysitting activities take place.'
+
+    # here we override to allow existing email if the email is "pre-registered".
+    def clean_email(self):
+        value = self.cleaned_data["email"]
+        try:
+            user = PUser.get_by_email(value)
+            if not user.is_registered():
+                self.cleaned_data['pre_registered_user'] = user
+                return
+        except PUser.DoesNotExist:
+            pass
+        return super().clean_email()
+
+    class Meta:
+        model = User
+        fields = ['email', 'password', 'password_confirm', 'first_name', 'last_name', 'area']
+
+
+class WaitingForm(forms.Form):
+    required_css_class = 'required'
+    email = fields_for_model(Waiting, fields=['email'])['email']
+    invitation_code = forms.CharField(required=False, max_length=64, help_text='If you have an invitation code, please type in here.')
 
 
 class SignupConfirmForm(forms.Form):
