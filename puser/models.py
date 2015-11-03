@@ -91,6 +91,10 @@ class Info(models.Model):
     def __str__(self):
         return self.user.get_full_name() or self.user.username
 
+    def set_area(self, area):
+        # todo: there might be more stuff to do later (e.g., change list location)
+        self.area = area
+
     @staticmethod
     def get_or_create_for_user(user):
         assert isinstance(user, User)

@@ -7,22 +7,16 @@ from account.forms import LoginEmailForm
 from django.views.generic import TemplateView
 from contract.models import Contract
 
-from puser.forms import SignupBasicForm
+from puser.forms import WaitingForm
 
 
 def home(request):
     if request.user.is_anonymous():
-        # return redirect(reverse('account_signup'))
         return redirect(reverse('about'))
     else:
-        # find engagement for the user
         puser = request.puser
         if not puser.is_registered():
             return redirect('account_signup')
-        # elif puser.engagement_queryset().exists():
-        #     return redirect(reverse('contract:engagement_list'))
-        # else:
-        #     return redirect(reverse('contract:add'))
         else:
             return redirect('dashboard')
 
@@ -66,7 +60,7 @@ class LandingView(TemplateView):
     def get_context_data(self, **kwargs):
         ctx = super().get_context_data(**kwargs)
         ctx['form_login'] = LoginEmailForm()
-        ctx['form_signup'] = SignupBasicForm()
+        ctx['form_signup'] = WaitingForm()
         return ctx
 
 

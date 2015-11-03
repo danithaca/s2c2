@@ -23,7 +23,7 @@ from circle.views import ParentCircleView, SitterCircleView
 from login_token.models import Token
 from login_token.conf import settings as login_token_settings
 from p2.utils import RegisteredRequiredMixin
-from puser.forms import SignupBasicForm, UserInfoForm, UserPictureForm, LoginEmailAdvForm, UserInfoOnboardForm, \
+from puser.forms import UserInfoForm, UserPictureForm, LoginEmailAdvForm, UserInfoOnboardForm, \
     SignupFullForm, WaitingForm
 from puser.models import Info, PUser, Waiting
 from puser.serializers import UserSerializer
@@ -258,8 +258,8 @@ class MultiStepViewsMixin(ContextMixin):
 
     @classmethod
     def get_steps_meta(cls):
-        step_order = ['SignupView', 'OnboardProfile', 'OnboardParentCircle', 'OnboardSitterCircle']
-        step_url = [reverse('account_signup'), reverse('onboard_profile'), reverse('onboard_parent'), reverse('onboard_sitter')]
+        step_order = ['SignupView', 'OnboardParentCircle', 'OnboardSitterCircle']
+        step_url = [reverse('account_signup'), reverse('onboard_parent'), reverse('onboard_sitter')]
         next_step_url = list(step_url)
         next_step_url.append(cls.final_url)
         del(next_step_url[0])
@@ -316,6 +316,7 @@ class MultiStepViewsMixin(ContextMixin):
 
 class SignupView(MultiStepViewsMixin, account.views.SignupView):
     step_title = 'Create an Account'
+    step_note = 'Your information is only visible to people in your network.'
     form_class = SignupFullForm
 
     def get(self, *args, **kwargs):
@@ -354,48 +355,42 @@ class SignupView(MultiStepViewsMixin, account.views.SignupView):
             kwargs['instance'] = self.created_user
         return kwargs
 
-    # this allows the default email field for Signup code not permitting user change the email address
-    def get_form(self, form_class=None):
-        form = super().get_form(form_class)
-        if 'token' in self.request.GET and len(self.request.GET['token']) == login_token_settings.LOGIN_TOKEN_LENGTH:
-            token = Token.find(self.request.GET['token'])
-            if token:
-                form.fields['email'].initial = token.user.email
-                form.fields['email'].widget.attrs = {
-                    'readonly': True
-                }
-                self.valid_login_token = True
-        elif self.signup_code:
-            form.fields['email'].widget.attrs = {
-                'readonly': True
-            }
-        elif 'email' in self.request.GET:
-            form.fields['email'].initial = self.request.GET['email']
-        return form
+    def get_initial(self):
+        initial = super().get_initial()
+        if 'email' not in initial and 'email' in self.request.GET:
+            initial['email'] = self.request.GET['email']
+        return initial
 
     def form_valid(self, form):
-        prereg_user = form.cleaned_data.get('pre_registered_user', None)
-        if prereg_user:
-            self.created_user = prereg_user
+        if self.created_user:
+            # account already created earlier. need to: 1) set password, 2) set names, 3) set info
+            existing_user = self.created_user
             password = form.cleaned_data.get("password")
-            assert password
-            prereg_user.set_password(password)
-            prereg_user.save()
-            try:
-                # remove pre-registration status
-                prereg_user.info.registered = True
-                prereg_user.info.save()
+            existing_user.set_password(password)
+            existing_user.save()
 
-                # mark email verified, if token exists
-                # todo: this is not well thought
-                if hasattr(self, 'valid_login_token') and self.valid_login_token is True:
-                    prereg_user.emailaddress_set.filter(email=prereg_user.email, verified=False).update(verified=True)
-            except Info.DoesNotExist:
-                pass
+            # mark email verified, because the only way to login here is to click email
+            # todo: or is it?
+            existing_user.emailaddress_set.filter(email=existing_user.email, verified=False).update(verified=True)
+
+            self.after_signup(form)
+            self.form = form
             self.login_user()
             redirection = redirect(self.get_success_url())
         else:
+            # super() only save the basic user account: email/username/password and Account/EmailAddress
             redirection = super().form_valid(form)
+
+        # we'll need to do some other work here.
+        # save first_name, last_name
+        self.created_user.first_name = form.cleaned_data['first_name']
+        self.created_user.last_name = form.cleaned_data['last_name']
+        self.created_user.save()
+        # update area
+        info = self.created_user.to_puser().get_info()
+        info.registered = True          # registered is always True after successfully go thru this step.
+        info.set_area(form.cleaned_data['area'])
+        info.save()
 
         # send admin notice
         notify_send.delay(None, None, 'account/email/admin_new_user_signup', ctx={'user': self.created_user})

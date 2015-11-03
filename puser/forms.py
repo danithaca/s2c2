@@ -7,29 +7,6 @@ from django.forms import ModelForm, fields_for_model
 from puser.models import Info, PUser, Waiting
 
 
-class SignupBasicForm(account.views.SignupForm):
-    # required_css_class = 'required'
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        # this is suggested from the documentation
-        del self.fields["username"]
-        # this is "OrderedDict
-        self.fields.move_to_end('email', False)
-
-    # here we override to allow existing email if the email is "pre-registered".
-    def clean_email(self):
-        value = self.cleaned_data["email"]
-        try:
-            user = PUser.get_by_email(value)
-            if not user.is_registered():
-                self.cleaned_data['pre_registered_user'] = user
-                return
-        except PUser.DoesNotExist:
-            pass
-        return super().clean_email()
-
-
 class SignupFullForm(ModelForm, account.views.SignupForm):
     required_css_class = 'required'
     area = fields_for_model(Info, fields=['area'])['area']
@@ -44,22 +21,29 @@ class SignupFullForm(ModelForm, account.views.SignupForm):
         self.fields['last_name'].required = True
         self.fields['area'].label = 'Activity area'
         self.fields['area'].help_text = 'This is where most of the babysitting activities take place.'
+        if self.instance.pk:
+            # this is when user is already logged in
+            self.fields['email'].widget.attrs = {'readonly': True}
+            self.fields['password'].initial = ''
 
     # here we override to allow existing email if the email is "pre-registered".
     def clean_email(self):
         value = self.cleaned_data["email"]
-        try:
-            user = PUser.get_by_email(value)
-            if not user.is_registered():
-                self.cleaned_data['pre_registered_user'] = user
-                return
-        except PUser.DoesNotExist:
-            pass
-        return super().clean_email()
+        if self.instance.pk:
+            # if there's a user already, return the email
+            return value
+        else:
+            return super().clean_email()
+
+    def clean(self):
+        # this is for ModelForm.clean()
+        super().clean()
+        # this is SignupForm.clean
+        account.views.SignupForm.clean(self)
 
     class Meta:
         model = User
-        fields = ['email', 'password', 'password_confirm', 'first_name', 'last_name', 'area']
+        fields = ['email', 'password', 'password_confirm', 'first_name', 'last_name', 'area', 'code']
 
 
 class WaitingForm(forms.Form):

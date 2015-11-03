@@ -145,7 +145,7 @@
     {% else %}
       <ul class="nav navbar-nav navbar-right">
         <li data-active-url="{% url 'about' %}"><a href="{% url 'about' %}" id="nav-about"><i class="fa fa-book"></i> Learn More</a></li>
-        <li data-active-url="{% url 'account_signup' %}"><a href="{% url 'account_signup' %}" class="glow-animation"><i class="fa fa-laptop"></i> Sign Up ({{ user.email }})</a></li>
+        <li data-active-url="{% url 'account_signup' %}"><a href="{% url 'account_signup' %}" class="glow-animation" title="{{ user.email }}"><i class="fa fa-laptop"></i> Sign Up</a></li>
       </ul>
     {% endif %}
   {% else %}
