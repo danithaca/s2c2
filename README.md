@@ -181,6 +181,13 @@ Outdated, only pertain to s2c2 related stuff:
 Log
 -----------------------------------
 
+*** 2015-11-04 ***
+
+Ran through the process of creating a new database from scratch. Nothing special to note here. Just run migrate, and then load the fixtures.
+
+Also squashed migrations.
+
+
 *** 2015-09-30 ***
 
 Now we are using the v3 design that stresses "parents-only" feature and separates parents list and babysitter list. And we don't allow babysitters sign up. This changed a lot from the original s2c2 design and the code will gets a lot of changes. Keeping the s2c2 old code is too much a liability and we are actually removing it in p2/v3 branch. Here is a list of things we will keep:

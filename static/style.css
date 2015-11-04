@@ -44,6 +44,9 @@
 .hover-pointer:hover {
   cursor: pointer;
 }
+.clickable:hover {
+  cursor: pointer;
+}
 
 .pale {
   opacity: 0.5;
@@ -111,6 +114,9 @@
   justify-content: center;
 }
 
+/* expand the block to the entire space */
+.block-expand { width: 100%; }
+
 .flex-imgbox {
   display: flex;
   align-items: center;
@@ -143,6 +149,20 @@
 .dashboard-header {
   display: flex;
   justify-content: space-between;
+}
+
+/******** for card related *********/
+
+/*.card {*/
+  /*background: lightgray;*/
+  /*color: white;*/
+/*}*/
+
+.card:hover {
+  background: #F5F5F5;
+}
+.card .card-footer {
+  text-align: right;
 }
 
 /******** for contract related *********/

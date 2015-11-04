@@ -2,8 +2,11 @@
 {% load sitetree %}
 
 {% block content %}
-{% sitetree_breadcrumbs from 'main' %}
-{% sitetree_menu from 'main' include 'trunk' %}
-<h3>{% sitetree_page_title from 'main' %}</h3>
-{% sitetree_tree from 'main' %}
+{#{% sitetree_breadcrumbs from 'main' %}#}
+{#{% sitetree_menu from 'main' include 'trunk' %}#}
+{#<h3>{% sitetree_page_title from 'main' %}</h3>#}
+{#{% sitetree_tree from 'main' %}#}
+  <div class="row"><div class="col-xs-6">
+    {% include 'account/view/card_base.html' with user=user.to_puser %}
+  </div></div>
 {% endblock %}

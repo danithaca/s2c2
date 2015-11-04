@@ -1,0 +1,12 @@
+{% extends 'includes/card.html' %}
+{% load p2_tags %}
+
+{% block container-classes %}thumbnail clickable{% endblock %}
+{% block container-attributes %}data-uid="{{ user.id }}" data-email="{{ user.email }}" data-url="{{ user.get_absolute_url }}"{% endblock %}
+
+{% block card-image %}{% if user.has_picture %}<img class="img-50 img-circle" src="{% user_picture_url user %}">{% endif %}{% endblock %}
+{% block card-title %}{% user-full-name user %}{% endblock %}
+
+{#{% block card-footer %}#}
+{#  <span class="btn btn-xs btn-primary"><i class="fa fa-bullhorn"></i></span>#}
+{#{% endblock %}#}

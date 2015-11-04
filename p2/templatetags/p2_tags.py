@@ -1,3 +1,5 @@
+import logging
+import traceback
 from django import template
 from django.contrib.auth.models import User
 from django.template.defaultfilters import truncatechars, urlencode
@@ -28,9 +30,8 @@ def user_picture_url(context, puser, **kwargs):
     if puser.has_picture():
         try:
             return cropped_thumbnail(context, puser.info, 'picture_cropping',upscale=True, **kwargs)
-        except:
-            # todo: add logging info.
-            pass
+        except Exception as e:
+            traceback.print_exc()
     return static('user_200x200.png')
 
 

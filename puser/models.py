@@ -257,7 +257,7 @@ class PUser(User):
         return Info.get_or_create_for_user(self)
 
     def has_picture(self):
-        return self.has_info() and self.info.picture_original and self.info.picture_cropping
+        return self.has_info() and self.info.picture_original
 
     def picture_link(self):
         from p2.templatetags.p2_tags import user_picture_url
