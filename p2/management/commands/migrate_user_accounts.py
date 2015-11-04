@@ -58,7 +58,9 @@ class Command(BaseCommand):
         logging.info('Pre-registered users: %d', PUser.objects.filter(info__registered=False).count())
         to_pre_registered_users = PUser.objects.filter(Q(password__startswith=UNUSABLE_PASSWORD_PREFIX) | Q(first_name='') | Q(last_name='')).exclude(info__registered=False)
         logging.info('# of users to mark as pre-registered: %d', to_pre_registered_users.count())
-        Info.objects.filter(user__in=to_pre_registered_users).update(registered=False)
+        # this doesn't work on mysql
+        # Info.objects.filter(user__in=to_pre_registered_users).update(registered=False)
+        Info.objects.filter(user__id__in=[user.id for user in to_pre_registered_users]).update(registered=False)
 
         #### add login token to pre-registered users
         token_users = PUser.objects.filter(is_active=True, info__registered=False, token__isnull=True)
