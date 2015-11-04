@@ -1,6 +1,16 @@
 {% extends "circle/base.html" %}
 
-{% block content-introduction %}Add other parents your trust who can babysit for you occasionally. <strong>DO NOT add anyone you don't trust.</strong>{% endblock %}
+{% block content-title %}Grow Your Parent Network{% endblock %}
+
+{% block content-introduction %}
+  <p>The more connections you have within Servuno, the better the system will work for you. Add other parents to your network by entering their email address below – Servuno will then send them an email invitation so they can sign up!</p>
+  <p>You can do the following with your parent-to-parent connections:</p>
+  <ul>
+    <li>Ask for babysitting favors</li>
+    <li>Give babysitting favors</li>
+    <li>Share babysitting resources</li>
+  </ul>
+{% endblock %}
 
 {% block content %}
   {% include 'circle/includes/list_parent.html' %}

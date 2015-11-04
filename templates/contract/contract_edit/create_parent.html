@@ -2,8 +2,9 @@
 
 {% block create-confirm-message %}Parents in your network will be notified via Email.{% endblock %}
 
-{% block content-introduction %}Find another parent to babysit for you on the basis of reciprocity without paying. <a href="{% url 'circle:parent' %}">Add parents</a> into your network to increase the chance of finding one.{% endblock %}
+{% block content-title %}Request Help from Another Family{% endblock %}
 
-{#{% block create-submit-extra %}#}
-{#  <a class="pull-right" href="{% url 'circle:parent' %}">Add Parents</a>#}
-{#{% endblock %}#}
+{% block content-introduction %}
+  <p>Looking for a favor? No problem! Input the date and time you need help, the network you would like to send the request to, and add any relevant notes. Servuno will send your message out to your selected contacts to get you the help you need!</p>
+  <p>Need more contacts? <a href="{% url 'circle:parent' %}">Add parents</a> from your existing networks!</p>
+{% endblock %}

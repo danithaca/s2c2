@@ -498,3 +498,6 @@ class Waiting(models.Model):
     email = models.EmailField(unique=True)
     created = models.DateTimeField(auto_now_add=True)
     user = models.ForeignKey(PUser, blank=True, null=True, default=None)
+
+    def __str__(self):
+        return self.email

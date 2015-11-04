@@ -31,7 +31,7 @@ class StatusMixin(object):
         contract_display_map = {
             Contract.Status.INITIATED: ('default', 'Inactive', 'Not activated.'),
             Contract.Status.ACTIVE: ('primary', 'Active', 'Actively finding a babysitter.'),
-            Contract.Status.CONFIRMED: ('success', 'Active - Confirmed', 'You have confirmed with a babysitter.'),
+            Contract.Status.CONFIRMED: ('success', 'Confirmed', 'You have confirmed with a babysitter.'),
             Contract.Status.SUCCESSFUL: ('success', 'Successful', 'Service was successfully delivered.'),
             Contract.Status.CANCELED: ('warning', 'Canceled', 'Request was canceled.'),
             Contract.Status.FAILED: ('danger', 'Failed', 'Service was confirmed but eventually failed.'),

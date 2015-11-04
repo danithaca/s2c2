@@ -2,13 +2,12 @@ import logging
 
 from account.models import EmailAddress
 from django.contrib.auth.hashers import UNUSABLE_PASSWORD_PREFIX
-from django.contrib.auth.models import User
 from django.core.management import BaseCommand
 from django.db.models import F, Q
 
 from circle.models import Membership, Circle
 from login_token.models import Token
-from puser.models import PUser, Info
+from puser.models import PUser, Info, Waiting
 
 
 class Command(BaseCommand):
@@ -76,3 +75,13 @@ class Command(BaseCommand):
         #     user.is_active = True
         #     user.save()
 
+        #### associate users to waiting list
+        waiting_list = Waiting.objects.filter(user__isnull=True)
+        logging.info('Waiting list w/o users: %d' % waiting_list.count())
+        for waiting_email in waiting_list:
+            try:
+                email_address = EmailAddress.objects.get(email=waiting_email.email)
+                waiting_email.user = email_address.user.to_puser()
+                waiting_email.save()
+            except EmailAddress.DoesNotExist:
+                pass

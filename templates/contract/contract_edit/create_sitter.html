@@ -1,5 +1,11 @@
 {% extends 'contract/contract_edit/create.html' %}
 
+{% block content-title %}Book a Babysitter!{% endblock %}
+
 {% block create-confirm-message %}Babysitters in your network will be notified via Email.{% endblock %}
 
-{% block content-introduction %}Book a paid babysitter from your network (yours and your friends' babysitters). Servuno will first contact the best matches, and gradually contact more if no one accepts your job. <a href="{% url 'circle:sitter' %}">Add babysitters</a> into your network or <a href="{% url 'circle:parent' %}">add parents</a> to increase your reach.{% endblock %}
+{% block content-introduction %}
+  <p>Sometimes you would rather pay a babysitter than inconvenience your friends, which is why Servuno has a paid babysitter function! Not only can you reach out to multiple potential babysitters at once, you can extend your reach by including your fellow-parents’ babysitters!</p>
+  <p>Simply input the date and time you need help, the rate you are willing to pay, and any relevant notes. Servuno will send your request to the babysitters you have selected in your network and, before you know it, you’ll be on your way out the door after kissing your kiddos goodbye!</p>
+  <p>Need to extend your reach? Check out <a href="{% url 'circle:sitter' %}">available babysitters</a> in your network or <a href="{% url 'circle:parent' %}">add parents</a> you know!</p>
+{% endblock %}

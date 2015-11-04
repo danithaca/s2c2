@@ -2,7 +2,12 @@
 
 {% block create-confirm-message %}Parents in your network will be notified via Email.{% endblock %}
 
-{% block content-introduction %}Want a palydate for your kids? Get some extra time and energy? Make an offer here to help other parents babysit and build your karma so that when you need help babysit, those parents will help you! <a href="{% url 'circle:parent' %}">Add parents</a> into your network to increase your reach.{% endblock %}
+{% block content-title %}Set Up a Playdate and Help Your Friends!{% endblock %}
+
+{% block content-introduction %}
+  <p>Don’t you love when your kids have friends over? They are occupied, you can (mostly) relax, and you’re doing other parents a huge favor!</p>
+  <p>Make an offer to host your kids’ friends using Servuno’s tool below. Just input the date and time you are free to help, the network you would like to send the request to, and any relevant notes. Servuno will send your offer to your selected contacts and make you the most popular parent in town!</p>
+{% endblock %}
 
 {#{% block create-submit-extra %}#}
 {#  <a class="pull-right" href="{% url 'circle:parent' %}">Add Parents</a>#}
