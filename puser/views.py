@@ -19,7 +19,7 @@ from rest_framework.response import Response
 
 from circle.forms import UserConnectionForm
 from circle.models import Circle, Membership
-from circle.views import ParentCircleView, SitterCircleView
+from circle.views import ParentCircleView, SitterCircleView, TagCircleUserView
 from login_token.models import Token
 from login_token.conf import settings as login_token_settings
 from p2.utils import RegisteredRequiredMixin
@@ -258,8 +258,8 @@ class MultiStepViewsMixin(ContextMixin):
 
     @classmethod
     def get_steps_meta(cls):
-        step_order = ['SignupView', 'OnboardParentCircle', 'OnboardSitterCircle']
-        step_url = [reverse('account_signup'), reverse('onboard_parent'), reverse('onboard_sitter')]
+        step_order = ['SignupView', 'OnboardParentCircle', 'OnboardTagCircle']
+        step_url = [reverse('account_signup'), reverse('onboard_parent'), reverse('onboard_group')]
         next_step_url = list(step_url)
         next_step_url.append(cls.final_url)
         del(next_step_url[0])
@@ -418,6 +418,14 @@ class OnboardSitterCircle(MultiStepViewsMixin, SitterCircleView):
     step_title = 'Add Paid Babysitters (Optional)'
     step_note = 'Add babysitters you trust, e.g, grandparents, teenage cousins, and/or professional babysitters you used before. They will be shared among your parents connections added in the previous step. DO NOT add anyone you don\'t trust.'
     # form_valid_message = "Welcome! You can find a babysitter now or wait for others to find help from you."
+    # show_message = True
+
+
+class OnboardTagCircle(MultiStepViewsMixin, TagCircleUserView):
+    template_name = 'account/onboard/group.html'
+    step_title = 'Join Parents Groups'
+    step_note = 'Join groups to meet new parents.'
+    form_valid_message = ''
     # show_message = True
 
 

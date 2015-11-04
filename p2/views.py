@@ -5,6 +5,7 @@ from django.core.urlresolvers import reverse
 from django.shortcuts import redirect
 from account.forms import LoginEmailForm
 from django.views.generic import TemplateView
+from circle.models import Membership, Circle
 from contract.models import Contract
 
 from puser.forms import WaitingForm
@@ -34,7 +35,13 @@ class TourView(LoginRequiredMixin, TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['current_user'] = self.request.puser
+        target_user = self.request.puser
+        context['current_user'] = target_user
+        if target_user.is_registered():
+            my_parents = list(Membership.objects.filter(circle=target_user.my_circle(Circle.Type.PARENT), active=True, approved=True).exclude(member=target_user).order_by('-updated'))
+            my_memberships = list(Membership.objects.filter(member=target_user, circle__type=Circle.Type.TAG.value, circle__area=target_user.get_area(), active=True))
+            context['my_parents'] = my_parents
+            context['my_memberships'] = my_memberships
         return context
 
 

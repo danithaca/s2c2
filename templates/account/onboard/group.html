@@ -1,0 +1,45 @@
+{% extends "account/onboard/base.html" %}
+{% load bootstrap %}
+
+{% block extra_header %}
+  <link href="//cdnjs.cloudflare.com/ajax/libs/select2/4.0.0/css/select2.min.css" rel="stylesheet" />
+  <script src="//cdnjs.cloudflare.com/ajax/libs/select2/4.0.0/js/select2.min.js"></script>
+
+  <script type="text/javascript">
+    $(document).ready(function() {
+      var $select = $("select[name='tags']");
+
+      function decorateSelection (state) {
+        if (!state.id) { return state.text; }
+        var $state = $(
+            '<span class="circle-tag hover-pointer" data-id="' + state.id + '">' + state.text + '</span>'
+        );
+        return $state;
+      }
+
+      $select.select2({
+        // tags: true,
+        // tokenSeparators: [',']
+        templateSelection: decorateSelection,
+      });
+
+      // click to go to group page
+      $('form').on('click', 'span.circle-tag', function(e) {
+        var id = $(this).data('id');
+        if (id) {
+          window.location = '/connect/group/' + id + '/';
+        }
+      });
+    });
+  </script>
+{% endblock %}
+
+{% block content %}
+  <form class="form" method="post">
+    {% csrf_token %}
+    {{ form|bootstrap }}
+    <div class="form-group">
+      <button class="btn btn-primary" type="submit">Finish</button>
+    </div>
+  </form>
+{% endblock %}

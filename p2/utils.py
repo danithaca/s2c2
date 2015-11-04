@@ -115,7 +115,7 @@ class ControlledFormValidMessageMixin(FormValidMessageMixin):
 
     def form_valid(self, form):
         response = super(FormValidMessageMixin, self).form_valid(form)
-        if self.show_message:
+        if self.show_message and self.get_form_valid_message():
             messages.success(self.request, self.get_form_valid_message(), fail_silently=True)
         return response
 

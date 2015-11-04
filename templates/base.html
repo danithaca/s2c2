@@ -33,6 +33,7 @@
   <script src="//cdnjs.cloudflare.com/ajax/libs/backbone.js/1.2.1/backbone-min.js"></script>
   <script src="//cdnjs.cloudflare.com/ajax/libs/backbone-localstorage.js/1.1.16/backbone.localStorage-min.js" type="text/javascript"></script>
   <script src="//cdnjs.cloudflare.com/ajax/libs/jquery-cookie/1.4.1/jquery.cookie.min.js"></script>
+  <script src="//cdnjs.cloudflare.com/ajax/libs/bootbox.js/4.4.0/bootbox.min.js"></script>
   <script src="{% static 'js/utils.js' %}"></script>
 
   <script>
@@ -57,20 +58,22 @@
         window.history.back();
         return false;
       });
-{##}
-{#      // glow "about" link for first time user#}
-{#      if (!$.cookie('servuno_visited')) {#}
-{#        var $about = $('#nav-about');#}
-{#        $about.addClass('glow-animation');#}
-{#        $about.popover({#}
-{#          title: 'First time user?',#}
-{#          content: 'Read more about Servuno here',#}
-{#          trigger: 'hover',#}
-{#          placement: 'left',#}
-{#          container: 'body'#}
-{#        });#}
-{#        $.cookie('servuno_visited', true, {expires: 30, path: '/'});#}
-{#      }#}
+
+      // for new user
+      if (!window.localStorage.getItem('servuno_visited')) {
+        if (getParameterByName('login_token')) {
+          bootbox.confirm({
+            title: 'Welcome to Servuno!',
+            message: 'This seems to be your first time on Servuno. Do you want to learn more about Servuno?',
+            callback: function(result) {
+              if (result) {
+                window.location = "{% url 'about' %}";
+              }
+            }
+          });
+        }
+        window.localStorage.setItem('servuno_visited', true);
+      }
 
       // load jotForm
       $.getScript('http://www.jotform.com/min/?g=feedback2', function() {

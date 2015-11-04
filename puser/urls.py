@@ -17,6 +17,7 @@ urlpatterns = patterns(
     url(r"^onboard/profile/$", views.OnboardProfile.as_view(), name="onboard_profile"),
     url(r"^onboard/parent/$", views.OnboardParentCircle.as_view(), name="onboard_parent"),
     url(r"^onboard/sitter/$", views.OnboardSitterCircle.as_view(), name="onboard_sitter"),
+    url(r"^onboard/group/$", views.OnboardTagCircle.as_view(), name="onboard_group"),
     # url(r"^onboard/personal/$", views.OnboardPersonalCircle.as_view(), name="onboard_personal"),
     # url(r"^onboard/public/$", views.OnboardPublicCircle.as_view(), name="onboard_public"),
     # url(r"^onboard/agency/$", views.OnboardAgencyCircle.as_view(), name="onboard_agency"),

@@ -3,7 +3,6 @@
 {% block extra_header %}
   <link href="//cdnjs.cloudflare.com/ajax/libs/bootstrap-tour/0.10.1/css/bootstrap-tour.min.css" rel="stylesheet">
   <script src="//cdnjs.cloudflare.com/ajax/libs/bootstrap-tour/0.10.1/js/bootstrap-tour.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/bootbox.js/4.4.0/bootbox.min.js"></script>
 
   <script>
     $(document).ready(function() {
@@ -55,34 +54,46 @@
       });
     });
   </script>
+  <style>
+  #tour-links a {
+    margin-bottom: 6px;
+  }
+  </style>
 {% endblock %}
 
 {% block content %}
-{% if current_user.is_registered %}
-  <h4>What do you want to do?</h4>
-  <p>Please choose the following:</p>
-  <ul class="list-group">
-    <li class="list-group-item"><a href="{% url 'dashboard' %}"><i class="fa fa-home"></i> Home</a></li>
-    <li class="list-group-item"><a href="{% url 'about' %}"><i class="fa fa-book"></i> Learn More</a></li>
-    <li class="list-group-item"><a href="{% url 'onboard_start' %}"><i class="fa fa-refresh"></i> Onboard</a></li>
-    <li class="list-group-item"><a href="{% url 'account_edit' %}"><i class="fa fa-edit"></i> Edit Profile</a></li>
-  </ul>
-{#  <div class="row">#}
-{#    <div class="col-xs-offset-3 col-xs-6"><a href="{% url 'dashboard' %}" class="btn btn-lg btn-block btn-success"><i class="fa fa-home"></i> Home</a></div>#}
-{#    <div class="col-xs-offset-3 col-xs-6"><a href="{% url 'about' %}" class="btn btn-lg btn-block btn-primary"><i class="fa fa-book"></i> Learn More</a></div>#}
-{#    <div class="col-xs-offset-3 col-xs-6"><a href="{% url 'onboard_start' %}" class="btn btn-lg btn-block btn-default"><i class="fa fa-refresh"></i> Onboard</a></div>#}
-{#    <div class="col-xs-offset-3 col-xs-6"><a href="{% url 'account_edit' %}" class="btn btn-lg btn-block btn-default"><i class="fa fa-refresh"></i> Edit Profile</a></div>#}
-{#  </div>#}
-{% else %}
-  <h4>It appears you have not signed up yet</h4>
-  <p>Choose the following:</p>
-  <ul class="list-group">
-    <li class="list-group-item"><a href="{% url 'account_signup' %}"><i class="fa fa-laptop"></i> Sign Up!</a></li>
-    <li class="list-group-item"><a href="{% url 'about' %}"><i class="fa fa-book"></i> Learn More</a></li>
-  </ul>
-{#  <div class="row">#}
-{#    <div class="col-xs-offset-3 col-xs-6"><a href="{% url 'account_signup' %}" class="btn btn-lg btn-block btn-success"><i class="fa fa-laptop"></i> Sign Up!</a></div>#}
-{#    <div class="col-xs-offset-3 col-xs-6"><a href="{% url 'about' %}" class="btn btn-lg btn-block btn-primary"><i class="fa fa-book"></i> Learn More</a></div>#}
-{#  </div>#}
+<fieldset class="min-margin-bottom" id="tour-links">
+<legend>Links</legend>
+<div class="row">
+  <div class="col-xs-6"><a href="{% url 'dashboard' %}" class="btn btn-block btn-success"><i class="fa fa-home"></i> Home</a></div>
+  <div class="col-xs-6"><a href="{% url 'about' %}" class="btn btn-block btn-success"><i class="fa fa-book"></i> About</a></div>
+  <div class="col-xs-6"><a href="{% url 'account_edit' %}" class="btn btn-block btn-primary"><i class="fa fa-edit"></i> Complete Profile</a></div>
+  <div class="col-xs-6"><a href="{% url 'account_picture' %}" class="btn btn-block btn-primary"><i class="fa fa-photo"></i> Upload Picture</a></div>
+</div>
+</fieldset>
+
+{% if my_parents or my_memberships %}
+<fieldset>
+<legend>Connections</legend>
+<div class="row">
+  {% for m in my_parents %}
+    <div class="col-xs-12 col-sm-6 col-md-4 col-lg-3">
+      {% include 'account/view/horizontal.html' with user=m.member star=m.is_star note=m.note only %}
+    </div>
+  {% endfor %}
+  {% for m in my_memberships %}
+    <div class="col-xs-12 col-sm-6 col-md-4 col-lg-3{% if m.is_disapproved %} membership_disapproved{% endif %}">
+      <div class="panel panel-default">
+        <div class="panel-body">
+              <span title="{% if m.is_disapproved %}Membership is reviewed but not approved. Please remove the circle from your list.{% elif m.is_pending_review %}Membership is pending for review.{% else %}{{ m.circle.description }}{% endif %}" data-toggle="tooltip" class="{% if not m.approved %}text-muted{% endif %}">
+                <a href="{% url 'circle:tag_view' pk=m.circle.id %}">{% if m.is_disapproved %}<s>{{ m.circle.name }}</s>{% else %}{{ m.circle.name }}{% endif %}</a><br>
+                <small class="pull-right">{% include 'elements/circle_member_count.html' with count=m.circle.count %}</small>
+              </span>
+        </div>
+      </div>
+    </div>
+  {% endfor %}
+</div>
+</fieldset>
 {% endif %}
 {% endblock %}
