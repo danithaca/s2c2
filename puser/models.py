@@ -23,19 +23,19 @@ from contract.models import Contract, Match, Engagement
 from login_token.models import Token
 from p2.utils import auto_user_name
 
-
-@checks.register()
-def email_duplicate_check(app_configs, **kwargs):
-    errors = []
-    if app_configs is None or 'puser' in [a.label for a in app_configs]:
-        from django.contrib.auth.models import User
-        from django.db import connection
-        cursor = connection.cursor()
-        cursor.execute('SELECT email, COUNT(*) FROM ' + User._meta.db_table + ' GROUP BY email HAVING COUNT(*) > 1')
-        rows = cursor.fetchall()
-        if len(rows) > 0:
-            errors.append(checks.Warning('Duplicate user email exits: %s' % len(rows)))
-    return errors
+# move this to management instead
+# @checks.register()
+# def email_duplicate_check(app_configs, **kwargs):
+#     errors = []
+#     if app_configs is None or 'puser' in [a.label for a in app_configs]:
+#         from django.contrib.auth.models import User
+#         from django.db import connection
+#         cursor = connection.cursor()
+#         cursor.execute('SELECT email, COUNT(*) FROM ' + User._meta.db_table + ' GROUP BY email HAVING COUNT(*) > 1')
+#         rows = cursor.fetchall()
+#         if len(rows) > 0:
+#             errors.append(checks.Warning('Duplicate user email exits: %s' % len(rows)))
+#     return errors
 
 
 class Area(models.Model):

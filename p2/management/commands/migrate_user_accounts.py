@@ -8,6 +8,7 @@ from django.db.models import F, Q
 from circle.models import Membership, Circle
 from login_token.models import Token
 from puser.models import PUser, Info, Waiting
+from django.db import connection
 
 
 class Command(BaseCommand):
@@ -15,6 +16,12 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         logging.root.setLevel(logging.INFO)
+
+        ##### check duplicate emails
+        cursor = connection.cursor()
+        cursor.execute('SELECT email, COUNT(*) FROM ' + PUser._meta.db_table + ' GROUP BY email HAVING COUNT(*) > 1')
+        rows = cursor.fetchall()
+        logging.warning('Duplicate user email exits: %s' % len(rows))
 
         ##### info of total and inactive users
         inactive_users_qs = PUser.objects.filter(is_active=False)
