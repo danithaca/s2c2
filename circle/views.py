@@ -147,8 +147,8 @@ class TagCircleUserView(LoginRequiredMixin, RegisteredRequiredMixin, ControlledF
 
     def form_valid(self, form):
         if form.has_changed():
-            new_tags = set(form.cleaned_data['tags'])
-            old_tags = set(form.initial['tags'])
+            new_tags = set(form.cleaned_data['tags']) if 'tags' in form.cleaned_data else set([])
+            old_tags = set(form.initial['tags']) if 'tags' in form.initial else set([])
             user = self.request.puser
             self.show_message = True
 
