@@ -8,7 +8,7 @@ from django.utils.translation import ugettext_lazy as _
 from sitetree.admin import TreeItemAdmin, override_item_admin
 
 from login_token.models import Token
-from puser.models import Info, Area, Waiting
+from puser.models import Info, Area, Waiting, MenuItem
 
 
 class UserInfoAdmin(UserAdmin):
@@ -76,7 +76,11 @@ class AreaAdmin(admin.ModelAdmin):
     list_display = ('email', 'user', 'created')
 
 
+@admin.register(MenuItem)
 class MenuItemAdmin(TreeItemAdmin):
+    list_display = ('title', 'alias', 'fa_icon', 'access_loggedin', 'hidden', 'inmenu', 'inbreadcrumbs', 'insitetree', 'importance')
+    exclude = ()
+    list_filter = ('tree', 'hidden', 'insitetree')
     fieldsets = (
         (_('Basic settings'), {
             'fields': ('parent', 'title', 'url', 'urlaspattern', 'hint', 'description', 'alias', 'fa_icon')
