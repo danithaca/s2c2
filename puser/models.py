@@ -58,6 +58,7 @@ class Area(models.Model):
 class UserRole(Enum):
     PARENT = 7
     SITTER = 8
+    HYBRID = 11
 
 
 class Info(models.Model):
@@ -72,7 +73,6 @@ class Info(models.Model):
     phone_backup = PhoneNumberField(blank=True, help_text='Phone number added by other people')
     note = models.TextField(blank=True)
     homepage = models.URLField(blank=True)
-    role = models.PositiveSmallIntegerField(choices=[(t.value, t.name.capitalize()) for t in UserRole], blank=True, null=True)
 
     picture_original = ImageCropField(upload_to='picture', blank=True, null=True)
     picture_cropping = ImageRatioField('picture_original', '200x200')
@@ -82,6 +82,10 @@ class Info(models.Model):
 
     # whether this user is pre-registered, or registered.
     registered = models.BooleanField(default=True)
+
+    # these are site preferences
+    role = models.PositiveSmallIntegerField(choices=[(t.value, t.name.capitalize()) for t in UserRole], blank=True, null=True)
+    enable_sms = models.BooleanField(default=False, help_text='Whether to receive SMS for important notifications.')
 
     # note: use User.is_active instead.
     # False:     the user has setup a password, and is able to login (not necessarily filled out anything)

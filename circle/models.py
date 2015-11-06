@@ -24,6 +24,7 @@ class Circle(models.Model):
         # PUBLIC vs. TAG: tag membership is approved by default. flat hierarchy.
         TAG = 9             # tag-like circle type in v3 design.
         # HELPER = 10       # the circle that tracks the helpers (members) to circle-owner. e.g, daniel helped tyler, and daniel is in tyler's helper list.
+        # HYBRID = 11       # both as parent and as sitter
 
     name = models.CharField(max_length=200)
     description = models.TextField(blank=True)

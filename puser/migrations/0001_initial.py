@@ -11,8 +11,6 @@ import sitetree.models
 
 class Migration(migrations.Migration):
 
-    replaces = [('puser', '0001_initial'), ('puser', '0002_puser'), ('puser', '0003_auto_20150612_1518'), ('puser', '0004_remove_info_initiated'), ('puser', '0005_info_homepage'), ('puser', '0006_auto_20150930_1345'), ('puser', '0007_info_role'), ('puser', '0008_auto_20151027_1552'), ('puser', '0009_remove_menuitem_css_id'), ('puser', '0010_menuitem_importance'), ('puser', '0011_auto_20151030_1621'), ('puser', '0012_auto_20151102_1301'), ('puser', '0013_waiting')]
-
     dependencies = [
         ('sitetree', '0001_initial'),
         ('auth', '0006_require_contenttypes_0002'),

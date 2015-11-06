@@ -1,0 +1,1 @@
+[{"model": "puser.area", "pk": 1, "fields": {"description": "Serving Ann Arbor, Ypsilanti, Saline and nearby areas.", "state": "MI", "name": "Ann Arbor"}}, {"model": "puser.area", "pk": 2, "fields": {"description": "Serving Metro Detroit areas, including (but not limited to) Troy, Royal Oak, Dearborn, etc.", "state": "MI", "name": "Metro Detroit"}}]

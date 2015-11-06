@@ -7,8 +7,6 @@ from django.conf import settings
 
 class Migration(migrations.Migration):
 
-    replaces = [('circle', '0001_initial'), ('circle', '0002_auto_20150611_1559'), ('circle', '0003_auto_20150611_1603'), ('circle', '0004_superset'), ('circle', '0005_auto_20150612_1518'), ('circle', '0006_auto_20150612_1729'), ('circle', '0007_auto_20150714_0907'), ('circle', '0008_auto_20150911_1025'), ('circle', '0009_circle_homepage'), ('circle', '0010_auto_20150911_1107'), ('circle', '0011_auto_20150930_1235'), ('circle', '0012_auto_20150930_1335'), ('circle', '0013_parentcircle'), ('circle', '0014_auto_20151005_1152'), ('circle', '0015_membership_note'), ('circle', '0016_auto_20151020_1408')]
-
     dependencies = [
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
         ('puser', '0001_initial'),

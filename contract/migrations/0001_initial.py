@@ -7,8 +7,6 @@ from django.conf import settings
 
 class Migration(migrations.Migration):
 
-    replaces = [('contract', '0001_initial'), ('contract', '0002_auto_20150616_0904'), ('contract', '0003_auto_20150618_1543'), ('contract', '0004_match_response'), ('contract', '0005_auto_20150909_1011'), ('contract', '0006_auto_20150916_1202'), ('contract', '0007_contract_reversed')]
-
     dependencies = [
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
     ]

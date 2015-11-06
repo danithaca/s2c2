@@ -7,8 +7,6 @@ from django.conf import settings
 
 class Migration(migrations.Migration):
 
-    replaces = [('shout', '0001_initial'), ('shout', '0002_auto_20150630_1050'), ('shout', '0003_auto_20150630_1129'), ('shout', '0004_auto_20150630_1130'), ('shout', '0005_auto_20150917_1300'), ('shout', '0006_auto_20150917_1516')]
-
     dependencies = [
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
     ]
