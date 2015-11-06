@@ -1,9 +1,9 @@
 <div class="card {% block container-classes %}{% endblock %}" {% block container-attributes %}{% endblock %}>
   <div class="hidden-if-none">{% block card-header %}{% endblock %}</div>
-  <div class="vertical-align">
+  <div class="vertical-align well well-sm">
     <div class="hidden-if-none">{% block card-image %}{% endblock %}</div>
     <div class="block-expand text-large text-center">{% block card-title %}{% endblock %}</div>
   </div>
-  <div class="hidden-if-none">{% block card-note %}{% endblock %}</div>
+  <div class="hidden-if-none text-center">{% block card-note %}{% endblock %}</div>
   <div class="card-footer hidden-if-none">{% block card-footer %}{% endblock %}</div>
 </div>

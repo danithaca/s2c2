@@ -164,6 +164,9 @@
 .card .card-footer {
   text-align: right;
 }
+.card .well {
+  margin-bottom: 0px;
+}
 
 /******** for contract related *********/
 

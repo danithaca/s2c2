@@ -275,6 +275,9 @@ class UserConnection(object):
         self.target_user = target_user
         self.membership_list = membership_list       # this is the membership list that has "target_user" as members.
 
+        self.star = False       # make whether the target user should have a "star"
+        self.note = ''          # which note to show about the target_user.
+
     def add_membership(self, membership):
         assert membership.member == self.target_user
         self.membership_list.append(membership)

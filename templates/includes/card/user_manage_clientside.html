@@ -1,0 +1,49 @@
+{% extends 'includes/card/base.html' %}
+{% load p2_tags %}
+
+{% block container-classes %}thumbnail <% if (user_id && registered) { %>clickable<% } %>{% endblock %}
+
+{% block container-attributes %}<% if (user_id && registered) { %>data-uid="<%= user_id %>" data-email="<%= email %>" data-url="/account/<%= user_id %>/"<% } %>{% endblock %}
+
+{% block card-image %}
+  <% if (user_id && registered && picture) { %>
+  <img class="img-50 img-circle" src="<%= picture %>">
+  <% } %>
+{% endblock %}
+
+{% block card-title %}
+  <% if (user_id && registered) { %>
+    <%= display_name %>
+  <% } else { %>
+    <%= email %>
+  <% } %>
+  <% if (star) { %><span class="text-warning"><i class="fa fa-star"></i></span><% } %>
+{% endblock %}
+
+{% block card-note %}
+  <% if (note) { %><span class="text-muted"><%= note %></span><% } %>
+{% endblock %}
+
+{% block card-footer %}
+  {% if full_access %}
+    <span class="command-list">
+      <% if (membership_id) { %><a class="btn btn-xs btn-info membership-edit-button" title="Click to edit" data-toggle="tooltip" data-membership-id="<%= membership_id %>"><i class="fa fa-edit"></i></a><% } %>
+      <a class="btn btn-xs btn-danger destroy" title="Click to remove" data-toggle="tooltip"><i class="fa fa-trash-o"></i></a>
+    </span>
+  {% endif %}
+{% endblock %}
+
+{#<div class="thumbnail">#}
+{#  <% if (user_id && registered) { %>#}
+{#  <span title="<%= email %>" data-toggle="tooltip" class="word-break"><% if (picture) { %><img src="<%= picture %>" class="img-circle img-18"><% } %> <a href="/account/<%= user_id %>/"><%= display_name %></a></span>#}
+{#  <% } else { %>#}
+{#  <span title="Not a user." data-toggle="tooltip" class="word-break"><%= email %></span>#}
+{#  <% } %>#}
+{#  {% if full_access %}#}
+{#    <span class="pull-right command-list">#}
+{#      <% if (membership_id) { %><span class="text-warning hover-pointer membership-edit-button" title="Click to edit" data-toggle="tooltip" data-membership-id="<%= membership_id %>"><% if (star) { %><i class="fa fa-star"></i><% } else { %><i class="fa fa-star-o"></i><% } %></span><% } %>#}
+{#      <span class="text-danger destroy hover-pointer" title="Click to remove" data-toggle="tooltip"><i class="fa fa-trash-o"></i></span>#}
+{#    </span>#}
+{#  {% endif %}#}
+{#  <% if (note) { %><br><span class="text-muted"><%= note %></span><% } %>#}
+{#</div>#}

@@ -90,7 +90,8 @@
     <div class="row">
       {% for m in my_parents %}
         <div class="col-xs-12 col-sm-6 col-md-4 col-lg-3">
-          {% include 'account/view/horizontal.html' with user=m.member star=m.is_star note=m.note only %}
+{#          {% include 'account/view/horizontal.html' with user=m.member star=m.is_star note=m.note only %}#}
+          {% include 'includes/card/user_base.html' with user=m.member.to_puser star=m.is_star note=m.note only %}
         </div>
       {% endfor %}
     </div>

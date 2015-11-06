@@ -60,7 +60,7 @@
         return false;
       });
 
-      // clickable click
+      // clickable click (doesn't work on modified DOM)
       $('.clickable').click(function() {
         var url = $(this).data('url');
         if (url) {
@@ -176,7 +176,7 @@
       <div class="panel-heading hidden-if-none">{% block content-header %}{% endblock %}</div>
       <div class="panel-body">
         <legend class="hidden-if-none">{% block content-title %}{% endblock %}</legend>
-        <div class="well hidden-if-none">{% block content-introduction %}{% endblock %}</div>
+        <div class="well hidden-if-none" id="content-introduction">{% block content-introduction %}{% endblock %}</div>
         {% block content %}{% endblock %}
       </div>
       <div class="panel-footer hidden-if-none">{% block content-footer %}{% endblock %}</div>
