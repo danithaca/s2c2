@@ -153,8 +153,10 @@ p2 related branches:
     * p2dev: the main dev branch for p2 (or servuno), currently maps to v2
     * p2prod: the main prod branch for p2, current maps to v2
     * p2/payment: the branch that evaluates payment options
-    * p2/v2: the minimalist design before 3rd pivot (stopped active dev on 2015-09-30)
-    * p2/v3: the pivot that targets to parents only
+    * p2/v2: the minimalist design before 3rd pivot (stopped active dev on 2015-09-30), using a list of links in the homepage (with "favor karma" data)
+    * p2/v3: the pivot that targets to parents only, using FB-like tabs
+    * p2/v4: the pivot to use Navbar links instead; separate PARENT/SITTER list; use TAG instead of PUBLIC/SUPERSET; migration squash; require invitation code.
+    * p2/v5: merge PARENT/SITTER into PERSONAL, and use PUBLIC for TAG; make users/groups look consistent.
 
 
 GIT Tags
