@@ -2,7 +2,7 @@
 {% if sitetree_items %}
 <ul>
 	{% for item in sitetree_items %}
-		{% if item.insitetree %}{% if item.inmenu or item.alias == 'home' %}
+		{% if item.insitetree %}
 			<li>
 				<a href="{% sitetree_url for item %}" class="">
           {% if item.fa_icon %}<i class="fa fa-{{ item.fa_icon }}"></i>{% endif %}
@@ -13,7 +13,7 @@
 					{% sitetree_children of item for sitetree template "sitetree/tree.html" %}
 				{% endif %}
 			</li>
-		{% endif %}{% endif %}
+		{% endif %}
 	{% endfor %}
 </ul>
 {% endif %}

@@ -22,6 +22,7 @@ urlpatterns = patterns(
     # url(r"^onboard/public/$", views.OnboardPublicCircle.as_view(), name="onboard_public"),
     # url(r"^onboard/agency/$", views.OnboardAgencyCircle.as_view(), name="onboard_agency"),
     # url(r"^onboard/picture/$", views.OnboardPicture.as_view(), name="onboard_picture"),
+    url(r"^onboard/pref/$", views.OnboardPreference.as_view(), name="onboard_preference"),
 
     # todo: allow other people view account
     url(r"^$", views.UserView.as_view(), name="account_view"),

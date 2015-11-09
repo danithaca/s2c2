@@ -76,7 +76,7 @@ class AreaAdmin(admin.ModelAdmin):
     list_display = ('email', 'user', 'created')
 
 
-@admin.register(MenuItem)
+#@admin.register(MenuItem)
 class MenuItemAdmin(TreeItemAdmin):
     list_display = ('title', 'alias', 'fa_icon', 'access_loggedin', 'hidden', 'inmenu', 'inbreadcrumbs', 'insitetree', 'importance')
     exclude = ()

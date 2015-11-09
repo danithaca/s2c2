@@ -274,8 +274,8 @@ class MultiStepViewsMixin(ContextMixin):
 
     @classmethod
     def get_steps_meta(cls):
-        step_order = ['SignupView', 'OnboardParentCircle', 'OnboardTagCircle']
-        step_url = [reverse('account_signup'), reverse('onboard_parent'), reverse('onboard_group')]
+        step_order = ['SignupView', 'OnboardPreference', 'OnboardParentCircle', 'OnboardTagCircle']
+        step_url = [reverse('account_signup'), reverse('onboard_preference'), reverse('onboard_parent'), reverse('onboard_group')]
         next_step_url = list(step_url)
         next_step_url.append(cls.final_url)
         del(next_step_url[0])
@@ -421,6 +421,11 @@ class OnboardProfile(MultiStepViewsMixin, UserEdit):
     template_name = 'account/onboard/form.html'
     step_title = 'Update Profile'
     form_class = UserInfoOnboardForm
+
+
+class OnboardPreference(MultiStepViewsMixin, UserPreference):
+    template_name = 'account/onboard/form.html'
+    step_title = 'Edit Site Preference'
 
 
 class OnboardParentCircle(MultiStepViewsMixin, ParentCircleView):

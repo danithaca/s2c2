@@ -4,7 +4,7 @@ from django import forms
 from django.contrib.auth.models import User
 from django.forms import ModelForm, fields_for_model
 
-from puser.models import Info, PUser, Waiting
+from puser.models import Info, PUser, Waiting, UserRole
 
 
 class SignupFullForm(ModelForm, account.views.SignupForm):
@@ -134,12 +134,26 @@ class UserPictureForm(ModelForm):
 
 
 class UserPreferenceForm(ModelForm):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['role'].choices = (
+            (UserRole.PARENT.value, 'As a parent'),
+            (UserRole.HYBRID.value, 'As a parent, but also available as a babysitter for paid jobs'),
+            (UserRole.SITTER.value, 'As a babysitter for paid babysitting jobs'),
+        )
+
     class Meta:
         model = Info
         fields = ('role', 'enable_sms', 'phone')
         help_texts = {
+            'role': 'What is your primary role of using the site',
+            'enable_sms': 'If checked, Servuno will send you important notifications via SMS (e.g., job post)',
+            'phone': 'Make sure to leave your phone number to receive SMS notification if you chhoose that option.'
         }
         labels = {
+            'role': 'Primary role',
+            'enable_sms': 'Receive SMS?',
+            'phone': 'Phone number'
         }
 
 
