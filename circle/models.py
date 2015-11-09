@@ -13,22 +13,30 @@ class Circle(models.Model):
     """
 
     class Type(Enum):
-        PERSONAL = 1        # obsolete in favor of parent/babysitter.
-        PUBLIC = 2          # obsolete in favor of tag
-        AGENCY = 3
-        SUPERSET = 4
+        PERSONAL = 1
+        PUBLIC = 2
+        AGENCY = 3          # obsolete in favor of "PUBLIC" with options
+        SUPERSET = 4        # obsolete in favor of CircleTag (not implemented)
         # SUBSCRIBER = 5    # people who suscribed to certain circles
         # LOOP = 6          # the circle of people who added me as favorite.
-        PARENT = 7          # parents network in v3 design
-        SITTER = 8          # babysitter list in v3 design
+        PARENT = 7          # obsolete in p2/v5
+        SITTER = 8          # obsolete in p2/v5
+
         # PUBLIC vs. TAG: tag membership is approved by default. flat hierarchy.
-        TAG = 9             # tag-like circle type in v3 design.
+        TAG = 9             # tag-like circle type in v3 design. obsolete in p2/v5. using "PUBLIC" with options
         # HELPER = 10       # the circle that tracks the helpers (members) to circle-owner. e.g, daniel helped tyler, and daniel is in tyler's helper list.
         # HYBRID = 11       # both as parent and as sitter
 
     name = models.CharField(max_length=200)
     description = models.TextField(blank=True)
     homepage = models.URLField(max_length=200, blank=True)
+
+    config = models.TextField(blank=True, help_text='JSON field for special settings.')
+    # possible settings:
+    # - whether to allow parents/sitters join themselves
+    # - whether membership requires approval (for either admins or the members)
+    # - whether the circle should be listed in the directory
+    # - whether to hide parents and/or sitters in group membership display (e.g., UM family helpers should only show sitters, not parents)
 
     type = models.PositiveSmallIntegerField(choices=[(t.value, t.name.capitalize()) for t in Type])
 
@@ -211,6 +219,7 @@ class Membership(models.Model):
     The 'active' field is for the "initiator". The "approved" field is for the "target"
     """
 
+    # obsolete in favor the the booleans
     class Type(Enum):
         NORMAL = 1
         ADMIN = 2
@@ -219,6 +228,10 @@ class Membership(models.Model):
 
     member = models.ForeignKey(settings.AUTH_USER_MODEL)
     circle = models.ForeignKey(Circle)
+
+    as_admin = models.BooleanField(default=False)
+    as_parent = models.BooleanField(default=True)
+    as_sitter = models.BooleanField(default=False)
 
     # this specifies whether the user is disabled or activated
     # private circle (favorite): whether the member is still in the circle
