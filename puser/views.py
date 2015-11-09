@@ -24,7 +24,7 @@ from login_token.models import Token
 from login_token.conf import settings as login_token_settings
 from p2.utils import RegisteredRequiredMixin
 from puser.forms import UserInfoForm, UserPictureForm, LoginEmailAdvForm, UserInfoOnboardForm, \
-    SignupFullForm, WaitingForm
+    SignupFullForm, WaitingForm, UserPreferenceForm
 from puser.models import Info, PUser, Waiting
 from puser.serializers import UserSerializer
 from shout.tasks import notify_send
@@ -97,6 +97,22 @@ class UserEdit(LoginRequiredMixin, FormView):
 
             messages.success(self.request, 'Profile successfully updated.')
         return super(UserEdit, self).form_valid(form)
+
+
+class UserPreference(LoginRequiredMixin, FormValidMessageMixin, UpdateView):
+    """
+    The view to handle user preference edit.
+    """
+    template_name = 'account/manage/default.html'
+    success_url = reverse_lazy('account_preference')
+    model = Info
+    # fields = ['picture_original', 'picture_cropping']
+    form_class = UserPreferenceForm
+    form_valid_message = 'Site preference updated.'
+
+    def get_object(self, queryset=None):
+        puser = self.request.puser
+        return puser.get_info()
 
 
 class InviteView(AnonymousRequiredMixin, FormView):

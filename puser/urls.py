@@ -29,6 +29,7 @@ urlpatterns = patterns(
 
     url(r"^edit/$", views.UserEdit.as_view(), name="account_edit"),
     url(r"^picture/$", views.UserPicture.as_view(), name="account_picture"),
+    url(r"^pref/$", views.UserPreference.as_view(), name="account_preference"),
 
     # url(r"^circle/$", circle.views.ManageCircleView.as_view(), name="account_circle"),
     # url(r"^favorite/$", circle.views.ManageFavoriteView.as_view(), name="account_favorite"),

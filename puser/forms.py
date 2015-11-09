@@ -133,5 +133,15 @@ class UserPictureForm(ModelForm):
         }
 
 
+class UserPreferenceForm(ModelForm):
+    class Meta:
+        model = Info
+        fields = ('role', 'enable_sms', 'phone')
+        help_texts = {
+        }
+        labels = {
+        }
+
+
 class LoginEmailAdvForm(LoginEmailForm):
     authentication_fail_message = "The email address and/or password you specified are not correct."
