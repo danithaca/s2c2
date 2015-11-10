@@ -1,5 +1,4 @@
 from datetime import timedelta
-from enum import Enum
 
 from account.models import Account, EmailAddress
 from account.signals import password_changed
@@ -12,16 +11,14 @@ from django.dispatch import receiver
 from django.utils import timezone
 from image_cropping import ImageCropField, ImageRatioField
 from localflavor.us.models import PhoneNumberField, USStateField
-
-from django.core import checks
 from django.conf import settings
 from sitetree.models import TreeItemBase
 
 from circle.models import Membership, Circle, ParentCircle, UserConnection
-
 from contract.models import Contract, Match, Engagement
 from login_token.models import Token
-from p2.utils import auto_user_name
+from p2.utils import auto_user_name, UserRole
+
 
 # move this to management instead
 # @checks.register()
@@ -53,12 +50,6 @@ class Area(models.Model):
     @staticmethod
     def default():
         return Area.objects.get(pk=1)
-
-
-class UserRole(Enum):
-    PARENT = 7
-    SITTER = 8
-    HYBRID = 11
 
 
 class Info(models.Model):

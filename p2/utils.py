@@ -1,4 +1,5 @@
 from datetime import date, time, datetime
+from enum import Enum
 import functools
 import sys
 import warnings
@@ -130,3 +131,9 @@ class ControlledFormValidMessageMixin(FormValidMessageMixin):
 #             return redirect_url
 #         else:
 #             return super().get_success_url()
+
+
+class UserRole(Enum):
+    PARENT = 7
+    SITTER = 8
+    HYBRID = 11

@@ -9,7 +9,7 @@
   {% else %}
     <div class="row">
       {% for uconn in pool_list %}
-        <div class="col-xs-12 col-sm-6 col-md-4 col-lg-3"><div class="thumbnail">
+        <div class="col-xs-12 col-sm-6 col-md-4"><div class="thumbnail">
           <div class="text-center">
             {% if uconn.target_user.to_puser.is_registered %}
               <span title="{{ uconn.target_user.email }}" data-toggle="tooltip" class="word-break"><img src="{% user_picture_url uconn.target_user %}" class="img-circle img-18"> <a href="{% url 'account_view' pk=uconn.target_user.id %}">{% user-full-name uconn.target_user %}</a></span>

@@ -19,7 +19,7 @@ from rest_framework.response import Response
 
 from circle.forms import UserConnectionForm
 from circle.models import Circle, Membership
-from circle.views import ParentCircleView, SitterCircleView, TagCircleUserView
+from circle.views import ParentCircleManageView, SitterCircleView, TagCircleUserView
 from login_token.models import Token
 from login_token.conf import settings as login_token_settings
 from p2.utils import RegisteredRequiredMixin
@@ -428,7 +428,7 @@ class OnboardPreference(MultiStepViewsMixin, UserPreference):
     step_title = 'Edit Site Preference'
 
 
-class OnboardParentCircle(MultiStepViewsMixin, ParentCircleView):
+class OnboardParentCircle(MultiStepViewsMixin, ParentCircleManageView):
     template_name = 'account/onboard/parent.html'
     step_title = 'Connect to Parents'
     step_note = 'Add other parents your trust who can babysit for you occasionally on the basis of reciprocity. DO NOT add anyone you don\'t trust.'

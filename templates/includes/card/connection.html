@@ -1,0 +1,14 @@
+{# user connections #}
+{% extends 'includes/card/user_base.html' %}
+{% load p2_tags %}
+
+{% block card-note %}
+  {% for connected_circle in user_connection.get_circle_list %}
+    <span class="label label-primary">{{ connected_circle.display }}</span>
+  {% endfor %}
+{% endblock %}
+
+
+{% block card-footer %}
+  <span class="btn btn-xs btn-primary"><i class="fa fa-bullhorn"></i></span>
+{% endblock %}

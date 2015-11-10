@@ -1,0 +1,67 @@
+{% extends 'base.html' %}
+{% load p2_tags %}
+{% load bootstrap %}
+
+{% block template_extra_header %}
+<script>
+$(document).ready(function() {
+  var $input_box = $('#new-item');
+  var $input_button = $('#new-item-add-btn');
+
+  // handle add
+  $input_button.click(function() {
+    var val = $input_box.val();
+    $.post("{% url 'circle:membership_activate' pk=circle.id %}", {email_field: val}, function(data) {
+      console.log(data);
+    });
+    $input_box.val('');
+  });
+
+  $('.destroy').click(function(e) {
+    e.preventDefault();
+    var url = $(this).data('url');
+    if (url) {
+      console.log(url);
+{#      $.post(url, function(data) {#}
+{#        console.log(data);#}
+{#      });#}
+    }
+  });
+});
+</script>
+{% endblock %}
+
+{% block content %}
+  {% if full_access %}
+    <div class="input-group min-margin-bottom">
+      <input id="new-item" class="form-control" placeholder="Email address" autofocus>
+      <span class="input-group-btn"><button class="btn btn-primary" id="new-item-add-btn"><i class="fa fa-user-plus"></i> {% block add-button-name %}Add{% endblock %}</button></span>
+    </div>
+  {% endif %}
+
+  {% if not list_membership %}
+    <p>None.</p>
+  {% else %}
+    <div class="row">
+      {% for membership in list_membership %}
+        <div class="col-xs-12 col-sm-6 col-md-4">
+        {% include 'includes/card/membership.html' with membership=membership user=membership.member.to_puser only %}
+        </div>
+      {% endfor %}
+    </div>
+  {% endif %}
+
+  <div class="page-header"><h6>{% block extended-network-name %}{% endblock %}</h6></div>
+
+  {% if not list_extended %}
+    <p>None.</p>
+  {% else %}
+    <div class="row">
+      {% for user_connection in list_extended %}
+        <div class="col-xs-12 col-sm-6 col-md-4">
+          {% include 'includes/card/connection.html' with user_connection=user_connection user=user_connection.target_user only %}
+        </div>
+      {% endfor %}
+    </div>
+  {% endif %}
+{% endblock %}

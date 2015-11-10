@@ -136,3 +136,14 @@ class MembershipEditForm(forms.ModelForm):
     #     if type is not None:
     #         self.fields['type'].initial = type
     #         self.fields['type'].widget = forms.HiddenInput()
+
+
+# class MembershipActivationForm(forms.ModelForm):
+#     redirect = forms.CharField(required=False, widget=forms.HiddenInput)
+#
+#     class Meta:
+#         model = Membership
+#         fields = ['active']
+#         widgets = {
+#             'active': forms.HiddenInput(),
+#         }

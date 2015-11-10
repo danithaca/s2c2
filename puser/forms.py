@@ -4,7 +4,8 @@ from django import forms
 from django.contrib.auth.models import User
 from django.forms import ModelForm, fields_for_model
 
-from puser.models import Info, PUser, Waiting, UserRole
+from puser.models import Info, PUser, Waiting
+from p2.utils import UserRole
 
 
 class SignupFullForm(ModelForm, account.views.SignupForm):

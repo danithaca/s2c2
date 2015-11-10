@@ -1,20 +1,127 @@
 from itertools import groupby
 import json
+import re
 
 from account.mixins import LoginRequiredMixin
-from braces.views import FormValidMessageMixin
+from braces.views import FormValidMessageMixin, UserPassesTestMixin, JSONResponseMixin, AjaxResponseMixin, \
+    JSONRequestResponseMixin
 from django.core.urlresolvers import reverse_lazy, reverse
 
 
 # Create your views here.
 from django.views.defaults import bad_request
-from django.views.generic import FormView, CreateView, UpdateView, TemplateView
+from django.views.generic import FormView, CreateView, UpdateView, TemplateView, DetailView, View
 from django.views.generic.detail import SingleObjectTemplateResponseMixin, SingleObjectMixin
 from circle.forms import EmailListForm, UserConnectionForm, TagUserForm, CircleForm, MembershipForm, MembershipEditForm
-from circle.models import Membership, Circle, ParentCircle, UserConnection
+from circle.models import Membership, Circle, ParentCircle, UserConnection, Friendship
 from circle.tasks import circle_send_invitation
 from puser.models import PUser
-from p2.utils import RegisteredRequiredMixin, ControlledFormValidMessageMixin
+from p2.utils import RegisteredRequiredMixin, ControlledFormValidMessageMixin, UserRole, is_valid_email
+
+
+################# Mixins ##################
+
+
+# todo/bug: for public circles, admins can't edit "active". for personal circles, owners can't edit "approved".
+class AllowMembershipEditMixin(UserPassesTestMixin):
+    '''
+    Test if the user is able to edit the given membership. Requires implementing "get_membership".
+    '''
+    raise_exception = True
+
+    def test_func(self, user):
+        membership = self.get_membership()
+        if membership.member.id == user.id \
+                or membership.circle.owner.id == user.id \
+                or user.id in [member.id for member in membership.circle.members.filter(membership__as_admin=True)]:
+            return True
+        else:
+            return False
+
+    def get_membership(self):
+        raise NotImplementedError()
+
+
+class CircleAdminMixin(UserPassesTestMixin):
+    raise_exception = True
+
+    def test_func(self, user):
+        circle = self.get_circle()
+        # todo: this only check circle ownership now.
+        if circle.owner.id == user.id:
+            return True
+        else:
+            return False
+
+    def get_circle(self):
+        raise NotImplementedError()
+
+
+################## regular views ####################
+
+
+class CircleView(LoginRequiredMixin, RegisteredRequiredMixin, ControlledFormValidMessageMixin, DetailView):
+    template_name = 'circle/view/base.html'
+    context_object_name = 'circle'
+
+    def add_extra_filter(self, queryset):
+        raise NotImplementedError()
+
+
+class PersonalCircleView(CircleView):
+    def get_object(self, queryset=None):
+        return self.request.puser.get_personal_circle()
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        my_personal_circle = self.object
+        me = my_personal_circle.owner
+
+        # my network
+        list_membership = my_personal_circle.membership_set.filter(active=True).exclude(approved=False).exclude(member=me)
+        list_membership = self.add_extra_filter(list_membership)
+        context['list_membership'] = list_membership
+
+        # my extended network
+        my_parent_list = [m.member for m in list_membership.filter(approved=True)]    # only take approved=True (excluding approved=None)
+        extended_circle_list = Circle.objects.filter(owner__in=my_parent_list, type=my_personal_circle.type, area=my_personal_circle.area)
+        # need to sort by member in order to use groupby.
+        extended = []
+        list_extended = Membership.objects.filter(active=True, approved=True, circle__in=extended_circle_list).exclude(member=me).exclude(member__in=my_parent_list).order_by('member')
+        list_extended = self.add_extra_filter(list_extended)
+        for member, membership_list in groupby(list_extended, lambda m: m.member):
+            extended.append(UserConnection(me, member, list(membership_list)))
+        context['list_extended'] = extended
+
+        context['full_access'] = True
+
+        return context
+
+
+class ParentCircleManageView(PersonalCircleView):
+    template_name = 'circle/view/parent.html'
+    # success_url = reverse_lazy('circle:parent')
+    # form_valid_message = 'Parent connections successfully updated.'
+    # # we always set "approved" to be true here.
+    # default_approved = True
+    #
+    # def get_circle(self):
+    #     circle = self.request.puser.my_circle(Circle.Type.PARENT)
+    #     assert isinstance(circle, ParentCircle)
+    #     return circle
+    #
+    # def get_membership_edit_form(self):
+    #     form = MembershipEditForm(initial={'redirect': self.success_url})
+    #     form.fields['note'].label = 'Endorsement'
+    #     form.fields['type'].widget.choices = (
+    #         (Membership.Type.NORMAL.value, 'Regular'),
+    #         (Membership.Type.FAVORITE.value, 'Immediate family member (spouse, grandparents)'),
+    #     )
+    #     form.fields['type'].help_text = 'Mark as family member to allow Servuno propagate your job posts across social networks.'
+    #     return form
+
+    def add_extra_filter(self, queryset):
+        return queryset.filter(as_role=UserRole.PARENT.value)
 
 
 class BaseCircleView(LoginRequiredMixin, RegisteredRequiredMixin, ControlledFormValidMessageMixin, FormView):
@@ -425,6 +532,25 @@ class MembershipEditView(LoginRequiredMixin, RegisteredRequiredMixin, UpdateView
             return '/'
 
 
+# todo: AllowMembershipEditMixin is not very accurate
+class MembershipDeactivateView(LoginRequiredMixin, RegisteredRequiredMixin, SingleObjectMixin, AllowMembershipEditMixin, JSONResponseMixin, AjaxResponseMixin, View):
+    model = Membership
+
+    def get_membership(self):
+        return self.get_object()
+
+    def post_ajax(self, request, *args, **kwargs):
+        try:
+            membership = self.get_membership()
+            if membership.is_valid_parent_relation():
+                friendship = Friendship(membership.circle.owner, membership.member, main_membership=membership)
+                friendship.deactivate()
+                return self.render_json_response({'success': True})
+        except:
+            pass
+        return self.render_json_response({'success': False})
+
+
 class ListMembersView(LoginRequiredMixin, RegisteredRequiredMixin, TemplateView):
     template_name = 'circle/network.html'
 
@@ -469,3 +595,32 @@ class SitterPoolView(BasePoolView):
 class ParentPoolView(BasePoolView):
     template_name = 'circle/pool/parent.html'
     circle_type = Circle.Type.PARENT.value
+
+
+################## views for API ########################
+
+
+class ActivateMembership(LoginRequiredMixin, CircleAdminMixin, SingleObjectMixin, JSONResponseMixin, AjaxResponseMixin, View):
+    model = Circle
+
+    def get_circle(self):
+        return self.get_object()
+
+    def post_ajax(self, request, *args, **kwargs):
+        circle = self.get_circle()
+        email_field = request.POST.get('email_field', None)
+        if email_field:
+            email_list = [e.strip() for e in re.split(r'[\s,;]+', email_field) if is_valid_email(e.strip())]
+            for email in email_list:
+                try:
+                    target_puser = PUser.get_by_email(email)
+                except PUser.DoesNotExist:
+                    target_puser = PUser.create(email, dummy=True, area=circle.area)
+                # this behaves differently for different circle type (Proxy subclass)
+                circle.activate_membership(target_puser, approved=self.default_approved)
+                # send notification
+                # if the user is a dummy user, send invitation code instead.
+                current_user = self.request.user.to_puser()     # this is to make a separate copy of the user to prevent "change dict" error at runtime
+                circle_send_invitation.delay(circle, target_puser, current_user)
+
+        return self.render_json_response({'success': email_field, 'circle_id': circle.id})

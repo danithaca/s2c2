@@ -44,7 +44,7 @@ class Command(BaseCommand):
                     created_user.info.save()
 
                     # assign user to family helper circle
-                    helper_circle.add_member(created_user, approved=True)
+                    helper_circle.activate_membership(created_user, approved=True)
 
             # print list of emails for notification.
             print(','.join(emails))

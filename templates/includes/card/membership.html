@@ -1,0 +1,11 @@
+{% extends 'includes/card/user_base.html' %}
+{% load p2_tags %}
+
+{% block container-attributes-extra %}data-membership-id="{{ membership.id }}"{% endblock %}
+
+{% block card-note %}{% if membership.note %}<span class="text-muted">{{ membership.note }}</span>{% endif %}{% endblock %}
+
+{% block card-footer %}
+  <span class="btn btn-xs btn-primary" data-expandable-text="Message"><i class="fa fa-bullhorn"></i></span>
+  <span class="btn btn-xs btn-danger destroy" data-expandable-text="Delete" data-url="{% url 'circle:membership_deactivate' pk=membership.id %}"><i class="fa fa-trash"></i></span>
+{% endblock %}
