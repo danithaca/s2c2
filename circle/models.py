@@ -91,21 +91,31 @@ class Circle(models.Model):
     #
     #     return membership
 
-    def _activate_membership(self, user, membership_type=None, approved=None):
-        """
-        :return: if membership already exists, return it with active set to True. otherwise, create the membership with default.
-        """
-        defaults = {'active': True}
-        if membership_type is not None:
-            defaults['type'] = membership_type
-        if approved is not None:
-            defaults['approved'] = approved
-        membership, created = Membership.objects.update_or_create(member=user, circle=self, defaults=defaults)
-        return membership
+    # def _activate_membership(self, user, membership_type=None, approved=None):
+    #     """
+    #     :return: if membership already exists, return it with active set to True. otherwise, create the membership with default.
+    #     """
+    #     defaults = {'active': True}
+    #     if membership_type is not None:
+    #         defaults['type'] = membership_type
+    #     if approved is not None:
+    #         defaults['approved'] = approved
+    #     membership, created = Membership.objects.update_or_create(member=user, circle=self, defaults=defaults)
+    #     return membership
 
-    # this structure allows override activate_membership without overriding _active_membership()
-    def activate_membership(self, user, membership_type=None, approved=None):
-        self._activate_membership(user, membership_type, approved)
+    # # this structure allows override activate_membership without overriding _active_membership()
+    # def activate_membership(self, user, membership_type=None, approved=None):
+    #     self._activate_membership(user, membership_type, approved)
+
+    def activate_membership(self, user, **kwargs):
+        """
+        If membership already exists, set active to True. otherwise, create the membership with default.
+        This will regardless create a "membership" object, because "activate" is always the first step to initiate a "Membership" object.
+        """
+        defaults = {}
+        defaults.update(kwargs)
+        defaults['active'] = True
+        membership, created = Membership.objects.update_or_create(member=user, circle=self, defaults=defaults)
 
     def deactivate_membership(self, user):
         """
@@ -119,11 +129,23 @@ class Circle(models.Model):
         except Membership.DoesNotExist:
             pass
 
+    def approve_membership(self, user):
+        """
+        If membership already exists, approve it. otherwise, do nothing
+        """
+        try:
+            membership = self.get_membership(user)
+            if not membership.approved:
+                membership.approved = True
+                membership.save()
+        except Membership.DoesNotExist:
+            pass
+
     def get_membership(self, user):
         return Membership.objects.get(member=user, circle=self)
 
-    def get_active_member(self):
-        return self.members.filter(membership__active=True)
+    # def get_active_member(self):
+    #     return self.members.filter(membership__active=True)
 
     def is_type_personal(self):
         return self.type == Circle.Type.PERSONAL.value
@@ -159,8 +181,24 @@ class Circle(models.Model):
         except Membership.DoesNotExist:
             return False
 
+    def is_membership_activated(self, user):
+        try:
+            membership = self.get_membership(user)
+            if membership.active and membership.approved is not False:
+                return True
+            else:
+                return False
+        except Membership.DoesNotExist:
+            return False
+
     def get_absolute_url(self):
         return reverse('circle:tag_view', kwargs={'pk': self.id})
+
+    def get_admin_users(self):
+        admin_members = set([member for member in self.members.filter(membership__as_admin=True)])
+        admin_members.add(self.owner)
+        return admin_members
+
 
 # class PersonalCircleManager(models.Manager):
 #     def get_queryset(self):
@@ -176,16 +214,31 @@ class PersonalCircle(Circle):
         name = self.owner.get_full_name() or self.owner.username
         return '%s\'s network' % name
 
+    def activate_membership(self, user, **kwargs):
+        as_role = kwargs.pop('as_role', UserRole.PARENT.value)
+        if as_role == UserRole.PARENT.value:
+            # this is parent-parent friendship
+            friendship = Friendship(self.owner, user)
+            friendship.activate()
+            # todo: need to figure out whether to further process kwargs.
+        else:
+            super().activate_membership(user, **kwargs)
 
-# class PublicCircleManager(models.Manager):
-#     def get_queryset(self):
-#         return super().get_queryset().filter(type=Circle.Type.PUBLIC.value)
+    def deactivate_membership(self, user):
+        try:
+            membership = self.get_membership(user)
+            if membership.as_role == UserRole.PARENT.value:
+                friendship = Friendship(self.owner, user)
+                friendship.deactivate()
+                return
+        except Membership.DoesNotExist:
+            pass
+        super().deactivate_membership(user)
 
 
 class PublicCircle(Circle):
     class Meta:
         proxy = True
-    # objects = PublicCircleManager()
 
 
 class ParentCircleManager(models.Manager):
@@ -277,7 +330,7 @@ class Membership(models.Model):
     # private circle: should always be true, because private list are always approved by the owner. if the member doesn't want to be included, it could be set as false.
     # public circle: someone (either the owner or a panel) needs to approve the membership.
     # agency: usually should always be true. subscribers are always true.
-    approved = models.NullBooleanField(default=None, blank=True, null=True)
+    approved = models.NullBooleanField(blank=True, null=True, default=None)
 
     # seems we don't need a "owner" type. the admin will suffice
     type = models.PositiveSmallIntegerField(choices=[(t.value, t.name.capitalize()) for t in Type], default=Type.NORMAL.value)
@@ -345,6 +398,13 @@ class Membership(models.Model):
         else:
             return False
 
+    def deactivate(self):
+        # since a membership object is unique to a member in a circle, we'll just delegate it to the circle. or is it???
+        circle = self.circle.to_proxy()
+        circle.deactivate_membership(self.member)
+        self.refresh_from_db()
+        assert self.active is False
+
 
 class UserConnection(object):
     """
@@ -359,7 +419,12 @@ class UserConnection(object):
         self.note = ''          # which note to show about the target_user.
 
     def add_membership(self, membership):
-        assert membership.member == self.target_user
+        # we cannot assume membership.member is equal to self.target_user.
+        # self.membership_list is just a list of memberships that are relevant to the initiate_user => target_user UserConnection
+        # how to use the membership_list is up to the application.
+
+        # assert membership.member == self.target_user
+        assert membership is not None and isinstance(membership, Membership)
         self.membership_list.append(membership)
 
     def get_circle_list(self):
@@ -385,7 +450,7 @@ class Friendship(UserConnection):
     This is a special type of UserConnection with implied parent-parent friendship in the network.
     '''
     def __init__(self, initiate_user, target_user, main_membership=None, reverse_membership=None):
-        super(initiate_user, target_user)
+        super().__init__(initiate_user, target_user)
 
         # handle main membership
         if main_membership is not None:
@@ -399,26 +464,32 @@ class Friendship(UserConnection):
                 pass
 
         self.main_membership = main_membership
-        self.add_membership(self.main_membership)
+        if self.main_membership is not None:
+            self.add_membership(self.main_membership)
 
         # handle reverse membership
         if reverse_membership is not None:
             assert reverse_membership.is_valid_parent_relation(self.target_user, self.initiate_user)
         else:
             try:
-                reverse_membership = self.to_reverse().find_personal_membership()
+                reverse_user_connection = UserConnection(self.target_user, self.initiate_user)
+                reverse_membership = reverse_user_connection.find_personal_membership()
                 # assert reverse_membership.as_parent is True
             except Membership.DoesNotExist:
                 pass
 
         self.reverse_membership = reverse_membership
-        self.add_membership(self.reverse_membership)
+        if self.reverse_membership is not None:
+            self.add_membership(self.reverse_membership)
 
     def to_reverse(self):
         return Friendship(self.target_user, self.initiate_user, self.reverse_membership, self.main_membership)
 
     def is_established(self):
         return self.main_membership is not None and self.main_membership.active and self.main_membership.approved and self.main_membership.as_role == UserRole.PARENT.value and self.reverse_membership is not None and self.reverse_membership.active and self.reverse_membership.approved and self.reverse_membership.as_role == UserRole.PARENT.value
+
+    def is_pending_approval(self):
+        return self.main_membership is not None and self.main_membership.active and self.main_membership.approved is None and self.main_membership.as_role == UserRole.PARENT.value
 
     def can_activate(self):
         # the only time that this cannot activate is when the target user has already disapproved the case.
@@ -430,9 +501,10 @@ class Friendship(UserConnection):
 
     # this is when the initiate user deactivate friendship with the target user.
     def deactivate(self):
-        if self.is_established():
+        if self.main_membership is not None and self.main_membership.active is True:
             self.main_membership.active = False
             self.main_membership.save()
+        if self.reverse_membership is not None and self.reverse_membership.approved is not False:
             # this implies that the reverse membership is disapproved.
             self.reverse_membership.approved = False
             self.reverse_membership.save()

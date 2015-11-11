@@ -12,21 +12,34 @@ $(document).ready(function() {
   $input_button.click(function() {
     var val = $input_box.val();
     $.post("{% url 'circle:membership_activate' pk=circle.id %}", {email_field: val}, function(data) {
-      console.log(data);
+      if (data['processed'] && data['processed'].length > 0) {
+        window.location.reload();
+      }
     });
     $input_box.val('');
   });
-
-  $('.destroy').click(function(e) {
-    e.preventDefault();
-    var url = $(this).data('url');
-    if (url) {
-      console.log(url);
-{#      $.post(url, function(data) {#}
-{#        console.log(data);#}
-{#      });#}
+  // bind "enter" as well
+  $input_box.keyup(function(e) {
+    if(e.keyCode == 13) {
+      $input_button.trigger('click');
     }
   });
+
+  $('.card .destroy').click(function(e) {
+    e.stopPropagation();
+    var $this = $(this);
+    var url = $this.data('url');
+    if (url) {
+      $.post(url, function(data) {
+        if (data['success']) {
+          //window.location.reload();
+          $this.parents('.card').parent().remove();  // 2nd parent is for the column
+        }
+      });
+    }
+  });
+
+  resizeCards();
 });
 </script>
 {% endblock %}

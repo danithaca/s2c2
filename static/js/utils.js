@@ -166,3 +166,13 @@ function defaultBootstrapSwitchOptions() {
     offText: '<i class="fa fa-minus"></i>',
   }
 }
+
+function resizeCards() {
+  if (!is_viewport_xs()) {
+    var maxHeight = 0;
+    $('.card').each(function() {
+      maxHeight = Math.max(maxHeight, $(this).height());
+    });
+    $('.card').height(maxHeight);
+  }
+}

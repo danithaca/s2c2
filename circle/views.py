@@ -5,6 +5,7 @@ import re
 from account.mixins import LoginRequiredMixin
 from braces.views import FormValidMessageMixin, UserPassesTestMixin, JSONResponseMixin, AjaxResponseMixin, \
     JSONRequestResponseMixin
+from django.contrib import messages
 from django.core.urlresolvers import reverse_lazy, reverse
 
 
@@ -24,9 +25,9 @@ from p2.utils import RegisteredRequiredMixin, ControlledFormValidMessageMixin, U
 
 # todo/bug: for public circles, admins can't edit "active". for personal circles, owners can't edit "approved".
 class AllowMembershipEditMixin(UserPassesTestMixin):
-    '''
+    """
     Test if the user is able to edit the given membership. Requires implementing "get_membership".
-    '''
+    """
     raise_exception = True
 
     def test_func(self, user):
@@ -47,8 +48,7 @@ class CircleAdminMixin(UserPassesTestMixin):
 
     def test_func(self, user):
         circle = self.get_circle()
-        # todo: this only check circle ownership now.
-        if circle.owner.id == user.id:
+        if user in circle.get_admin_users():
             return True
         else:
             return False
@@ -78,7 +78,7 @@ class PersonalCircleView(CircleView):
         me = my_personal_circle.owner
 
         # my network
-        list_membership = my_personal_circle.membership_set.filter(active=True).exclude(approved=False).exclude(member=me)
+        list_membership = my_personal_circle.membership_set.filter(active=True).exclude(approved=False).exclude(member=me).order_by('-updated')
         list_membership = self.add_extra_filter(list_membership)
         context['list_membership'] = list_membership
 
@@ -87,7 +87,7 @@ class PersonalCircleView(CircleView):
         extended_circle_list = Circle.objects.filter(owner__in=my_parent_list, type=my_personal_circle.type, area=my_personal_circle.area)
         # need to sort by member in order to use groupby.
         extended = []
-        list_extended = Membership.objects.filter(active=True, approved=True, circle__in=extended_circle_list).exclude(member=me).exclude(member__in=my_parent_list).order_by('member')
+        list_extended = Membership.objects.filter(active=True, approved=True, circle__in=extended_circle_list).exclude(member=me).exclude(member__in=my_parent_list).order_by('member').order_by('-updated')
         list_extended = self.add_extra_filter(list_extended)
         for member, membership_list in groupby(list_extended, lambda m: m.member):
             extended.append(UserConnection(me, member, list(membership_list)))
@@ -532,25 +532,6 @@ class MembershipEditView(LoginRequiredMixin, RegisteredRequiredMixin, UpdateView
             return '/'
 
 
-# todo: AllowMembershipEditMixin is not very accurate
-class MembershipDeactivateView(LoginRequiredMixin, RegisteredRequiredMixin, SingleObjectMixin, AllowMembershipEditMixin, JSONResponseMixin, AjaxResponseMixin, View):
-    model = Membership
-
-    def get_membership(self):
-        return self.get_object()
-
-    def post_ajax(self, request, *args, **kwargs):
-        try:
-            membership = self.get_membership()
-            if membership.is_valid_parent_relation():
-                friendship = Friendship(membership.circle.owner, membership.member, main_membership=membership)
-                friendship.deactivate()
-                return self.render_json_response({'success': True})
-        except:
-            pass
-        return self.render_json_response({'success': False})
-
-
 class ListMembersView(LoginRequiredMixin, RegisteredRequiredMixin, TemplateView):
     template_name = 'circle/network.html'
 
@@ -600,6 +581,8 @@ class ParentPoolView(BasePoolView):
 ################## views for API ########################
 
 
+# note: this requires CircleAdminMixin, which is for Circle admins only
+# this should not be used for regular users joining a public group, because they don't have CircleAdmin
 class ActivateMembership(LoginRequiredMixin, CircleAdminMixin, SingleObjectMixin, JSONResponseMixin, AjaxResponseMixin, View):
     model = Circle
 
@@ -607,20 +590,55 @@ class ActivateMembership(LoginRequiredMixin, CircleAdminMixin, SingleObjectMixin
         return self.get_object()
 
     def post_ajax(self, request, *args, **kwargs):
-        circle = self.get_circle()
+        circle = self.get_circle().to_proxy()
         email_field = request.POST.get('email_field', None)
-        if email_field:
-            email_list = [e.strip() for e in re.split(r'[\s,;]+', email_field) if is_valid_email(e.strip())]
-            for email in email_list:
-                try:
-                    target_puser = PUser.get_by_email(email)
-                except PUser.DoesNotExist:
-                    target_puser = PUser.create(email, dummy=True, area=circle.area)
-                # this behaves differently for different circle type (Proxy subclass)
-                circle.activate_membership(target_puser, approved=self.default_approved)
-                # send notification
-                # if the user is a dummy user, send invitation code instead.
-                current_user = self.request.user.to_puser()     # this is to make a separate copy of the user to prevent "change dict" error at runtime
-                circle_send_invitation.delay(circle, target_puser, current_user)
+        is_sitter = request.POST.get('is_sitter', False)
+        as_role = UserRole.PARENT.value if not is_sitter else UserRole.SITTER.value
+        processed_list = []
+        invalid_list = []
 
-        return self.render_json_response({'success': email_field, 'circle_id': circle.id})
+        if email_field:
+            for email in [e.strip() for e in re.split(r'[\s,;]+', email_field)]:
+                if is_valid_email(email):
+                    try:
+                        target_puser = PUser.get_by_email(email)
+                    except PUser.DoesNotExist:
+                        target_puser = PUser.create(email, dummy=True, area=circle.area)
+
+                    # todo: here we might want to test if the membership is already active.
+                    # this behaves differently for different circle type (Proxy subclass)
+                    circle.activate_membership(target_puser, as_role=as_role)
+
+                    # if this is a public circle, and since this is added by the admin, we can say that the membership is approved
+                    if circle.is_type_public():
+                        circle.approve_membership(target_puser)
+
+                    if circle.is_membership_activated(target_puser):
+                        # send notification
+                        # if the user is a dummy user, send invitation code instead.
+                        current_user = self.request.user.to_puser()     # this is to make a separate copy of the user to prevent "change dict" error at runtime
+                        circle_send_invitation.delay(circle, target_puser, current_user)
+                        processed_list.append(email)
+                    else:
+                        invalid_list.append(email)
+                else:
+                    invalid_list.append(email)
+
+        if len(processed_list) > 0:
+            messages.success(request, 'Successfully added %s' % ', '.join(processed_list))
+        return self.render_json_response({'processed': processed_list, 'invalid': invalid_list})
+
+
+# todo: AllowMembershipEditMixin is not very accurate
+class DeactivateMembership(LoginRequiredMixin, AllowMembershipEditMixin, SingleObjectMixin, JSONResponseMixin, AjaxResponseMixin, View):
+    model = Membership
+
+    def get_membership(self):
+        return self.get_object()
+
+    def post_ajax(self, request, *args, **kwargs):
+        membership = self.get_membership()
+        membership.deactivate()
+        # reload_membership = Membership.objects.get(id=membership.id)
+        # assert reload_membership.active == False
+        return self.render_json_response({'success': True})

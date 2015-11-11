@@ -26,7 +26,6 @@ urlpatterns = patterns(
     url(r"^membership/(?P<pk>\d+)/edit/$", views.MembershipEditView.as_view(), name="membership_edit"),
 
     # api related
-    url(r"^membership/(?P<pk>\d+)/deactivate/$", views.MembershipDeactivateView.as_view(), name="membership_deactivate"),
-    # to make it clear, let's use "activate" instead of "add"
-    url(r"^(?P<pk>\d+)/activate/$", views.ActivateMembership.as_view(), name="membership_activate"),
+    url(r"^membership/(?P<pk>\d+)/deactivate/$", views.DeactivateMembership.as_view(), name="membership_deactivate"),
+    url(r"^(?P<pk>\d+)/activate/$", views.ActivateMembership.as_view(), name="membership_activate"),        # to make it clear, let's use "activate" instead of "add"
 )
