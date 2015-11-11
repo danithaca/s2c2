@@ -11,7 +11,8 @@ $(document).ready(function() {
   // handle add
   $input_button.click(function() {
     var val = $input_box.val();
-    $.post("{% url 'circle:membership_activate' pk=circle.id %}", {email_field: val}, function(data) {
+    var is_sitter = $('input[name="is_sitter"]').is(':checked');
+    $.post("{% url 'circle:membership_activate' pk=circle.id %}", {email_field: val, is_sitter: is_sitter}, function(data) {
       if (data['processed'] && data['processed'].length > 0) {
         window.location.reload();
       }
@@ -50,6 +51,8 @@ $(document).ready(function() {
       <input id="new-item" class="form-control" placeholder="Email address" autofocus>
       <span class="input-group-btn"><button class="btn btn-primary" id="new-item-add-btn"><i class="fa fa-user-plus"></i> {% block add-button-name %}Add{% endblock %}</button></span>
     </div>
+    <div class="checkbox hidden min-margin-bottom"><label><input name="is_sitter" type="checkbox" {% if is_sitter %}checked{% endif %}> <span>Add as a babysitter</span></label></div>
+{#    <hr>#}
   {% endif %}
 
   {% if not list_membership %}

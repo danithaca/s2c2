@@ -10,6 +10,7 @@ from django.core.urlresolvers import reverse_lazy, reverse
 
 
 # Create your views here.
+from django.forms import HiddenInput
 from django.views.defaults import bad_request
 from django.views.generic import FormView, CreateView, UpdateView, TemplateView, DetailView, View
 from django.views.generic.detail import SingleObjectTemplateResponseMixin, SingleObjectMixin
@@ -83,11 +84,11 @@ class PersonalCircleView(CircleView):
         context['list_membership'] = list_membership
 
         # my extended network
-        my_parent_list = [m.member for m in list_membership.filter(approved=True)]    # only take approved=True (excluding approved=None)
+        my_parent_list = [m.member for m in my_personal_circle.membership_set.filter(active=True, approved=True, as_role=UserRole.PARENT.value).exclude(member=me)]
         extended_circle_list = Circle.objects.filter(owner__in=my_parent_list, type=my_personal_circle.type, area=my_personal_circle.area)
         # need to sort by member in order to use groupby.
         extended = []
-        list_extended = Membership.objects.filter(active=True, approved=True, circle__in=extended_circle_list).exclude(member=me).exclude(member__in=my_parent_list).order_by('member').order_by('-updated')
+        list_extended = Membership.objects.filter(active=True, circle__in=extended_circle_list).exclude(member=me).exclude(approved=False).exclude(id__in=list_membership.values_list('id', flat=True)).order_by('member', '-updated')
         list_extended = self.add_extra_filter(list_extended)
         for member, membership_list in groupby(list_extended, lambda m: m.member):
             extended.append(UserConnection(me, member, list(membership_list)))
@@ -100,28 +101,21 @@ class PersonalCircleView(CircleView):
 
 class ParentCircleManageView(PersonalCircleView):
     template_name = 'circle/view/parent.html'
-    # success_url = reverse_lazy('circle:parent')
-    # form_valid_message = 'Parent connections successfully updated.'
-    # # we always set "approved" to be true here.
-    # default_approved = True
-    #
-    # def get_circle(self):
-    #     circle = self.request.puser.my_circle(Circle.Type.PARENT)
-    #     assert isinstance(circle, ParentCircle)
-    #     return circle
-    #
-    # def get_membership_edit_form(self):
-    #     form = MembershipEditForm(initial={'redirect': self.success_url})
-    #     form.fields['note'].label = 'Endorsement'
-    #     form.fields['type'].widget.choices = (
-    #         (Membership.Type.NORMAL.value, 'Regular'),
-    #         (Membership.Type.FAVORITE.value, 'Immediate family member (spouse, grandparents)'),
-    #     )
-    #     form.fields['type'].help_text = 'Mark as family member to allow Servuno propagate your job posts across social networks.'
-    #     return form
 
     def add_extra_filter(self, queryset):
         return queryset.filter(as_role=UserRole.PARENT.value)
+
+
+class SitterCircleManageView(PersonalCircleView):
+    template_name = 'circle/view/sitter.html'
+
+    def add_extra_filter(self, queryset):
+        return queryset.filter(as_role=UserRole.SITTER.value)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['is_sitter'] = True
+        return context
 
 
 class BaseCircleView(LoginRequiredMixin, RegisteredRequiredMixin, ControlledFormValidMessageMixin, FormView):
@@ -535,12 +529,18 @@ class MembershipEditView(LoginRequiredMixin, RegisteredRequiredMixin, AllowMembe
         if membership.is_valid_parent_relation():
             form.fields['note'].label = 'Endorsement'
             form.fields['as_admin'].label = 'Mark as a family member'
+        elif membership.is_valid_sitter_relation():
+            form.fields['note'].label = 'Endorsement'
+            form.fields['as_admin'].widget = HiddenInput()
+            form.fields['as_admin'].initial = False
         return form
 
     def get_success_url(self):
         membership = self.get_object()
         if membership.is_valid_parent_relation():
             return reverse('circle:parent')
+        elif membership.is_valid_sitter_relation():
+            return reverse('circle:sitter')
         # if self.redirect_url:
         #     return self.redirect_url
         # else:
@@ -626,8 +626,8 @@ class ActivateMembership(LoginRequiredMixin, CircleAdminMixin, SingleObjectMixin
                     circle.activate_membership(target_puser, as_role=as_role)
 
                     # if this is a public circle, and since this is added by the admin, we can say that the membership is approved
-                    if circle.is_type_public():
-                        circle.approve_membership(target_puser)
+                    # if this is private circle, since this is added by "email", we'll approve as well.
+                    circle.approve_membership(target_puser)
 
                     if circle.is_membership_activated(target_puser):
                         # send notification

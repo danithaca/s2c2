@@ -5,7 +5,7 @@
 {% block container-attributes %}data-uid="{{ user.id }}" data-email="{{ user.email }}" data-url="{{ user.get_absolute_url }}" {% block container-attributes-extra %}{% endblock %}{% endblock %}
 
 {% block card-image %}{% if user.has_picture %}<img class="img-50 img-circle" src="{% user_picture_url user %}">{% endif %}{% endblock %}
-{% block card-title %}<a href="{{ user.get_absolute_url }}">{% user-full-name user %}</a>{% endblock %}
+{% block card-title %}<a href="{{ user.get_absolute_url }}" class="{% block user-name-extra-classes %}{% endblock %}">{% user-full-name user %}</a>{% endblock %}
 
 {#{% block card-footer %}#}
 {#  <span class="btn btn-xs btn-primary"><i class="fa fa-bullhorn"></i></span>#}

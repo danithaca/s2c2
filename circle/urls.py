@@ -8,7 +8,7 @@ urlpatterns = patterns(
     # url(r"^parent/$", views.ParentCircleView.as_view(), name="parent"),
     url(r"^parent/$", views.ParentCircleManageView.as_view(), name="parent"),
     # url(r"^sitter/$", views.SitterCircleView.as_view(), name="sitter"),
-    url(r"^sitter/$", views.SitterCircleView.as_view(), name="sitter"),
+    url(r"^sitter/$", views.SitterCircleManageView.as_view(), name="sitter"),
 
     url(r"^view/$", views.ListMembersView.as_view(), name="list_network"),
 
@@ -26,6 +26,7 @@ urlpatterns = patterns(
 
     url(r"^membership/(?P<pk>\d+)/edit/$", views.MembershipEditView.as_view(), name="membership_edit"),
     url(r"^parent/(?P<pk>\d+)/edit/$", views.MembershipEditView.as_view(), name="membership_edit_parent"),
+    url(r"^sitter/(?P<pk>\d+)/edit/$", views.MembershipEditView.as_view(), name="membership_edit_sitter"),
 
     # api related
     url(r"^membership/(?P<pk>\d+)/deactivate/$", views.DeactivateMembership.as_view(), name="membership_deactivate"),

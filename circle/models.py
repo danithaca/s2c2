@@ -215,12 +215,12 @@ class PersonalCircle(Circle):
         return '%s\'s network' % name
 
     def activate_membership(self, user, **kwargs):
-        as_role = kwargs.pop('as_role', UserRole.PARENT.value)
+        as_role = kwargs.get('as_role', UserRole.PARENT.value)
         if as_role == UserRole.PARENT.value:
             # this is parent-parent friendship
             friendship = Friendship(self.owner, user)
-            friendship.activate()
             # todo: need to figure out whether to further process kwargs.
+            friendship.activate()
         else:
             super().activate_membership(user, **kwargs)
 
@@ -361,7 +361,7 @@ class Membership(models.Model):
     def is_disapproved(self):
         return self.approved is False
 
-    def is_pending_review(self):
+    def is_pending_approval(self):
         return self.approved is None
 
     def is_star(self):
@@ -394,6 +394,17 @@ class Membership(models.Model):
             return False
 
         if self.circle.type == Circle.Type.PERSONAL.value and self.as_role == UserRole.PARENT.value:
+            return True
+        else:
+            return False
+
+    def is_valid_sitter_relation(self, validate_initial_user=None, validate_target_user=None):
+        if validate_initial_user is not None and validate_initial_user != self.circle.owner:
+            return False
+        if validate_target_user is not None and validate_target_user != self.member:
+            return False
+
+        if self.circle.type == Circle.Type.PERSONAL.value and self.as_role == UserRole.SITTER.value:
             return True
         else:
             return False
