@@ -224,6 +224,18 @@ class PersonalCircle(Circle):
         else:
             super().activate_membership(user, **kwargs)
 
+    def approve_membership(self, user):
+        # by approving the membership, that means I will want to activate the membership as well.
+        try:
+            membership = self.get_membership(user)
+            if membership.is_valid_parent_relation():
+                friendship = Friendship(self.owner, user)
+                friendship.approve()
+                return
+        except Membership.DoesNotExist:
+            pass
+        super().approve_membership(user)
+
     def deactivate_membership(self, user):
         try:
             membership = self.get_membership(user)
@@ -520,6 +532,18 @@ class Friendship(UserConnection):
             self.reverse_membership.approved = False
             self.reverse_membership.save()
         assert not self.is_established()
+
+    def approve(self):
+        # this is the target user approve the initiate user
+        # we assume "approve" always come after "activate", which means the membership object is already created.
+        assert self.main_membership is not None and self.reverse_membership is not None
+        if self.main_membership.approved is not True:
+            self.main_membership.approved = True
+            self.main_membership.save()
+        # if target_user approves initiate_user, which means target_user should activate the membership as well.
+        if self.reverse_membership.active is not True:
+            self.reverse_membership.active = True
+            self.reverse_membership.save()
 
     # we need to send a request to the target user for approval
     def activate(self):

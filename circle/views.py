@@ -88,7 +88,7 @@ class PersonalCircleView(CircleView):
         extended_circle_list = Circle.objects.filter(owner__in=my_parent_list, type=my_personal_circle.type, area=my_personal_circle.area)
         # need to sort by member in order to use groupby.
         extended = []
-        list_extended = Membership.objects.filter(active=True, circle__in=extended_circle_list).exclude(member=me).exclude(approved=False).exclude(id__in=list_membership.values_list('id', flat=True)).order_by('member', '-updated')
+        list_extended = Membership.objects.filter(active=True, circle__in=extended_circle_list).exclude(member=me).exclude(approved=False).exclude(member__id__in=list_membership.values_list('member__id', flat=True)).order_by('member', '-updated')
         list_extended = self.add_extra_filter(list_extended)
         for member, membership_list in groupby(list_extended, lambda m: m.member):
             extended.append(UserConnection(me, member, list(membership_list)))
@@ -608,7 +608,7 @@ class ActivateMembership(LoginRequiredMixin, CircleAdminMixin, SingleObjectMixin
     def post_ajax(self, request, *args, **kwargs):
         circle = self.get_circle().to_proxy()
         email_field = request.POST.get('email_field', None)
-        is_sitter = request.POST.get('is_sitter', False)
+        is_sitter = json.loads(request.POST.get('is_sitter', 'false'))      # this is json string.
         as_role = UserRole.PARENT.value if not is_sitter else UserRole.SITTER.value
         processed_list = []
         invalid_list = []
