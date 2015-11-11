@@ -158,11 +158,17 @@
   /*color: white;*/
 /*}*/
 
+/* see http://stackoverflow.com/questions/18475937/how-can-i-set-height-for-twitter-bootstrap-thumbnails */
+.card-height-fix {
+  display: flex;
+  flex-wrap: wrap;
+}
 .card:hover {
   background: #F5F5F5;
 }
 .card .card-footer {
   text-align: right;
+  vertical-align: bottom;
 }
 .card .well {
   margin-bottom: 0px;

@@ -305,6 +305,7 @@ class MultiStepViewsMixin(ContextMixin):
                 steps_meta[step_name]['position'] = position
         context['steps_meta'] = steps_meta
 
+        context['next_step_url'] = self.get_next_step_url()
         return context
 
     @classmethod
@@ -426,6 +427,12 @@ class OnboardProfile(MultiStepViewsMixin, UserEdit):
 class OnboardPreference(MultiStepViewsMixin, UserPreference):
     template_name = 'account/onboard/form.html'
     step_title = 'Edit Site Preference'
+
+
+# class OnboardParentCircle(MultiStepViewsMixin, ParentCircleManageView):
+#     template_name = 'account/onboard/parent.html'
+#     step_title = 'Connect to Parents'
+#     step_note = 'Add other parents your trust who can babysit for you occasionally on the basis of reciprocity. DO NOT add anyone you don\'t trust.'
 
 
 class OnboardParentCircle(MultiStepViewsMixin, ParentCircleManageView):

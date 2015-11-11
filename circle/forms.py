@@ -99,7 +99,7 @@ class MembershipForm(forms.ModelForm):
 
 
 class MembershipEditForm(forms.ModelForm):
-    redirect = forms.CharField(required=False, widget=forms.HiddenInput)
+    # redirect = forms.CharField(required=False, widget=forms.HiddenInput)
 
     # def __init__(self, *args, **kwargs):
     #     choices = kwargs.pop('choices', None)
@@ -109,10 +109,10 @@ class MembershipEditForm(forms.ModelForm):
 
     class Meta:
         model = Membership
-        fields = ['note', 'type']
+        fields = ['note', 'as_admin']
         labels = {
-            'type': 'Mark As',
             'note': 'Note',
+            'as_admin': 'Mark as admin'
         }
         widgets = {
             # 'type': forms.HiddenInput(),

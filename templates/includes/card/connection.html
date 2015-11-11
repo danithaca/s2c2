@@ -8,7 +8,6 @@
   {% endfor %}
 {% endblock %}
 
-
 {% block card-footer %}
-  <span class="btn btn-xs btn-primary"><i class="fa fa-bullhorn"></i></span>
+  <a href="{% url 'shout:user' uid=user.id %}" class="btn btn-xs btn-primary" data-expandable-text="Message"><i class="fa fa-bullhorn"></i></a>
 {% endblock %}

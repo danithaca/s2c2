@@ -516,20 +516,36 @@ class MembershipUpdateView(LoginRequiredMixin, RegisteredRequiredMixin, CreateVi
             return reverse('circle:tag_view', kwargs={'pk': self.circle.id})
 
 
-class MembershipEditView(LoginRequiredMixin, RegisteredRequiredMixin, UpdateView):
+# todo: this has potential problem. e.g., a member goes to the personal circle and change herself as "admin".
+class MembershipEditView(LoginRequiredMixin, RegisteredRequiredMixin, AllowMembershipEditMixin, UpdateView):
     model = Membership
     form_class = MembershipEditForm
-    template_name = 'pages/basic_form.html'
+    template_name = 'circle/membership_edit.html'
 
-    def form_valid(self, form):
-        self.redirect_url = form.cleaned_data['redirect']
-        return super().form_valid(form)
+    def get_membership(self):
+        return self.get_object()
+
+    # def form_valid(self, form):
+    #     # self.redirect_url = form.cleaned_data['redirect']
+    #     return super().form_valid(form)
+
+    def get_form(self, form_class=None):
+        form = super().get_form(form_class=form_class)
+        membership = self.get_object()
+        if membership.is_valid_parent_relation():
+            form.fields['note'].label = 'Endorsement'
+            form.fields['as_admin'].label = 'Mark as a family member'
+        return form
 
     def get_success_url(self):
-        if self.redirect_url:
-            return self.redirect_url
-        else:
-            return '/'
+        membership = self.get_object()
+        if membership.is_valid_parent_relation():
+            return reverse('circle:parent')
+        # if self.redirect_url:
+        #     return self.redirect_url
+        # else:
+        #     return '/'
+        return '/'
 
 
 class ListMembersView(LoginRequiredMixin, RegisteredRequiredMixin, TemplateView):

@@ -39,7 +39,7 @@ $(document).ready(function() {
     }
   });
 
-  resizeCards();
+  // resizeCards();
 });
 </script>
 {% endblock %}
@@ -55,7 +55,7 @@ $(document).ready(function() {
   {% if not list_membership %}
     <p>None.</p>
   {% else %}
-    <div class="row">
+    <div class="row card-height-fix">
       {% for membership in list_membership %}
         <div class="col-xs-12 col-sm-6 col-md-4">
         {% include 'includes/card/membership.html' with membership=membership user=membership.member.to_puser only %}

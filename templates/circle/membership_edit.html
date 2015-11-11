@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+{% load staticfiles %}
+{% load bootstrap %}
+{% load p2_tags %}
+
+{% block content-title %}
+  {% user-full-name membership.member %} {# <small class="text-muted">{{ membership.circle.display }}</small> #}
+{% endblock %}
+
+{% block content %}
+  <form class="form form-horizontal" method="post">
+    {% csrf_token %}
+    {{ form|bootstrap_horizontal }}
+    <div class="form-group">
+      <div class="col-sm-offset-2 col-sm-10">
+        <button type="submit" class="btn btn-primary">Update</button>
+        <a href="#" class="btn btn-default go-back">Go Back</a>
+      </div>
+    </div>
+  </form>
+{% endblock %}

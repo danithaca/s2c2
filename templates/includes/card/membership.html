@@ -3,9 +3,12 @@
 
 {% block container-attributes-extra %}data-membership-id="{{ membership.id }}"{% endblock %}
 
+{% block card-title-badge %}{% if membership.as_admin or membership.as_favorite %}<span class="text-warning"><i class="fa fa-star"></i></span>{% endif %}{% endblock %}
+
 {% block card-note %}{% if membership.note %}<span class="text-muted">{{ membership.note }}</span>{% endif %}{% endblock %}
 
 {% block card-footer %}
   <a href="{% url 'shout:user' uid=user.id %}" class="btn btn-xs btn-primary" data-expandable-text="Message"><i class="fa fa-bullhorn"></i></a>
+  <a href="{% url 'circle:membership_edit_parent' pk=membership.id %}" class="btn btn-xs btn-warning" data-expandable-text="Edit"><i class="fa fa-edit"></i></a>
   <span class="btn btn-xs btn-danger destroy" data-expandable-text="Unfriend" data-url="{% url 'circle:membership_deactivate' pk=membership.id %}"><i class="fa fa-trash"></i></span>
 {% endblock %}

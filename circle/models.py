@@ -393,7 +393,7 @@ class Membership(models.Model):
         if validate_target_user is not None and validate_target_user != self.member:
             return False
 
-        if self.circle.type == Circle.Type.PERSONAL and self.as_role == UserRole.PARENT.value:
+        if self.circle.type == Circle.Type.PERSONAL.value and self.as_role == UserRole.PARENT.value:
             return True
         else:
             return False
