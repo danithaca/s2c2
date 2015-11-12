@@ -1,0 +1,13 @@
+{% extends "circle/view/base.html" %}
+
+{% block content-title %}
+  {% if circle.homepage %}
+    <a href="{{ circle.homepage }}" target="_blank">{{ circle.display }}</a>
+  {% else %}
+    {{ circle.display }}
+  {% endif %}
+{% endblock %}
+
+{% block content-introduction %}{% if circle.description %}{{ circle.description }}{% endif %}{% endblock %}
+
+{% block extended-network-name %}Babysitters Endorsed by This Group{% endblock %}

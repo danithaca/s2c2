@@ -406,22 +406,21 @@ class Membership(models.Model):
             return False
         if validate_target_user is not None and validate_target_user != self.member:
             return False
-
-        if self.circle.type == Circle.Type.PERSONAL.value and self.as_role == UserRole.PARENT.value:
-            return True
-        else:
-            return False
+        return self.circle.type == Circle.Type.PERSONAL.value and self.as_role == UserRole.PARENT.value
 
     def is_valid_sitter_relation(self, validate_initial_user=None, validate_target_user=None):
         if validate_initial_user is not None and validate_initial_user != self.circle.owner:
             return False
         if validate_target_user is not None and validate_target_user != self.member:
             return False
+        return self.circle.type == Circle.Type.PERSONAL.value and self.as_role == UserRole.SITTER.value
 
-        if self.circle.type == Circle.Type.PERSONAL.value and self.as_role == UserRole.SITTER.value:
-            return True
-        else:
+    def is_valid_group_membership(self, validate_circle=None, validate_target_user=None):
+        if validate_circle is not None and validate_circle != self.circle:
             return False
+        if validate_target_user is not None and validate_target_user != self.member:
+            return False
+        return self.circle.type == Circle.Type.PUBLIC.value
 
     def deactivate(self):
         # since a membership object is unique to a member in a circle, we'll just delegate it to the circle. or is it???

@@ -4,21 +4,24 @@ from circle import views, models
 
 urlpatterns = patterns(
     "",
+    # basic pages
     url(r"^parent/$", views.ParentManageView.as_view(), name="parent"),
     url(r"^sitter/$", views.SitterManageView.as_view(), name="sitter"),
     url(r"^group/$", views.GroupDirectoryView.as_view(), name="group"),
 
-    url(r"^group/(?P<pk>\d+)/$", views.CircleDetails.as_view(type_constraint=models.Circle.Type.PUBLIC), name="group_view"),
+    # group related
+    url(r"^group/(?P<pk>\d+)/$", views.PublicCircleView.as_view(), name="group_view"),
     url(r"^group/add/$", views.GroupCreateView.as_view(), name="group_add"),
-    url(r"^group/(?P<pk>\d+)/edit$", views.TagEditView.as_view(), name="tag_edit"),
+    url(r"^group/(?P<pk>\d+)/edit/$", views.TagEditView.as_view(), name="tag_edit"),
+    url(r"^group/(?P<pk>\d+)/join/$", views.GroupJoinView.as_view(), name="group_join"),
 
-    url(r"^user/(?P<uid>\d+)/$", views.UserConnectionView.as_view(), name="user_connection"),
+    # url(r"^user/(?P<uid>\d+)/$", views.UserConnectionView.as_view(), name="user_connection"),
 
-    url(r"^group/(?P<circle_id>\d+)/join/$", views.MembershipUpdateView.as_view(), name="membership_update"),
-
+    # membership related
     url(r"^membership/(?P<pk>\d+)/edit/$", views.MembershipEditView.as_view(), name="membership_edit"),
-    url(r"^parent/(?P<pk>\d+)/edit/$", views.MembershipEditView.as_view(), name="membership_edit_parent"),
-    url(r"^sitter/(?P<pk>\d+)/edit/$", views.MembershipEditView.as_view(), name="membership_edit_sitter"),
+    url(r"^parent/list/(?P<pk>\d+)/edit/$", views.MembershipEditView.as_view(), name="membership_edit_parent"),
+    url(r"^sitter/list/(?P<pk>\d+)/edit/$", views.MembershipEditView.as_view(), name="membership_edit_sitter"),
+    url(r"^group/list/(?P<pk>\d+)/edit/$", views.MembershipEditView.as_view(), name="membership_edit_group"),
 
     # api related
     url(r"^membership/(?P<pk>\d+)/deactivate/$", views.DeactivateMembership.as_view(), name="membership_deactivate"),

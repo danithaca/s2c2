@@ -33,7 +33,7 @@ class EmailListForm(forms.Form):
         return l
 
 
-class CircleForm(forms.ModelForm):
+class CircleCreateForm(forms.ModelForm):
     required_css_class = 'required'
 
     class Meta:
@@ -66,22 +66,19 @@ class UserConnectionForm(forms.Form):
         self.initial['sitter_circle'] = Membership.objects.filter(member=target_user, circle__owner=initiate_user, circle__type=Circle.Type.SITTER.value, circle__area=area, active=True, approved=True).exists()
 
 
-class MembershipForm(forms.ModelForm):
-    redirect = forms.CharField(required=False, widget=forms.HiddenInput)
-
+class MembershipCreateForm(forms.ModelForm):
     class Meta:
         model = Membership
-        fields = ['circle', 'member', 'active', 'approved', 'type', 'note']
+        # the rest of the field is handled by View
+        fields = ['note']
         labels = {
-            'note': '',
+            'note': 'Affiliation',
         }
         widgets = {
-            'circle': forms.HiddenInput(),
-            'member': forms.HiddenInput(),
-            'active': forms.HiddenInput(),
-            'approved': forms.HiddenInput(),
-            'type': forms.HiddenInput(),
-            'note': forms.Textarea(attrs={'placeholder': 'Type in your affliation with this group.', 'rows': 3}),
+            'note': forms.Textarea(attrs={'placeholder': 'Type in here ...', 'rows': 3}),
+        }
+        help_texts = {
+            'note': 'What is your affiliation to the group? E.g., Jack\'s mon.'
         }
 
 

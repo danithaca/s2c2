@@ -2,23 +2,22 @@ from itertools import groupby
 import json
 import re
 
-from account.mixins import LoginRequiredMixin
-from braces.views import FormValidMessageMixin, UserPassesTestMixin, JSONResponseMixin, AjaxResponseMixin, \
-    JSONRequestResponseMixin
+from braces.views import LoginRequiredMixin, FormValidMessageMixin, UserPassesTestMixin, JSONResponseMixin, AjaxResponseMixin
 from django.contrib import messages
 from django.core.urlresolvers import reverse_lazy, reverse
 
 
 # Create your views here.
 from django.forms import HiddenInput
-from django.views.defaults import bad_request
+from django.shortcuts import redirect
+from django.views.defaults import bad_request, permission_denied
 from django.views.generic import FormView, CreateView, UpdateView, TemplateView, DetailView, View
-from django.views.generic.detail import SingleObjectTemplateResponseMixin, SingleObjectMixin
-from circle.forms import EmailListForm, UserConnectionForm, CircleForm, MembershipForm, MembershipEditForm
-from circle.models import Membership, Circle, ParentCircle, UserConnection, Friendship
+from django.views.generic.detail import SingleObjectMixin
+from circle.forms import UserConnectionForm, CircleCreateForm, MembershipCreateForm, MembershipEditForm
+from circle.models import Membership, Circle, UserConnection
 from circle.tasks import circle_send_invitation
 from puser.models import PUser
-from p2.utils import RegisteredRequiredMixin, ControlledFormValidMessageMixin, UserRole, is_valid_email
+from p2.utils import RegisteredRequiredMixin, UserRole, is_valid_email
 
 
 ################# Mixins ##################
@@ -62,14 +61,19 @@ class CircleAdminMixin(UserPassesTestMixin):
 
 
 class CircleView(LoginRequiredMixin, RegisteredRequiredMixin, DetailView):
+    model = Circle
     template_name = 'circle/view/base.html'
     context_object_name = 'circle'
+
+
+class PersonalCircleView(CircleView):
+    def get_queryset(self):
+        qs = super().get_queryset()
+        return qs.filter(type=Circle.Type.PERSONAL.value)
 
     def add_extra_filter(self, queryset):
         raise NotImplementedError()
 
-
-class PersonalCircleView(CircleView):
     def get_object(self, queryset=None):
         return self.request.puser.get_personal_circle()
 
@@ -118,68 +122,6 @@ class SitterManageView(PersonalCircleView):
         return context
 
 
-class BaseCircleView(LoginRequiredMixin, RegisteredRequiredMixin, ControlledFormValidMessageMixin, FormView):
-    form_class = EmailListForm
-    default_approved = None
-    full_access = True
-
-    def get_old_email_qs(self):
-        circle = self.get_circle()
-        return Membership.objects.filter(circle=circle, active=True).exclude(member=self.request.puser).order_by('updated').values_list('member__email', flat=True).distinct()
-
-    def form_valid(self, form):
-        if form.has_changed() or form.cleaned_data.get('force_save', False):
-            circle = self.get_circle()
-            old_set = set(self.get_old_email_qs())
-            # we get: dedup, valid email
-            new_set = set(form.get_favorite_email_list())
-
-            # remove old users from list if not exists
-            for email in old_set - new_set:
-                self.show_message = True
-                target_puser = PUser.get_by_email(email)
-                circle.deactivate_membership(target_puser)
-
-            # add new user
-            for email in new_set - old_set:
-                self.show_message = True
-                try:
-                    target_puser = PUser.get_by_email(email)
-                except PUser.DoesNotExist:
-                    target_puser = PUser.create(email, dummy=True, area=circle.area)
-                # this behaves differently for different circle type (Proxy subclass)
-                circle.activate_membership(target_puser, approved=self.default_approved)
-                if form.cleaned_data.get('send', False):
-                    # send notification
-                    # if the user is a dummy user, send invitation code instead.
-                    current_user = self.request.user.to_puser()     # this is to make a separate copy of the user to prevent "change dict" error at runtime
-                    circle_send_invitation.delay(circle, target_puser, current_user)
-
-        return super().form_valid(form)
-
-    def get_initial(self):
-        initial = super().get_initial()
-        email_qs = self.get_old_email_qs()
-        initial['favorite'] = '\n'.join(list(email_qs))
-        return initial
-
-    def get_membership_edit_form(self):
-        raise NotImplementedError()
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context['full_access'] = self.full_access
-        if 'circle' not in context:
-            context['circle'] = self.get_circle()
-        context['edit_membership_form'] = self.get_membership_edit_form()
-        return context
-
-    def get_form_kwargs(self):
-        kwargs = super().get_form_kwargs()
-        kwargs['full_access'] = self.full_access
-        return kwargs
-
-
 # the name is similar to PersonalCircleView,
 class GroupDirectoryView(LoginRequiredMixin, RegisteredRequiredMixin, TemplateView):
     template_name = 'circle/group/directory.html'
@@ -200,7 +142,7 @@ class GroupDirectoryView(LoginRequiredMixin, RegisteredRequiredMixin, TemplateVi
 
 class GroupCreateView(LoginRequiredMixin, RegisteredRequiredMixin, CreateView):
     model = Circle
-    form_class = CircleForm
+    form_class = CircleCreateForm
     template_name = 'circle/group/add.html'
     success_url = reverse_lazy('circle:group')
 
@@ -218,7 +160,7 @@ class GroupCreateView(LoginRequiredMixin, RegisteredRequiredMixin, CreateView):
 
 class TagEditView(LoginRequiredMixin, RegisteredRequiredMixin, UpdateView):
     model = Circle
-    form_class = CircleForm
+    form_class = CircleCreateForm
     template_name = 'pages/basic_form.html'
 
     def get_success_url(self):
@@ -232,74 +174,24 @@ class TagEditView(LoginRequiredMixin, RegisteredRequiredMixin, UpdateView):
     #     return super().form_valid(form)
 
 
-class CircleDetails(SingleObjectTemplateResponseMixin, SingleObjectMixin, BaseCircleView):
-    type_constraint = None
-    model = Circle
-    template_name = 'circle/view.html'
-    context_object_name = 'circle'
-
-    form_valid_message = 'Added successfully.'
-    # we always set "approved" to be true here.
-    default_approved = True
-
-    # we want to use DetailsView, but instead we used BaseCircleView. Therefore, here we override a little of DetailsView.get()
-    def get(self, request, *args, **kwargs):
-        self.object = self.get_object()
-        try:
-            membership = self.object.get_membership(self.request.puser)
-            if not membership.is_admin():
-                self.full_access = False
-        except:
-            self.full_access = False
-        return super().get(request, *args, **kwargs)
+class PublicCircleView(CircleView):
+    template_name = 'circle/view/group.html'
 
     def get_queryset(self):
-        if self.type_constraint is None or not isinstance(self.type_constraint, Circle.Type):
-            return super().get_queryset()
-        else:
-            return Circle.objects.filter(type=self.type_constraint.value)
-
-    # todo: this should move to BaseCircleView?
-    def get_circle(self):
-        return self.get_object()
-
-    def get_old_email_qs(self):
-        circle = self.get_circle()
-        return Membership.objects.filter(circle=circle, active=True).order_by('updated').values_list('member__email', flat=True).distinct()
-
-    def get_success_url(self):
-        return reverse('circle:group_view', kwargs={'pk': self.get_object().id})
+        qs = super().get_queryset()
+        return qs.filter(type=Circle.Type.PUBLIC.value)
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         circle = self.get_object()
-        current_membership = None
-        if circle.is_valid_member(self.request.puser):
-            current_membership = circle.get_membership(self.request.puser)
-            context['current_membership'] = current_membership
 
-        join_form = MembershipForm(initial={
-            'circle': circle,
-            'member': self.request.puser,
-            'active': True,
-            'approved': True,
-            'type': Membership.Type.NORMAL.value,
-            # 'note': None if current_membership is None else current_membership.note,
-        }, instance=current_membership)
+        # my network
+        list_membership = circle.membership_set.filter(active=True).exclude(approved=False).order_by('-updated')
+        context['list_membership'] = list_membership
 
-        context['join_form'] = join_form
-        context['edit_form'] = CircleForm(instance=circle)
+        context['full_access'] = True
+
         return context
-
-    def get_membership_edit_form(self):
-        form = MembershipEditForm(initial={'redirect': self.get_success_url()})
-        form.fields['note'].label = 'Group Affiliation'
-        form.fields['type'].widget.choices = (
-            (Membership.Type.NORMAL.value, 'Regular'),
-            (Membership.Type.FAVORITE.value, 'Administrator'),
-        )
-        form.fields['type'].help_text = 'Mark as admin to allow the user make changes to the group.'
-        return form
 
 
 class UserConnectionView(LoginRequiredMixin, FormValidMessageMixin, FormView):
@@ -350,69 +242,36 @@ class UserConnectionView(LoginRequiredMixin, FormValidMessageMixin, FormView):
         return reverse('account_view', kwargs={'pk': self.target_user.id})
 
 
-class MembershipUpdateView(LoginRequiredMixin, RegisteredRequiredMixin, CreateView):
-    model = Membership
-    form_class = MembershipForm
-    template_name = 'pages/basic_form.html'
-
-    default_active = True
-    default_approved = True
-    default_type = Membership.Type.NORMAL.value
+class GroupJoinView(LoginRequiredMixin, RegisteredRequiredMixin, SingleObjectMixin, FormValidMessageMixin, FormView):
+    model = Circle
+    form_class = MembershipCreateForm
+    context_object_name = 'circle'
+    template_name = 'circle/group/join.html'
+    form_valid_message = 'Successfully joined the group.'
 
     def dispatch(self, request, *args, **kwargs):
-        self.current_user = request.puser
-        self.circle = None
-        self.existing_membership = None
-
+        self.object = self.get_object()
+        circle = self.object
+        current_user = self.request.puser
         try:
-            self.circle = Circle.objects.get(pk=kwargs.get('circle_id', None))
-        except:
+            membership = circle.get_membership(current_user)
+            if membership.is_disapproved():
+                messages.error(request, 'Your are not allowed to join this group. Please contact the group administrators and have them manually add you into the group.')
+                return permission_denied(request)
+            elif membership.active:
+                messages.info(request, 'You have already joined this group. Edit your membership here.')
+                return redirect(reverse('circle:membership_edit_group', kwargs={'pk': membership.id}))
+        except Membership.DoesNotExist:
             pass
-        if self.circle is None:
-            return bad_request(request)
-
-        try:
-            # set existing_memberhip if any.
-            self.existing_membership = Membership.objects.get(circle=self.circle, member=self.current_user)
-        except:
-            pass
-
         return super().dispatch(request, *args, **kwargs)
 
     def form_valid(self, form):
-        # if self.existing_membership is not None:
-        #     self.existing_membership.active = form.cleaned_data['active']
-        #     self.existing_membership.approved = form.cleaned_data['approved']
-        #     self.existing_membership.note = form.cleaned_data['note']
-        #     self.existing_membership.save()
-        #     # this is called by CreateView.form_valid().
-        #     return super(ModelFormMixin, self).form_valid(form)
-        # else:
-        #     return super().form_valid(form)
-        self.redirect_url = form.cleaned_data['redirect']
-        if 'leave' in form.data:
-            form.instance.active = False
+        circle = self.get_object().to_proxy()
+        circle.activate_membership(self.request.puser)
         return super().form_valid(form)
 
-    def get_form_kwargs(self):
-        kwargs = super().get_form_kwargs()
-        kwargs['initial'] = {
-            'circle': self.circle,
-            'member': self.current_user,
-            'active': self.default_active,
-            'approved': self.default_approved,
-            'type': self.default_type,
-        }
-        # this will make it a "Update", not "Create".
-        if self.existing_membership is not None:
-            kwargs['instance'] = self.existing_membership
-        return kwargs
-
     def get_success_url(self):
-        if self.redirect_url:
-            return self.redirect_url
-        else:
-            return reverse('circle:group_view', kwargs={'pk': self.circle.id})
+        return reverse('circle:group_view', kwargs={'pk': self.get_object().id})
 
 
 # todo: this has potential problem. e.g., a member goes to the personal circle and change herself as "admin".
@@ -428,6 +287,11 @@ class MembershipEditView(LoginRequiredMixin, RegisteredRequiredMixin, AllowMembe
     #     # self.redirect_url = form.cleaned_data['redirect']
     #     return super().form_valid(form)
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['circle'] = self.get_membership().circle
+        return context
+
     def get_form(self, form_class=None):
         form = super().get_form(form_class=form_class)
         membership = self.get_object()
@@ -438,6 +302,9 @@ class MembershipEditView(LoginRequiredMixin, RegisteredRequiredMixin, AllowMembe
             form.fields['note'].label = 'Endorsement'
             form.fields['as_admin'].widget = HiddenInput()
             form.fields['as_admin'].initial = False
+        elif membership.is_valid_group_membership():
+            form.fields['note'].label = 'Group Affiliation'
+            form.fields['as_admin'].widget = HiddenInput()
         return form
 
     def get_success_url(self):
@@ -446,6 +313,8 @@ class MembershipEditView(LoginRequiredMixin, RegisteredRequiredMixin, AllowMembe
             return reverse('circle:parent')
         elif membership.is_valid_sitter_relation():
             return reverse('circle:sitter')
+        elif membership.is_valid_group_membership():
+            return reverse('circle:group_view', kwargs={'pk': membership.circle.id})
         # if self.redirect_url:
         #     return self.redirect_url
         # else:
