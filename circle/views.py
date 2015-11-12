@@ -14,7 +14,7 @@ from django.forms import HiddenInput
 from django.views.defaults import bad_request
 from django.views.generic import FormView, CreateView, UpdateView, TemplateView, DetailView, View
 from django.views.generic.detail import SingleObjectTemplateResponseMixin, SingleObjectMixin
-from circle.forms import EmailListForm, UserConnectionForm, TagUserForm, CircleForm, MembershipForm, MembershipEditForm
+from circle.forms import EmailListForm, UserConnectionForm, CircleForm, MembershipForm, MembershipEditForm
 from circle.models import Membership, Circle, ParentCircle, UserConnection, Friendship
 from circle.tasks import circle_send_invitation
 from puser.models import PUser
@@ -61,7 +61,7 @@ class CircleAdminMixin(UserPassesTestMixin):
 ################## regular views ####################
 
 
-class CircleView(LoginRequiredMixin, RegisteredRequiredMixin, ControlledFormValidMessageMixin, DetailView):
+class CircleView(LoginRequiredMixin, RegisteredRequiredMixin, DetailView):
     template_name = 'circle/view/base.html'
     context_object_name = 'circle'
 
@@ -99,14 +99,14 @@ class PersonalCircleView(CircleView):
         return context
 
 
-class ParentCircleManageView(PersonalCircleView):
+class ParentManageView(PersonalCircleView):
     template_name = 'circle/view/parent.html'
 
     def add_extra_filter(self, queryset):
         return queryset.filter(as_role=UserRole.PARENT.value)
 
 
-class SitterCircleManageView(PersonalCircleView):
+class SitterManageView(PersonalCircleView):
     template_name = 'circle/view/sitter.html'
 
     def add_extra_filter(self, queryset):
@@ -180,134 +180,39 @@ class BaseCircleView(LoginRequiredMixin, RegisteredRequiredMixin, ControlledForm
         return kwargs
 
 
-class ParentCircleView(BaseCircleView):
-    template_name = 'circle/parent.html'
-    success_url = reverse_lazy('circle:parent')
-    form_valid_message = 'Parent connections successfully updated.'
-    # we always set "approved" to be true here.
-    default_approved = True
-
-    def get_circle(self):
-        circle = self.request.puser.my_circle(Circle.Type.PARENT)
-        assert isinstance(circle, ParentCircle)
-        return circle
-
-    def get_membership_edit_form(self):
-        form = MembershipEditForm(initial={'redirect': self.success_url})
-        form.fields['note'].label = 'Endorsement'
-        form.fields['type'].widget.choices = (
-            (Membership.Type.NORMAL.value, 'Regular'),
-            (Membership.Type.FAVORITE.value, 'Immediate family member (spouse, grandparents)'),
-        )
-        form.fields['type'].help_text = 'Mark as family member to allow Servuno propagate your job posts across social networks.'
-        return form
-
-
-class SitterCircleView(BaseCircleView):
-    template_name = 'circle/sitter.html'
-    success_url = reverse_lazy('circle:sitter')
-    form_valid_message = 'Successfully updated your paid babysitter connections.'
-    # we always set "approved" to be true here.
-    default_approved = True
-
-    def get_circle(self):
-        circle = self.request.puser.my_circle(Circle.Type.SITTER)
-        return circle
-
-    # def get_context_data(self, **kwargs):
-    #     context = super().get_context_data(**kwargs)
-    #     # find babysitter pool
-    #     me = self.request.puser
-    #     my_parent_circle = me.my_circle(Circle.Type.PARENT)
-    #     my_parent_list = my_parent_circle.members.filter(membership__active=True, membership__approved=True).exclude(membership__member=me)
-    #     other_parent_sitter_circle_list = Circle.objects.filter(owner__in=my_parent_list, type=Circle.Type.SITTER.value, area=my_parent_circle.area)
-    #     # need to sort by member in order to use groupby.
-    #     sitter_membership_pool = Membership.objects.filter(active=True, approved=True, circle__in=other_parent_sitter_circle_list).exclude(member=me).order_by('member')
-    #     pool_list = []
-    #     for member, membership_list in groupby(sitter_membership_pool, lambda m: m.member):
-    #         pool_list.append(UserConnection(me, member, list(membership_list)))
-    #     context['pool_list'] = pool_list
-    #     return context
-
-    def get_membership_edit_form(self):
-        form = MembershipEditForm(initial={'redirect': self.success_url})
-        form.fields['note'].label = 'Endorsement'
-        form.fields['type'].widget.choices = (
-            (Membership.Type.NORMAL.value, 'Regular'),
-            (Membership.Type.FAVORITE.value, 'Preferred babysitter'),
-        )
-        form.fields['type'].help_text = 'Mark as preferred babysitter to instruct Servuno contact this person first when you make a job post.'
-        return form
-
-
-class TagCircleUserView(LoginRequiredMixin, RegisteredRequiredMixin, ControlledFormValidMessageMixin, FormView):
-    form_class = TagUserForm
-    template_name = 'circle/tag.html'
-    success_url = reverse_lazy('circle:tag')
-    form_valid_message = 'Successfully updated.'
-
-    def form_valid(self, form):
-        if form.has_changed():
-            new_tags = set(form.cleaned_data['tags']) if 'tags' in form.cleaned_data else set([])
-            old_tags = set(form.initial['tags']) if 'tags' in form.initial else set([])
-            user = self.request.puser
-            self.show_message = True
-
-            for tag_circle in old_tags - new_tags:
-                tag_circle.deactivate_membership(user)
-
-            for tag_circle in new_tags - old_tags:
-                tag_circle.activate_membership(user, approved=True)
-
-        return super().form_valid(form)
+# the name is similar to PersonalCircleView,
+class GroupDirectoryView(LoginRequiredMixin, RegisteredRequiredMixin, TemplateView):
+    template_name = 'circle/group/directory.html'
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['create_form'] = CircleForm()
-        context['join_form'] = MembershipForm(initial={
-            'member': self.request.puser,
-            'active': True,
-            'approved': True,
-            'type': Membership.Type .NORMAL.value,
-            'redirect': reverse('circle:tag'),
-        })
-
         area = self.request.puser.get_area()
-        mapping = {m.circle: m for m in Membership.objects.filter(circle__type=Circle.Type.TAG.value, member=self.request.puser, active=True, approved=True, circle__area=area)}
-        context['all_tags'] = []
-        for circle in Circle.objects.filter(type=Circle.Type.TAG.value, area=area):
+        context['area'] = area
+
+        mapping = {m.circle: m for m in Membership.objects.filter(circle__type=Circle.Type.PUBLIC.value, member=self.request.puser, active=True, circle__area=area).exclude(approved=False)}
+        context['list_circle'] = []
+        for circle in Circle.objects.filter(type=Circle.Type.PUBLIC.value, area=area, active=True).order_by('-updated', '-created'):
             if circle in mapping:
                 circle.user_membership = mapping[circle]
-            context['all_tags'].append(circle)
+            context['list_circle'].append(circle)
         return context
 
-    def get_form_kwargs(self):
-        kwargs = super().get_form_kwargs()
-        kwargs['target_user'] = self.request.puser
-        return kwargs
 
-    def get_initial(self):
-        initial = super().get_initial()
-        tags = self.request.puser.get_tag_circle_set()
-        if len(tags) > 0:
-            initial['tags'] = list(tags)
-        return initial
-
-
-class TagAddView(LoginRequiredMixin, RegisteredRequiredMixin, CreateView):
+class GroupCreateView(LoginRequiredMixin, RegisteredRequiredMixin, CreateView):
     model = Circle
     form_class = CircleForm
-    template_name = 'pages/basic_form.html'
-    success_url = reverse_lazy('circle:tag')
+    template_name = 'circle/group/add.html'
+    success_url = reverse_lazy('circle:group')
 
     def form_valid(self, form):
         circle = form.instance
-        circle.type = Circle.Type.TAG.value
+        circle.type = Circle.Type.PUBLIC.value
         circle.owner = self.request.puser
         circle.area = self.request.puser.get_area()
         result = super().form_valid(form)
         # add the user who created the new group
-        circle.activate_membership(self.request.puser, Membership.Type.ADMIN.value, True)
+        circle.activate_membership(self.request.puser, as_admin=True)
+        circle.approve_membership(self.request.puser)
         return result
 
 
@@ -317,7 +222,7 @@ class TagEditView(LoginRequiredMixin, RegisteredRequiredMixin, UpdateView):
     template_name = 'pages/basic_form.html'
 
     def get_success_url(self):
-        return reverse('circle:tag_view', kwargs={'pk': self.object.id})
+        return reverse('circle:group_view', kwargs={'pk': self.object.id})
 
     # def form_valid(self, form):
     #     circle = form.instance
@@ -363,7 +268,7 @@ class CircleDetails(SingleObjectTemplateResponseMixin, SingleObjectMixin, BaseCi
         return Membership.objects.filter(circle=circle, active=True).order_by('updated').values_list('member__email', flat=True).distinct()
 
     def get_success_url(self):
-        return reverse('circle:tag_view', kwargs={'pk': self.get_object().id})
+        return reverse('circle:group_view', kwargs={'pk': self.get_object().id})
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -507,7 +412,7 @@ class MembershipUpdateView(LoginRequiredMixin, RegisteredRequiredMixin, CreateVi
         if self.redirect_url:
             return self.redirect_url
         else:
-            return reverse('circle:tag_view', kwargs={'pk': self.circle.id})
+            return reverse('circle:group_view', kwargs={'pk': self.circle.id})
 
 
 # todo: this has potential problem. e.g., a member goes to the personal circle and change herself as "admin".
@@ -562,36 +467,6 @@ class ListMembersView(LoginRequiredMixin, RegisteredRequiredMixin, TemplateView)
                 'my_sitters': my_sitters,
             })
         return context
-
-
-class BasePoolView(LoginRequiredMixin, RegisteredRequiredMixin, TemplateView):
-    template_name = 'circle/pool/base.html'
-    circle_type = None
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        # find babysitter pool
-        me = self.request.puser
-        my_parent_circle = me.my_circle(Circle.Type.PARENT)
-        my_parent_list = my_parent_circle.members.filter(membership__active=True, membership__approved=True).exclude(membership__member=me)
-        extended_circle_list = Circle.objects.filter(owner__in=my_parent_list, type=self.circle_type, area=my_parent_circle.area)
-        # need to sort by member in order to use groupby.
-        extended_membership_list = Membership.objects.filter(active=True, approved=True, circle__in=extended_circle_list).exclude(member=me).order_by('member')
-        pool_list = []
-        for member, membership_list in groupby(extended_membership_list, lambda m: m.member):
-            pool_list.append(UserConnection(me, member, list(membership_list)))
-        context['pool_list'] = pool_list
-        return context
-
-
-class SitterPoolView(BasePoolView):
-    template_name = 'circle/pool/sitter.html'
-    circle_type = Circle.Type.SITTER.value
-
-
-class ParentPoolView(BasePoolView):
-    template_name = 'circle/pool/parent.html'
-    circle_type = Circle.Type.PARENT.value
 
 
 ################## views for API ########################

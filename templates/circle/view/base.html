@@ -3,6 +3,7 @@
 {% load bootstrap %}
 
 {% block template_extra_header %}
+{% include 'includes/js_grid.html' %}
 <script>
 $(document).ready(function() {
   var $input_box = $('#new-item');
@@ -33,14 +34,14 @@ $(document).ready(function() {
     if (url) {
       $.post(url, function(data) {
         if (data['success']) {
-          //window.location.reload();
-          $this.parents('.card').parent().remove();  // 2nd parent is for the column
+          // $this.parents('.card').parent().remove();  // 2nd parent is for the column
+          var $grid = $('.grid');
+          $grid.isotope('remove', $this.parents('.card').parent());
+          $grid.isotope('layout');
         }
       });
     }
   });
-
-  // resizeCards();
 });
 </script>
 {% endblock %}
@@ -58,11 +59,9 @@ $(document).ready(function() {
   {% if not list_membership %}
     <p>None.</p>
   {% else %}
-    <div class="row card-height-fix">
+    <div class="grid">
       {% for membership in list_membership %}
-        <div class="col-xs-12 col-sm-6 col-md-4">
-        {% include 'includes/card/membership.html' with membership=membership user=membership.member.to_puser only %}
-        </div>
+        <div class="grid-item">{% include 'includes/card/membership.html' with membership=membership user=membership.member.to_puser only %}</div>
       {% endfor %}
     </div>
   {% endif %}
@@ -72,11 +71,9 @@ $(document).ready(function() {
   {% if not list_extended %}
     <p>None.</p>
   {% else %}
-    <div class="row">
+    <div class="grid">
       {% for user_connection in list_extended %}
-        <div class="col-xs-12 col-sm-6 col-md-4">
-          {% include 'includes/card/connection.html' with user_connection=user_connection user=user_connection.target_user only %}
-        </div>
+        <div class="grid-item">{% include 'includes/card/connection.html' with user_connection=user_connection user=user_connection.target_user only %}</div>
       {% endfor %}
     </div>
   {% endif %}

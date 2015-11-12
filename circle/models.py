@@ -43,6 +43,8 @@ class Circle(models.Model):
     # the last resort to access someone in the circle. usually we'll use membership.
     owner = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='owner')
     created = models.DateTimeField(auto_now_add=True)
+    updated = models.DateTimeField(auto_now=True)
+    active = models.BooleanField(default=True)
 
     members = models.ManyToManyField(settings.AUTH_USER_MODEL, through='Membership')
 
@@ -192,7 +194,7 @@ class Circle(models.Model):
             return False
 
     def get_absolute_url(self):
-        return reverse('circle:tag_view', kwargs={'pk': self.id})
+        return reverse('circle:group_view', kwargs={'pk': self.id})
 
     def get_admin_users(self):
         admin_members = set([member for member in self.members.filter(membership__as_admin=True)])

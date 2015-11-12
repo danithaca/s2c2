@@ -71,7 +71,7 @@
             {% for circle in all_tags %}
               <li class="list-group-item" data-slug="{{ circle.name|slugify }}">
 {#                <input type="checkbox" class="switch" name="circle" value="{{ circle.id }}"{% if circle.active %} checked{% endif %}>#}
-                <a href="{% url 'circle:tag_view' pk=circle.id %}">{{ circle.name }}</a>
+                <a href="{% url 'circle:group_view' pk=circle.id %}">{{ circle.name }}</a>
                 <small class="text-muted">{{ circle.description }}</small>
                 <span class="pull-right join-button">
                   {% include 'elements/circle_member_count.html' with count=circle.count %}

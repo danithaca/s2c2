@@ -124,7 +124,7 @@
           <div class="panel panel-default">
             <div class="panel-body">
               <span title="{% if m.is_disapproved %}Membership is reviewed but not approved. Please remove the circle from your list.{% elif m.is_pending_review %}Membership is pending for review.{% else %}{{ m.circle.description }}{% endif %}" data-toggle="tooltip" class="{% if not m.approved %}text-muted{% endif %}">
-                <a href="{% url 'circle:tag_view' pk=m.circle.id %}">{% if m.is_disapproved %}<s>{{ m.circle.name }}</s>{% else %}{{ m.circle.name }}{% endif %}</a><br>
+                <a href="{% url 'circle:group_view' pk=m.circle.id %}">{% if m.is_disapproved %}<s>{{ m.circle.name }}</s>{% else %}{{ m.circle.name }}{% endif %}</a><br>
                 <small class="pull-right">{% include 'elements/circle_member_count.html' with count=m.circle.count %}</small>
               </span>
             </div>

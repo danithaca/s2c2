@@ -19,9 +19,7 @@ from rest_framework.response import Response
 
 from circle.forms import UserConnectionForm
 from circle.models import Circle, Membership
-from circle.views import ParentCircleManageView, SitterCircleView, TagCircleUserView
-from login_token.models import Token
-from login_token.conf import settings as login_token_settings
+from circle.views import ParentManageView
 from p2.utils import RegisteredRequiredMixin
 from puser.forms import UserInfoForm, UserPictureForm, LoginEmailAdvForm, UserInfoOnboardForm, \
     SignupFullForm, WaitingForm, UserPreferenceForm
@@ -274,8 +272,8 @@ class MultiStepViewsMixin(ContextMixin):
 
     @classmethod
     def get_steps_meta(cls):
-        step_order = ['SignupView', 'OnboardPreference', 'OnboardParentCircle', 'OnboardTagCircle']
-        step_url = [reverse('account_signup'), reverse('onboard_preference'), reverse('onboard_parent'), reverse('onboard_group')]
+        step_order = ['SignupView', 'OnboardPreference', 'OnboardParentCircle']
+        step_url = [reverse('account_signup'), reverse('onboard_preference'), reverse('onboard_parent')]
         next_step_url = list(step_url)
         next_step_url.append(cls.final_url)
         del(next_step_url[0])
@@ -429,32 +427,10 @@ class OnboardPreference(MultiStepViewsMixin, UserPreference):
     step_title = 'Edit Site Preference'
 
 
-# class OnboardParentCircle(MultiStepViewsMixin, ParentCircleManageView):
-#     template_name = 'account/onboard/parent.html'
-#     step_title = 'Connect to Parents'
-#     step_note = 'Add other parents your trust who can babysit for you occasionally on the basis of reciprocity. DO NOT add anyone you don\'t trust.'
-
-
-class OnboardParentCircle(MultiStepViewsMixin, ParentCircleManageView):
+class OnboardParentCircle(MultiStepViewsMixin, ParentManageView):
     template_name = 'account/onboard/parent.html'
     step_title = 'Connect to Parents'
     step_note = 'Add other parents your trust who can babysit for you occasionally on the basis of reciprocity. DO NOT add anyone you don\'t trust.'
-
-
-class OnboardSitterCircle(MultiStepViewsMixin, SitterCircleView):
-    template_name = 'account/onboard/sitter.html'
-    step_title = 'Add Paid Babysitters (Optional)'
-    step_note = 'Add babysitters you trust, e.g, grandparents, teenage cousins, and/or professional babysitters you used before. They will be shared among your parents connections added in the previous step. DO NOT add anyone you don\'t trust.'
-    # form_valid_message = "Welcome! You can find a babysitter now or wait for others to find help from you."
-    # show_message = True
-
-
-class OnboardTagCircle(MultiStepViewsMixin, TagCircleUserView):
-    template_name = 'account/onboard/group.html'
-    step_title = 'Join Parents Groups'
-    step_note = 'Join groups to meet new parents.'
-    form_valid_message = ''
-    # show_message = True
 
 
 class OnboardPicture(MultiStepViewsMixin, UserPicture):

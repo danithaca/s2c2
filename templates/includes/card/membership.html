@@ -4,7 +4,6 @@
 {% block container-attributes-extra %}data-membership-id="{{ membership.id }}"{% endblock %}
 
 {% block card-title-badge %}
-  {% if membership.is_pending_approval %}<span class="text-muted" title="The user has not approved your request to be added in your network yet." data-toggle="tooltip"><i class="fa fa-hourglass-start"></i></span>{% endif %}
   {% if membership.as_admin or membership.as_favorite %}<span class="text-warning"><i class="fa fa-star"></i></span>{% endif %}
 {% endblock %}
 
@@ -12,12 +11,17 @@
 
 {% block card-note %}{% if membership.note %}<span class="text-muted">{{ membership.note }}</span>{% endif %}{% endblock %}
 
-{% block card-footer %}
-  <a href="{% url 'shout:user' uid=user.id %}" class="btn btn-xs btn-primary" data-expandable-text="Message"><i class="fa fa-bullhorn"></i></a>
-  {% if membership.is_valid_parent_relation %}
-    <a href="{% url 'circle:membership_edit_parent' pk=membership.id %}" class="btn btn-xs btn-warning" data-expandable-text="Edit"><i class="fa fa-edit"></i></a>
-  {% else %}
-    <a href="{% url 'circle:membership_edit_sitter' pk=membership.id %}" class="btn btn-xs btn-warning" data-expandable-text="Edit"><i class="fa fa-edit"></i></a>
-  {% endif %}
-  <span class="btn btn-xs btn-danger destroy" data-expandable-text="Unfriend" data-url="{% url 'circle:membership_deactivate' pk=membership.id %}"><i class="fa fa-trash"></i></span>
-{% endblock %}
+{% block card-footer %}<div class="horizontal-justified">
+  <div>
+    {% if membership.is_pending_approval %}<span class="text-muted" title="The user has not approved your request to be added in your network yet." data-toggle="tooltip"><i class="fa fa-hourglass-start"> </i> Pending</span>{% endif %}
+  </div>
+  <div>
+    <a href="{% url 'shout:user' uid=user.id %}" class="btn btn-xs btn-primary" data-expandable-text="Message"><i class="fa fa-bullhorn"></i></a>
+    {% if membership.is_valid_parent_relation %}
+      <a href="{% url 'circle:membership_edit_parent' pk=membership.id %}" class="btn btn-xs btn-warning" data-expandable-text="Edit"><i class="fa fa-edit"></i></a>
+    {% else %}
+      <a href="{% url 'circle:membership_edit_sitter' pk=membership.id %}" class="btn btn-xs btn-warning" data-expandable-text="Edit"><i class="fa fa-edit"></i></a>
+    {% endif %}
+    <span class="btn btn-xs btn-danger destroy" data-expandable-text="Unfriend" data-url="{% url 'circle:membership_deactivate' pk=membership.id %}"><i class="fa fa-trash"></i></span>
+  </div>
+</div>{% endblock %}

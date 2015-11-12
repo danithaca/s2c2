@@ -5,5 +5,5 @@
     <div class="block-expand text-large text-center">{% block card-title %}{% endblock %} <span>{% block card-title-badge %}{% endblock %}</span></div>
   </div>
   <div class="hidden-if-none text-center">{% block card-note %}{% endblock %}</div>
-  <div class="card-footer hidden-if-none">{% block card-footer %}{% endblock %}</div>
+  {% block card-footer %}{% endblock %}
 </div>

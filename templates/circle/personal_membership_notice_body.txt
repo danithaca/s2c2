@@ -1,7 +1,0 @@
-{% extends 'email_body.txt' %}
-{% load p2_tags %}
-{% block body %}
-You are added to {{circle_owner.get_name}} ({{ circle_owner.email }})'s list. To opt-out, click the link below:
-
-{{site_url}}{{review_link}}
-{%endblock%}

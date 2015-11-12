@@ -24,14 +24,14 @@
   <% if (note) { %><span class="text-muted"><%= note %></span><% } %>
 {% endblock %}
 
-{% block card-footer %}
-  {% if full_access %}
-    <span class="command-list">
-      <% if (membership_id) { %><a class="btn btn-xs btn-info membership-edit-button" title="Click to edit" data-toggle="tooltip" data-membership-id="<%= membership_id %>"><i class="fa fa-edit"></i></a><% } %>
-      <a class="btn btn-xs btn-danger destroy" title="Click to remove" data-toggle="tooltip"><i class="fa fa-trash-o"></i></a>
-    </span>
-  {% endif %}
-{% endblock %}
+{% block card-footer %}{% if full_access %}
+<div>
+  <span class="command-list">
+    <% if (membership_id) { %><a class="btn btn-xs btn-info membership-edit-button" title="Click to edit" data-toggle="tooltip" data-membership-id="<%= membership_id %>"><i class="fa fa-edit"></i></a><% } %>
+    <a class="btn btn-xs btn-danger destroy" title="Click to remove" data-toggle="tooltip"><i class="fa fa-trash-o"></i></a>
+  </span>
+</div>
+{% endif %}{% endblock %}
 
 {#<div class="thumbnail">#}
 {#  <% if (user_id && registered) { %>#}

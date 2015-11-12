@@ -33,22 +33,6 @@ class EmailListForm(forms.Form):
         return l
 
 
-# class NoValidationMultipleChoiceField(forms.MultipleChoiceField):
-#     def validate(self, value):
-#         return True
-
-
-class TagUserForm(forms.Form):
-    # tags = NoValidationMultipleChoiceField(choices=((1, 'Option 1'), (2, 'Option 2')), label='', help_text='Type to add.')
-    # tags = forms.MultipleChoiceField(choices=((1, 'Option 1'), (2, 'Option 2')), label='', help_text='Type to add.')
-    tags = forms.ModelMultipleChoiceField(queryset=Circle.objects.filter(type=Circle.Type.TAG.value), label='', help_text='Type to search; click to browse.', required=False)
-
-    def __init__(self, target_user=None, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        if target_user is not None and isinstance(target_user, PUser):
-            self.fields['tags'].queryset = Circle.objects.filter(type=Circle.Type.TAG.value, area=target_user.get_area())
-
-
 class CircleForm(forms.ModelForm):
     required_css_class = 'required'
 
@@ -56,7 +40,10 @@ class CircleForm(forms.ModelForm):
         model = Circle
         fields = ['name', 'description', 'homepage']
         labels = {
-            'homepage': 'Website'
+            'homepage': 'Web page'
+        }
+        help_texts = {
+            'homepage': 'Optional. E.g., the group\'s Facebook page.'
         }
         widgets = {
             'description': forms.Textarea(attrs={'placeholder': 'What is this group?', 'rows': 3}),

@@ -16,12 +16,6 @@ urlpatterns = patterns(
     url(r"^onboard/about/$", views.OnboardAbout.as_view(), name="onboard_about"),
     url(r"^onboard/profile/$", views.OnboardProfile.as_view(), name="onboard_profile"),
     url(r"^onboard/parent/$", views.OnboardParentCircle.as_view(), name="onboard_parent"),
-    url(r"^onboard/sitter/$", views.OnboardSitterCircle.as_view(), name="onboard_sitter"),
-    url(r"^onboard/group/$", views.OnboardTagCircle.as_view(), name="onboard_group"),
-    # url(r"^onboard/personal/$", views.OnboardPersonalCircle.as_view(), name="onboard_personal"),
-    # url(r"^onboard/public/$", views.OnboardPublicCircle.as_view(), name="onboard_public"),
-    # url(r"^onboard/agency/$", views.OnboardAgencyCircle.as_view(), name="onboard_agency"),
-    # url(r"^onboard/picture/$", views.OnboardPicture.as_view(), name="onboard_picture"),
     url(r"^onboard/pref/$", views.OnboardPreference.as_view(), name="onboard_preference"),
 
     # todo: allow other people view account
@@ -31,9 +25,6 @@ urlpatterns = patterns(
     url(r"^edit/$", views.UserEdit.as_view(), name="account_edit"),
     url(r"^picture/$", views.UserPicture.as_view(), name="account_picture"),
     url(r"^pref/$", views.UserPreference.as_view(), name="account_preference"),
-
-    # url(r"^circle/$", circle.views.ManageCircleView.as_view(), name="account_circle"),
-    # url(r"^favorite/$", circle.views.ManageFavoriteView.as_view(), name="account_favorite"),
 
     url(r"^api/email/(?P<email>\S+@\S+)/$", views.APIGetByEmail.as_view(), name="account_api_by_email"),
 )

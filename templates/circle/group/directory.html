@@ -1,0 +1,70 @@
+{% extends "base.html" %}
+{% load bootstrap %}
+
+{% block extra_header %}
+  {% include 'includes/js_grid.html' %}
+  <script>
+  $(document).ready(function() {
+    var $grid = $('.grid');
+
+    // change filter
+    $('input[name=filter-options]').change(function() {
+      console.log('haha');
+      var option = $('input[name=filter-options]:checked').val();
+      if (option == 'member') {
+        $grid.isotope({filter: '.is_member'});
+      }
+      else if (option == 'all') {
+        $grid.isotope({filter: '*'});
+      }
+    });
+
+    // search filter
+    $('#grid-quicksearch').keyup(function() {
+      var qsRegex = new RegExp( $(this).val(), 'gi' );
+      $grid.isotope({filter: function() {
+        return qsRegex ? $(this).text().match( qsRegex ) : true;
+        // return qsRegex ? $(this).find('.card').data('slug').match( qsRegex ) : true;
+      }});
+    });
+  });
+  </script>
+{% endblock %}
+
+{% block content-title %}Meet People in Social Groups{% endblock %}
+
+{% block content-introduction %}Join groups to meet new parents in <em>{{ area.name }}</em>{% endblock %}
+
+{% block content %}
+<div class="horizontal-justified min-margin-bottom">
+{#  <div class="input-group">#}
+{#    <span class="input-group-addon">Filter</span>#}
+{#    <input id="grid-quicksearch" class="form-control" placeholder="Search ...">#}
+{#  </div>#}
+  <div class="">
+    <input id="grid-quicksearch" class="form-control" placeholder="Type to search ...">
+  </div>
+  <div class="btn-toolbar">
+    <div class="btn-group" data-toggle="buttons">
+      <label class="btn btn-default active">
+        <input type="radio" name="filter-options" value="all" checked> Show All
+      </label>
+      <label class="btn btn-default">
+        <input type="radio" name="filter-options" value="member"> My Gruops
+      </label>
+    </div>
+    <div class="btn-group">
+      <a href="{% url 'circle:group_add' %}" class="btn btn-primary"><i class="fa fa-plus-square"></i> Create</a>
+    </div>
+  </div>
+</div>
+{% if not list_circle %}
+  <p>No parent groups in this area.</p>
+{% else %}
+  <div class="grid">
+    {% for circle in list_circle %}
+      <div class="grid-item{% if circle.user_membership %} is_member{% endif %}">{% include 'includes/card/group.html' with circle=circle %}</div>
+    {% endfor %}
+  </div>
+{% endif %}
+{% endblock %}

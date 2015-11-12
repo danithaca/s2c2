@@ -1,0 +1,34 @@
+{% extends 'includes/card/base.html' %}
+{% load p2_tags %}
+
+{% block container-classes %}thumbnail clickable{% endblock %}
+{% block container-attributes %}data-cid="{{ circle.id }}" data-slug="{{ circle.name|slugify }}" data-url="{% url 'circle:group_view' pk=circle.id %}"{% endblock %}
+
+{% block card-title %}<a href="{% url 'circle:group_view' pk=circle.id %}" class="{% block circle-name-extra-classes %}{% endblock %}">{{ circle.name }}</a>{% endblock %}
+
+{% block card-note %}{% if circle.description %}<span class="text-muted">{{ circle.description }}</span>{% endif %}{% endblock %}
+
+{% block card-footer %}<div class="horizontal-justified">
+  <div>{% include 'elements/circle_member_count.html' with count=circle.count %}</div>
+  <div>
+    {% if circle.user_membership %}
+      <span class="btn btn-xs btn-warning" data-expandable-text="Edit" data-url=""><i class="fa fa-edit"></i></span>
+      <span class="btn btn-xs btn-danger destroy" data-expandable-text="Leave" data-url=""><i class="fa fa-sign-out"></i></span>
+    {% else %}
+      <a href="" class="btn btn-xs btn-primary" data-expandable-text="Join"><i class="fa fa-user-plus"></i></a>
+    {% endif %}
+  </div>
+</div>{% endblock %}
+
+{#      <li class="list-group-item" data-slug="{{ circle.name|slugify }}">#}
+{#        <a href="{% url 'circle:tag_view' pk=circle.id %}">{{ circle.name }}</a>#}
+{#        <small class="text-muted">{{ circle.description }}</small>#}
+{#          <span class="pull-right join-button">#}
+{#            {% include 'elements/circle_member_count.html' with count=circle.count %}#}
+{#            {% if circle.user_membership %}#}
+{#              <a class="btn btn-info btn-xs" href="" data-circle="{{ circle.id }}" data-membership="{{ circle.user_membership.id }}" data-note="{{ circle.user_membership.note }}"><i class="fa fa-edit"></i> Edit</a>#}
+{#            {% else %}#}
+{#              <a class="btn btn-primary btn-xs" href="" data-circle="{{ circle.id }}"><i class="fa fa-user-plus"></i> Join</a>#}
+{#            {% endif %}#}
+{#          </span>#}
+{#      </li>#}

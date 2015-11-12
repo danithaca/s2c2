@@ -176,3 +176,18 @@ function resizeCards() {
     $('.card').height(maxHeight);
   }
 }
+
+// from isotope documentation about not doing filters every milisecond.
+function debounce( fn, threshold ) {
+  var timeout;
+  return function debounced() {
+    if (timeout) {
+      clearTimeout(timeout);
+    }
+    function delayed() {
+      fn();
+      timeout = null;
+    }
+    timeout = setTimeout(delayed, threshold || 100);
+  }
+}

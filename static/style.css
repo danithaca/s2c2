@@ -151,6 +151,20 @@
   justify-content: space-between;
 }
 
+/************** grid display with isotope *************/
+
+/* xs, regular */
+.grid-item { width: 100%; }
+@media (min-width: 768px) { /* sm */
+  .grid-item { width: 50%; padding-right: 6px; }
+}
+@media (min-width: 992px) { /* md */
+  .grid-item { width: 33.333333%; padding-right: 6px; }
+}
+@media (min-width: 1200px) { /* lg */
+  .grid-item { width: 33.333333%; padding-right: 6px; }
+}
+
 /******** for card related *********/
 
 /*.card {*/
@@ -159,16 +173,15 @@
 /*}*/
 
 /* see http://stackoverflow.com/questions/18475937/how-can-i-set-height-for-twitter-bootstrap-thumbnails */
-.card-height-fix {
-  display: flex;
-  flex-wrap: wrap;
+/*.card-height-fix {*/
+  /*display: flex;*/
+  /*flex-wrap: wrap;*/
+/*}*/
+.card {
+  margin-bottom: 6px;
 }
 .card:hover {
   background: #F5F5F5;
-}
-.card .card-footer {
-  text-align: right;
-  vertical-align: bottom;
 }
 .card .well {
   margin-bottom: 0px;

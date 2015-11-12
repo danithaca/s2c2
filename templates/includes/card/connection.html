@@ -9,5 +9,7 @@
 {% endblock %}
 
 {% block card-footer %}
-  <a href="{% url 'shout:user' uid=user.id %}" class="btn btn-xs btn-primary" data-expandable-text="Message"><i class="fa fa-bullhorn"></i></a>
+  <div class="text-right">
+    <a href="{% url 'shout:user' uid=user.id %}" class="btn btn-xs btn-primary" data-expandable-text="Message"><i class="fa fa-bullhorn"></i></a>
+  </div>
 {% endblock %}
