@@ -52,7 +52,7 @@ $(document).ready(function() {
       <input id="new-item" class="form-control" placeholder="Email address" autofocus>
       <span class="input-group-btn"><button class="btn btn-primary" id="new-item-add-btn"><i class="fa fa-user-plus"></i> {% block add-button-name %}Add{% endblock %}</button></span>
     </div>
-    <div class="checkbox hidden min-margin-bottom"><label><input name="is_sitter" type="checkbox" {% if is_sitter %}checked{% endif %}> <span>Add as a babysitter</span></label></div>
+    <div class="checkbox min-margin-bottom {% if not show_sitter_switch %}hidden{% endif %}"><label><input name="is_sitter" type="checkbox" {% if is_sitter %}checked{% endif %}> <span>Add as a babysitter</span></label></div>
 {#    <hr>#}
   {% endif %}
 
@@ -61,7 +61,7 @@ $(document).ready(function() {
   {% else %}
     <div class="grid">
       {% for membership in list_membership %}
-        <div class="grid-item">{% include 'includes/card/membership.html' with membership=membership user=membership.member.to_puser only %}</div>
+        <div class="grid-item">{% include 'includes/card/membership.html' with membership=membership user=membership.member.to_puser allow_edit=full_access only %}</div>
       {% endfor %}
     </div>
   {% endif %}

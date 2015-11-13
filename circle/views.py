@@ -180,15 +180,20 @@ class PublicCircleView(CircleView):
         circle = self.get_object()
 
         # all members in the public circle
-        list_membership = circle.membership_set.filter(active=True).exclude(approved=False).order_by('-updated')
+        list_membership = circle.membership_set.filter(active=True, as_role=UserRole.PARENT.value).exclude(approved=False).order_by('-updated')
         context['list_membership'] = list_membership
+        list_sitter_membership = circle.membership_set.filter(active=True, as_role=UserRole.SITTER.value).exclude(approved=False).order_by('-updated')
+        context['list_sitter_membership'] = list_sitter_membership
 
+        context['full_access'] = False
+        context['show_sitter_switch'] = True
         try:
-            context['user_membership'] = circle.get_membership(self.request.puser)
+            user_membership = circle.get_membership(self.request.puser)
+            context['user_membership'] = user_membership
+            if user_membership.is_admin():
+                context['full_access'] = True
         except:
             pass
-
-        context['full_access'] = True
         return context
 
 
@@ -275,10 +280,11 @@ class GroupJoinView(LoginRequiredMixin, RegisteredRequiredMixin, SingleObjectMix
             membership.save()
         return super().form_valid(form)
 
-    def get_initial(self):
-        initial = super().get_initial()
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
         if self.existing_membership is not None:
-            initial['instance'] = self.existing_membership
+            kwargs['instance'] = self.existing_membership
+        return kwargs
 
     def get_success_url(self):
         return reverse('circle:group_view', kwargs={'pk': self.get_object().id})

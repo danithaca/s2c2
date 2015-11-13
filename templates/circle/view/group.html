@@ -42,14 +42,13 @@
 
 {% block content-introduction %}
   <p>{% if circle.description %}{{ circle.description }}{% endif %}</p>
-  <p>Administrators:</p>
   <ul class="list-inline">
     {% for admin_user in circle.get_admin_users %}
     <li>
       {% if admin_user == circle.owner %}
         {% include 'account/view/inline_full.html' with user=admin_user.to_puser extra_info='(owner)' only %}
       {% else %}
-        {% include 'account/view/inline_full.html' with user=admin_user.to_puser only %}
+        {% include 'account/view/inline_full.html' with user=admin_user.to_puser extra_info='(admin)' only %}
       {% endif %}
     </li>
     {% endfor %}
@@ -63,7 +62,7 @@
   {% else %}
     <div class="grid">
       {% for sitter_membership in list_sitter_membership %}
-        <div class="grid-item">{% include 'includes/card/membership.html' with user=sitter_membership.member membership=sitter_membership only %}</div>
+        <div class="grid-item">{% include 'includes/card/membership.html' with user=sitter_membership.member membership=sitter_membership allow_edit=full_access only %}</div>
       {% endfor %}
     </div>
   {% endif %}
