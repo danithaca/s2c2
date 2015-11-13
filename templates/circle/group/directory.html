@@ -27,6 +27,22 @@
         // return qsRegex ? $(this).find('.card').data('slug').match( qsRegex ) : true;
       }});
     });
+
+    $('.card .destroy').click(function(e) {
+      e.stopPropagation();
+      var $this = $(this);
+      var url = $this.data('url');
+      if (url) {
+        $.post(url, function(data) {
+          if (data['success']) {
+            // todo: this should not remove the card, but instead just change the status to join only.
+            var $grid = $('.grid');
+            $grid.isotope('remove', $this.parents('.card').parent());
+            $grid.isotope('layout');
+          }
+        });
+      }
+    });
   });
   </script>
 {% endblock %}

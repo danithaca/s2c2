@@ -8,6 +8,20 @@
   {% endif %}
 {% endblock %}
 
-{% block content-introduction %}{% if circle.description %}{{ circle.description }}{% endif %}{% endblock %}
+{% block content-introduction %}
+  {% if circle.description %}{{ circle.description }}{% endif %}
+  <p></p>
+{% endblock %}
 
-{% block extended-network-name %}Babysitters Endorsed by This Group{% endblock %}
+{% block extended-block %}
+  <div class="page-header"><h6>Babysitters Endorsed by This Group</h6></div>
+  {% if not list_sitter_membership %}
+    <p>None.</p>
+  {% else %}
+    <div class="grid">
+      {% for sitter_membership in list_sitter_membership %}
+        <div class="grid-item">{% include 'includes/card/membership.html' with user=sitter_membership.member membership=sitter_membership only %}</div>
+      {% endfor %}
+    </div>
+  {% endif %}
+{% endblock %}

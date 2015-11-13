@@ -253,8 +253,10 @@ class GroupJoinView(LoginRequiredMixin, RegisteredRequiredMixin, SingleObjectMix
         self.object = self.get_object()
         circle = self.object
         current_user = self.request.puser
+        self.existing_membership = None
         try:
             membership = circle.get_membership(current_user)
+            self.existing_membership = membership
             if membership.is_disapproved():
                 messages.error(request, 'Your are not allowed to join this group. Please contact the group administrators and have them manually add you into the group.')
                 return permission_denied(request)
@@ -268,7 +270,17 @@ class GroupJoinView(LoginRequiredMixin, RegisteredRequiredMixin, SingleObjectMix
     def form_valid(self, form):
         circle = self.get_object().to_proxy()
         circle.activate_membership(self.request.puser)
+        note = form.cleaned_data.get('note', None)
+        if form.has_changed() and note:
+            membership = circle.get_membership(self.request.puser)
+            membership.note = note
+            membership.save()
         return super().form_valid(form)
+
+    def get_initial(self):
+        initial = super().get_initial()
+        if self.existing_membership is not None:
+            initial['instance'] = self.existing_membership
 
     def get_success_url(self):
         return reverse('circle:group_view', kwargs={'pk': self.get_object().id})
@@ -304,7 +316,11 @@ class MembershipEditView(LoginRequiredMixin, RegisteredRequiredMixin, AllowMembe
             form.fields['as_admin'].initial = False
         elif membership.is_valid_group_membership():
             form.fields['note'].label = 'Group Affiliation'
-            form.fields['as_admin'].widget = HiddenInput()
+            if self.request.puser.id in set([u.id for u in membership.circle.get_admin_users()]):
+                form.fields['as_admin'].label = 'Mark as group administrator'
+                # form.fields['as_admin'].help_text = 'This option available only to current administrators'
+            else:
+                form.fields['as_admin'].widget = HiddenInput()
         return form
 
     def get_success_url(self):

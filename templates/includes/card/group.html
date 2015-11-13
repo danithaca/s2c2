@@ -4,7 +4,9 @@
 {% block container-classes %}thumbnail clickable{% endblock %}
 {% block container-attributes %}data-cid="{{ circle.id }}" data-slug="{{ circle.name|slugify }}" data-url="{% url 'circle:group_view' pk=circle.id %}"{% endblock %}
 
-{% block card-title %}<a href="{% url 'circle:group_view' pk=circle.id %}" class="{% block circle-name-extra-classes %}{% endblock %}">{{ circle.name }}</a>{% endblock %}
+{% block card-title %}<a href="{% url 'circle:group_view' pk=circle.id %}" class="">{{ circle.name }}</a>{% endblock %}
+
+{% block card-title-badge %}{% if circle.user_membership and circle.user_membership.is_admin %}<span class="text-warning" title="Group administrator" data-toggle="tooltip"><i class="fa fa-star"></i></span>{% endif %}{% endblock %}
 
 {% block card-note %}{% if circle.description %}<span class="text-muted">{{ circle.description }}</span>{% endif %}{% endblock %}
 
@@ -12,8 +14,8 @@
   <div>{% include 'elements/circle_member_count.html' with count=circle.count %}</div>
   <div>
     {% if circle.user_membership %}
-      <span class="btn btn-xs btn-warning" data-expandable-text="Edit" data-url=""><i class="fa fa-edit"></i></span>
-      <span class="btn btn-xs btn-danger destroy" data-expandable-text="Leave" data-url=""><i class="fa fa-sign-out"></i></span>
+      <a href="{% url 'circle:membership_edit_group' pk=circle.user_membership.id %}" class="btn btn-xs btn-warning" data-expandable-text="Edit"><i class="fa fa-edit"></i></a>
+      <span class="btn btn-xs btn-danger destroy" data-expandable-text="Leave" data-url="{% url 'circle:membership_deactivate' pk=circle.user_membership.id %}"><i class="fa fa-sign-out"></i></span>
     {% else %}
       <a href="{% url 'circle:group_join' pk=circle.id %}" class="btn btn-xs btn-primary" data-expandable-text="Join"><i class="fa fa-user-plus"></i></a>
     {% endif %}

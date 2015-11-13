@@ -367,7 +367,7 @@ class Membership(models.Model):
         return self.type == Membership.Type.PARTIAL.value
 
     def is_admin(self):
-        return self.type == Membership.Type.ADMIN.value or self.member == self.circle.owner
+        return self.member == self.circle.owner or self.as_admin
 
     def __str__(self):
         return '%s (%s)' % (self.member.get_name(), self.circle.display())
