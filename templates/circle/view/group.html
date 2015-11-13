@@ -56,10 +56,8 @@
 {% endblock %}
 
 {% block extended-block %}
-  <div class="page-header"><h6>Babysitters Endorsed by This Group</h6></div>
-  {% if not list_sitter_membership %}
-    <p>None.</p>
-  {% else %}
+  {% if list_sitter_membership %}
+    <div class="page-header"><h6>Babysitters Endorsed by This Group</h6></div>
     <div class="grid">
       {% for sitter_membership in list_sitter_membership %}
         <div class="grid-item">{% include 'includes/card/membership.html' with user=sitter_membership.member membership=sitter_membership allow_edit=full_access only %}</div>
