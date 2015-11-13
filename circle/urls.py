@@ -12,7 +12,7 @@ urlpatterns = patterns(
     # group related
     url(r"^group/(?P<pk>\d+)/$", views.PublicCircleView.as_view(), name="group_view"),
     url(r"^group/add/$", views.GroupCreateView.as_view(), name="group_add"),
-    url(r"^group/(?P<pk>\d+)/edit/$", views.TagEditView.as_view(), name="tag_edit"),
+    url(r"^group/(?P<pk>\d+)/edit/$", views.GroupEditView.as_view(), name="group_edit"),
     url(r"^group/(?P<pk>\d+)/join/$", views.GroupJoinView.as_view(), name="group_join"),
 
     # url(r"^user/(?P<uid>\d+)/$", views.UserConnectionView.as_view(), name="user_connection"),

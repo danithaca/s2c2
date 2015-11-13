@@ -1,16 +1,59 @@
 {% extends "circle/view/base.html" %}
+{% load p2_tags %}
+
+{% block extra_header %}
+<script>
+  $(document).ready(function() {
+    $('.destroy-btn.destroy').click(function(e) {
+      e.stopPropagation();
+      var $this = $(this);
+      var url = $this.data('url');
+      if (url) {
+        $.post(url, function(data) {
+          if (data['success']) {
+            window.location.reload();
+          }
+        });
+      }
+    });
+  });
+</script>
+{% endblock %}
 
 {% block content-title %}
   {% if circle.homepage %}
-    <a href="{{ circle.homepage }}" target="_blank">{{ circle.display }}</a>
+    <a href="{{ circle.homepage }}" target="_blank">{{ circle.display }} <i class="fa fa-external-link"></i></a>
   {% else %}
     {{ circle.display }}
   {% endif %}
 {% endblock %}
 
+{% block content-command-list %}
+  {% if user_membership.is_joined %}
+    <a href="{% url 'circle:membership_edit_group' pk=user_membership.id %}" class="btn btn-xs btn-warning"><i class="fa fa-edit"></i> Edit Membership</a>
+    <span class="btn btn-xs btn-danger destroy destroy-btn" data-url="{% url 'circle:membership_deactivate' pk=user_membership.id %}"><i class="fa fa-sign-out"></i> Leave Group</span>
+  {% else %}
+    <a href="{% url 'circle:group_join' pk=circle.id %}" class="btn btn-xs btn-primary"><i class="fa fa-user-plus"></i> Join</a>
+  {% endif %}
+  {% if user_membership.is_admin %}
+    <a href="{% url 'circle:group_edit' pk=circle.id %}" class="btn btn-info btn-xs"><i class="fa fa-pencil"></i> Edit Group</a>
+  {% endif %}
+{% endblock %}
+
 {% block content-introduction %}
-  {% if circle.description %}{{ circle.description }}{% endif %}
-  <p></p>
+  <p>{% if circle.description %}{{ circle.description }}{% endif %}</p>
+  <p>Administrators:</p>
+  <ul class="list-inline">
+    {% for admin_user in circle.get_admin_users %}
+    <li>
+      {% if admin_user == circle.owner %}
+        {% include 'account/view/inline_full.html' with user=admin_user.to_puser extra_info='(owner)' only %}
+      {% else %}
+        {% include 'account/view/inline_full.html' with user=admin_user.to_puser only %}
+      {% endif %}
+    </li>
+    {% endfor %}
+  </ul>
 {% endblock %}
 
 {% block extended-block %}

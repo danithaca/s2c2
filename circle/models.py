@@ -369,6 +369,10 @@ class Membership(models.Model):
     def is_admin(self):
         return self.member == self.circle.owner or self.as_admin
 
+    def is_joined(self):
+        # this helps determine whether to show "Join" or not in group admin
+        return self.active and self.approved is not False
+
     def __str__(self):
         return '%s (%s)' % (self.member.get_name(), self.circle.display())
 

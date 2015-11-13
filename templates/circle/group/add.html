@@ -8,7 +8,7 @@
     {{ form|bootstrap_horizontal }}
     <div class="form-group">
       <div class="col-sm-offset-2 col-sm-10">
-        <button type="submit" class="btn btn-primary">Create Group</button>
+        <button type="submit" class="btn btn-primary">{{ form.instance.pk|yesno:'Update Group,Create Group' }}</button>
         <a href="#" class="btn btn-default go-back">Go Back</a>
       </div>
     </div>

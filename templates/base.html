@@ -195,6 +195,7 @@
       <div class="panel-heading hidden-if-none">{% block content-header %}{% endblock %}</div>
       <div class="panel-body">
         <legend class="hidden-if-none">{% block content-title %}{% endblock %}</legend>
+        <div class="hidden-if-none min-margin-bottom">{% block content-command-list %}{% endblock %}</div>
         <div class="well hidden-if-none" id="content-introduction">{% block content-introduction %}{% endblock %}</div>
         {% block content %}{% endblock %}
       </div>

@@ -54,7 +54,7 @@ class CircleAdminMixin(UserPassesTestMixin):
             return False
 
     def get_circle(self):
-        raise NotImplementedError()
+        return self.get_object()
 
 
 ################## regular views ####################
@@ -158,20 +158,14 @@ class GroupCreateView(LoginRequiredMixin, RegisteredRequiredMixin, CreateView):
         return result
 
 
-class TagEditView(LoginRequiredMixin, RegisteredRequiredMixin, UpdateView):
+class GroupEditView(LoginRequiredMixin, RegisteredRequiredMixin, CircleAdminMixin, UpdateView):
     model = Circle
     form_class = CircleCreateForm
-    template_name = 'pages/basic_form.html'
+    template_name = 'circle/group/add.html'
+    context_object_name = 'circle'
 
     def get_success_url(self):
         return reverse('circle:group_view', kwargs={'pk': self.object.id})
-
-    # def form_valid(self, form):
-    #     circle = form.instance
-    #     circle.type = Circle.Type.TAG.value
-    #     circle.owner = self.request.puser
-    #     circle.area = self.request.puser.get_area()
-    #     return super().form_valid(form)
 
 
 class PublicCircleView(CircleView):
@@ -185,12 +179,16 @@ class PublicCircleView(CircleView):
         context = super().get_context_data(**kwargs)
         circle = self.get_object()
 
-        # my network
+        # all members in the public circle
         list_membership = circle.membership_set.filter(active=True).exclude(approved=False).order_by('-updated')
         context['list_membership'] = list_membership
 
-        context['full_access'] = True
+        try:
+            context['user_membership'] = circle.get_membership(self.request.puser)
+        except:
+            pass
 
+        context['full_access'] = True
         return context
 
 
@@ -361,9 +359,6 @@ class ListMembersView(LoginRequiredMixin, RegisteredRequiredMixin, TemplateView)
 # this should not be used for regular users joining a public group, because they don't have CircleAdmin
 class ActivateMembership(LoginRequiredMixin, CircleAdminMixin, SingleObjectMixin, JSONResponseMixin, AjaxResponseMixin, View):
     model = Circle
-
-    def get_circle(self):
-        return self.get_object()
 
     def post_ajax(self, request, *args, **kwargs):
         circle = self.get_circle().to_proxy()

@@ -1,0 +1,8 @@
+{% load p2_tags %}
+<span data-uid="{{ user.id }}">
+  <a href="{% url 'account_view' pk=user.id %}">
+    {% if user.has_picture %}<img src="{% user_picture_url user %}" class="img-circle img-18">{% endif %}
+    {% user-full-name user %}
+  </a>
+  {% if extra_info %}{{ extra_info }}{% endif %}
+</span>
