@@ -24,8 +24,11 @@ urlpatterns = patterns(
     url(r"^parent/list/(?P<pk>\d+)/edit/$", views.MembershipEditView.as_view(), name="membership_edit_parent"),
     url(r"^sitter/list/(?P<pk>\d+)/edit/$", views.MembershipEditView.as_view(), name="membership_edit_sitter"),
     url(r"^group/list/(?P<pk>\d+)/edit/$", views.MembershipEditView.as_view(), name="membership_edit_group"),
+    url(r"^membership/(?P<pk>\d+)/approval/$", views.MembershipApprovalView.as_view(), name="approval"),
 
     # api related
     url(r"^membership/(?P<pk>\d+)/deactivate/$", views.DeactivateMembership.as_view(), name="membership_deactivate"),
+    url(r"^membership/(?P<pk>\d+)/approve/$", views.ApproveMembership.as_view(), name="membership_approve"),
+    url(r"^membership/(?P<pk>\d+)/disapprove/$", views.DisapproveMembership.as_view(), name="membership_disapprove"),
     url(r"^(?P<pk>\d+)/activate/$", views.ActivateMembership.as_view(), name="membership_activate"),        # to make it clear, let's use "activate" instead of "add"
 )

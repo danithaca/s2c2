@@ -1,0 +1,13 @@
+{% extends 'includes/card/membership.html' %}
+{% load p2_tags %}
+
+{% block card-footer %}<div class="horizontal-justified">
+  <div>
+    <span class="text-muted" title="The user has requested to be added to your network." data-toggle="tooltip"><i class="fa fa-hourglass-start"> </i> Request</span>
+  </div>
+  <div>
+    <a href="{% url 'shout:user' uid=user.id %}" class="btn btn-xs btn-primary" data-expandable-text="Message"><i class="fa fa-bullhorn"></i></a>
+    <span class="btn btn-xs btn-success ajax-post-refresh" data-post-url="{% url 'circle:membership_approve' pk=membership.id %}" data-expandable-text="Approve"><i class="fa fa-check"></i></span>
+    <span class="btn btn-xs btn-danger ajax-post-refresh" data-post-url="{% url 'circle:membership_disapprove' pk=membership.id %}" data-expandable-text="Block"><i class="fa fa-times"></i></span>
+  </div>
+</div>{% endblock %}

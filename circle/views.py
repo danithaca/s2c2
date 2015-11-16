@@ -109,6 +109,12 @@ class ParentManageView(PersonalCircleView):
     def add_extra_filter(self, queryset):
         return queryset.filter(as_role=UserRole.PARENT.value)
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        pending_approve_membership = Membership.objects.filter(member=self.object.owner, type=Circle.Type.PERSONAL.value, approved__isnull=True, circle__type=Circle.Type.PERSONAL.value, circle__area=self.object.area)
+        context['pending_membership'] = pending_approve_membership
+        return context
+
 
 class SitterManageView(PersonalCircleView):
     template_name = 'circle/view/sitter.html'
@@ -292,7 +298,7 @@ class CircleJoinView(LoginRequiredMixin, RegisteredRequiredMixin, SingleObjectMi
         # todo: handle introduction request. do nothing for now.
         pass
 
-    def notify(self):
+    def extra_process(self, membership):
         # send notification
         pass
 
@@ -318,7 +324,7 @@ class CircleJoinView(LoginRequiredMixin, RegisteredRequiredMixin, SingleObjectMi
 
         if form.cleaned_data.get('introduce', False):
             self.introduce()
-        self.notify()
+        self.extra_process(membership)
         return super().form_valid(form)
 
     def get_form_kwargs(self):
@@ -365,6 +371,13 @@ class SitterJoinView(PersonalJoinView):
         initial = super().get_initial()
         initial['is_sitter'] = True
         return initial
+
+    def extra_process(self, membership):
+        super().extra_process(membership)
+        # auto approve this membership
+        # todo: think about whether to auto approve sitter_add
+        circle = self.get_object().to_proxy()
+        circle.approve_membership(membership.member)
 
 
 class GroupJoinView(CircleJoinView):
@@ -446,6 +459,15 @@ class MembershipEditView(LoginRequiredMixin, RegisteredRequiredMixin, AllowMembe
         return '/'
 
 
+class MembershipApprovalView(LoginRequiredMixin, AllowMembershipEditMixin, DetailView):
+    model = Membership
+    context_object_name = 'membership'
+    template_name = 'circle/membership/approval.html'
+
+    def get_membership(self):
+        return self.get_object()
+
+
 class ListMembersView(LoginRequiredMixin, RegisteredRequiredMixin, TemplateView):
     template_name = 'circle/network.html'
 
@@ -523,3 +545,29 @@ class DeactivateMembership(LoginRequiredMixin, AllowMembershipEditMixin, SingleO
         # reload_membership = Membership.objects.get(id=membership.id)
         # assert reload_membership.active == False
         return self.render_json_response({'success': True})
+
+
+class ApproveMembership(LoginRequiredMixin, AllowMembershipEditMixin, SingleObjectMixin, JSONResponseMixin, AjaxResponseMixin, View):
+    model = Membership
+
+    def get_membership(self):
+        return self.get_object()
+
+    def post_ajax(self, request, *args, **kwargs):
+        membership = self.get_membership()
+        membership.circle.to_proxy().approve_membership(membership.member)
+        membership.refresh_from_db()
+        return self.render_json_response({'success': membership.approved})
+
+
+class DisapproveMembership(LoginRequiredMixin, AllowMembershipEditMixin, SingleObjectMixin, JSONResponseMixin, AjaxResponseMixin, View):
+    model = Membership
+
+    def get_membership(self):
+        return self.get_object()
+
+    def post_ajax(self, request, *args, **kwargs):
+        membership = self.get_membership()
+        membership.circle.to_proxy().disapprove_membership(membership.member)
+        membership.refresh_from_db()
+        return self.render_json_response({'success': not membership.approved})

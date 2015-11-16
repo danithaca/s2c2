@@ -1,0 +1,67 @@
+{% extends "base.html" %}
+{% load staticfiles %}
+{% load bootstrap %}
+{% load p2_tags %}
+
+{#{% block extra_header %}#}
+{#<script>#}
+{#$(function() {#}
+{#  $('.membership-command button').click(function() {#}
+{#    var $this = $(this);#}
+{#    var url = $this.data('url');#}
+{#    if (url) {#}
+{#      $.post(url, function(data) {#}
+{#        if (data['success']) {#}
+{#          window.location.reload();#}
+{#        }#}
+{#      });#}
+{#    }#}
+{#  });#}
+{#});#}
+{#</script>#}
+{#{% endblock %}#}
+
+{% block content-title %}Review Group/Network Membership{% endblock %}
+
+{% block content-introduction %}Please review the group or network membership and approve or block it.{% endblock %}
+
+{% block content %}
+<table class="table table-condensed">
+  <tbody>
+    <tr>
+      <th>Group or Network</th>
+      <td>
+        {% if membership.is_valid_group_membership %}
+          <a href="{% url 'circle:group_view' pk=membership.circle.id %}">{{ membership.circle.display }}</a>
+        {% else %}
+          <a href="{% url 'account_view' pk=membership.circle.owner.id %}">{{ membership.circle.display }}</a>
+        {% endif %}
+      </td>
+    </tr>
+    <tr>
+      <th>Member</th>
+      <td>{% include 'account/view/inline_full.html' with user=membership.member.to_puser only %}</td>
+    </tr>
+    <tr>
+      <th>Parent of Sitter</th>
+      <td>{{ membership.get_as_role_display }}</td>
+    </tr>
+    <tr>
+      <th>Approval Status</th>
+      <td>
+        {% if membership.approved == None %}
+          <span class="label label-default">Pending for review</span>
+        {% elif membership.approved %}
+          <span class="label label-success">Approved</span>
+        {% else %}
+          <span class="label label-danger">Blocked</span>
+        {% endif %}
+      </td>
+    </tr>
+  </tbody>
+</table>
+<div class="membership-command">
+  <button class="btn btn-success ajax-post-refresh" data-post-url="{% url 'circle:membership_approve' pk=membership.id %}"><i class="fa fa-check"></i> Approve</button>
+  <button class="btn btn-danger ajax-post-refresh" data-post-url="{% url 'circle:membership_disapprove' pk=membership.id %}"><i class="fa fa-times"></i> Block</button>
+</div>
+{% endblock %}

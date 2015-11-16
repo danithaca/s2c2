@@ -145,6 +145,15 @@ class Circle(models.Model):
         except Membership.DoesNotExist:
             pass
 
+    def disapprove_membership(self, user):
+        try:
+            membership = self.get_membership(user)
+            if not membership.approved is False:
+                membership.approved = False
+                membership.save()
+        except Membership.DoesNotExist:
+            pass
+
     def get_membership(self, user):
         return Membership.objects.get(member=user, circle=self)
 
@@ -235,6 +244,17 @@ class PersonalCircle(Circle):
             if membership.is_valid_parent_relation():
                 friendship = Friendship(self.owner, user)
                 friendship.approve()
+                return
+        except Membership.DoesNotExist:
+            pass
+        super().approve_membership(user)
+
+    def disapprove_membership(self, user):
+        try:
+            membership = self.get_membership(user)
+            if membership.is_valid_parent_relation():
+                friendship = Friendship(self.owner, user)
+                friendship.disapprove()
                 return
         except Membership.DoesNotExist:
             pass
@@ -609,6 +629,17 @@ class Friendship(UserConnection):
         # if target_user approves initiate_user, which means target_user should activate the membership as well.
         if self.reverse_membership.active is not True:
             self.reverse_membership.active = True
+            self.reverse_membership.save()
+
+    def disapprove(self):
+        # this is the target user disapprove the initiate user
+        assert self.main_membership is not None and self.reverse_membership is not None
+        if self.main_membership.approved is not False:
+            self.main_membership.approved = False
+            self.main_membership.save()
+        # if target_user approves initiate_user, which means target_user should activate the membership as well.
+        if self.reverse_membership.active is not False:
+            self.reverse_membership.active = False
             self.reverse_membership.save()
 
     # we need to send a request to the target user for approval

@@ -12,6 +12,12 @@
   </ul>
 {% endblock %}
 
+{% block grid-extra %}
+  {% for membership in pending_membership %}
+    <div class="grid-item">{% include 'includes/card/membership_request.html' with membership=membership user=membership.circle.owner.to_puser %}</div>
+  {% endfor %}
+{% endblock %}
+
 {% block extended-block %}
   <div class="page-header"><h6>Your Extended Network <span title="Here list friends of friends." data-toggle="tooltip"><i class="fa fa-info-circle"></i></span></h6></div>
   {% if not list_extended %}

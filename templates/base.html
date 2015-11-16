@@ -73,6 +73,21 @@
         }
       });
 
+      // ajax post refresh
+      $('.ajax-post-refresh').click(function(e) {
+        e.stopPropagation();
+        e.preventDefault();
+        var $this = $(this);
+        var url = $this.data('post-url');
+        if (url) {
+          $.post(url, function (data) {
+            if (data['success']) {
+              window.location.reload();
+            }
+          });
+        }
+      });
+
       // show expandable text
       $('[data-expandable-text]').hover(function() {
         var text = $(this).data('expandable-text');

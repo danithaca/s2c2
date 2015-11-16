@@ -32,8 +32,13 @@
         <a href="{% url 'circle:membership_edit_sitter' pk=membership.id %}" class="btn btn-xs btn-warning" data-expandable-text="Edit"><i class="fa fa-edit"></i></a>
         <span class="btn btn-xs btn-danger destroy" data-expandable-text="Remove" data-url="{% url 'circle:membership_deactivate' pk=membership.id %}"><i class="fa fa-trash"></i></span>
       {% elif membership.is_valid_group_membership %}
-        <a href="{% url 'circle:membership_edit_group' pk=membership.id %}" class="btn btn-xs btn-warning" data-expandable-text="Edit"><i class="fa fa-edit"></i></a>
-        <span class="btn btn-xs btn-danger destroy" data-expandable-text="Leave" data-url="{% url 'circle:membership_deactivate' pk=membership.id %}"><i class="fa fa-trash"></i></span>
+        {% if membership.is_pending_approval %}
+          <span class="btn btn-xs btn-success ajax-post-refresh" data-post-url="{% url 'circle:membership_approve' pk=membership.id %}" data-expandable-text="Approve"><i class="fa fa-check"></i></span>
+          <span class="btn btn-xs btn-danger ajax-post-refresh" data-post-url="{% url 'circle:membership_disapprove' pk=membership.id %}" data-expandable-text="Block"><i class="fa fa-times"></i></span>
+        {% else %}
+          <a href="{% url 'circle:membership_edit_group' pk=membership.id %}" class="btn btn-xs btn-warning" data-expandable-text="Edit"><i class="fa fa-edit"></i></a>
+          <span class="btn btn-xs btn-danger destroy" data-expandable-text="Remove" data-url="{% url 'circle:membership_deactivate' pk=membership.id %}"><i class="fa fa-trash"></i></span>
+        {% endif %}
       {% endif %}
     {% endif %}
   </div>

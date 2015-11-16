@@ -60,6 +60,7 @@ $(document).ready(function() {
     <p>None.</p>
   {% else %}
     <div class="grid">
+      {% block grid-extra %}{% endblock %}
       {% for membership in list_membership %}
         <div class="grid-item">{% include 'includes/card/membership.html' with membership=membership user=membership.member.to_puser allow_edit=full_access only %}</div>
       {% endfor %}
