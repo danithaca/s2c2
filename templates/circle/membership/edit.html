@@ -13,6 +13,11 @@
     {{ form|bootstrap_horizontal }}
     <div class="form-group">
       <div class="col-sm-offset-2 col-sm-10">
+{#        {% if membership.is_pending_approval %}#}
+{#          <button type="submit" class="btn btn-success">Approve</button>#}
+{#        {% else %}#}
+{#          <button type="submit" class="btn btn-primary">Update</button>#}
+{#        {% endif %}#}
         <button type="submit" class="btn btn-primary">Update</button>
         <a href="#" class="btn btn-default go-back">Go Back</a>
       </div>

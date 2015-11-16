@@ -97,6 +97,7 @@ class MembershipEditForm(forms.ModelForm):
     class Meta:
         model = Membership
         fields = ['note', 'as_admin']
+        # fields = ['note', 'as_admin', 'approved']
         labels = {
             'note': 'Note',
             'as_admin': 'Mark as admin'
@@ -104,6 +105,7 @@ class MembershipEditForm(forms.ModelForm):
         widgets = {
             # 'type': forms.HiddenInput(),
             'note': forms.Textarea(attrs={'placeholder': 'Leave an optional note.', 'rows': 3}),
+            # 'approved': forms.HiddenInput(),
         }
 
     # def __init__(self, circle=None, member=None, active=None, approved=None, type=None, *args, **kwargs):

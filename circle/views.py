@@ -390,7 +390,7 @@ class GroupJoinView(CircleJoinView):
 class MembershipEditView(LoginRequiredMixin, RegisteredRequiredMixin, AllowMembershipEditMixin, UpdateView):
     model = Membership
     form_class = MembershipEditForm
-    template_name = 'circle/membership_edit.html'
+    template_name = 'circle/membership/edit.html'
 
     def get_membership(self):
         return self.get_object()
@@ -422,6 +422,14 @@ class MembershipEditView(LoginRequiredMixin, RegisteredRequiredMixin, AllowMembe
             else:
                 form.fields['as_admin'].widget = HiddenInput()
         return form
+
+    # def get_initial(self):
+    #     initial = super().get_initial()
+    #     membership = self.get_membership()
+    #     # set this to be automatically approve whenever the membership is edited
+    #     if membership.is_pending_approval():
+    #         initial['approved'] = True
+    #     return initial
 
     def get_success_url(self):
         membership = self.get_object()
