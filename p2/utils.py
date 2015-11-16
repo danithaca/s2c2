@@ -137,3 +137,11 @@ class UserRole(Enum):
     PARENT = 7
     SITTER = 8
     HYBRID = 11
+
+
+class TrustLevel(Enum):
+    FULL = 100
+    CLOSE = 75
+    COMMON = 50
+    REMOTE = 25
+    NONE = 0

@@ -33,7 +33,7 @@
     <a href="{% url 'circle:membership_edit_group' pk=user_membership.id %}" class="btn btn-xs btn-warning"><i class="fa fa-edit"></i> Edit Membership</a>
     <span class="btn btn-xs btn-danger destroy destroy-btn" data-url="{% url 'circle:membership_deactivate' pk=user_membership.id %}"><i class="fa fa-sign-out"></i> Leave Group</span>
   {% else %}
-    <a href="{% url 'circle:group_join' pk=circle.id %}" class="btn btn-xs btn-primary"><i class="fa fa-user-plus"></i> Join</a>
+    <a href="{% url 'circle:group_join' pk=circle.id %}" class="btn btn-xs btn-success"><i class="fa fa-sign-in"></i> Join Group</a>
   {% endif %}
   {% if user_membership.is_admin %}
     <a href="{% url 'circle:group_edit' pk=circle.id %}" class="btn btn-info btn-xs"><i class="fa fa-pencil"></i> Edit Group</a>
@@ -41,7 +41,6 @@
 {% endblock %}
 
 {% block content-introduction %}
-  <p>{% if circle.description %}{{ circle.description }}{% endif %}</p>
   <ul class="list-inline">
     {% for admin_user in circle.get_admin_users %}
     <li>
@@ -53,6 +52,7 @@
     </li>
     {% endfor %}
   </ul>
+  <p>{% if circle.description %}{{ circle.description }}{% endif %}</p>
 {% endblock %}
 
 {% block extended-block %}

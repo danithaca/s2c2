@@ -245,39 +245,80 @@ class UserConnectionView(LoginRequiredMixin, FormValidMessageMixin, FormView):
         return reverse('account_view', kwargs={'pk': self.target_user.id})
 
 
-class GroupJoinView(LoginRequiredMixin, RegisteredRequiredMixin, SingleObjectMixin, FormValidMessageMixin, FormView):
+class CircleJoinView(LoginRequiredMixin, RegisteredRequiredMixin, SingleObjectMixin, FormValidMessageMixin, FormView):
     model = Circle
     form_class = MembershipCreateForm
     context_object_name = 'circle'
-    template_name = 'circle/group/join.html'
-    form_valid_message = 'Successfully joined the group.'
+
+    def get_user(self):
+        return self.request.puser
 
     def dispatch(self, request, *args, **kwargs):
         self.object = self.get_object()
         circle = self.object
-        current_user = self.request.puser
+        target_user = self.get_user()
         self.existing_membership = None
+        # todo: check and make sure the to-be-added user (to personal circle) is not one's self.
         try:
-            membership = circle.get_membership(current_user)
+            membership = circle.get_membership(target_user)
             self.existing_membership = membership
             if membership.is_disapproved():
-                messages.error(request, 'Your are not allowed to join this group. Please contact the group administrators and have them manually add you into the group.')
+                msg = ''
+                if membership.is_valid_parent_relation() or membership.is_valid_sitter_relation():
+                    msg = 'You are not allowed to add this person because it is blocked.'
+                elif membership.is_valid_group_membership():
+                    msg = 'Your are not allowed to join this group. Please contact the group administrators and have them manually add you into the group.'
+                messages.error(request, msg)
                 return permission_denied(request)
             elif membership.active:
-                messages.info(request, 'You have already joined this group. Edit your membership here.')
-                return redirect(reverse('circle:membership_edit_group', kwargs={'pk': membership.id}))
+                msg = ''
+                redirect_url = '/'
+                if membership.is_valid_parent_relation():
+                    msg = 'The parent is already in your network. Edit the connection here.'
+                    redirect_url = reverse('circle:membership_edit_parent', kwargs={'pk': membership.id})
+                elif membership.is_valid_sitter_relation():
+                    msg = 'The sitter is already in your network. Edit the connection here.'
+                    redirect_url = reverse('circle:membership_edit_sitter', kwargs={'pk': membership.id})
+                elif membership.is_valid_group_membership():
+                    msg = 'You have already joined this group. Edit your membership here.'
+                    redirect_url = reverse('circle:membership_edit_group', kwargs={'pk': membership.id})
+                messages.info(request, msg)
+                return redirect(redirect_url)
         except Membership.DoesNotExist:
             pass
         return super().dispatch(request, *args, **kwargs)
 
+    def introduce(self):
+        # todo: handle introduction request. do nothing for now.
+        pass
+
+    def notify(self):
+        # send notification
+        pass
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['target_user'] = self.get_user()
+        return context
+
     def form_valid(self, form):
         circle = self.get_object().to_proxy()
-        circle.activate_membership(self.request.puser)
+        target_user = self.get_user()
+        circle.activate_membership(target_user)
         note = form.cleaned_data.get('note', None)
-        if form.has_changed() and note:
-            membership = circle.get_membership(self.request.puser)
-            membership.note = note
-            membership.save()
+
+        # save regardless of whether it's changed or not.
+        membership = circle.get_membership(target_user)
+        membership.note = note
+        if form.cleaned_data.get('is_sitter', False):
+            membership.as_role = UserRole.SITTER.value
+        else:
+            membership.as_role = UserRole.PARENT.value
+        membership.save()
+
+        if form.cleaned_data.get('introduce', False):
+            self.introduce()
+        self.notify()
         return super().form_valid(form)
 
     def get_form_kwargs(self):
@@ -286,8 +327,63 @@ class GroupJoinView(LoginRequiredMixin, RegisteredRequiredMixin, SingleObjectMix
             kwargs['instance'] = self.existing_membership
         return kwargs
 
+
+class PersonalJoinView(CircleJoinView):
+    form_valid_message = 'Successfully added.'
+
+    def get_queryset(self):
+        qs = super().get_queryset()
+        return qs.filter(type=Circle.Type.PERSONAL.value)
+
+    def get_object(self, queryset=None):
+        return self.request.puser.get_personal_circle()
+
+    def get_user(self):
+        return PUser.objects.get(pk=self.kwargs['uid'])
+
+    def get_form(self, form_class=None):
+        form = super().get_form(form_class=form_class)
+        form.fields['note'].label = 'Relationship'
+        form.fields['note'].help_text = 'Add a note of your relationship to the person.'
+        return form
+
+
+class ParentJoinView(PersonalJoinView):
+    template_name = 'circle/membership/parent_add.html'
+
+    def get_success_url(self):
+        return reverse('circle:parent')
+
+
+class SitterJoinView(PersonalJoinView):
+    template_name = 'circle/membership/sitter_add.html'
+
+    def get_success_url(self):
+        return reverse('circle:sitter')
+
+    def get_initial(self):
+        initial = super().get_initial()
+        initial['is_sitter'] = True
+        return initial
+
+
+class GroupJoinView(CircleJoinView):
+    template_name = 'circle/group/join.html'
+    form_valid_message = 'Successfully joined the group.'
+
+    def get_queryset(self):
+        qs = super().get_queryset()
+        return qs.filter(type=Circle.Type.PUBLIC.value)
+
     def get_success_url(self):
         return reverse('circle:group_view', kwargs={'pk': self.get_object().id})
+
+    def get_form(self, form_class=None):
+        form = super().get_form(form_class=form_class)
+        form.fields['introduce'].widget = HiddenInput()
+        form.fields['note'].label = 'Affiliation'
+        form.fields['note'].help_text = 'What is your affiliation to the group? E.g., Jack\'s mon.'
+        return form
 
 
 # todo: this has potential problem. e.g., a member goes to the personal circle and change herself as "admin".

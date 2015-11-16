@@ -67,19 +67,22 @@ class UserConnectionForm(forms.Form):
 
 
 class MembershipCreateForm(forms.ModelForm):
+    introduce = forms.BooleanField(required=False, label='Ask for an introduction from shared social connections?', help_text='Check this box to allow Servuno email your shared connections with the person for an introduction.')
+    is_sitter = forms.BooleanField(required=False, widget=forms.HiddenInput)
+
     class Meta:
         model = Membership
         # the rest of the field is handled by View
         fields = ['note']
-        labels = {
-            'note': 'Affiliation',
-        }
+        # labels = {
+        #     'note': 'Affiliation',
+        # }
         widgets = {
             'note': forms.Textarea(attrs={'placeholder': 'Type in here ...', 'rows': 3}),
         }
-        help_texts = {
-            'note': 'What is your affiliation to the group? E.g., Jack\'s mon.'
-        }
+        # help_texts = {
+        #     'note': 'What is your affiliation to the group? E.g., Jack\'s mon.'
+        # }
 
 
 class MembershipEditForm(forms.ModelForm):

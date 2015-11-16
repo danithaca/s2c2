@@ -1,0 +1,3 @@
+{% extends 'includes/card/connection.html' %}
+
+{% block extra-command %}<a href="{% url 'circle:parent_add' uid=user.id %}" class="btn btn-xs btn-success" data-expandable-text="Add"><i class="fa fa-user-plus"></i></a>{% endblock %}

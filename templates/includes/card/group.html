@@ -17,7 +17,7 @@
       <a href="{% url 'circle:membership_edit_group' pk=circle.user_membership.id %}" class="btn btn-xs btn-warning" data-expandable-text="Edit"><i class="fa fa-edit"></i></a>
       <span class="btn btn-xs btn-danger destroy" data-expandable-text="Leave" data-url="{% url 'circle:membership_deactivate' pk=circle.user_membership.id %}"><i class="fa fa-sign-out"></i></span>
     {% else %}
-      <a href="{% url 'circle:group_join' pk=circle.id %}" class="btn btn-xs btn-primary" data-expandable-text="Join"><i class="fa fa-user-plus"></i></a>
+      <a href="{% url 'circle:group_join' pk=circle.id %}" class="btn btn-xs btn-success" data-expandable-text="Join"><i class="fa fa-sign-in"></i></a>
     {% endif %}
   </div>
 </div>{% endblock %}

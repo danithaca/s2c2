@@ -17,6 +17,13 @@
   </div>
   <div>
     <a href="{% url 'shout:user' uid=user.id %}" class="btn btn-xs btn-primary" data-expandable-text="Message"><i class="fa fa-bullhorn"></i></a>
+    {% if membership.is_valid_group_membership%}
+      {% if membership.is_role_parent %}
+        <a href="{% url 'circle:parent_add' uid=user.id %}" class="btn btn-xs btn-success" data-expandable-text="Add"><i class="fa fa-user-plus"></i></a>
+      {% elif membership.is_role_sitter %}
+        <a href="{% url 'circle:sitter_add' uid=user.id %}" class="btn btn-xs btn-success" data-expandable-text="Add"><i class="fa fa-user-plus"></i></a>
+      {% endif %}
+    {% endif %}
     {% if allow_edit %}
       {% if membership.is_valid_parent_relation %}
         <a href="{% url 'circle:membership_edit_parent' pk=membership.id %}" class="btn btn-xs btn-warning" data-expandable-text="Edit"><i class="fa fa-edit"></i></a>

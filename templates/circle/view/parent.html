@@ -12,4 +12,15 @@
   </ul>
 {% endblock %}
 
-{% block extended-network-name %}Your Extended Network <span title="Here list friends of friends." data-toggle="tooltip"><i class="fa fa-info-circle"></i></span>{% endblock %}
+{% block extended-block %}
+  <div class="page-header"><h6>Your Extended Network <span title="Here list friends of friends." data-toggle="tooltip"><i class="fa fa-info-circle"></i></span></h6></div>
+  {% if not list_extended %}
+    <p>None.</p>
+  {% else %}
+    <div class="grid">
+      {% for user_connection in list_extended %}
+        <div class="grid-item">{% include 'includes/card/connection_add_parent.html' with user_connection=user_connection user=user_connection.target_user only %}</div>
+      {% endfor %}
+    </div>
+  {% endif %}
+{% endblock %}

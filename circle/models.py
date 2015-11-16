@@ -1,10 +1,12 @@
 from collections import defaultdict
+from datetime import timedelta
 from enum import Enum
 from django.core.urlresolvers import reverse
 
 from django.db import models
 from django.conf import settings
-from p2.utils import deprecated, UserRole
+from django.utils import timezone
+from p2.utils import UserRole, TrustLevel
 
 
 class Circle(models.Model):
@@ -426,6 +428,12 @@ class Membership(models.Model):
             return False
         return self.circle.type == Circle.Type.PUBLIC.value
 
+    def is_role_parent(self):
+        return self.as_role == UserRole.PARENT.value
+
+    def is_role_sitter(self):
+        return self.as_role == UserRole.SITTER.value
+
     def deactivate(self):
         # since a membership object is unique to a member in a circle, we'll just delegate it to the circle. or is it???
         circle = self.circle.to_proxy()
@@ -471,6 +479,59 @@ class UserConnection(object):
         # could raise DoesNotExist or multiple find.
         area = self.initiate_user.get_area()
         return Membership.objects.get(member=self.target_user, circle__type=Circle.Type.PERSONAL.value, circle__owner=self.initiate_user, circle__area=area)
+
+    def trusted(self, level=TrustLevel.COMMON.value):
+        if isinstance(level, TrustLevel):
+            level = level.value
+        return self.trust_level() >= level
+
+    # note: trust level is asymmetric
+    def trust_level(self):
+        # Trust one's self is FULL
+        if self.initiate_user == self.target_user:
+            return TrustLevel.FULL.value
+
+        # level is COMMON: someone in my personal circles, regardless of whether they are parents or babysitters.
+        my_personal_circles = Circle.objects.filter(type=Circle.Type.PERSONAL.value, owner=self.initiate_user)
+        target_memberships = Membership.objects.filter(circle__in=my_personal_circles, member=self.target_user, active=True)
+        if target_memberships.filter(as_admin=True).exists():
+            return TrustLevel.CLOSE.value
+        elif target_memberships.exists():
+            return TrustLevel.COMMON.value
+
+        # COMMON: someone i'm part of her personal circle which I approved
+        their_personal_circles = Circle.objects.filter(type=Circle.Type.PERSONAL.value, owner=self.target_user)
+        if Membership.objects.filter(circle__in=their_personal_circles, member=self.initiate_user, approved=True).exists():
+            return TrustLevel.COMMON.value
+
+        from contract.models import Match, Contract
+
+        # COMMON: anyone who has a "match" object within +/1 7days window
+        # window_start = timezone.now() - timedelta(days=7)
+        # window_end = timezone.now() + timedelta(days=7)
+        # if Match.objects.filter(target_user=self.initiate_user, contract__initiate_user=self.target_user, contract__event_end__lt=window_end, contract__event_start__gt=window_start).exists():
+        #     return TrustLevel.COMMON.value
+        # if Match.objects.filter(target_user=self.target_user, contract__initiate_user=self.initiate_user, contract__event_end__lt=window_end, contract__event_start__gt=window_start).exists():
+        #     return TrustLevel.COMMON.value
+
+        # COMMON: trust anyone who have a confirmed match regardless of time
+        if Contract.objects.filter(initiate_user=self.initiate_user, confirmed_match__target_user=self.target_user, status__in=(Contract.Status.CONFIRMED.value, Contract.Status.SUCCESSFUL.value)).exists():
+            return TrustLevel.COMMON.value
+        if Contract.objects.filter(initiate_user=self.target_user, confirmed_match__target_user=self.initiate_user, status__in=(Contract.Status.CONFIRMED.value, Contract.Status.SUCCESSFUL.value)).exists():
+            return TrustLevel.COMMON.value
+
+        # REMOTE: friend's friends, sitters in extended network.
+        personal_circle_membership = self.initiate_user.personal_circle_membership_queryset().filter(active=True, approved=True).values_list('member__id', flat=True)
+        my_network_circles = Circle.objects.filter(type=Circle.Type.PERSONAL.value, owner__id__in=personal_circle_membership)
+        if Membership.objects.filter(circle__in=my_network_circles, active=True, member=self.target_user).exclude(approved=False).exists():
+            return TrustLevel.REMOTE.value
+
+        # REMOTE: trust someone in the public/TAG circles where I'm a member of.
+        my_public_circles = Circle.objects.filter(type=Circle.Type.PUBLIC.value, membership__member=self.initiate_user, membership__active=True).exclude(membership__approved=False)
+        if Membership.objects.filter(circle__in=my_public_circles, member=self.target_user, active=True).exclude(approved=False).exists():
+            return TrustLevel.REMOTE.value
+
+        return TrustLevel.NONE.value
 
 
 class Friendship(UserConnection):

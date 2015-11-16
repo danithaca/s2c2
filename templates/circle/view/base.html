@@ -66,16 +66,5 @@ $(document).ready(function() {
     </div>
   {% endif %}
 
-  {% block extended-block %}
-    <div class="page-header"><h6>{% block extended-network-name %}{% endblock %}</h6></div>
-    {% if not list_extended %}
-      <p>None.</p>
-    {% else %}
-      <div class="grid">
-        {% for user_connection in list_extended %}
-          <div class="grid-item">{% include 'includes/card/connection.html' with user_connection=user_connection user=user_connection.target_user only %}</div>
-        {% endfor %}
-      </div>
-    {% endif %}
-  {% endblock %}
+  {% block extended-block %}{% endblock %}
 {% endblock %}

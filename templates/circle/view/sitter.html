@@ -7,4 +7,16 @@
   <p>Once you’ve added everyone, click on the star icon to add notes or upgrade that person to a preferred babysitter in your network.</p>
 {% endblock %}
 
-{% block extended-network-name %}Babysitters from Your Network <span title="Here are the babysitters from your friends' network." data-toggle="tooltip"><i class="fa fa-info-circle"></i></span>{% endblock %}
+
+{% block extended-block %}
+  <div class="page-header"><h6>Babysitters from Your Network <span title="Here are the babysitters from your friends' network." data-toggle="tooltip"><i class="fa fa-info-circle"></i></span></h6></div>
+  {% if not list_extended %}
+    <p>None.</p>
+  {% else %}
+    <div class="grid">
+      {% for user_connection in list_extended %}
+        <div class="grid-item">{% include 'includes/card/connection_add_sitter.html' with user_connection=user_connection user=user_connection.target_user only %}</div>
+      {% endfor %}
+    </div>
+  {% endif %}
+{% endblock %}
