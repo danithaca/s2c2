@@ -99,10 +99,9 @@
       });
 
       // hide content-introduction if empty
-      var $content_introduction = $('#content-introduction');
-      if (!$content_introduction.text().trim()) {
-        $content_introduction.hide();
-      }
+      hide_if_empty('#content-introduction');
+      hide_if_empty('#content-header');
+      hide_if_empty('#content-body');
 
       // for new user
       if (!window.localStorage.getItem('servuno_visited')) {
@@ -214,11 +213,13 @@
     {% block breadcrumbs %}{% if user and user.is_authenticated %}{% sitetree_breadcrumbs from 'main' %}{% endif %}{% endblock %}
     {% block headline %}{% endblock %}
     <div class="panel {% block panel-classes %}panel-default{% endblock %}" {% block panel-attributes %}{% endblock %}>
-      <div class="panel-heading hidden-if-none">{% block content-header %}{% endblock %}</div>
-      <div class="panel-body">
+      <div class="panel-heading hidden-if-none" id="content-header">
+        <div class="hidden-if-none">{% block content-command-list %}{% endblock %}</div>
+        {% block content-header %}{% endblock %}
+      </div>
+      <div class="panel-body" id="content-body">
         <legend class="hidden-if-none">{% block content-title %}{% endblock %}</legend>
         <div class="well" id="content-introduction">
-          <div class="hidden-if-none min-margin-bottom">{% block content-command-list %}{% endblock %}</div>
           {% block content-introduction %}{% endblock %}
         </div>
         {% block content %}{% endblock %}

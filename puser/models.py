@@ -429,15 +429,25 @@ class PUser(User):
     def get_login_token_forced(self):
         return self.get_login_token(force=True)
 
-    def get_shared_connection(self, target_user):
-        # shared connection: 1) directly in my personal network (parent/sitter), 2) in my parents friends' network (both parents and sitters).
-        # potentially will have the "tag" shared connection
-        # get all users (for circle owners) in current area
-        area = self.get_area()
-        my_parent_list = [self] + list(PUser.objects.filter(membership__active=True, membership__approved=True, membership__circle__owner=self, membership__circle__type=Circle.Type.PARENT.value, membership__circle__area=area).distinct())
-        # get all members who are in the personal circles of the previous parent list.
-        membership_list = Membership.objects.filter(member=target_user, active=True, approved=True, circle__owner__in=my_parent_list, circle__type__in=(Circle.Type.PARENT.value, Circle.Type.SITTER.value), circle__area=area)
-        return UserConnection(self, target_user, list(membership_list))
+    # def get_shared_connection(self, target_user):
+    #     # shared connection: 1) directly in my personal network (parent/sitter), 2) in my parents friends' network (both parents and sitters).
+    #     # potentially will have the "tag" shared connection
+    #     # get all users (for circle owners) in current area
+    #     area = self.get_area()
+    #     my_parent_list = [self] + list(PUser.objects.filter(membership__active=True, membership__approved=True, membership__circle__owner=self, membership__circle__type=Circle.Type.PARENT.value, membership__circle__area=area).distinct())
+    #     # get all members who are in the personal circles of the previous parent list.
+    #     membership_list = Membership.objects.filter(member=target_user, active=True, approved=True, circle__owner__in=my_parent_list, circle__type__in=(Circle.Type.PARENT.value, Circle.Type.SITTER.value), circle__area=area)
+    #     return UserConnection(self, target_user, list(membership_list))
+
+    def get_role(self):
+        if self.has_info():
+            return self.info.role
+        else:
+            return None
+
+    def is_sitter(self):
+        # if missing the value, we don't treat it as a sitter.
+        return self.get_role() == UserRole.SITTER.value
 
     ######## methods that check user's status #########
     # is_active: from django system. inactive means the user cannot login (perhaps a spam user), and cannot use the site.

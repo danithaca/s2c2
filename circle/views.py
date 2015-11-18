@@ -507,6 +507,10 @@ class ActivateMembership(LoginRequiredMixin, CircleAdminMixin, SingleObjectMixin
                         target_puser = PUser.get_by_email(email)
                     except PUser.DoesNotExist:
                         target_puser = PUser.create(email, dummy=True, area=circle.area)
+                        # also set the default UserRole.
+                        if as_role == UserRole.SITTER.value:
+                            target_puser.info.role = as_role
+                            target_puser.info.save()
 
                     # todo: here we might want to test if the membership is already active.
                     # this behaves differently for different circle type (Proxy subclass)

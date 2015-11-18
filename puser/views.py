@@ -18,9 +18,9 @@ from rest_framework.generics import RetrieveAPIView
 from rest_framework.response import Response
 
 from circle.forms import UserConnectionForm
-from circle.models import Circle, Membership
+from circle.models import Circle, Membership, UserConnection
 from circle.views import ParentManageView
-from p2.utils import RegisteredRequiredMixin
+from p2.utils import RegisteredRequiredMixin, TrustLevel
 from puser.forms import UserInfoForm, UserPictureForm, LoginEmailAdvForm, UserInfoOnboardForm, \
     SignupFullForm, WaitingForm, UserPreferenceForm
 from puser.models import Info, PUser, Waiting
@@ -171,19 +171,29 @@ class UserPicture(LoginRequiredMixin, FormValidMessageMixin, UpdateView):
         return puser.get_info()
 
 
-class TrustedUserMixin(UserPassesTestMixin):
+class UserTrustedMixin(UserPassesTestMixin):
     """
     This only works in DetailsView where PUser is the object.
     """
     raise_exception = True
+    trust_level = TrustLevel.COMMON.value
 
     def test_func(self, user):
         target_user = self.get_object()
         # the target user (whom the current user is viewing) needs to trust the current user.
-        return target_user.trusted(user)
+        uc = UserConnection(target_user, user)
+        return uc.trusted(self.trust_level)
+
+    def handle_no_permission(self, request):
+        messages.error(request, 'You do not have sufficient trust from the target user to view the requested content.')
+        return super().handle_no_permission(request)
 
 
-class UserView(LoginRequiredMixin, RegisteredRequiredMixin, TrustedUserMixin, DetailView):
+class RemoteTrustedMixin(UserTrustedMixin):
+    trust_level = TrustLevel.REMOTE.value
+
+
+class UserView(LoginRequiredMixin, RegisteredRequiredMixin, RemoteTrustedMixin, DetailView):
     """
     The main thing to display user profile.
     """
@@ -199,39 +209,47 @@ class UserView(LoginRequiredMixin, RegisteredRequiredMixin, TrustedUserMixin, De
         return obj
 
     def get_context_data(self, **kwargs):
-        u = self.get_object()
+        target_user = self.get_object()
+        current_user = self.request.puser
+        user_connection = UserConnection(current_user, target_user)
+        reverse_user_connection = UserConnection(target_user, current_user)
+
         context = {
             'current_user': self.request.puser,
-            'full_access': self.get_object() == self.request.puser,
+            'full_access': user_connection.trusted(TrustLevel.FULL.value),
+            'user_connection': user_connection,
+            'reverse_user_connection': reverse_user_connection,
         }
 
-        if u != self.request.puser:
+        if target_user != self.request.puser:
             context.update({
-                'interactions': self.request.puser.count_interactions(u),
-                'current_user_shared_circles': self.request.puser.get_shared_connection(u).get_circle_list(),
-                'user_connection_form': UserConnectionForm(initiate_user=self.request.puser, target_user=u),
+                'interactions': self.request.puser.count_interactions(target_user),
+                # 'current_user_shared_circles': self.request.puser.get_shared_connection(target_user).get_circle_list(),
             })
+            try:
+                membership = user_connection.find_personal_membership()
+                context['user_membership'] = membership
+            except Membership.DoesNotExist:
+                pass
 
-        if u.is_registered() and u.has_area():
-            area = u.get_area()
+        if target_user.is_registered() and target_user.has_area():
+            area = target_user.get_area()
             # in_others = list(PUser.objects.filter(owner__type=Circle.Type.PERSONAL.value, owner__area=area, owner__membership__member=u, owner__membership__active=True, owner__membership__approved=True).exclude(owner__owner=u).distinct())
             # my_listed = list(PUser.objects.filter(membership__circle__owner=u, membership__circle__area=area, membership__circle__type=Circle.Type.PERSONAL.value, membership__active=True, membership__approved=True).exclude(membership__member=u).distinct())
             # my_circles = list(Circle.objects.filter(membership__member=u, membership__circle__type=Circle.Type.PUBLIC.value, membership__circle__area=area, membership__active=True, membership__approved=True).distinct())
             # my_memberships = list(Membership.objects.filter(member=u, circle__type=Circle.Type.PUBLIC.value, circle__area=area, active=True))
             # my_agencies = list(Membership.objects.filter(member=u, circle__type=Circle.Type.AGENCY.value, circle__area=area, active=True))
 
-            my_parents = list(Membership.objects.filter(circle=u.my_circle(Circle.Type.PARENT), active=True, approved=True).exclude(member=u).order_by('created'))
-            my_sitters = list(Membership.objects.filter(circle=u.my_circle(Circle.Type.SITTER), active=True, approved=True).exclude(member=u).order_by('created'))
-            my_memberships = list(Membership.objects.filter(member=u, circle__type=Circle.Type.TAG.value, circle__area=area, active=True))
+            # my_parents = list(Membership.objects.filter(circle=target_user.my_circle(Circle.Type.PARENT), active=True, approved=True).exclude(member=target_user).order_by('created'))
+            # my_sitters = list(Membership.objects.filter(circle=target_user.my_circle(Circle.Type.SITTER), active=True, approved=True).exclude(member=target_user).order_by('created'))
+            # my_memberships = list(Membership.objects.filter(member=target_user, circle__type=Circle.Type.TAG.value, circle__area=area, active=True))
+
+            list_personal_membership = Membership.objects.filter(circle=target_user.get_personal_circle(), active=True, approved=True).exclude(member=target_user).order_by('-updated', '-created')
+            list_public_membership = Membership.objects.filter(circle__area=target_user.get_area(), circle__type=Circle.Type.PUBLIC.value, member=target_user, active=True, approved=True).order_by('-updated', '-created')
 
             context.update({
-                # 'in_others': in_others,
-                # 'my_listed': my_listed,
-                # 'my_circles': my_circles,
-                'my_memberships': my_memberships,
-                # 'my_agencies': my_agencies,
-                'my_parents': my_parents,
-                'my_sitters': my_sitters,
+                'list_personal_membership': list_personal_membership,
+                'list_public_membership': list_public_membership,
             })
 
         # # favors karma

@@ -191,3 +191,11 @@ function debounce( fn, threshold ) {
     timeout = setTimeout(delayed, threshold || 100);
   }
 }
+
+
+function hide_if_empty(element) {
+  var $element = $(element);
+  if (!$element.text().trim()) {
+    $element.hide();
+  }
+}

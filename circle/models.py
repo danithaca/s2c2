@@ -553,6 +553,18 @@ class UserConnection(object):
 
         return TrustLevel.NONE.value
 
+    def update_shared_personal_connection(self):
+        pass
+        # todo: not implemented yet.
+        # shared connection: 1) directly in my personal network (parent/sitter), 2) in my parents friends' network
+        # get all users (for circle owners) in current area
+
+        # area = self.get_area()
+        # my_parent_list = [self] + list(PUser.objects.filter(membership__active=True, membership__approved=True, membership__circle__owner=self, membership__circle__type=Circle.Type.PARENT.value, membership__circle__area=area).distinct())
+        # # get all members who are in the personal circles of the previous parent list.
+        # membership_list = Membership.objects.filter(member=target_user, active=True, approved=True, circle__owner__in=my_parent_list, circle__type__in=(Circle.Type.PARENT.value, Circle.Type.SITTER.value), circle__area=area)
+        # return UserConnection(self, target_user, list(membership_list))
+
 
 class Friendship(UserConnection):
     '''
