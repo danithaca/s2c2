@@ -13,7 +13,7 @@ from django.shortcuts import redirect
 from django.views.defaults import bad_request, permission_denied
 from django.views.generic import FormView, CreateView, UpdateView, TemplateView, DetailView, View
 from django.views.generic.detail import SingleObjectMixin
-from circle.forms import UserConnectionForm, CircleCreateForm, MembershipCreateForm, MembershipEditForm
+from circle.forms import CircleCreateForm, MembershipCreateForm, MembershipEditForm
 from circle.models import Membership, Circle, UserConnection
 from circle.tasks import circle_send_invitation
 from puser.models import PUser
@@ -203,52 +203,52 @@ class PublicCircleView(CircleView):
         return context
 
 
-class UserConnectionView(LoginRequiredMixin, FormValidMessageMixin, FormView):
-    template_name = 'pages/basic_form.html'
-    form_class = UserConnectionForm
-    form_valid_message = 'Updated successfully.'
-
-    def dispatch(self, request, *args, **kwargs):
-        self.initiate_user = request.puser
-        self.target_user = None
-        try:
-            self.target_user = PUser.objects.get(pk=kwargs.get('uid', None))
-        except:
-            pass
-
-        if request.method.lower() == 'get' and self.target_user is None:
-            return bad_request(request)
-        return super().dispatch(request, *args, **kwargs)
-
-    def get_form_kwargs(self):
-        kwargs = super().get_form_kwargs()
-        kwargs['initiate_user'] = self.initiate_user
-        kwargs['target_user'] = self.target_user
-        return kwargs
-
-    # def get_initial(self):
-    #     initial = super().get_initial()
-    #     # this is area aware.
-    #     area = self.initiate_user.get_area()
-    #     initial['parent_circle'] = Membership.objects.filter(member=self.target_user, circle__owner=self.initiate_user, circle__type=Circle.Type.PARENT.value, circle__area=area, active=True, approved=True).exists()
-    #     initial['sitter_circle'] = Membership.objects.filter(member=self.target_user, circle__owner=self.initiate_user, circle__type=Circle.Type.SITTER.value, circle__area=area, active=True, approved=True).exists()
-    #     return initial
-
-    def form_valid(self, form):
-        for field_name, circle_type in (('parent_circle', Circle.Type.PARENT), ('sitter_circle', Circle.Type.SITTER)):
-            my_circle = self.initiate_user.my_circle(circle_type)
-            new_value = form.cleaned_data[field_name]
-            old_value = form.initial[field_name]
-            if new_value != old_value:
-                if new_value:
-                    # todo: here we just approve.
-                    my_circle.activate_membership(self.target_user, approved=True)
-                else:
-                    my_circle.deactivate_membership(self.target_user)
-        return super().form_valid(form)
-
-    def get_success_url(self):
-        return reverse('account_view', kwargs={'pk': self.target_user.id})
+# class UserConnectionView(LoginRequiredMixin, FormValidMessageMixin, FormView):
+#     template_name = 'pages/basic_form.html'
+#     form_class = UserConnectionForm
+#     form_valid_message = 'Updated successfully.'
+#
+#     def dispatch(self, request, *args, **kwargs):
+#         self.initiate_user = request.puser
+#         self.target_user = None
+#         try:
+#             self.target_user = PUser.objects.get(pk=kwargs.get('uid', None))
+#         except:
+#             pass
+#
+#         if request.method.lower() == 'get' and self.target_user is None:
+#             return bad_request(request)
+#         return super().dispatch(request, *args, **kwargs)
+#
+#     def get_form_kwargs(self):
+#         kwargs = super().get_form_kwargs()
+#         kwargs['initiate_user'] = self.initiate_user
+#         kwargs['target_user'] = self.target_user
+#         return kwargs
+#
+#     # def get_initial(self):
+#     #     initial = super().get_initial()
+#     #     # this is area aware.
+#     #     area = self.initiate_user.get_area()
+#     #     initial['parent_circle'] = Membership.objects.filter(member=self.target_user, circle__owner=self.initiate_user, circle__type=Circle.Type.PARENT.value, circle__area=area, active=True, approved=True).exists()
+#     #     initial['sitter_circle'] = Membership.objects.filter(member=self.target_user, circle__owner=self.initiate_user, circle__type=Circle.Type.SITTER.value, circle__area=area, active=True, approved=True).exists()
+#     #     return initial
+#
+#     def form_valid(self, form):
+#         for field_name, circle_type in (('parent_circle', Circle.Type.PARENT), ('sitter_circle', Circle.Type.SITTER)):
+#             my_circle = self.initiate_user.my_circle(circle_type)
+#             new_value = form.cleaned_data[field_name]
+#             old_value = form.initial[field_name]
+#             if new_value != old_value:
+#                 if new_value:
+#                     # todo: here we just approve.
+#                     my_circle.activate_membership(self.target_user, approved=True)
+#                 else:
+#                     my_circle.deactivate_membership(self.target_user)
+#         return super().form_valid(form)
+#
+#     def get_success_url(self):
+#         return reverse('account_view', kwargs={'pk': self.target_user.id})
 
 
 class CircleJoinView(LoginRequiredMixin, RegisteredRequiredMixin, SingleObjectMixin, FormValidMessageMixin, FormView):
@@ -468,20 +468,20 @@ class MembershipApprovalView(LoginRequiredMixin, AllowMembershipEditMixin, Detai
         return self.get_object()
 
 
-class ListMembersView(LoginRequiredMixin, RegisteredRequiredMixin, TemplateView):
-    template_name = 'circle/network.html'
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        target_user = self.request.puser
-        if target_user.is_registered():
-            my_parents = list(Membership.objects.filter(circle=target_user.my_circle(Circle.Type.PARENT), active=True, approved=True).exclude(member=target_user).order_by('-updated'))
-            my_sitters = list(Membership.objects.filter(circle=target_user.my_circle(Circle.Type.SITTER), active=True, approved=True).exclude(member=target_user).order_by('-updated'))
-            context.update({
-                'my_parents': my_parents,
-                'my_sitters': my_sitters,
-            })
-        return context
+# class ListMembersView(LoginRequiredMixin, RegisteredRequiredMixin, TemplateView):
+#     template_name = 'circle/network.html'
+#
+#     def get_context_data(self, **kwargs):
+#         context = super().get_context_data(**kwargs)
+#         target_user = self.request.puser
+#         if target_user.is_registered():
+#             my_parents = list(Membership.objects.filter(circle=target_user.my_circle(Circle.Type.PARENT), active=True, approved=True).exclude(member=target_user).order_by('-updated'))
+#             my_sitters = list(Membership.objects.filter(circle=target_user.my_circle(Circle.Type.SITTER), active=True, approved=True).exclude(member=target_user).order_by('-updated'))
+#             context.update({
+#                 'my_parents': my_parents,
+#                 'my_sitters': my_sitters,
+#             })
+#         return context
 
 
 ################## views for API ########################

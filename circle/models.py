@@ -565,6 +565,17 @@ class UserConnection(object):
         # membership_list = Membership.objects.filter(member=target_user, active=True, approved=True, circle__owner__in=my_parent_list, circle__type__in=(Circle.Type.PARENT.value, Circle.Type.SITTER.value), circle__area=area)
         # return UserConnection(self, target_user, list(membership_list))
 
+        # my extended network
+        # my_parent_list = [m.member for m in my_personal_circle.membership_set.filter(active=True, approved=True, as_role=UserRole.PARENT.value).exclude(member=me)]
+        # extended_circle_list = Circle.objects.filter(owner__in=my_parent_list, type=my_personal_circle.type, area=my_personal_circle.area)
+        # # need to sort by member in order to use groupby.
+        # extended = []
+        # list_extended = Membership.objects.filter(active=True, circle__in=extended_circle_list).exclude(member=me).exclude(approved=False).exclude(member__id__in=list_membership.values_list('member__id', flat=True)).order_by('member', '-updated')
+        # list_extended = self.add_extra_filter(list_extended)
+        # for member, membership_list in groupby(list_extended, lambda m: m.member):
+        #     extended.append(UserConnection(me, member, list(membership_list)))
+        # context['list_extended'] = extended
+
 
 class Friendship(UserConnection):
     '''

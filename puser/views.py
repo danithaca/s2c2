@@ -17,7 +17,6 @@ from django.contrib import messages
 from rest_framework.generics import RetrieveAPIView
 from rest_framework.response import Response
 
-from circle.forms import UserConnectionForm
 from circle.models import Circle, Membership, UserConnection
 from circle.views import ParentManageView
 from p2.utils import RegisteredRequiredMixin, TrustLevel
