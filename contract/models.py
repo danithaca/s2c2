@@ -98,9 +98,11 @@ class Contract(StatusMixin, models.Model):
         FAILED = 6          # was confirmed, but not carried through.
         EXPIRED = 7         # was "active", but didn't get to the "success" stage. this could be derived from "active + event_expired", but it's easier to have a separate category for archival purposes. still need to search with "active" and "event_end" for exact expired contracts. automatically marked from "active" to "expired" in 7 days.
 
+    # this actually specifies the Recommend strategy. for each new algorithm, create a new "AudienceType" here.
     class AudienceType(Enum):
         SMART = 1           # smart match algorithm
         CIRCLE = 2          # individual circle
+        MANUAL = 3          # manually choose the individuals (and/or circles). not automated recommendations.
 
     initiate_user = models.ForeignKey(settings.AUTH_USER_MODEL)
     # initiate_user = models.ForeignKey()
@@ -298,8 +300,17 @@ class Contract(StatusMixin, models.Model):
     def to_engagement(self):
         return Engagement.from_contract(self)
 
+    def is_manual(self):
+        return self.audience_type == Contract.AudienceType.MANUAL.value
+
     def get_client(self):
         return self.initiate_user.to_puser()
+
+    def recommend(self, initial=False):
+        """
+        Create "Match" for this contract.
+        """
+        pass
 
 
 class Match(StatusMixin, models.Model):

@@ -3,7 +3,7 @@ from decimal import Decimal
 
 from braces.views import JSONResponseMixin, AjaxResponseMixin, LoginRequiredMixin, FormValidMessageMixin
 from django.contrib import messages
-from django.core.urlresolvers import reverse_lazy
+from django.core.urlresolvers import reverse_lazy, reverse
 from django.core.validators import MinValueValidator
 from django.db.models import Q
 from django.views.generic import CreateView, DetailView, ListView, View, TemplateView, UpdateView
@@ -93,9 +93,10 @@ class ContractCreate(LoginRequiredMixin, RegisteredRequiredMixin, FormValidMessa
         return initial
 
     def get_context_data(self, **kwargs):
-        ctx = super().get_context_data(**kwargs)
-        ctx['client'] = self.request.puser
-        return ctx
+        context = super().get_context_data(**kwargs)
+        context['client'] = self.request.puser
+        context['show_target'] = True
+        return context
 
     # def get_form(self, form_class=None):
     #     form = super().get_form(form_class)
@@ -113,6 +114,13 @@ class ContractCreate(LoginRequiredMixin, RegisteredRequiredMixin, FormValidMessa
         contract.status = Contract.Status.INITIATED.value
         self.alter_contract(contract)
         return super().form_valid(form)
+
+    def get_success_url(self):
+        contract = self.object
+        if contract.is_manual():
+            return reverse('contract:audience', kwargs={'pk': contract.id})
+        else:
+            return super().get_success_url()
 
 # this is hard to implement because the preview doesn't handle cbv well, unless perhaps use mixins.
 # class ContractCreatePreview(FormPreview, ContractCreate):
@@ -133,11 +141,6 @@ class ContractCreateParentView(ContractCreate):
         initial = super().get_initial()
         initial['price'] = 0
         return initial
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context['show_target'] = True
-        return context
 
 
 class ContractCreateSitterView(ContractCreate):
@@ -178,14 +181,14 @@ class ContractEdit(LoginRequiredMixin, FormValidMessageMixin, ContractUpdateMixi
         # form.base_price = self.object.price
         return form
 
-    def get_initial(self):
-        initial = super().get_initial()
-        contract = self.object
-        if contract.audience_type == Contract.AudienceType.SMART.value:
-            initial['audience'] = 0
-        elif contract.audience_type == Contract.AudienceType.CIRCLE.value:
-            initial['audience'] = contract.parse_audience_data()
-        return initial
+    # def get_initial(self):
+    #     initial = super().get_initial()
+    #     contract = self.object
+    #     if contract.audience_type == Contract.AudienceType.SMART.value:
+    #         initial['audience'] = 0
+    #     elif contract.audience_type == Contract.AudienceType.CIRCLE.value:
+    #         initial['audience'] = contract.parse_audience_data()
+    #     return initial
 
     def form_valid(self, form):
         result = super().form_valid(form)
@@ -198,6 +201,12 @@ class ContractEdit(LoginRequiredMixin, FormValidMessageMixin, ContractUpdateMixi
         ctx = super().get_context_data(**kwargs)
         ctx['show_price'] = True
         return ctx
+
+
+class ContractAudienceView(LoginRequiredMixin, FormValidMessageMixin, DetailView):
+    model = Contract
+    template_name = 'pages/experiment.html'
+    context_object_name = 'contract'
 
 
 class ContractChangeStatus(LoginRequiredMixin, JSONResponseMixin, AjaxResponseMixin, View):

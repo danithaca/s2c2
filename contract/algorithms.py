@@ -6,6 +6,18 @@ from contract.models import Match, Contract
 from puser.models import PUser
 
 
+class NewRecommenderStrategy(metaclass=ABCMeta):
+    def __init__(self, contract):
+        self.contract = contract
+
+    def recommend(self):
+        pass
+
+
+################ below is obsolete ###############
+# todo: remove later
+
+
 class RecommenderStrategy(metaclass=ABCMeta):
     """
     Strategy pattern.

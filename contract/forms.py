@@ -17,12 +17,12 @@ class ContractForm(forms.ModelForm):
     # event_start = forms.DateTimeField(localize=True)
     # event_end = forms.DateTimeField(localize=True)
 
-    audience = forms.IntegerField(label='Contact', widget=forms.Select(attrs={'class': 'form-control'}))  # choices=((0, 'Smart Match'), (1, 'My Circle'))
+    # audience = forms.IntegerField(label='Contact', widget=forms.Select(attrs={'class': 'form-control'}))  # choices=((0, 'Smart Match'), (1, 'My Circle'))
     # audience = forms.IntegerField(label='Contact', widget=forms.HiddenInput())
 
     class Meta:
         model = Contract
-        fields = ['event_start', 'event_end', 'price', 'area', 'description']
+        fields = ['event_start', 'event_end', 'price', 'audience_type', 'area', 'description']
         # w = DateTimeWidget(bootstrap_version=3, options={
         #     'format': 'yyyy-mm-dd hh:ii',
         #     'minuteStep': 15,
@@ -34,18 +34,20 @@ class ContractForm(forms.ModelForm):
             # 'event_end': forms.DateTimeInput(attrs={'class': 'form-control', 'placeholder': 'E.g. 12/21/2014 19:00'}),
             'event_end': forms.DateTimeInput(attrs={'class': 'form-control', 'placeholder': 'End date/time'}),
             'area': forms.HiddenInput(),
-            'description': forms.Textarea(attrs={'placeholder': 'Type here.', 'rows': 3})
+            'description': forms.Textarea(attrs={'placeholder': 'Type here.', 'rows': 3}),
         }
         labels = {
             'event_start': 'From',
             'event_end': 'To',
             'description': 'Note (optional)',
+            'audience_type': 'Who to Contact?'
         }
         localized_fields = ['event_start', 'event_end']
-        # help_texts = {
-        #     'event_start': 'Start date/time',
-        #     'event_end': 'End date/time',
-        # }
+        help_texts = {
+            # 'event_start': 'Start date/time',
+            # 'event_end': 'End date/time',
+            'audience_type': 'The "automatic" option choose the best matches based on previous interactions and reputation, and will gradually expand if no one responds. The "manual" option requires you specify the targets in the next step.'
+        }
 
     class Media:
         js = (
@@ -55,23 +57,29 @@ class ContractForm(forms.ModelForm):
         css = {'all': ('https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.14.30/css/bootstrap-datetimepicker.min.css',)}
 
     def __init__(self, *args, **kwargs):
-        audience_choices = [(0, 'My network on Servuno')]
+        # audience_choices = [(0, 'My network on Servuno')]
         client = kwargs.pop('client', None)
-        if client:
-            circles = []
-            # circles.append(client.get_personal_circle())
-            # circles.extend(client.get_public_circle_set())
-            # circles.extend(client.get_agency_circle_set())
-            # circles.append(client.my_circle(Circle.Type.PARENT))
-            # circles.append(client.my_circle(Circle.Type.SITTER))
-            circles.extend(client.get_tag_circle_set())
-            for circle in circles:
-                audience_choices.append((circle.id, circle.display()))
+        # if client:
+        #     circles = []
+        #     # circles.append(client.get_personal_circle())
+        #     # circles.extend(client.get_public_circle_set())
+        #     # circles.extend(client.get_agency_circle_set())
+        #     # circles.append(client.my_circle(Circle.Type.PARENT))
+        #     # circles.append(client.my_circle(Circle.Type.SITTER))
+        #     circles.extend(client.get_public_circle_set())
+        #     for circle in circles:
+        #         audience_choices.append((circle.id, circle.display()))
 
         super().__init__(*args, **kwargs)
-        self.fields['audience'].widget.choices = audience_choices
+        # self.fields['audience'].widget.choices = audience_choices
         # self.fields['price'].widget.attrs['step'] = 1
         # self.fields['area'].widget.attrs['disabled'] = True
+
+        self.fields['audience_type'].choices = (
+            (Contract.AudienceType.SMART.value, 'Let Servuno choose automatically (recommended)'),
+            (Contract.AudienceType.MANUAL.value, 'Choose manually')
+        )
+        # self.fields['audience_type'].widget.attrs = {'class': 'form-control'}
 
         # perhaps it's better to delegate to template js to add form-control to form elements.
         # for fn, field in self.fields.items():
@@ -88,12 +96,12 @@ class ContractForm(forms.ModelForm):
         if event_start >= event_end:
             raise forms.ValidationError('End date/time must be later than start date/time.')
 
-        audience_option = int(cleaned_data.get('audience', 0))
-        if audience_option == 0:
-            self.instance.audience_type = Contract.AudienceType.SMART.value
-        else:
-            self.instance.audience_type = Contract.AudienceType.CIRCLE.value
-            self.instance.audience_data = json.dumps(audience_option)
+        # audience_option = int(cleaned_data.get('audience', 0))
+        # if audience_option == 0:
+        #     self.instance.audience_type = Contract.AudienceType.SMART.value
+        # else:
+        #     self.instance.audience_type = Contract.AudienceType.CIRCLE.value
+        #     self.instance.audience_data = json.dumps(audience_option)
 
         # if hasattr(self, 'base_price') and not cleaned_data.get("price") >= self.base_price:
         #     raise forms.ValidationError('End date/time must be later than start date/time.')
