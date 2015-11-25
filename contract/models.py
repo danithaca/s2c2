@@ -11,6 +11,7 @@ from django.dispatch import receiver
 from django.conf import settings
 
 from contract import tasks
+from contract.algorithms import SmartRecommender, ManualRecommender
 
 
 class StatusMixin(object):
@@ -99,6 +100,7 @@ class Contract(StatusMixin, models.Model):
         EXPIRED = 7         # was "active", but didn't get to the "success" stage. this could be derived from "active + event_expired", but it's easier to have a separate category for archival purposes. still need to search with "active" and "event_end" for exact expired contracts. automatically marked from "active" to "expired" in 7 days.
 
     # this actually specifies the Recommend strategy. for each new algorithm, create a new "AudienceType" here.
+    # todo: rename to RecommenderType
     class AudienceType(Enum):
         SMART = 1           # smart match algorithm
         CIRCLE = 2          # individual circle
@@ -125,6 +127,7 @@ class Contract(StatusMixin, models.Model):
 
     status = models.PositiveSmallIntegerField(choices=[(s.value, s.name.capitalize()) for s in Status], default=Status.INITIATED.value)
 
+    # todo: rename to recommender_type and recommender_data
     audience_type = models.PositiveSmallIntegerField(choices=[(s.value, s.name.capitalize()) for s in AudienceType], default=AudienceType.SMART.value)
     audience_data = models.TextField(blank=True, help_text='Extra data for the particular audience type, stored in JSON.')
 
@@ -306,11 +309,27 @@ class Contract(StatusMixin, models.Model):
     def get_client(self):
         return self.initiate_user.to_puser()
 
+    def get_matched_users(self):
+        from puser.models import PUser
+        uid_list = self.match_set.all().values_list('member', flat=True)
+        return PUser.objects.filter(id__in=uid_list)
+
     def recommend(self, initial=False):
         """
-        Create "Match" for this contract.
+        Create "Match" for this contract. This is "semi" factory method that uses different Recommender strategy based on AudienceType.
+        :param initial: whether this is the initial phase.
         """
-        pass
+        if self.audience_type == Contract.AudienceType.SMART.value:
+            recommender = SmartRecommender(self)
+        elif self.audience_type == Contract.AudienceType.MANUAL.value:
+            recommender = ManualRecommender(self)
+        else:
+            recommender = SmartRecommender(self)
+
+        if initial:
+            recommender.recommend_initial()
+        else:
+            recommender.recommend()
 
 
 class Match(StatusMixin, models.Model):

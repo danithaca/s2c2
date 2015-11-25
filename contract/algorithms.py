@@ -1,49 +1,33 @@
-from abc import ABCMeta, abstractmethod
-from itertools import groupby
+import json
+from abc import ABCMeta
 
 from circle.models import Membership, Circle
-from contract.models import Match, Contract
+from contract.models import Match
 from puser.models import PUser
 
 
-class NewRecommenderStrategy(metaclass=ABCMeta):
+class RecommenderStrategy(metaclass=ABCMeta):
     def __init__(self, contract):
         self.contract = contract
+        # allow exception to throw
+        self.data = json.loads(contract.audience_data) if contract.audience_data else None
 
     def recommend(self):
-        pass
-
-
-################ below is obsolete ###############
-# todo: remove later
-
-
-class RecommenderStrategy(metaclass=ABCMeta):
-    """
-    Strategy pattern.
-    """
-
-    def recommend(self, contract):
         """
-        Given the contract, compute and persist the recommended matches.
+        This is the main entrance to this class.
         """
-        if contract.audience_type == Contract.AudienceType.SMART.value:
-            count = self.recommend_smart(contract)
-        elif contract.audience_type == Contract.AudienceType.CIRCLE.value:
-            # recommend circle
-            circle_id = contract.parse_audience_data()
-            assert circle_id
-            circle = Circle.objects.get(pk=circle_id)
-            count = self.recommend_circle(contract, circle)
-        else:
-            count = self.recommend_smart(contract)
-        return count
-
-    @abstractmethod
-    def recommend_smart(self, contract):
         raise NotImplementedError()
 
-    def recommend_circle(self, contract, circle):
+    def recommend_initial(self):
+        """
+        Allows the caller to do some special work with the first initial pass.
+        """
+        self.recommend()
+
+    ########## internal methods ##########
+
+    def recommend_circle(self, circle):
+        contract = self.contract
         count = 0
         for membership in circle.membership_set.filter(active=True, approved=True).order_by('?'):
             match_added = self.add_match(contract, membership)
@@ -53,7 +37,8 @@ class RecommenderStrategy(metaclass=ABCMeta):
                 break
         return count
 
-    def add_match(self, contract, membership, score=1):
+    def add_match(self, membership, score=1):
+        contract = self.contract
         server = membership.member
         if server == contract.initiate_user:
             return False
@@ -72,20 +57,22 @@ class RecommenderStrategy(metaclass=ABCMeta):
             match.circles.add(membership.circle)
             return True
 
-    def recommend_basic(self, contract):
+    def recommend_basic(self):
+        contract = self.contract
         client = contract.initiate_user.to_puser()
         if contract.is_favor():
-            circle = client.my_circle(Circle.Type.PARENT, contract.area)
+            circle = client.get_personal_circle()
         else:
-            circle = client.my_circle(Circle.Type.SITTER, contract.area)
-        return self.recommend_circle(contract, circle)
+            circle = client.get_personal_circle()
+        return self.recommend_circle(circle)
 
-    def recommend_sitter_pool(self, contract):
+    def recommend_sitter_pool(self):
+        contract = self.contract
         count = 0
         me = contract.initiate_user.to_puser()
-        my_parent_circle = me.my_circle(Circle.Type.PARENT, area=contract.area)
+        my_parent_circle = me.get_personal_circle()
         my_parent_list = my_parent_circle.members.filter(membership__active=True, membership__approved=True).exclude(membership__member=me)
-        other_parent_sitter_circle_list = Circle.objects.filter(owner__in=my_parent_list, type=Circle.Type.SITTER.value, area=my_parent_circle.area)
+        other_parent_sitter_circle_list = Circle.objects.filter(owner__in=my_parent_list, type=Circle.Type.PERSONAL.value, area=my_parent_circle.area)
         sitter_membership_pool = Membership.objects.filter(active=True, approved=True, circle__in=other_parent_sitter_circle_list).exclude(member=me).order_by('?')
         for membership in sitter_membership_pool:
             match_added = self.add_match(contract, membership)
@@ -95,6 +82,72 @@ class RecommenderStrategy(metaclass=ABCMeta):
                 break
         return count
 
+    def recommend_smart(self):
+        contract = self.contract
+        if not contract.is_active() or contract.is_event_expired():
+            return
+        client = contract.get_client()
+
+        # first, run L1 recommender.
+        count = self.recommend_basic()
+
+        # next, if it's not a favor, add friends' friends
+        if not contract.is_favor():
+            count += self.recommend_sitter_pool()
+        else:
+            # or, if it's a favor, take "family" member's social network
+            my_parent_circle = client.get_personal_circle()
+            family_membership = Membership.objects.filter(circle=my_parent_circle, active=True, approved=True, type=Membership.Type.FAVORITE.value)
+            for m in family_membership:
+                count += self.recommend_circle(m.member.to_puser().get_personal_circle())
+
+        # next, recommend other parents in my network to take paid job
+        if count == 0:
+            circle = client.get_personal_circle()
+            count += self.recommend_circle(circle)
+
+        return count
+
+    ######## new stuff #########
+
+    def add_match_from_data(self):
+        # test if data is valid
+        if not isinstance(self.data, dict) or 'users' not in self.data or not isinstance(self.data['users'], list) or len(self.data['users']) < 1:
+            return
+        request_user_list = PUser.objects.filter(id__in=self.data['users'])
+        if not request_user_list.exists():
+            return
+        matched_user_list = self.contract.get_matched_users()
+
+        to_add_list = set(request_user_list) - set(matched_user_list)
+        for target_user in to_add_list:
+            self.add_match_by_user(target_user)
+
+    # if match already exists, throw an error.
+    def add_match_by_user(self, target_user, score=1):
+        # todo: add "circles" explanation
+        match = Match.objects.create(contract_id=self.contract.id, target_user=target_user, status=Match.Status.INITIALIZED.value, score=score)
+        return True
+
+    def is_contract_recommendable(self):
+        contract = self.contract
+        return contract.is_active() and not contract.is_event_expired()
+
+
+class SmartRecommender(RecommenderStrategy):
+    def recommend(self):
+        if not self.is_contract_recommendable():
+            return
+        self.add_match_from_data()
+        #circle = self.contract.
+        
+
+class ManualRecommender(RecommenderStrategy):
+    def recommend(self):
+        if not self.is_contract_recommendable():
+            return
+        return self.add_match_from_data()
+
 
 # todo: other algorithms
 # 1. favorite plus public circle
@@ -102,46 +155,127 @@ class RecommenderStrategy(metaclass=ABCMeta):
 # 3. friend's friends.
 
 
-class L1Recommender(RecommenderStrategy):
-    """
-    The immediate algorithm to run after a new contract to create; should be fast but not thorough.
-    """
-    def recommend_smart(self, contract):
-        count = self.recommend_basic(contract)
-        if count <= 0 and not contract.is_favor():
-            count = self.recommend_sitter_pool(contract)
-        return count
+################ below is obsolete ###############
 
 
-class L2Recommender(RecommenderStrategy):
-    """
-    This runs peoriodically to update contract matches.
-    """
+# class RecommenderStrategy(metaclass=ABCMeta):
+#     """
+#     Strategy pattern.
+#     """
+#
+#     def recommend(self, contract):
+#         """
+#         Given the contract, compute and persist the recommended matches.
+#         """
+#         if contract.audience_type == Contract.AudienceType.SMART.value:
+#             count = self.recommend_smart(contract)
+#         elif contract.audience_type == Contract.AudienceType.CIRCLE.value:
+#             # recommend circle
+#             circle_id = contract.parse_audience_data()
+#             assert circle_id
+#             circle = Circle.objects.get(pk=circle_id)
+#             count = self.recommend_circle(contract, circle)
+#         else:
+#             count = self.recommend_smart(contract)
+#         return count
+#
+#     @abstractmethod
+#     def recommend_smart(self, contract):
+#         raise NotImplementedError()
+#
+#     def recommend_circle(self, contract, circle):
+#         count = 0
+#         for membership in circle.membership_set.filter(active=True, approved=True).order_by('?'):
+#             match_added = self.add_match(contract, membership)
+#             if match_added:
+#                 count += 1
+#             if count >= 10:
+#                 break
+#         return count
+#
+#     def add_match(self, contract, membership, score=1):
+#         server = membership.member
+#         if server == contract.initiate_user:
+#             return False
+#
+#         try:
+#             # IMPORTANT: contract might get changed (status) in "signal" while this is running and lead to "dictionary changed size" error. use id directly.
+#             match = Match.objects.get(contract_id=contract.id, target_user=server)
+#             # match exists, only add to circles (and update score)
+#             if membership.circle not in match.circles.all():
+#                 match.circles.add(membership.circle)
+#                 match.score += score
+#                 match.save()
+#             return False
+#         except Match.DoesNotExist:
+#             match = Match.objects.create(contract_id=contract.id, target_user=server, status=Match.Status.INITIALIZED.value, score=score)
+#             match.circles.add(membership.circle)
+#             return True
+#
+#     def recommend_basic(self, contract):
+#         client = contract.initiate_user.to_puser()
+#         if contract.is_favor():
+#             circle = client.my_circle(Circle.Type.PARENT, contract.area)
+#         else:
+#             circle = client.my_circle(Circle.Type.SITTER, contract.area)
+#         return self.recommend_circle(contract, circle)
+#
+#     def recommend_sitter_pool(self, contract):
+#         count = 0
+#         me = contract.initiate_user.to_puser()
+#         my_parent_circle = me.my_circle(Circle.Type.PARENT, area=contract.area)
+#         my_parent_list = my_parent_circle.members.filter(membership__active=True, membership__approved=True).exclude(membership__member=me)
+#         other_parent_sitter_circle_list = Circle.objects.filter(owner__in=my_parent_list, type=Circle.Type.SITTER.value, area=my_parent_circle.area)
+#         sitter_membership_pool = Membership.objects.filter(active=True, approved=True, circle__in=other_parent_sitter_circle_list).exclude(member=me).order_by('?')
+#         for membership in sitter_membership_pool:
+#             match_added = self.add_match(contract, membership)
+#             if match_added:
+#                 count += 1
+#             if count >= 10:
+#                 break
+#         return count
 
-    def recommend_smart(self, contract):
-        if not contract.is_active() or contract.is_event_expired():
-            return
-        client = contract.get_client()
 
-        # first, run L1 recommender.
-        count = self.recommend_basic(contract)
+# class L1Recommender(RecommenderStrategy):
+#     """
+#     The immediate algorithm to run after a new contract to create; should be fast but not thorough.
+#     """
+#     def recommend_smart(self, contract):
+#         count = self.recommend_basic(contract)
+#         if count <= 0 and not contract.is_favor():
+#             count = self.recommend_sitter_pool(contract)
+#         return count
 
-        # next, if it's not a favor, add friends' friends
-        if not contract.is_favor():
-            count += self.recommend_sitter_pool(contract)
-        else:
-            # or, if it's a favor, take "family" member's social network
-            my_parent_circle = client.my_circle(Circle.Type.PARENT, contract.area)
-            family_membership = Membership.objects.filter(circle=my_parent_circle, active=True, approved=True, type=Membership.Type.FAVORITE.value)
-            for m in family_membership:
-                count += self.recommend_circle(contract, m.member.to_puser().my_circle(Circle.Type.PARENT))
 
-        # next, recommend other parents in my network to take paid job
-        if count == 0:
-            circle = client.my_circle(Circle.Type.PARENT, contract.area)
-            count += self.recommend_circle(contract, circle)
-
-        return count
+# class L2Recommender(RecommenderStrategy):
+#     """
+#     This runs peoriodically to update contract matches.
+#     """
+#
+#     def recommend_smart(self, contract):
+#         if not contract.is_active() or contract.is_event_expired():
+#             return
+#         client = contract.get_client()
+#
+#         # first, run L1 recommender.
+#         count = self.recommend_basic(contract)
+#
+#         # next, if it's not a favor, add friends' friends
+#         if not contract.is_favor():
+#             count += self.recommend_sitter_pool(contract)
+#         else:
+#             # or, if it's a favor, take "family" member's social network
+#             my_parent_circle = client.my_circle(Circle.Type.PARENT, contract.area)
+#             family_membership = Membership.objects.filter(circle=my_parent_circle, active=True, approved=True, type=Membership.Type.FAVORITE.value)
+#             for m in family_membership:
+#                 count += self.recommend_circle(contract, m.member.to_puser().my_circle(Circle.Type.PARENT))
+#
+#         # next, recommend other parents in my network to take paid job
+#         if count == 0:
+#             circle = client.my_circle(Circle.Type.PARENT, contract.area)
+#             count += self.recommend_circle(contract, circle)
+#
+#         return count
 
 
         # ###### handle personal/public circles ########

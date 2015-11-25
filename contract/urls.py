@@ -21,7 +21,7 @@ urlpatterns = patterns(
 
     # edit
     url(r"^(?P<pk>\d+)/edit/$", views.ContractEdit.as_view(), name="edit"),
-    url(r"^(?P<pk>\d+)/target/$", views.ContractAudienceView.as_view(), name="audience"),
+    # url(r"^(?P<pk>\d+)/target/$", views.ContractAudienceView.as_view(), name="audience"),
 
     # only available for staff members to see all contracts.
     url(r"^$", staff_member_required(views.ContractList.as_view(), login_url=reverse_lazy('account_login')), name="list"),

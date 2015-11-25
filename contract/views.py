@@ -115,12 +115,12 @@ class ContractCreate(LoginRequiredMixin, RegisteredRequiredMixin, FormValidMessa
         self.alter_contract(contract)
         return super().form_valid(form)
 
-    def get_success_url(self):
-        contract = self.object
-        if contract.is_manual():
-            return reverse('contract:audience', kwargs={'pk': contract.id})
-        else:
-            return super().get_success_url()
+    # def get_success_url(self):
+    #     contract = self.object
+    #     if contract.is_manual():
+    #         return reverse('contract:audience', kwargs={'pk': contract.id})
+    #     else:
+    #         return super().get_success_url()
 
 # this is hard to implement because the preview doesn't handle cbv well, unless perhaps use mixins.
 # class ContractCreatePreview(FormPreview, ContractCreate):

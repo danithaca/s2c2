@@ -20,9 +20,10 @@ def after_contract_created(contract):
 @shared_task
 def after_contract_activated(contract):
     # compute matches
-    from contract.algorithms import L1Recommender
-    recommender = L1Recommender()
-    recommender.recommend(contract)
+    # from contract.algorithms import L1Recommender
+    # recommender = L1Recommender()
+    # recommender.recommend(contract)
+    contract.recommend(initial=True)
 
     from shout.notify import notify_agent
     from puser.models import PUser
