@@ -11,7 +11,6 @@ from django.dispatch import receiver
 from django.conf import settings
 
 from contract import tasks
-from contract.algorithms import SmartRecommender, ManualRecommender
 
 
 class StatusMixin(object):
@@ -311,25 +310,12 @@ class Contract(StatusMixin, models.Model):
 
     def get_matched_users(self):
         from puser.models import PUser
-        uid_list = self.match_set.all().values_list('member', flat=True)
+        uid_list = self.match_set.all().values_list('target_user', flat=True)
         return PUser.objects.filter(id__in=uid_list)
 
     def recommend(self, initial=False):
-        """
-        Create "Match" for this contract. This is "semi" factory method that uses different Recommender strategy based on AudienceType.
-        :param initial: whether this is the initial phase.
-        """
-        if self.audience_type == Contract.AudienceType.SMART.value:
-            recommender = SmartRecommender(self)
-        elif self.audience_type == Contract.AudienceType.MANUAL.value:
-            recommender = ManualRecommender(self)
-        else:
-            recommender = SmartRecommender(self)
-
-        if initial:
-            recommender.recommend_initial()
-        else:
-            recommender.recommend()
+        from contract.algorithms import RecommenderStrategy
+        RecommenderStrategy.run_recommender(self, initial=initial)
 
 
 class Match(StatusMixin, models.Model):

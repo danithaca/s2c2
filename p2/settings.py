@@ -63,7 +63,7 @@ INSTALLED_APPS = (
     'p2',
     'puser.apps.PUserConfig',
     'circle.apps.CircleConfig',
-    'contract',
+    'contract.apps.ContractConfig',
     'shout',
 )
 

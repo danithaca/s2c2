@@ -483,6 +483,12 @@ class UserConnection(object):
         assert membership is not None and isinstance(membership, Membership)
         self.membership_list.append(membership)
 
+    def update_membership_list(self, new_membership_list):
+        existing = set(self.membership_list)
+        for membership in new_membership_list:
+            if membership not in existing:
+                self.add_membership(membership)
+
     def get_circle_list(self):
         circle_count = defaultdict(int)
         for membership in self.membership_list:
@@ -494,11 +500,6 @@ class UserConnection(object):
     def to_reverse(self):
         # this doesn't use all the other properties (eg membership_list)
         return UserConnection(self.target_user, self.initiate_user)
-
-    def find_personal_membership(self):
-        # could raise DoesNotExist or multiple find.
-        area = self.initiate_user.get_area()
-        return Membership.objects.get(member=self.target_user, circle__type=Circle.Type.PERSONAL.value, circle__owner=self.initiate_user, circle__area=area)
 
     def trusted(self, level=TrustLevel.COMMON.value):
         if isinstance(level, TrustLevel):
@@ -553,28 +554,39 @@ class UserConnection(object):
 
         return TrustLevel.NONE.value
 
-    def update_shared_personal_connection(self):
-        pass
-        # todo: not implemented yet.
-        # shared connection: 1) directly in my personal network (parent/sitter), 2) in my parents friends' network
-        # get all users (for circle owners) in current area
+    # could raise DoesNotExist or multiple find.
+    def find_personal_membership(self):
+        area = self.initiate_user.get_area()
+        return Membership.objects.get(member=self.target_user, circle__type=Circle.Type.PERSONAL.value, circle__owner=self.initiate_user, circle__area=area)
 
-        # area = self.get_area()
-        # my_parent_list = [self] + list(PUser.objects.filter(membership__active=True, membership__approved=True, membership__circle__owner=self, membership__circle__type=Circle.Type.PARENT.value, membership__circle__area=area).distinct())
-        # # get all members who are in the personal circles of the previous parent list.
-        # membership_list = Membership.objects.filter(member=target_user, active=True, approved=True, circle__owner__in=my_parent_list, circle__type__in=(Circle.Type.PARENT.value, Circle.Type.SITTER.value), circle__area=area)
-        # return UserConnection(self, target_user, list(membership_list))
+    # shared connection: in my parents friends' network
+    def find_shared_connection_personal(self):
+        # find all the parents in my network, regardless of area
+        my_parent_membership = Membership.objects.filter(circle__owner=self.initiate_user, circle__type=Circle.Type.PERSONAL.value, active=True, as_role=UserRole.PARENT.value).exclude(approved=False)
+        my_parent_list = set([m.member for m in my_parent_membership])
+        # find membership of the target_user in those parents' network. we don't use "as_role" here, which results in both parents and sitters.
+        result_membership = Membership.objects.filter(member=self.target_user, circle__owner__in=my_parent_list, circle__type=Circle.Type.PERSONAL.value, active=True).exclude(approved=False)
+        return list(result_membership)
 
-        # my extended network
-        # my_parent_list = [m.member for m in my_personal_circle.membership_set.filter(active=True, approved=True, as_role=UserRole.PARENT.value).exclude(member=me)]
-        # extended_circle_list = Circle.objects.filter(owner__in=my_parent_list, type=my_personal_circle.type, area=my_personal_circle.area)
-        # # need to sort by member in order to use groupby.
-        # extended = []
-        # list_extended = Membership.objects.filter(active=True, circle__in=extended_circle_list).exclude(member=me).exclude(approved=False).exclude(member__id__in=list_membership.values_list('member__id', flat=True)).order_by('member', '-updated')
-        # list_extended = self.add_extra_filter(list_extended)
-        # for member, membership_list in groupby(list_extended, lambda m: m.member):
-        #     extended.append(UserConnection(me, member, list(membership_list)))
-        # context['list_extended'] = extended
+    # shared connection: both you and i are in the save public circle.
+    def find_shared_connection_public(self):
+        # my public circle membership
+        my_public_membership = Membership.objects.filter(circle__type=Circle.Type.PUBLIC.value, member=self.initiate_user, active=True).exclude(approved=False)
+        my_public_circles = set([m.circle for m in my_public_membership])
+        # find membership from target user in those public circles
+        result_membership = Membership.objects.filter(member=self.target_user, circle__in=my_public_circles, active=True).exclude(approved=False)
+        return list(result_membership)
+
+    def find_shared_connection_all(self):
+        connection_list = []
+        try:
+            direct = self.find_personal_membership()
+            connection_list.append(direct)
+        except (Membership.DoesNotExist, Membership.MultipleObjectsReturned) as e:
+            pass
+        connection_list.extend(self.find_shared_connection_personal())
+        connection_list.extend(self.find_shared_connection_public())
+        return connection_list
 
 
 class Friendship(UserConnection):
