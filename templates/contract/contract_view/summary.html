@@ -1,58 +1,61 @@
 {% load p2_tags %}
 <div class="contract-summary" data-contract-id="{{ contract.id }}">
-  <div class="row">
-    <div class="col-xs-12 col-sm-6 col-md-8">
-      <div class="title">
-        <p class="text-xx-large">
-          {# use tooltip in span to make it show in the correct location. #}
-          <span class="label label-{{ contract.display_status.color }}" title="{{ contract.display_status.label }}. {{ contract.display_status.explanation }}" data-toggle="tooltip">{{ contract.display_status.label }}</span>
-        </p>
-      </div>
-      <ul class="list-unstyled">
-        <li>
-          <i class="fa fa-clock-o"></i> <strong>{{ contract.display_event_length }}</strong> ({{ contract.display_event_range }})
-{#          <i class="fa fa-clock-o"></i> <strong>{{ contract.display_event_length }}</strong> ({{ contract.display_event_range }};#}
-{#          {% if contract.is_event_upcoming %}#}
-{#            {{ contract.event_start|timeuntil }} from now)#}
-{#          {% elif contract.is_event_expired %}#}
-{#            {{ contract.event_end|timesince }} ago)#}
-{#          {% else %}#}
-{#            <em>ongoing</em>)#}
-{#          {% endif %}#}
-        </li>
-        <li>{% include 'contract/contract_view/contract_price.html' with contract=contract only%}</li>
-      </ul>
-      <ul class="list-inline">
-        <li><i class="fa fa-users"></i> <em>{{ contract.count_total_match }}</em> notified</li>
-        <li><i class="fa fa-check"></i> <em>{{ contract.count_accepted_match }}</em> accepted</li>
-        <li><i class="fa fa-times"></i> <em>{{ contract.count_declined_match }}</em> declined</li>
-      </ul>
-    </div>
+  {% if contract.description %}
+    <p class="text-large">{% include 'account/view/inline_full.html' with user=contract.initiate_user.to_puser only %} -- {{ contract.description }}</p>
+  {% else %}
+    <p class="text-large">Job post from {% include 'account/view/inline_full.html' with user=contract.initiate_user.to_puser only %}</p>
+  {% endif %}
 
-    <div class="col-xs-6 col-sm-3 col-md-2">
-      {% include 'account/view/compact.html' with user=contract.initiate_user icon='elements/icon_client.html' color=contract.display_status.color only %}
-    </div>
+  <ul class="list-inline">
+    <li>
+      <i class="fa fa-clock-o"></i> <strong>{{ contract.display_event_length }}</strong> ({{ contract.display_event_range }})
+      {#          <i class="fa fa-clock-o"></i> <strong>{{ contract.display_event_length }}</strong> ({{ contract.display_event_range }};#}
+      {#          {% if contract.is_event_upcoming %}#}
+      {#            {{ contract.event_start|timeuntil }} from now)#}
+      {#          {% elif contract.is_event_expired %}#}
+      {#            {{ contract.event_end|timesince }} ago)#}
+      {#          {% else %}#}
+      {#            <em>ongoing</em>)#}
+      {#          {% endif %}#}
+    </li>
+    <li>{% include 'contract/contract_view/contract_price.html' with contract=contract only%}</li>
+  </ul>
 
-    <div class="col-xs-6 col-sm-3 col-md-2">
-      {% if match_override %}
-        {% include 'account/view/compact.html' with user=match_override.target_user icon='elements/icon_server.html' color=contract.display_status.color only %}
-      {% elif contract.confirmed_match %}
-        {% include 'account/view/compact.html' with user=contract.confirmed_match.target_user icon='elements/icon_server.html' color=contract.display_status.color only %}
-      {% else %}
-        {% include 'account/view/compact.html' with user=None hide_name=True only %}
-      {% endif %}
-    </div>
-  </div>
-  <div class="row">
-    <div class="col-xs-12">
-      {% if contract.description %}<blockquote>{{ contract.description }}</blockquote>{% endif %}
-      <div class="text-muted text-small pull-right">Last updated: {{ contract.updated|timesince }} ago{#  | <a href="{% url 'contract:calendar' %}?day={{ contract.event_start|date:'Y-m-d' }}">view in calendar</a> #}
-        {% if contract.is_confirmed and display_mode == "contract" %}
-          | <a href="{% gcal-url contract.to_engagement %}">export to GCal</a>
-        {% elif contract.is_confirmed and display_mode == "my_confirmed_match" %}
-          | <a href="{% gcal-url contract.confirmed_match.to_engagement %}">export to GCal</a>
-        {% endif %}
-      </div>
-    </div>
-  </div>
+  <ul class="list-inline">
+    <li class="text-large"><span class="label label-{{ contract.display_status.color }}" title="{{ contract.display_status.label }}. {{ contract.display_status.explanation }}" data-toggle="tooltip">{{ contract.display_status.label }}</span></li>
+    {% if contract.confirmed_match %}
+      <li>{% include 'account/view/inline_full.html' with user=contract.confirmed_match.target_user.to_puser only %}</li>
+    {% else %}
+      <li><i class="fa fa-users"></i> <em>{{ contract.count_total_match }}</em> notified</li>
+      <li><i class="fa fa-check"></i> <em>{{ contract.count_accepted_match }}</em> accepted</li>
+      <li><i class="fa fa-times"></i> <em>{{ contract.count_declined_match }}</em> declined</li>
+    {% endif %}
+  </ul>
+
+  <p class="text-muted text-small pull-right">Last updated: {{ contract.updated|timesince }} ago{#  | <a href="{% url 'contract:calendar' %}?day={{ contract.event_start|date:'Y-m-d' }}">view in calendar</a> #}
+    {% if contract.is_confirmed and display_mode == "contract" %}
+      | <a href="{% gcal-url contract.to_engagement %}">export to GCal</a>
+    {% elif contract.is_confirmed and display_mode == "my_confirmed_match" %}
+      | <a href="{% gcal-url contract.confirmed_match.to_engagement %}">export to GCal</a>
+    {% endif %}
+  </p>
 </div>
+
+
+{#<div class="contract-summary" data-contract-id="{{ contract.id }}">#}
+{#  <div class="row">#}
+{#    <div class="col-xs-6 col-sm-3 col-md-2">#}
+{#      {% include 'account/view/compact.html' with user=contract.initiate_user icon='elements/icon_client.html' color=contract.display_status.color only %}#}
+{#    </div>#}
+{##}
+{#    <div class="col-xs-6 col-sm-3 col-md-2">#}
+{#      {% if match_override %}#}
+{#        {% include 'account/view/compact.html' with user=match_override.target_user icon='elements/icon_server.html' color=contract.display_status.color only %}#}
+{#      {% elif contract.confirmed_match %}#}
+{#        {% include 'account/view/compact.html' with user=contract.confirmed_match.target_user icon='elements/icon_server.html' color=contract.display_status.color only %}#}
+{#      {% else %}#}
+{#        {% include 'account/view/compact.html' with user=None hide_name=True only %}#}
+{#      {% endif %}#}
+{#    </div>#}
+{#  </div>#}
+{#</div>#}

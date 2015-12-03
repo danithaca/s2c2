@@ -24,22 +24,22 @@ class ContractDetail(LoginRequiredMixin, DetailView):
     def get_context_data(self, **kwargs):
         contract = self.object
         ctx = super().get_context_data(**kwargs)
-        # ctx['matches'] = self.object.match_set.all().order_by('-score')
-        tabs = []
-        for status in (Match.Status.ACCEPTED, Match.Status.ENGAGED, Match.Status.DECLINED, Match.Status.INITIALIZED):
-            qs = contract.match_set.filter(status=status.value).order_by('-score')
-            if qs.exists():
-                status_label = None
-                matches = []
-                for match in qs:
-                    if status_label is None:
-                        status_label = match.display_status()['label']
-                    elif status_label != match.display_status()['label']:
-                        status_label = status.name.capitalize()
-                    matches.append(match)
-                tabs.append((status_label, matches))
-        if tabs:
-            ctx['matches_tabs'] = tabs
+        ctx['matches'] = contract.match_set.all().order_by('-score', '-updated')
+        # tabs = []
+        # for status in (Match.Status.ACCEPTED, Match.Status.ENGAGED, Match.Status.DECLINED, Match.Status.INITIALIZED):
+        #     qs = contract.match_set.filter(status=status.value).order_by('-score')
+        #     if qs.exists():
+        #         status_label = None
+        #         matches = []
+        #         for match in qs:
+        #             if status_label is None:
+        #                 status_label = match.display_status()['label']
+        #             elif status_label != match.display_status()['label']:
+        #                 status_label = status.name.capitalize()
+        #             matches.append(match)
+        #         tabs.append((status_label, matches))
+        # if tabs:
+        #     ctx['matches_tabs'] = tabs
 
         # if self.request.puser.id == contract.initiate_user.id and self.request.puser.is_isolated():
         #     messages.warning(self.request, 'You have few contacts on Servuno. Please <a href="%s">add other parents</a> and/or <a href="%s">add paid babysitters</a>.' % (reverse_lazy('circle:parent'), reverse_lazy('circle:sitter')), extra_tags='safe')

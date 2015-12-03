@@ -55,75 +55,75 @@ $(document).ready(function() {
 </script>
 {% endblock %}
 
-{% block headline %}
-  <div class="panel panel-{{ contract.display_status.color }}">
-    <div class="panel-heading">Job post from {% user-full-name contract.initiate_user %}</div>
-    <div class="panel-body">
-      {% include 'contract/contract_view/summary.html' with contract=contract display_mode="contract" %}
-    </div>
-    {% if contract.initiate_user == user or user.is_staff %}
-      <div class="panel-footer text-center">
-        {% if contract.is_confirmed and not contract.is_event_expired %}
-          <button class="btn btn-danger" name="change-status" value="revert">Undo</button>
-        {% elif contract.is_active and not contract.is_event_expired %}
-          <a class="btn btn-primary" href="{% url 'contract:edit' pk=contract.id %}">Edit</a>
-          <button class="btn btn-danger" name="change-status" value="cancel">Cancel</button>
-        {% elif contract.is_event_expired and contract.is_confirmed %}
-          <p class="text-danger"><i class="fa fa-exclamation-circle"></i> Provide feedback</p>
-          <button class="btn btn-success" name="change-status" value="succeed">Successful</button>
-          <button class="btn btn-danger" name="change-status" value="fail">Failed</button>
-        {% else %}
-          <a class="btn btn-default" href="/">Back</a>
-        {% endif %}
-      </div>
+{% block content-command-list %}
+  {% if contract.initiate_user == user or user.is_staff %}<div class="btn-group btn-group-xs">
+    {% if contract.is_confirmed and not contract.is_event_expired %}
+      <button class="btn btn-danger" name="change-status" value="revert">Undo</button>
+    {% elif contract.is_active and not contract.is_event_expired %}
+      <a class="btn btn-primary" href="{% url 'contract:edit' pk=contract.id %}">Edit</a>
+      <button class="btn btn-danger" name="change-status" value="cancel">Cancel</button>
+    {% elif contract.is_event_expired and contract.is_confirmed %}
+      <p class="text-danger"><i class="fa fa-exclamation-circle"></i> Provide feedback</p>
+      <button class="btn btn-success" name="change-status" value="succeed">Successful</button>
+      <button class="btn btn-danger" name="change-status" value="fail">Failed</button>
+    {% else %}
+      <a class="btn btn-default" href="/">Back</a>
     {% endif %}
-  </div>
+  </div>{% endif %}
 {% endblock %}
 
+{% block content-introduction %}
+  {% include 'contract/contract_view/summary.html' with contract=contract display_mode="contract" %}
+{% endblock %}
 
 {% block content %}
-  {% if matches_tabs %}
-    <div class="matches-tabs">
-      <ul class="nav nav-tabs nav-justified">
-        {% for tab_status, tab_matchs in matches_tabs %}
-          <li {% if forloop.first %}class="active"{% endif %}><a href="#{{ tab_status|slugify }}" data-toggle="tab">{{ tab_status }} <span class="badge">{{ tab_matchs|length }}</span></a></li>
-        {% endfor %}
-      </ul>
-      <div class="tab-content">
-        {% for tab_status, tab_matches in matches_tabs %}
-          <div class="tab-pane{% if forloop.first %} active{% endif %}" id="{{ tab_status|slugify }}"><div class="row">
-            {% for match in tab_matches %}
-              <div class="col-xs-12 col-sm-6 col-md-4">
-                <div class="match-preview panel panel-default" data-slug="{{ match.target_user.get_name|slugify }}">
-                  <div class="panel-body">
-                    {% include 'contract/match_view/summary.html' with match=match contract=contract %}
-                    {% if match.response %}
-                      <p><blockquote>{{ match.response }}</blockquote></p>
-                    {% endif %}
-                  </div>
-                  {% if match.is_accepted and contract.is_active and contract.initiate_user == user %}
-                    <div class="panel-footer text-center">
-                      <button class="btn btn-success" name="change-status" value="confirm" data-match-id="{{ match.id }}">
-                        Confirm
-                      </button>
-                    </div>
-                  {% endif %}
-                </div>
-              </div>
-            {% endfor %}
-          </div></div>
-        {% endfor %}
-      </div>
-    </div>
+  {% if matches %}
+{#    <div class="matches-tabs">#}
+{#      <ul class="nav nav-tabs nav-justified">#}
+{#        {% for tab_status, tab_matchs in matches_tabs %}#}
+{#          <li {% if forloop.first %}class="active"{% endif %}><a href="#{{ tab_status|slugify }}" data-toggle="tab">{{ tab_status }} <span class="badge">{{ tab_matchs|length }}</span></a></li>#}
+{#        {% endfor %}#}
+{#      </ul>#}
+{#      <div class="tab-content">#}
+{#        {% for tab_status, tab_matches in matches_tabs %}#}
+{#          <div class="tab-pane{% if forloop.first %} active{% endif %}" id="{{ tab_status|slugify }}"><div class="row">#}
+{#            {% for match in tab_matches %}#}
+{#              <div class="col-xs-12 col-sm-6 col-md-4">#}
+{#                <div class="match-preview panel panel-default" data-slug="{{ match.target_user.get_name|slugify }}">#}
+{#                  <div class="panel-body">#}
+{#                    {% include 'contract/match_view/summary.html' with match=match contract=contract %}#}
+{#                    {% if match.response %}#}
+{#                      <p><blockquote>{{ match.response }}</blockquote></p>#}
+{#                    {% endif %}#}
+{#                  </div>#}
+{#                  {% if match.is_accepted and contract.is_active and contract.initiate_user == user %}#}
+{#                    <div class="panel-footer text-center">#}
+{#                      <button class="btn btn-success" name="change-status" value="confirm" data-match-id="{{ match.id }}">#}
+{#                        Confirm#}
+{#                      </button>#}
+{#                    </div>#}
+{#                  {% endif %}#}
+{#                </div>#}
+{#              </div>#}
+{#            {% endfor %}#}
+{#          </div></div>#}
+{#        {% endfor %}#}
+{#      </div>#}
+{#    </div>#}
   {% else %}
-    <div class="row">
-      <div class="col-sm-12">We will forward your request to your personal contacts and public circles momentarily.</div>
-    </div>
+    <p>
+      No one has been contacted yet for this job post.
+      {% if contract.is_manual %}
+        Please use the form below to add the people you want to contact.
+      {% else %}
+        Servuno will find the best potential candidates to contact shortly. <a href="{% url 'circle:parent' %}">Expand your network</a> to increase the likelihood of finding some one. Or you can use the form below to add people you want to contact.
+      {% endif %}
+    </p>
   {% endif %}
 
-  {% if contract.initiate_user.to_puser.is_isolated %}
-    <div class="alert alert-warning fade in">
-      {% include 'elements/prompt_network.html' %}
-    </div>
-  {% endif %}
+{#  {% if contract.initiate_user.to_puser.is_isolated %}#}
+{#    <div class="alert alert-warning fade in">#}
+{#      {% include 'elements/prompt_network.html' %}#}
+{#    </div>#}
+{#  {% endif %}#}
 {% endblock %}

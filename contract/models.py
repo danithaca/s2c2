@@ -9,6 +9,7 @@ from django.db import models
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 from django.conf import settings
+from circle.models import UserConnection
 
 from contract import tasks
 
@@ -432,6 +433,9 @@ class Match(StatusMixin, models.Model):
 
     def to_engagement(self):
         return Engagement.from_match(self)
+
+    def to_user_connection(self):
+        return UserConnection(self.contract.initiate_user, self.target_user)
 
 
 class Engagement(object):
