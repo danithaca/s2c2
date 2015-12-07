@@ -81,8 +81,11 @@ class RecommenderStrategy(metaclass=ABCMeta):
         match = Match.objects.create(contract_id=self.contract.id, target_user=target_user, status=Match.Status.INITIALIZED.value, score=1)
         uc = UserConnection(self.contract.initiate_user, target_user)
         uc.update_membership_list(uc.find_shared_connection_all())
-        for circle in uc.get_circle_list():
-            match.circles.add(circle)
+        # we don't use Match.circles anymore. use cicles instead.
+        # for circle in uc.get_circle_list():
+        #     match.circles.add(circle)
+        for m in uc.membership_list:
+            match.memberships.add(m)
         match.save()
         return match
 

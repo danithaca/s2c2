@@ -1,0 +1,29 @@
+{# user connections #}
+{% extends 'includes/card/user_base.html' %}
+{% load p2_tags %}
+
+{% block container-attributes-extra %}data-match-id={{ match.id }}{% endblock %}
+
+{% block card-note %}
+{#  {% for connected_circle in match.to_user_connection.get_circle_list_public_only %}#}
+{#    <span class="label label-default">{{ connected_circle.display }}</span>#}
+{#  {% endfor %}#}
+  {% if match.response %}<p><strong>{{ match.response }}</strong></p>{% endif %}
+{% endblock %}
+
+{% block card-footer %}<div class="horizontal-justified">
+  <div>
+    {% if match.is_accepted and match.contract.is_active %}
+      <button class="btn btn-success btn-xs" name="change-status" value="confirm" data-match-id="{{ match.id }}">
+        <i class="fa fa-check"></i> Confirm
+      </button>
+    {% else %}
+      {% with status=match.display_status %}
+        <span class="label label-{{ status.color }}" title="{{ status.explanation }}" data-toggle="tooltip">{{ status.label }}</span>
+      {% endwith %}
+    {% endif %}
+  </div>
+  <div>
+    <a href="{% url 'shout:user' uid=user.id %}" class="btn btn-xs btn-primary" data-expandable-text="Message"><i class="fa fa-bullhorn"></i></a>
+  </div>
+</div>{% endblock %}

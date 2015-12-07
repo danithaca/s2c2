@@ -497,6 +497,10 @@ class UserConnection(object):
         circle_sorted_by_count = [t[0] for t in sorted(circle_list, key=lambda l: l[1], reverse=True)]
         return circle_sorted_by_count
 
+    def get_circle_list_public_only(self):
+        circles = self.get_circle_list()
+        return [c for c in circles if c.type == Circle.Type.PUBLIC.value]
+
     def to_reverse(self):
         # this doesn't use all the other properties (eg membership_list)
         return UserConnection(self.target_user, self.initiate_user)
@@ -507,6 +511,7 @@ class UserConnection(object):
         return self.trust_level() >= level
 
     # note: trust level is asymmetric
+    # this is whether and how much the "initiate" user trust the "target" user.
     def trust_level(self):
         # Trust one's self is FULL
         if self.initiate_user == self.target_user:

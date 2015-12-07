@@ -4,10 +4,12 @@
 {% load p2_tags %}
 
 {% block extra_header %}
+{% include 'includes/js_grid.html' %}
 <script type="text/javascript">
 $(document).ready(function() {
   // update status
-  $('button[name="change-status"]').click(function() {
+  $('button[name="change-status"]').click(function(evt) {
+    evt.stopPropagation();
     var op = $(this).val();
     var post_data = {op: op};
     if (op == 'confirm') {
@@ -56,7 +58,7 @@ $(document).ready(function() {
 {% endblock %}
 
 {% block content-command-list %}
-  {% if contract.initiate_user == user or user.is_staff %}<div class="btn-group btn-group-xs">
+  {% if contract.initiate_user == user or user.is_staff %}<div class="btn-group btn-group-sm">
     {% if contract.is_confirmed and not contract.is_event_expired %}
       <button class="btn btn-danger" name="change-status" value="revert">Undo</button>
     {% elif contract.is_active and not contract.is_event_expired %}
@@ -78,6 +80,13 @@ $(document).ready(function() {
 
 {% block content %}
   {% if matches %}
+    <div class="grid">
+      {% for match in matches %}
+        <div class="grid-item">
+          {% include 'includes/card/match.html' with match=match user=match.target_user.to_puser only %}
+        </div>
+      {% endfor %}
+    </div>
 {#    <div class="matches-tabs">#}
 {#      <ul class="nav nav-tabs nav-justified">#}
 {#        {% for tab_status, tab_matchs in matches_tabs %}#}

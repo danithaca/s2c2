@@ -12,6 +12,7 @@ from django.conf import settings
 from circle.models import UserConnection
 
 from contract import tasks
+from p2.utils import TrustedMixin, TrustLevel
 
 
 class StatusMixin(object):
@@ -85,7 +86,7 @@ class StatusMixin(object):
         return {'color': color, 'label': label, 'explanation': explanation}
 
 
-class Contract(StatusMixin, models.Model):
+class Contract(StatusMixin, TrustedMixin, models.Model):
     """
     Handles parents looking for sitters.
     """
@@ -318,6 +319,11 @@ class Contract(StatusMixin, models.Model):
         from contract.algorithms import RecommenderStrategy
         RecommenderStrategy.run_recommender(self, initial=initial)
 
+    def is_user_trusted(self, user, level=TrustLevel.COMMON.value):
+        # this is whether the contract initiate user trust the given user.
+        uc = UserConnection(self.initiate_user, user)
+        return uc.trusted(level)
+
 
 class Match(StatusMixin, models.Model):
     """
@@ -344,8 +350,12 @@ class Match(StatusMixin, models.Model):
 
     # the circles to which the target belongs that leads to the match.
     # doesn't necessarily links to the initiate_user's circle
-    from circle.models import Circle
+    # circle is obsolete now. use memberships instead.
+    from circle.models import Circle, Membership
+    # todo: delete circles.
     circles = models.ManyToManyField(to=Circle)
+    # membership: is the membership of the target_user.
+    memberships = models.ManyToManyField(to=Membership)
 
     # response to the contract.
     response = models.TextField(blank=True)
@@ -435,7 +445,7 @@ class Match(StatusMixin, models.Model):
         return Engagement.from_match(self)
 
     def to_user_connection(self):
-        return UserConnection(self.contract.initiate_user, self.target_user)
+        return UserConnection(self.contract.initiate_user, self.target_user, list(self.memberships.all()))
 
 
 class Engagement(object):

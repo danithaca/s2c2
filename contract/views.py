@@ -15,9 +15,10 @@ from django.conf import settings
 from contract.forms import ContractForm
 from contract.models import Contract, Match, Engagement
 from p2.utils import RegisteredRequiredMixin
+from puser.views import ContractAccessMixin
 
 
-class ContractDetail(LoginRequiredMixin, DetailView):
+class ContractDetail(LoginRequiredMixin, ContractAccessMixin, DetailView):
     model = Contract
     template_name = 'contract/contract_view/full.html'
 

@@ -19,7 +19,8 @@ from rest_framework.response import Response
 
 from circle.models import Circle, Membership, UserConnection
 from circle.views import ParentManageView
-from p2.utils import RegisteredRequiredMixin, TrustLevel
+from contract.models import Contract
+from p2.utils import RegisteredRequiredMixin, TrustLevel, TrustedMixin
 from puser.forms import UserInfoForm, UserPictureForm, LoginEmailAdvForm, UserInfoOnboardForm, \
     SignupFullForm, WaitingForm, UserPreferenceForm
 from puser.models import Info, PUser, Waiting
@@ -170,22 +171,30 @@ class UserPicture(LoginRequiredMixin, FormValidMessageMixin, UpdateView):
         return puser.get_info()
 
 
-class UserTrustedMixin(UserPassesTestMixin):
-    """
-    This only works in DetailsView where PUser is the object.
-    """
+class ObjectAccessMixin(UserPassesTestMixin):
     raise_exception = True
     trust_level = TrustLevel.COMMON.value
+    object_class = None
 
     def test_func(self, user):
-        target_user = self.get_object()
-        # the target user (whom the current user is viewing) needs to trust the current user.
-        uc = UserConnection(target_user, user)
-        return uc.trusted(self.trust_level)
+        current_object = self.get_object()
+        assert isinstance(current_object, TrustedMixin)
+        if self.object_class is not None:
+            assert isinstance(current_object, self.object_class)
+        return current_object.is_user_trusted(user, self.trust_level)
 
     def handle_no_permission(self, request):
-        messages.error(request, 'You do not have sufficient trust from the target user to view the requested content.')
+        messages.error(request, 'You do not have sufficient trust level to access the specified target.')
         return super().handle_no_permission(request)
+
+
+class ContractAccessMixin(ObjectAccessMixin):
+    object_class = Contract
+    trust_level = TrustLevel.FULL.value
+
+
+class UserTrustedMixin(ObjectAccessMixin):
+    object_class = PUser
 
 
 class RemoteTrustedMixin(UserTrustedMixin):

@@ -17,7 +17,7 @@ from sitetree.models import TreeItemBase
 from circle.models import Membership, Circle, ParentCircle, UserConnection
 from contract.models import Contract, Match, Engagement
 from login_token.models import Token
-from p2.utils import auto_user_name, UserRole
+from p2.utils import auto_user_name, UserRole, TrustedMixin, TrustLevel
 
 
 # move this to management instead
@@ -98,7 +98,7 @@ class Info(models.Model):
 
 
 # class PUser(AbstractUser):
-class PUser(User):
+class PUser(TrustedMixin, User):
     """
     This is the proxy class for User instead of using monkey patch.
     """
@@ -257,6 +257,10 @@ class PUser(User):
     def picture_link(self):
         from p2.templatetags.p2_tags import user_picture_url
         return user_picture_url(None, self)
+
+    def is_user_trusted(self, user, level=TrustLevel.COMMON.value):
+        uc = UserConnection(self, user)
+        return uc.trusted(level)
 
     # todo: add caching mechanism here. manually deal with cache key-value pairs.
     def trusted(self, puser):

@@ -101,6 +101,20 @@ def deprecated(func):
     return new_func
 
 
+class UserRole(Enum):
+    PARENT = 7
+    SITTER = 8
+    HYBRID = 11
+
+
+class TrustLevel(Enum):
+    FULL = 100
+    CLOSE = 75
+    COMMON = 50
+    REMOTE = 25
+    NONE = 0
+
+
 ################# mixin ####################
 
 
@@ -121,6 +135,12 @@ class ControlledFormValidMessageMixin(FormValidMessageMixin):
         return response
 
 
+# the class that derives this Mixin needs to return True/False about whether the given user is trusted to access the class object.
+class TrustedMixin(object):
+    def is_user_trusted(self, user, level=TrustLevel.COMMON.value):
+        raise NotImplementedError('')
+
+
 # this doesn't address POST
 # class SuccessUrlRedirectMixin(object):
 #     redirect_field_name = REDIRECT_FIELD_NAME
@@ -132,16 +152,3 @@ class ControlledFormValidMessageMixin(FormValidMessageMixin):
 #         else:
 #             return super().get_success_url()
 
-
-class UserRole(Enum):
-    PARENT = 7
-    SITTER = 8
-    HYBRID = 11
-
-
-class TrustLevel(Enum):
-    FULL = 100
-    CLOSE = 75
-    COMMON = 50
-    REMOTE = 25
-    NONE = 0
