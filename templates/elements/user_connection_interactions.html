@@ -1,0 +1,6 @@
+{% load p2_tags %}
+{% with count=user_connection.count_served_total %}
+  {% if count %}
+    <span class="label label-info interactions-label" data-toggle="tooltip" title="Previous number of interactions on between {% user-short-name user_connection.initiate_user %} and {% user-short-name user_connection.target_user %}"><i class="fa fa-exchange"></i> {{ count }}</span>
+  {% endif %}
+{% endwith %}

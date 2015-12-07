@@ -13,6 +13,7 @@
 
 {% block card-footer %}<div class="horizontal-justified">
   <div>
+    {% include 'elements/user_connection_interactions.html' with user_connection=match.to_user_connection only %}
     {% if match.is_accepted and match.contract.is_active %}
       <button class="btn btn-success btn-xs" name="change-status" value="confirm" data-match-id="{{ match.id }}">
         <i class="fa fa-check"></i> Confirm

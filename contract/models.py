@@ -42,9 +42,9 @@ class StatusMixin(object):
 
         match_display_map = {
             Match.Status.INITIALIZED: ('default', 'Waiting', 'Not yet notified the potential babysitter.'),
-            Match.Status.ENGAGED: ('info', 'Notified & Waiting', 'The user was notified; waiting for response.'),
+            Match.Status.ENGAGED: ('default', 'Notified & Waiting', 'The user was notified; waiting for response.'),
             Match.Status.ACCEPTED: ('primary', 'Accepted', 'The user agreed to help babysit.'),
-            Match.Status.DECLINED: ('warning', 'Declined', 'The user declined to help babysit.'),
+            Match.Status.DECLINED: ('danger', 'Declined', 'The user declined to help babysit.'),
             Match.Status.CANCELED: ('danger', 'Canceled', 'Request was canceled.'),
         }
 
@@ -406,10 +406,6 @@ class Match(StatusMixin, models.Model):
 
             # non-blocking process
             tasks.after_match_engaged.delay(self)
-
-    # def get_puser_pair(self):
-    #     from puser.models import PUser
-    #     return PUser.from_user(self.contract.initiate_user), PUser.from_user(self.target_user)
 
     def count_served(self):
         from puser.models import PUser

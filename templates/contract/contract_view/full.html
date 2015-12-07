@@ -57,6 +57,8 @@ $(document).ready(function() {
 </script>
 {% endblock %}
 
+{% block panel-attributes %}data-contract-id="{{ contract.id }}"{% endblock %}
+
 {% block content-command-list %}
   {% if contract.initiate_user == user or user.is_staff %}<div class="btn-group btn-group-sm">
     {% if contract.is_confirmed and not contract.is_event_expired %}
@@ -87,38 +89,6 @@ $(document).ready(function() {
         </div>
       {% endfor %}
     </div>
-{#    <div class="matches-tabs">#}
-{#      <ul class="nav nav-tabs nav-justified">#}
-{#        {% for tab_status, tab_matchs in matches_tabs %}#}
-{#          <li {% if forloop.first %}class="active"{% endif %}><a href="#{{ tab_status|slugify }}" data-toggle="tab">{{ tab_status }} <span class="badge">{{ tab_matchs|length }}</span></a></li>#}
-{#        {% endfor %}#}
-{#      </ul>#}
-{#      <div class="tab-content">#}
-{#        {% for tab_status, tab_matches in matches_tabs %}#}
-{#          <div class="tab-pane{% if forloop.first %} active{% endif %}" id="{{ tab_status|slugify }}"><div class="row">#}
-{#            {% for match in tab_matches %}#}
-{#              <div class="col-xs-12 col-sm-6 col-md-4">#}
-{#                <div class="match-preview panel panel-default" data-slug="{{ match.target_user.get_name|slugify }}">#}
-{#                  <div class="panel-body">#}
-{#                    {% include 'contract/match_view/summary.html' with match=match contract=contract %}#}
-{#                    {% if match.response %}#}
-{#                      <p><blockquote>{{ match.response }}</blockquote></p>#}
-{#                    {% endif %}#}
-{#                  </div>#}
-{#                  {% if match.is_accepted and contract.is_active and contract.initiate_user == user %}#}
-{#                    <div class="panel-footer text-center">#}
-{#                      <button class="btn btn-success" name="change-status" value="confirm" data-match-id="{{ match.id }}">#}
-{#                        Confirm#}
-{#                      </button>#}
-{#                    </div>#}
-{#                  {% endif %}#}
-{#                </div>#}
-{#              </div>#}
-{#            {% endfor %}#}
-{#          </div></div>#}
-{#        {% endfor %}#}
-{#      </div>#}
-{#    </div>#}
   {% else %}
     <p>
       No one has been contacted yet for this job post.

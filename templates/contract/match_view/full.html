@@ -42,77 +42,48 @@ $(document).ready(function() {
 </script>
 {% endblock %}
 
-{% block headline %}
-  <div class="panel panel-{{ contract.display_status.color }}">
-    <div class="panel-heading">Job post from {% user-full-name contract.initiate_user %}</div>
-    <div class="panel-body">
-      {% if contract.is_confirmed %}
-        {% if contract.confirmed_match == match %}
-          {% include 'contract/contract_view/summary.html' with contract=contract display_mode='my_confirmed_match' %}
-        {% else %}
-          {% include 'contract/contract_view/summary.html' with contract=contract display_mode='other_confirmed_match' %}
-        {% endif %}
-      {% else %}
-        {% include 'contract/contract_view/summary.html' with contract=contract match_override=match display_mode="match" %}
-      {% endif %}
-    </div>
-  </div>
-{% endblock %}
-
-{% block panel-classes %}panel-{{ match.display_status.color }} match-details{% endblock %}
+{% block panel-classes %}match-details{% endblock %}
 {% block panel-attributes %}data-match-id="{{ match.id }}"{% endblock %}
 
 {% block content-introduction %}
-  <span class="text-{{ match.display_status.color }}">
-    {% if match.is_responded %}
-      Your response is: <span title="{{ match.display_status.explanation }}" data-toggle="tooltip">{{ match.display_status.label }}</span>
-    {% elif not contract.is_event_expired and not contract.is_confirmed %}
-      <strong>Please respond to the job post</strong> <small>(you might change it later if needed)</small>
-    {% elif not contract.is_event_expired and contract.is_confirmed %}
-      <strong>The job post is fulfilled by another person </strong> <small>- you might still leave a response <i class="fa fa-question-circle" title="{% user-short-name contract.initiate_user %} found and confirmed a babysitter ({% user-short-name contract.confirmed_match.target_user %}), and the request is expired. You might still leave a response in case the situation changes." data-toggle="tooltip"></i></small>
+  {% if contract.is_confirmed %}
+    {% if contract.confirmed_match == match %}
+      {% include 'contract/contract_view/summary.html' with contract=contract display_mode='my_confirmed_match' %}
     {% else %}
-      The job post was expired. No response is needed.
+      {% include 'contract/contract_view/summary.html' with contract=contract display_mode='other_confirmed_match' %}
     {% endif %}
-  </span>
+  {% else %}
+    {% include 'contract/contract_view/summary.html' with contract=contract match_override=match display_mode="match" %}
+  {% endif %}
 {% endblock %}
 
+{#{% block content-introduction %}#}
+{#  <span class="text-{{ match.display_status.color }}">#}
+{#    {% if match.is_responded %}#}
+{#      Your response is: <span title="{{ match.display_status.explanation }}" data-toggle="tooltip">{{ match.display_status.label }}</span>#}
+{#    {% elif not contract.is_event_expired and not contract.is_confirmed %}#}
+{#      <strong>Please respond to the job post</strong> <small>(you might change it later if needed)</small>#}
+{#    {% elif not contract.is_event_expired and contract.is_confirmed %}#}
+{#      <strong>The job post is fulfilled by another person </strong> <small>- you might still leave a response <i class="fa fa-question-circle" title="{% user-short-name contract.initiate_user %} found and confirmed a babysitter ({% user-short-name contract.confirmed_match.target_user %}), and the request is expired. You might still leave a response in case the situation changes." data-toggle="tooltip"></i></small>#}
+{#    {% else %}#}
+{#      The job post was expired. No response is needed.#}
+{#    {% endif %}#}
+{#  </span>#}
+{#{% endblock %}#}
+
 {% block content %}
-  {# make tooltip in "p" to prevent getting truncated. but then it shows funny in match_view #}
   <p>
-    <strong>Your connection: </strong>
-    {% for circle in match.circles.all %}
-      <span class="label label-primary" title="Your tag (the reason that you receive the post)" data-toggle="tooltip">{{ circle.display }}</span>
-    {% endfor %}
-    {% with count=match.count_served_total %}
-      {% if count %}{% include 'elements/interactions.html' with count=count help="Total number of previous interactions on babysitting between you and the requester." only%}{% endif %}
+    {% with user_connection=match.to_user_connection %}
+      {% include 'elements/user_connection_interactions.html' with user_connection=user_connection %}
+      {% for circle in user_connection.get_circle_list %}
+        <span class="label label-primary" title="This is a social connection you share with {% user-short-name match.contract.initiate_user %}" data-toggle="tooltip">{{ circle.display }}</span>
+      {% endfor %}
     {% endwith %}
   </p>
-{#    <p>#}
-{#      <strong>Previous interactions:</strong>#}
-{#      {% if match.count_served or match.count_served_reverse %}#}
-{#        {% with count=match.count_served client=contract.initiate_user server=match.target_user %}{% if count %}#}
-{#          You ({% user-short-name server %}) helped <em>{% user-short-name client %}</em> <span class="label label-info"><i class="fa fa-exchange"></i> {{ count }}</span> time{{ count|pluralize }}{% if match.count_served_reverse%};{% endif %}#}
-{#        {% endif %}{% endwith %}#}
-{#        {% with count=match.count_served_reverse server=contract.initiate_user client=match.target_user %}{% if count %}#}
-{#          <em>{% user-short-name server %}</em> helped you ({% user-short-name client %}) <span class="label label-info"><i class="fa fa-exchange"></i> {{ count }}</span> time{{ count|pluralize }}#}
-{#        {% endif %}{% endwith %}#}
-{#      {% endif %}#}
-{#    </p>#}
 
-{#      <p data-toggle="tooltip" title="Favors owed between you and {% user-short-name contract.initiate_user %}. Only successfully completed 'free' babysitting count as favors."><strong>Favors karma:</strong>#}
-{#      {% with count=match.count_favors_karma other=contract.initiate_user me=match.target_user %}{% if count %}#}
-{#        {% if count > 0 %}#}
-{#          <em>{% user-short-name other %}</em> owes you ({% user-short-name me %}) <span class="label label-success"><i class="fa fa-balance-scale"></i> {{ count }}</span> favor{{ count|pluralize }}#}
-{#        {% else %}#}
-{#          You ({% user-short-name me %}) owe <em>{% user-short-name other %}</em> <span class="label label-danger"><i class="fa fa-balance-scale"></i> {{ count|negate }}</span> favor{{ count|negate|pluralize }}#}
-{#        {% endif %}#}
-{#      {% else %}#}
-{#        - None -#}
-{#      {% endif %}{% endwith %}#}
-{#      </p>#}
   <div class="form-group">
-    <label class="control-label" for="match-response">Response note (optional)</label>
-    <textarea class="form-control" rows="3" placeholder="Type in here." id="match-response"{% if match.is_responded or contract.is_event_expired %} readonly{% endif %}>{{ match.response }}</textarea>
+{#    <label class="control-label" for="match-response">Response note (optional)</label>#}
+    <textarea class="form-control" rows="3" placeholder="Leave an optional note here." id="match-response"{% if match.is_responded or contract.is_event_expired %} readonly{% endif %}>{{ match.response }}</textarea>
   </div>
 
   {% if match.target_user == user or user.is_staff %}{% if not contract.is_event_expired %}
@@ -124,8 +95,20 @@ $(document).ready(function() {
         <button class="btn btn-danger{% if match.is_confirmed %} disabled{% endif %}" name="match" data-url="{% url 'contract:match_decline' pk=match.id %}" title="Choose 'Decline' if you are sure you cannot help. You will not receive further notice about this request." data-toggle="tooltip">Decline</button>
       </div>
       <div id="match-edit-bar">
-        <button class="btn btn-primary" name="edit">Edit</button>
+        <button class="btn btn-warning" name="edit">Edit</button>
       </div>
     </div>
   {% endif %}{% endif %}
+{% endblock %}
+
+{% block content-header %}
+  {% if match.is_responded %}
+    <strong>Your response is:</strong> <span class="label label-{{ match.display_status.color }}" title="{{ match.display_status.explanation }}" data-toggle="tooltip">{{ match.display_status.label }}</span>
+  {% elif not contract.is_event_expired and not contract.is_confirmed %}
+    <strong>Please respond to the job post</strong> (you might change it later if needed)
+  {% elif not contract.is_event_expired and contract.is_confirmed %}
+    <strong>The job post is fulfilled by another person </strong> (you might still leave a response <i class="fa fa-question-circle" title="{% user-short-name contract.initiate_user %} found and confirmed a babysitter ({% user-short-name contract.confirmed_match.target_user %}), and the request is expired. You might still leave a response in case the situation changes." data-toggle="tooltip"></i>)
+  {% else %}
+    <strong>The job post was expired. No response is needed.</strong>
+  {% endif %}
 {% endblock %}

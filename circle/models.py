@@ -593,6 +593,36 @@ class UserConnection(object):
         connection_list.extend(self.find_shared_connection_public())
         return connection_list
 
+    def count_served(self):
+        from puser.models import PUser
+        return PUser.from_user(self.target_user).count_served(self.initiate_user)
+
+    def count_served_reverse(self):
+        from puser.models import PUser
+        return PUser.from_user(self.initiate_user).count_served(self.target_user)
+
+    def count_served_total(self):
+        return self.count_served() + self.count_served_reverse()
+
+    def count_favors(self):
+        """
+        Return the number of favors the server (match.target_user) has done to the client (contract.initiate_user)
+        """
+        from puser.models import PUser
+        return PUser.from_user(self.target_user).count_favors(self.initiate_user)
+
+    def count_favors_reverse(self):
+        from puser.models import PUser
+        return PUser.from_user(self.initiate_user).count_favors(self.target_user)
+
+    def count_favors_karma(self):
+        """
+        Positive number; client owes server favors; negative number: server owes client favor.
+        """
+        favors = self.count_favors()
+        favors_reverse = self.count_favors_reverse()
+        return favors - favors_reverse
+
 
 class Friendship(UserConnection):
     '''
