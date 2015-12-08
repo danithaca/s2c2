@@ -165,7 +165,7 @@ class ContractCreateOfferView(ContractCreateParentView):
         contract.reversed = True
 
 
-class ContractEdit(LoginRequiredMixin, FormValidMessageMixin, ContractUpdateMixin, UpdateView):
+class ContractEdit(LoginRequiredMixin, RegisteredRequiredMixin, FormValidMessageMixin, ContractUpdateMixin, UpdateView):
     form_valid_message = 'Job post successfully updated.'
     template_name = 'contract/contract_edit/edit.html'
 
@@ -199,9 +199,11 @@ class ContractEdit(LoginRequiredMixin, FormValidMessageMixin, ContractUpdateMixi
         return result
 
     def get_context_data(self, **kwargs):
-        ctx = super().get_context_data(**kwargs)
-        ctx['show_price'] = True
-        return ctx
+        context = super().get_context_data(**kwargs)
+        context['hide_date'] = True
+        context['show_target'] = True
+        context['show_price'] = True
+        return context
 
 
 class ContractAudienceView(LoginRequiredMixin, FormValidMessageMixin, DetailView):

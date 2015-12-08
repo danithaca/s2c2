@@ -13,7 +13,6 @@
 
 {% block card-footer %}<div class="horizontal-justified">
   <div>
-    {% include 'elements/user_connection_interactions.html' with user_connection=match.to_user_connection only %}
     {% if match.is_accepted and match.contract.is_active %}
       <button class="btn btn-success btn-xs" name="change-status" value="confirm" data-match-id="{{ match.id }}">
         <i class="fa fa-check"></i> Confirm
@@ -23,6 +22,7 @@
         <span class="label label-{{ status.color }}" title="{{ status.explanation }}" data-toggle="tooltip">{{ status.label }}</span>
       {% endwith %}
     {% endif %}
+    {% include 'elements/user_connection_interactions.html' with user_connection=match.to_user_connection only %}
   </div>
   <div>
     <a href="{% url 'shout:user' uid=user.id %}" class="btn btn-xs btn-primary" data-expandable-text="Message"><i class="fa fa-bullhorn"></i></a>

@@ -143,7 +143,7 @@ $(document).ready(function() {
     {% include 'form_includes/form_errors.html' %}
     {% include 'form_includes/hidden_fields.html' %}
 
-    <div class="form-group{% if form.event_start.errors or form.event_end.errors %} has-error{% endif %}">
+    <div class="{% if hide_date %}hidden {% endif %}form-group{% if form.event_start.errors or form.event_end.errors %} has-error{% endif %}">
       <div class="row">
         <div class="col-xs-6">
           {% with field=form.event_start %}
