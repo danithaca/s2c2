@@ -156,7 +156,8 @@ p2 related branches:
     * p2/v2: the minimalist design before 3rd pivot (stopped active dev on 2015-09-30), using a list of links in the homepage (with "favor karma" data)
     * p2/v3: the pivot that targets to parents only, using FB-like tabs
     * p2/v4: the pivot to use Navbar links instead; separate PARENT/SITTER list; use TAG instead of PUBLIC/SUPERSET; migration squash; require invitation code.
-    * p2/v5: merge PARENT/SITTER into PERSONAL, and use PUBLIC for TAG; make users/groups look consistent.
+    * p2/v5: merge PARENT/SITTER into PERSONAL, and use PUBLIC for TAG; make users/groups look consistent. 
+    * p2/v6: use 2 tabs: POST/DISCOVER. the design from the students. 
 
 
 GIT Tags
