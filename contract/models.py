@@ -4,6 +4,7 @@ from enum import Enum
 from decimal import Decimal
 
 from django.utils import timezone
+from django.utils import dateformat
 from django.core.urlresolvers import reverse
 from django.db import models
 from django.db.models.signals import post_save
@@ -224,6 +225,10 @@ class Contract(StatusMixin, TrustedMixin, models.Model):
     def count_total_match(self):
         return Match.objects.filter(contract=self).count()
 
+    def get_event_localized(self):
+        tz = self.area.get_timezone()
+        return timezone.localtime(self.event_start, tz), timezone.localtime(self.event_end, tz)
+
     def event_length(self):
         return self.event_end - self.event_start
 
@@ -239,7 +244,8 @@ class Contract(StatusMixin, TrustedMixin, models.Model):
 
     def is_event_same_day(self):
         # todo: might not work for tz
-        return self.event_start.date() == self.event_end.date()
+        start, end = self.get_event_localized()
+        return start.date() == end.date()
 
     def display_event_length(self):
         assert self.event_end >= self.event_start
@@ -264,15 +270,17 @@ class Contract(StatusMixin, TrustedMixin, models.Model):
             return 'a few seconds'
 
     def display_event_range(self):
-        from django.utils.dateformat import format as f
-        from django.utils.timezone import localtime as l
-        get_time = lambda t: f(l(t), 'H:i')
-        get_date = lambda t: f(l(t), 'M. j')
-        get_datetime = lambda t: f(l(t), 'H:i M. j')
-        if self.is_event_same_day():
-            return '%s~%s, %s' % (get_time(self.event_start), get_time(self.event_end), get_date(self.event_start))
-        else:
-            return '%s ~ %s' % (get_datetime(self.event_start), get_datetime(self.event_end))
+        # from django.utils.dateformat import format as f
+        # from django.utils.timezone import localtime as l
+        # get_time = lambda t: f(l(t), 'H:i')
+        # get_date = lambda t: f(l(t), 'M. j')
+        # get_datetime = lambda t: f(l(t), 'H:i M. j')
+        # if self.is_event_same_day():
+        #     return '%s~%s, %s' % (get_time(self.event_start), get_time(self.event_end), get_date(self.event_start))
+        # else:
+        #     return '%s ~ %s' % (get_datetime(self.event_start), get_datetime(self.event_end))
+        start, end = self.get_event_localized()
+        return '%s, %s-%s' % (dateformat.format(start, 'D m/d/Y'), dateformat.format(start, 'P'), dateformat.format(end, 'P'))
 
     @staticmethod
     def parse_event_datetime_str(dt):
@@ -323,6 +331,14 @@ class Contract(StatusMixin, TrustedMixin, models.Model):
         # this is whether the contract initiate user trust the given user.
         uc = UserConnection(self.initiate_user, user)
         return uc.trusted(level)
+
+    def display_price(self):
+        if self.is_reversed():
+            return 'help offer'
+        elif self.is_favor():
+            return 'asking for a favor'
+        else:
+            return '$%.2f' % self.price
 
 
 class Match(StatusMixin, models.Model):

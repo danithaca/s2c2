@@ -1,4 +1,5 @@
 from datetime import timedelta
+import pytz
 
 from account.models import Account, EmailAddress
 from account.signals import password_changed
@@ -41,8 +42,10 @@ class Area(models.Model):
     description = models.TextField(blank=True)
 
     def get_timezone(self):
-        if self.state == 'MI':
-            return timezone('US/Eastern')
+        if self.state in ('MI',):
+            return pytz.timezone('US/Eastern')
+        else:
+            return pytz.timezone('US/Eastern')
 
     def __str__(self):
         return '%s - %s' % (self.name, self.state)

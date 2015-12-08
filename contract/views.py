@@ -241,7 +241,7 @@ class MatchDetail(LoginRequiredMixin, DetailView):
         match = self.object
         kwargs['contract'] = match.contract
         kwargs['favors_karma'] = match.count_favors_karma()
-        if kwargs['favors_karma'] < 0 and not match.is_responded():
+        if kwargs['favors_karma'] < 0 and not match.is_responded() and not match.contract.is_expired():
             messages.info(self.request, 'You owe %s a favor. Please consider return the favor by accepting the request.' % match.contract.initiate_user.get_name())
         # kwargs['edit'] = self.edit
         return super().get_context_data(**kwargs)
@@ -264,25 +264,37 @@ class MatchStatusChange(LoginRequiredMixin, JSONResponseMixin, AjaxResponseMixin
         return self.render_json_response({'success': True})
 
 
-class EngagementList(LoginRequiredMixin, TemplateView):
+class EngagementList(LoginRequiredMixin, RegisteredRequiredMixin, TemplateView):
     template_name = 'contract/engagement_list.html'
+    display_limit = 5
 
     def get_context_data(self, **kwargs):
         user = self.request.puser
-        list_engagement = []
-        for contract in Contract.objects.filter(Q(initiate_user=user) | Q(match__target_user=user)).distinct().order_by('-event_start'):
-            if contract.initiate_user == user:
-                list_engagement.append(Engagement.from_contract(contract))
-            else:
-                match = Match.objects.get(contract=contract, target_user=user)
-                list_engagement.append(Engagement.from_match(match))
+        current_time = timezone.now()
 
-        ctx = super().get_context_data(**kwargs)
-        ctx.update({
-            'user': user,
-            'engagements': list_engagement,
+        # find my contracts
+        list_contract = []
+        # get all unfinished contract
+        for contract in Contract.objects.filter(initiate_user=user, event_end__gte=current_time).exclude(status=Contract.Status.CANCELED.value).order_by('-updated'):
+            list_contract.append(contract)
+        # get limited number of old stuff
+        for contract in Contract.objects.filter(initiate_user=user, event_end__lt=current_time).exclude(status=Contract.Status.CANCELED.value).order_by('-event_end')[:self.display_limit]:
+            list_contract.append(contract)
+
+        # find my matches
+        list_match = []
+        for match in Match.objects.filter(target_user=user, contract__event_end__gte=current_time).exclude(contract__status=Contract.Status.CANCELED.value).exclude(status=Match.Status.CANCELED.value).order_by('-updated'):
+            list_match.append(match)
+        for match in Match.objects.filter(target_user=user, contract__event_end__lt=current_time).exclude(contract__status=Contract.Status.CANCELED.value).exclude(status=Match.Status.CANCELED.value).order_by('-contract__event_end')[:self.display_limit]:
+            list_match.append(match)
+
+        context = super().get_context_data(**kwargs)
+        context.update({
+            'current_user': user,
+            'list_contract': list_contract,
+            'list_match': list_match
         })
-        return ctx
+        return context
 
 
 # note: this is not through REST_FRAMEWORK, therefore cannot use browser to view results.

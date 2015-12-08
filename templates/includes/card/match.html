@@ -8,7 +8,7 @@
 {#  {% for connected_circle in match.to_user_connection.get_circle_list_public_only %}#}
 {#    <span class="label label-default">{{ connected_circle.display }}</span>#}
 {#  {% endfor %}#}
-  {% if match.response %}<p><strong>{{ match.response }}</strong></p>{% endif %}
+  {% if match.response %}<p>{{ match.response }}</p>{% endif %}
 {% endblock %}
 
 {% block card-footer %}<div class="horizontal-justified">
@@ -25,6 +25,6 @@
     {% include 'elements/user_connection_interactions.html' with user_connection=match.to_user_connection only %}
   </div>
   <div>
-    <a href="{% url 'shout:user' uid=user.id %}" class="btn btn-xs btn-primary" data-expandable-text="Message"><i class="fa fa-bullhorn"></i></a>
+{#    <a href="{% url 'shout:user' uid=user.id %}" class="btn btn-xs btn-primary" data-expandable-text="Message"><i class="fa fa-bullhorn"></i></a>#}
   </div>
 </div>{% endblock %}

@@ -9,7 +9,7 @@
   {% if not contract.is_favor %}
     <strong>${{ contract.price }}</strong> (${{ contract.hourly_rate }}/hour)
   {% else %}
-    <strong>asking for a favor</strong> (reciprocity{#  <span class="fa fa-info-circle" data-toggle="tooltip" title="Help other parents babysit and receive help when you need it."></span> #})
+    <strong>asking for a favor</strong>{# (reciprocity  <span class="fa fa-info-circle" data-toggle="tooltip" title="Help other parents babysit and receive help when you need it."></span> )#}
   {% endif %}
 </span>
 {% endif %}

@@ -101,3 +101,9 @@ def p2_tag_gcal_url(engagement):
         details=urlencode(get_site_url() + engagement.get_link())
     )
     return url
+
+
+# @register.simple_tag(name='engagement_time')
+# def p2_tag_engagement_time(engagement):
+#     assert isinstance(engagement, Engagement), 'Type is: %s' % type(engagement)
+#     return ''

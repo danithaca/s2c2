@@ -1,11 +1,42 @@
-{% extends "base_lean.html" %}
+{% extends "base.html" %}
 
-{% block page-content %}
-  {% if engagements %}
-    {% for engagement in engagements %}
-      {% include 'contract/engagement_view/full.html' with engagement=engagement %}
-    {% endfor %}
-  {% else %}
-    <p>You don't have any activities yet. To find a babysitter, click here: <a class="btn btn-primary" href="{% url 'contract:add' %}">Find</a></p>
-  {% endif %}
+{% block extra_header %}
+  {% include 'includes/js_grid.html' %}
 {% endblock %}
+
+{% block content %}<div class="row">
+  {# my jobs #}
+  <div class="col-xs-12 col-sm-6">
+    <div class="section-title horizontal-justified">
+      <span>My Posts</span>
+      <button class="btn btn-primary"><i class="fa fa-plus"></i> New Post</button>
+    </div>
+    {% for contract in list_contract %}
+      {% include 'contract/engagement_view/card.html' with engagement=contract.to_engagement only %}
+    {% empty %}
+      <p>No post found.</p>
+    {% endfor %}
+  </div>
+
+  {# others' jobs #}
+  <div class="col-xs-12 col-sm-6">
+    <div class="section-title">
+      <span>Other Parents' Posts</span>
+    </div>
+    {% for match in list_match %}
+      {% include 'contract/engagement_view/card.html' with engagement=match.to_engagement only %}
+    {% empty %}
+      <p>No post found.</p>
+    {% endfor %}
+  </div>
+</div>{% endblock %}
+
+{#{% block page-content %}#}
+{#  {% if engagements %}#}
+{#    {% for engagement in engagements %}#}
+{#      {% include 'contract/engagement_view/full.html' with engagement=engagement %}#}
+{#    {% endfor %}#}
+{#  {% else %}#}
+{#    <p>You don't have any activities yet. To find a babysitter, click here: <a class="btn btn-primary" href="{% url 'contract:add' %}">Find</a></p>#}
+{#  {% endif %}#}
+{#{% endblock %}#}

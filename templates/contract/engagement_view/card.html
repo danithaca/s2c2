@@ -1,0 +1,98 @@
+{% load p2_tags %}
+{% with contract=engagement.contract match=engagement.match %}
+  <div class="card thumbnail clickable {% if contract.is_event_expired %}pale{% endif %}" data-contract-id="{{ contract.id }}" data-match-id="{{ match.id }}"
+      data-url="{% if engagement.is_main_contract %}{% url 'contract:view' pk=contract.id %}{% elif engagement.is_main_match %}{% url 'contract:match_view' pk=match.id %}{% endif %}">
+
+  {% if engagement.is_main_contract %}
+    {% if contract.confirmed_match %}
+      {# case 1: confirmed contract #}
+      {% with confirmed_user=contract.confirmed_match.target_user.to_puser %}
+      <div class="flex-imgbox min-margin-bottom">
+        <div class="flex-imgbox-img">
+          <img  class="img-circle img-50" src="{% user_picture_url confirmed_user %}">
+        </div>
+        <div class="flex-imgbox-txt">
+          <div class="text-large">
+            <a href="{% url 'account_view' pk=confirmed_user.id %}">{% user-full-name confirmed_user %}</a>
+            <a href="{% url 'shout:user' uid=confirmed_user.id %}"><i class="fa fa-bullhorn"></i></a>
+          </div>
+          <div>{{ contract.confirmed_match.response }}</div>
+        </div>
+      </div>
+      {% endwith %}
+      <ul class="list-inline">
+        <li><i class="fa fa-clock-o"></i> {{ contract.display_event_range }}</li>
+        <li class="text-{{ contract.display_status.color }}"><i class="fa fa-info-circle"></i> {{ contract.display_status.label }}</li>
+      </ul>
+    {% else %}
+      {# case 2: unconfirmed contract #}
+      <p class="text-large">{{ contract.description|truncatechars:'80' }}</p>
+      <ul class="list-inline">
+        <li><i class="fa fa-clock-o"></i> {{ contract.display_event_range }}</li>
+        {% if contract.is_event_expired %}
+          <li><i class="fa fa-info-circle"></i> {{ contract.display_status.label }}</li>
+        {% else %}
+          <li><i class="fa fa-users"></i> {% if contract.count_accepted_match > 0 %}{{ contract.count_accepted_match }} accepted{% else %}{{ contract.count_total_match }} notified{% endif %}</li>
+        {% endif %}
+      </ul>
+      {% if not contract.is_event_expired and contract.count_accepted_match > 0 %}
+        <div><button class="btn btn-block btn-success">Click to Respond!</button></div>
+      {% endif %}
+    {% endif %}
+
+  {% elif engagement.is_main_match %}
+    {% if match.is_responded %}
+      {# case 3: responded match #}
+      {% with target_user=engagement.initiate_user.to_puser %}
+        <div class="flex-imgbox min-margin-bottom">
+          <div class="flex-imgbox-img">
+            <img  class="img-circle img-50" src="{% user_picture_url target_user %}">
+          </div>
+          <div class="flex-imgbox-txt">
+            <div>
+              Response to
+              <a href="{% url 'account_view' pk=target_user.id %}">{% user-full-name target_user %}</a>
+            </div>
+            <div class="text-large">
+              <span class="label label-{{ match.display_status.color }}" title="{{ match.display_status.explanation }}" data-toggle="tooltip">{{ match.display_status.label }}</span>
+            </div>
+            <div>{{ match.response }}</div>
+          </div>
+        </div>
+      {% endwith %}
+    {% else %}
+      {# case 4: unresponded match #}
+      {% with target_user=engagement.initiate_user.to_puser %}
+      <div class="flex-imgbox min-margin-bottom">
+        <div class="flex-imgbox-img">
+          <img  class="img-circle img-50" src="{% user_picture_url target_user %}">
+        </div>
+        <div class="flex-imgbox-txt">
+          <div class="text-large">
+            <a href="{% url 'account_view' pk=target_user.id %}">{% user-full-name target_user %}</a>
+            <a href="{% url 'shout:user' uid=target_user.id %}"><i class="fa fa-bullhorn"></i></a>
+          </div>
+          <div>{{ contract.description|truncatechars:'80' }}</div>
+        </div>
+      </div>
+      {% endwith %}
+    {% endif %}
+    <ul class="list-inline">
+      <li><i class="fa fa-clock-o"></i> {{ contract.display_event_range }}</li>
+      <li>
+        {% if contract.is_reversed %}
+          <span class="text-success"><i class="fa fa-gift"></i> {{ contract.display_price }}</span>
+        {% elif contract.is_favor %}
+          <i class="fa fa-child"></i> asking for a favor
+        {% else %}
+          <i class="fa fa-dollar"></i> {{ contract.price }}
+        {% endif %}
+      </li>
+    </ul>
+    {% if not contract.is_event_expired and not match.is_responded %}
+      <div><button class="btn btn-block btn-success">Click to Respond!</button></div>
+    {% endif %}
+  {% endif %}
+
+  </div>
+{% endwith %}
