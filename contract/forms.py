@@ -1,8 +1,8 @@
 import json
+import logging
 
 from django import forms
 from django.utils import timezone
-from circle.models import Circle
 
 from contract.models import Contract
 
@@ -91,7 +91,8 @@ class ContractForm(forms.ModelForm):
         event_end = cleaned_data.get("event_end")
         now = timezone.now()
 
-        if event_start < now or event_end < now:
+        # if event_start < now or event_end < now:
+        if event_end < now:
             raise forms.ValidationError('The date/time you specified cannot be in the past.')
         if event_start >= event_end:
             raise forms.ValidationError('End date/time must be later than start date/time.')
