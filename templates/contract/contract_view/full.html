@@ -53,6 +53,39 @@ $(document).ready(function() {
       window.location = '/job/response/' + $(this).data('match-id');
     });
   {% endif %}
+
+  // handle add people
+  var $input_box = $('#new-item');
+  var $input_button = $('#new-item-add-btn');
+
+  // handle add
+  $input_button.click(function() {
+    var val = $.trim($input_box.val());
+    var item_use = $('select[name="item_use"]').val();
+    if (val) {
+      // add to contract regardless of which function to use.
+      $.post("{% url 'contract:match_add' pk=contract.id %}", {email_field: val}, function(match_add_data) {
+        // add to circle if instructed
+        if (item_use == 'add_sitter' || item_use == 'add_parent') {
+          $.post("{% url 'circle:membership_activate' pk=circle.id %}", {email_field: val, is_sitter: (item_use == 'add_sitter')}, function(membership_data) {
+            if ((match_add_data['processed'] && match_add_data['processed'].length > 0) || (membership_data['processed'] && membership_data['processed'].length > 0)) {
+              window.location.reload();
+            }
+          });
+        }
+        else if (match_add_data['processed'] && match_add_data['processed'].length > 0) {
+          window.location.reload();
+        }
+      });
+    }
+    $input_box.val('');
+  });
+  // bind "enter" as well
+  $input_box.keyup(function(e) {
+    if(e.keyCode == 13) {
+      $input_button.trigger('click');
+    }
+  });
 });
 </script>
 {% endblock %}
@@ -82,7 +115,8 @@ $(document).ready(function() {
 
 {% block content %}
   {% if matches %}
-    <div class="grid">
+    <div class="section-title">People Contacted</div>
+    <div class="grid min-margin-bottom">
       {% for match in matches %}
         <div class="grid-item">
           {% include 'includes/card/match.html' with match=match user=match.target_user.to_puser only %}
@@ -98,6 +132,33 @@ $(document).ready(function() {
         Servuno will find the best potential candidates to contact shortly. <a href="{% url 'circle:parent' %}">Expand your network</a> to increase the likelihood of finding some one. Or you can use the form below to add people you want to contact.
       {% endif %}
     </p>
+  {% endif %}
+
+  {% if not contract.is_expired %}
+    <div class="section-title">Add Contacts</div>
+
+    <div class="input-group">
+      <input id="new-item" class="form-control" placeholder="Email address. Separate multiple addresses with spaces." autofocus>
+      <span class="input-group-btn"><button class="btn btn-primary" id="new-item-add-btn"><i class="fa fa-user-plus"></i> {% block add-button-name %}Add{% endblock %}</button></span>
+    </div>
+
+{#    <div class="form-group form-horizontal">#}
+{#      <label class="control-label col-sm-4" for="id_item_use">How to use the contacts?</label>#}
+{#      <div class="col-sm-8">#}
+{#        <select class="form-control" name="item_use" id="id_item_use">#}
+{#          <option value="add_parent" selected="selected">Add new contact(s) into my network for future use.</option>#}
+{#          <option value="add_sitter">Add new contact(s) as my preferred babysitter.</option>#}
+{#          <option value="once">Use new contact(s) for the job post only.</option>#}
+{#        </select>#}
+{#      </div>#}
+{#    </div>#}
+    <div class="form-group">
+      <select class="form-control" name="item_use" id="id_item_use">
+        <option value="add_parent" selected="selected">Add new contact(s) into my network for future use.</option>
+        <option value="add_sitter">Add new contact(s) as my preferred babysitter.</option>
+        <option value="once">Use new contact(s) for the job post only.</option>
+      </select>
+    </div>
   {% endif %}
 
 {#  {% if contract.initiate_user.to_puser.is_isolated %}#}

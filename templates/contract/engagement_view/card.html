@@ -35,7 +35,7 @@
         {% if contract.is_event_expired %}
           <li><i class="fa fa-info-circle"></i> {{ contract.display_status.label }}</li>
         {% else %}
-          <li><i class="fa fa-users"></i> {% if contract.count_accepted_match > 0 %}{{ contract.count_accepted_match }} accepted{% else %}{{ contract.count_total_match }} notified{% endif %}</li>
+          <li><i class="fa fa-users"></i> {% if contract.count_accepted_match > 0 %}{{ contract.count_accepted_match }} accepted{% else %}{{ contract.count_total_match }} contacted{% endif %}</li>
         {% endif %}
       </ul>
       {% if not contract.is_event_expired and contract.count_accepted_match > 0 %}

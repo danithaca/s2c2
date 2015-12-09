@@ -11,13 +11,15 @@ $(document).ready(function() {
 
   // handle add
   $input_button.click(function() {
-    var val = $input_box.val();
-    var is_sitter = $('input[name="is_sitter"]').is(':checked');
-    $.post("{% url 'circle:membership_activate' pk=circle.id %}", {email_field: val, is_sitter: is_sitter}, function(data) {
-      if (data['processed'] && data['processed'].length > 0) {
-        window.location.reload();
-      }
-    });
+    var val = $.trim($input_box.val());
+    if (val) {
+      var is_sitter = $('input[name="is_sitter"]').is(':checked');
+      $.post("{% url 'circle:membership_activate' pk=circle.id %}", {email_field: val, is_sitter: is_sitter}, function(data) {
+        if (data['processed'] && data['processed'].length > 0) {
+          window.location.reload();
+        }
+      });
+    }
     $input_box.val('');
   });
   // bind "enter" as well

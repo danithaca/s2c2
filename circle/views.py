@@ -532,7 +532,7 @@ class ActivateMembership(LoginRequiredMixin, CircleAdminMixin, SingleObjectMixin
                     invalid_list.append(email)
 
         if len(processed_list) > 0:
-            messages.success(request, 'Successfully added %s' % ', '.join(processed_list))
+            messages.success(request, 'Successfully added %s into your network.' % ', '.join(processed_list))
         return self.render_json_response({'processed': processed_list, 'invalid': invalid_list})
 
 

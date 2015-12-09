@@ -323,9 +323,35 @@ class Contract(StatusMixin, TrustedMixin, models.Model):
         uid_list = self.match_set.all().values_list('target_user', flat=True)
         return PUser.objects.filter(id__in=uid_list)
 
+    # need to make sure the match does not exist.
+    # if match already exists, throw an error.
+    def add_match_by_user(self, target_user, score=1):
+        match = Match.objects.create(contract=self, target_user=target_user, status=Match.Status.INITIALIZED.value, score=score)
+        uc = UserConnection(self.initiate_user, target_user)
+        uc.update_membership_list(uc.find_shared_connection_all())
+        # we don't use Match.circles anymore. use cicles instead.
+        # for circle in uc.get_circle_list():
+        #     match.circles.add(circle)
+        for m in uc.membership_list:
+            match.memberships.add(m)
+        match.save()
+        return match
+
     def recommend(self, initial=False):
-        from contract.algorithms import RecommenderStrategy
-        RecommenderStrategy.run_recommender(self, initial=initial)
+        # factory method
+        from contract import algorithms
+        if self.audience_type == Contract.AudienceType.SMART.value:
+            recommender = algorithms.SmartRecommender(self)
+        elif self.audience_type == Contract.AudienceType.MANUAL.value:
+            recommender = algorithms.ManualRecommender(self)
+        else:
+            recommender = algorithms.SmartRecommender(self)
+
+        if recommender.is_contract_recommendable():
+            if initial:
+                recommender.recommend_initial()
+            else:
+                recommender.recommend()
 
     def is_user_trusted(self, user, level=TrustLevel.COMMON.value):
         # this is whether the contract initiate user trust the given user.

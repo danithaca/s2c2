@@ -2,32 +2,12 @@ from functools import wraps
 import json
 from abc import ABCMeta
 
-from circle.models import Membership, Circle, UserConnection
-from contract.models import Match, Contract
+from circle.models import Membership
 from p2.utils import UserRole
 from puser.models import PUser
 
 
 class RecommenderStrategy(metaclass=ABCMeta):
-    @staticmethod
-    def run_recommender(contract, initial=False):
-        """
-        Create "Match" for the contract. This is "semi" factory method that uses different Recommender strategy based on AudienceType.
-        :param initial: whether this is the initial phase.
-        """
-        if contract.audience_type == Contract.AudienceType.SMART.value:
-            recommender = SmartRecommender(contract)
-        elif contract.audience_type == Contract.AudienceType.MANUAL.value:
-            recommender = ManualRecommender(contract)
-        else:
-            recommender = SmartRecommender(contract)
-
-        if recommender.is_contract_recommendable():
-            if initial:
-                recommender.recommend_initial()
-            else:
-                recommender.recommend()
-
     def __init__(self, contract):
         self.contract = contract
         # allow exception to throw
@@ -61,7 +41,7 @@ class RecommenderStrategy(metaclass=ABCMeta):
 
         to_add_list = set(request_user_list) - set(matched_user_list)
         for target_user in to_add_list:
-            self.add_match_by_user(target_user)
+            self.contract.add_match_by_user(target_user)
 
     # similar to add_match_from_data, but the users are from the circle.
     # todo: make more intelligent match based on previous interactions, etc.
@@ -73,21 +53,7 @@ class RecommenderStrategy(metaclass=ABCMeta):
         if limit > 0:
             qs = qs[:limit]
         for membership in qs:
-            self.add_match_by_user(membership.member)
-
-    # need to make sure the match does not exist.
-    # if match already exists, throw an error.
-    def add_match_by_user(self, target_user):
-        match = Match.objects.create(contract_id=self.contract.id, target_user=target_user, status=Match.Status.INITIALIZED.value, score=1)
-        uc = UserConnection(self.contract.initiate_user, target_user)
-        uc.update_membership_list(uc.find_shared_connection_all())
-        # we don't use Match.circles anymore. use cicles instead.
-        # for circle in uc.get_circle_list():
-        #     match.circles.add(circle)
-        for m in uc.membership_list:
-            match.memberships.add(m)
-        match.save()
-        return match
+            self.contract.add_match_by_user(membership.member)
 
     def is_contract_recommendable(self):
         contract = self.contract

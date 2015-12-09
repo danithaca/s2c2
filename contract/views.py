@@ -1,6 +1,8 @@
+import json
 from datetime import datetime, timedelta
 from decimal import Decimal
 
+import re
 from braces.views import JSONResponseMixin, AjaxResponseMixin, LoginRequiredMixin, FormValidMessageMixin
 from django.contrib import messages
 from django.core.urlresolvers import reverse_lazy, reverse
@@ -11,12 +13,13 @@ from django.utils import timezone
 
 from django.template.loader import render_to_string
 from django.conf import settings
+from django.views.generic.detail import SingleObjectMixin
 from sitetree.sitetreeapp import get_sitetree
 
 from contract.forms import ContractForm
 from contract.models import Contract, Match, Engagement
-from p2.utils import RegisteredRequiredMixin
-from puser.models import MenuItem
+from p2.utils import RegisteredRequiredMixin, is_valid_email, UserRole
+from puser.models import MenuItem, PUser
 from puser.views import ContractAccessMixin
 
 
@@ -26,8 +29,10 @@ class ContractDetail(LoginRequiredMixin, ContractAccessMixin, DetailView):
 
     def get_context_data(self, **kwargs):
         contract = self.object
-        ctx = super().get_context_data(**kwargs)
-        ctx['matches'] = contract.match_set.all().order_by('-score', '-updated')
+        context = super().get_context_data(**kwargs)
+        context['matches'] = contract.match_set.all().order_by('-score', '-updated')
+        context['circle'] = contract.initiate_user.to_puser().get_personal_circle(area=contract.area)
+
         # tabs = []
         # for status in (Match.Status.ACCEPTED, Match.Status.ENGAGED, Match.Status.DECLINED, Match.Status.INITIALIZED):
         #     qs = contract.match_set.filter(status=status.value).order_by('-score')
@@ -47,7 +52,7 @@ class ContractDetail(LoginRequiredMixin, ContractAccessMixin, DetailView):
         # if self.request.puser.id == contract.initiate_user.id and self.request.puser.is_isolated():
         #     messages.warning(self.request, 'You have few contacts on Servuno. Please <a href="%s">add other parents</a> and/or <a href="%s">add paid babysitters</a>.' % (reverse_lazy('circle:parent'), reverse_lazy('circle:sitter')), extra_tags='safe')
 
-        return ctx
+        return context
 
 
 class ContractList(ListView):
@@ -67,8 +72,8 @@ class ContractUpdateMixin(object):
         return kwargs
 
 
-class ContractCreate(LoginRequiredMixin, RegisteredRequiredMixin, FormValidMessageMixin, ContractUpdateMixin, CreateView):
-    form_valid_message = 'Request successfully created.'
+class ContractCreate(LoginRequiredMixin, RegisteredRequiredMixin, ContractUpdateMixin, CreateView):
+    # form_valid_message = 'Request successfully created.'
 
     # override widget.
     # def get_form_class(self):
@@ -396,3 +401,48 @@ class CalendarView(LoginRequiredMixin, TemplateView):
         engagement_list = sorted(puser.engagement_list(lambda qs: qs.filter(initiate_user=puser).order_by('-updated')[:5]) + puser.engagement_list(lambda qs: qs.filter(match__target_user=puser).order_by('-match__updated')[:5]), key=lambda e: e.updated(), reverse=True)
         ctx['engagement_recent'] = engagement_list[:5]
         return ctx
+
+
+############## api related #############
+
+
+class MatchAdd(LoginRequiredMixin, ContractAccessMixin, SingleObjectMixin, JSONResponseMixin, AjaxResponseMixin, View):
+    model = Contract
+
+    def post_ajax(self, request, *args, **kwargs):
+        contract = self.get_object()
+        existing_matched_users = set(contract.get_matched_users())
+
+        input_field = request.POST.get('email_field', None)
+        processed_list = []
+        invalid_list = []
+
+        if input_field:
+            for token in [e.strip() for e in re.split(r'[\s,;]+', input_field)]:
+                if token.isdigit():
+                    try:
+                        target_user = PUser.objects.get(pk=token)
+                    except PUser.DoesNotExist:
+                        invalid_list.append(token)
+                        continue
+                elif is_valid_email(token):
+                    try:
+                        target_user = PUser.get_by_email(token)
+                    except PUser.DoesNotExist:
+                        target_user = PUser.create(token, dummy=True, area=contract.area)
+                else:
+                    invalid_list.append(token)
+                    continue
+
+                if target_user not in existing_matched_users:
+                    try:
+                        match = contract.add_match_by_user(target_user)
+                        processed_list.append(token)
+                    except:
+                        invalid_list.append(token)
+                else:
+                    invalid_list.append(token)
+
+        if len(processed_list) > 0:
+            messages.success(request, 'Added %s to the post.' % ', '.join(processed_list))
+        return self.render_json_response({'processed': processed_list, 'invalid': invalid_list})

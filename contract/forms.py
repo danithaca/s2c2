@@ -39,7 +39,7 @@ class ContractForm(forms.ModelForm):
         labels = {
             'event_start': 'From',
             'event_end': 'To',
-            'description': 'Note (optional)',
+            'description': 'Note (required)',
             'audience_type': 'Who to Contact?'
         }
         localized_fields = ['event_start', 'event_end']
@@ -80,6 +80,7 @@ class ContractForm(forms.ModelForm):
             (Contract.AudienceType.MANUAL.value, 'Choose manually')
         )
         # self.fields['audience_type'].widget.attrs = {'class': 'form-control'}
+        self.fields['description'].required = True
 
         # perhaps it's better to delegate to template js to add form-control to form elements.
         # for fn, field in self.fields.items():

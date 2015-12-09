@@ -1,7 +1,7 @@
 {% load p2_tags %}
 <div class="contract-summary" data-contract-id="{{ contract.id }}">
   {% if contract.description %}
-    <p class="text-large">{% include 'account/view/inline_full.html' with user=contract.initiate_user.to_puser only %} -- {{ contract.description }}</p>
+    <p class="text-large"><span class="lead">{% include 'account/view/inline_full.html' with user=contract.initiate_user.to_puser only %}</span> {{ contract.description }}</p>
   {% else %}
     <p class="text-large">Job post from {% include 'account/view/inline_full.html' with user=contract.initiate_user.to_puser only %}</p>
   {% endif %}
@@ -26,7 +26,7 @@
     {% if contract.confirmed_match %}
       <li>{% include 'account/view/inline_full.html' with user=contract.confirmed_match.target_user.to_puser only %}</li>
     {% else %}
-      <li><i class="fa fa-users"></i> <em>{{ contract.count_total_match }}</em> notified</li>
+      <li><i class="fa fa-users"></i> <em>{{ contract.count_total_match }}</em> contacted</li>
       <li><i class="fa fa-check"></i> <em>{{ contract.count_accepted_match }}</em> accepted</li>
       <li><i class="fa fa-times"></i> <em>{{ contract.count_declined_match }}</em> declined</li>
     {% endif %}
