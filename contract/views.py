@@ -11,10 +11,12 @@ from django.utils import timezone
 
 from django.template.loader import render_to_string
 from django.conf import settings
+from sitetree.sitetreeapp import get_sitetree
 
 from contract.forms import ContractForm
 from contract.models import Contract, Match, Engagement
 from p2.utils import RegisteredRequiredMixin
+from puser.models import MenuItem
 from puser.views import ContractAccessMixin
 
 
@@ -288,11 +290,18 @@ class EngagementList(LoginRequiredMixin, RegisteredRequiredMixin, TemplateView):
         for match in Match.objects.filter(target_user=user, contract__event_end__lt=current_time).exclude(contract__status=Contract.Status.CANCELED.value).exclude(status=Match.Status.CANCELED.value).order_by('-contract__event_end')[:self.display_limit]:
             list_match.append(match)
 
+        # tree = get_sitetree()
+        # tree_item = tree.get_item_by_id('main', 50)
+        # todo: this is a hack. try to figure out how to use sitetree mechanism (tried but seems to be very hard)
+        post_menu_items = MenuItem.objects.filter(id__in=(4, 5, 6)).order_by('sort_order')
+
         context = super().get_context_data(**kwargs)
         context.update({
             'current_user': user,
             'list_contract': list_contract,
-            'list_match': list_match
+            'list_match': list_match,
+            'post_menu_items': [(m.title, reverse(m.url)) for m in post_menu_items],
+            # 'sitetree_item_post': tree_item,
         })
         return context
 

@@ -8,12 +8,12 @@ def global_templates_vars(request):
         'SITE_ID': settings.SITE_ID,
         'DEFAULT_FROM_EMAIL': settings.DEFAULT_FROM_EMAIL,
     }
-    try:
-        if request.user.is_authenticated():
-            home = MenuItem.objects.get(alias='home', tree__alias='main')
-        else:
-            home = MenuItem.objects.get(alias='home', tree__alias='prelogin')
-        ctx['breadcrumb_home'] = home
-    except MenuItem.DoesNotExist:
-        pass
+    # try:
+    #     if request.user.is_authenticated():
+    #         home = MenuItem.objects.get(alias='home', tree__alias='main')
+    #     else:
+    #         home = MenuItem.objects.get(alias='home', tree__alias='prelogin')
+    #     ctx['breadcrumb_home'] = home
+    # except MenuItem.DoesNotExist:
+    #     pass
     return ctx

@@ -1,9 +1,8 @@
 {% load sitetree %}
-{% if sitetree_items|length_is:"1" and sitetree_items.0.alias == 'home' %}
-  {# breadcrumb for dashboard #}
+{% if sitetree_items|length_is:"1" or sitetree_items|length_is:'0' %}
+  {# do not show breadcrumbs for top level #}
 {% else %}
 <ol class="breadcrumb">
-  {% if breadcrumb_home %}<li><a href="{% sitetree_url for breadcrumb_home %}">{% if breadcrumb_home.fa_icon %}<i class="fa fa-{{ breadcrumb_home.fa_icon }}"></i>{% endif %} {{ breadcrumb_home.title }}</a></li>{% endif %}
   {% for item in sitetree_items %}
     {% if not forloop.last %}
       <li class="{% if item.url == '#' %}dropdown{% endif %}" {% if item.hint %}title="{{ item.hint }}"{% endif %} {% if item.alias %}id="breadcrumb-{{ item.alias }}"{% endif %}>

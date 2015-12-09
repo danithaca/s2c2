@@ -1,6 +1,6 @@
 {% load p2_tags %}
 {% with contract=engagement.contract match=engagement.match %}
-  <div class="card thumbnail clickable {% if contract.is_event_expired %}pale{% endif %}" data-contract-id="{{ contract.id }}" data-match-id="{{ match.id }}"
+  <div class="card thumbnail clickable {% if contract.is_event_expired and not contract.is_feedback_needed %}pale{% endif %}" data-contract-id="{{ contract.id }}" data-match-id="{{ match.id }}"
       data-url="{% if engagement.is_main_contract %}{% url 'contract:view' pk=contract.id %}{% elif engagement.is_main_match %}{% url 'contract:match_view' pk=match.id %}{% endif %}">
 
   {% if engagement.is_main_contract %}
@@ -24,6 +24,9 @@
         <li><i class="fa fa-clock-o"></i> {{ contract.display_event_range }}</li>
         <li class="text-{{ contract.display_status.color }}"><i class="fa fa-info-circle"></i> {{ contract.display_status.label }}</li>
       </ul>
+      {% if contract.is_feedback_needed %}
+        <div><button class="btn btn-block btn-warning">Leave a Feedback</button></div>
+      {% endif %}
     {% else %}
       {# case 2: unconfirmed contract #}
       <p class="text-large">{{ contract.description|truncatechars:'80' }}</p>

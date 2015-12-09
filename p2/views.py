@@ -19,7 +19,7 @@ def home(request):
         if not puser.is_registered():
             return redirect('account_signup')
         else:
-            return redirect('dashboard')
+            return redirect('contract:engagement_list')
 
 
 class HelpView(TemplateView):

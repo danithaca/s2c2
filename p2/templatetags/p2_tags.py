@@ -6,6 +6,7 @@ from django.template.defaultfilters import truncatechars, urlencode
 from django.templatetags.static import static
 from django.templatetags.tz import utc
 from image_cropping.templatetags.cropping import cropped_thumbnail
+from sitetree.sitetreeapp import get_sitetree
 
 from contract.models import Engagement
 from p2.utils import get_site_url
@@ -107,3 +108,12 @@ def p2_tag_gcal_url(engagement):
 # def p2_tag_engagement_time(engagement):
 #     assert isinstance(engagement, Engagement), 'Type is: %s' % type(engagement)
 #     return ''
+
+
+# @register.simple_tag(name='current-menutree-dropdown', takes_context=True)
+# def p2_tag_menutree_dropdown(context):
+#     sitetree = get_sitetree()
+#     tree_item = sitetree.get_tree_current_item('main')
+#     navigation_type = 'menu'
+#     use_template = 'sitetree/breadcrumbs_dropdown.html'
+#     return sitetree.children(tree_item, navigation_type, use_template, context)

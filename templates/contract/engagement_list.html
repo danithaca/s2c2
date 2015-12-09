@@ -1,15 +1,28 @@
 {% extends "base.html" %}
+{% load sitetree %}
+{% load p2_tags %}
 
 {% block extra_header %}
   {% include 'includes/js_grid.html' %}
 {% endblock %}
 
 {% block content %}<div class="row">
+{#  {% sitetree_children of current_item for sitetree template "sitetree/tree.html" %}#}
   {# my jobs #}
   <div class="col-xs-12 col-sm-6">
     <div class="section-title horizontal-justified">
       <span>My Posts</span>
-      <button class="btn btn-primary"><i class="fa fa-plus"></i> New Post</button>
+      <span class="btn-group">
+        <button class="btn btn-primary dropdown-toggle" data-toggle="dropdown"><i class="fa fa-plus"></i> New Post <span class="caret"></span></button>
+{#      {% sitetree_children of sitetree_item_post for menu template "sitetree/breadcrumbs_dropdown.html" %}#}
+{#      {% current-menutree-dropdown %}#}
+{#      {% sitetree_menu from "main" include "post" template 'sitetree/breadcrumbs_dropdown.html' %}#}
+        <ul class="dropdown-menu">
+          {% for menu_item in post_menu_items %}
+            <li><a href="{{ menu_item.1 }}">{{ menu_item.0 }}</a></li>
+          {% endfor %}
+        </ul>
+      </span>
     </div>
     {% for contract in list_contract %}
       {% include 'contract/engagement_view/card.html' with engagement=contract.to_engagement only %}
