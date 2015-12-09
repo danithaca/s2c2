@@ -437,7 +437,7 @@ class MatchAdd(LoginRequiredMixin, ContractAccessMixin, SingleObjectMixin, JSONR
                 if target_user not in existing_matched_users:
                     try:
                         match = contract.add_match_by_user(target_user)
-                        processed_list.append(token)
+                        processed_list.append(target_user.get_full_name())
                     except:
                         invalid_list.append(token)
                 else:

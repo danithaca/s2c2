@@ -107,8 +107,8 @@ $(document).ready(function() {
   {% elif not contract.is_event_expired and not contract.is_confirmed %}
     <strong>Please respond to the job post</strong> (you might change it later if needed)
   {% elif not contract.is_event_expired and contract.is_confirmed %}
-    <strong>The job post is fulfilled by another person </strong> (you might still leave a response <i class="fa fa-question-circle" title="{% user-short-name contract.initiate_user %} found and confirmed a babysitter ({% user-short-name contract.confirmed_match.target_user %}), and the request is expired. You might still leave a response in case the situation changes." data-toggle="tooltip"></i>)
+    <span class="text-large">The job post is fulfilled by another person </span> (you might still leave a response <i class="fa fa-question-circle" title="{% user-short-name contract.initiate_user %} found and confirmed a babysitter ({% user-short-name contract.confirmed_match.target_user %}), and the request is expired. You might still leave a response in case the situation changes." data-toggle="tooltip"></i>)
   {% else %}
-    <strong>The job post was expired. No response is needed.</strong>
+    <span class="text-large">The job post was expired. No response is needed.</span>
   {% endif %}
 {% endblock %}
