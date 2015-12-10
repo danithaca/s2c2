@@ -484,6 +484,19 @@ class MembershipApprovalView(LoginRequiredMixin, AllowMembershipEditMixin, Detai
 #         return context
 
 
+class DiscoverView(LoginRequiredMixin, RegisteredRequiredMixin, DetailView):
+    model = PUser
+    context_object_name = 'target_user'
+    template_name = 'circle/discover.html'
+
+    def get_object(self, queryset=None):
+        return self.request.puser
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        return context
+
+
 ################## views for API ########################
 
 
