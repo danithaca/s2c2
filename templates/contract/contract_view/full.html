@@ -4,8 +4,8 @@
 {% load p2_tags %}
 
 {% block extra_header %}
-<link href="//cdnjs.cloudflare.com/ajax/libs/select2/4.0.0/css/select2.min.css" rel="stylesheet" />
-<script src="//cdnjs.cloudflare.com/ajax/libs/select2/4.0.0/js/select2.min.js"></script>
+<link href="//cdnjs.cloudflare.com/ajax/libs/select2/4.0.1/css/select2.min.css" rel="stylesheet" />
+<script src="//cdnjs.cloudflare.com/ajax/libs/select2/4.0.1/js/select2.min.js"></script>
 
 {% include 'includes/js_grid.html' %}
 
@@ -58,15 +58,64 @@ $(document).ready(function() {
     });
   {% endif %}
 
-  // handle add people
-  var $input_box = $('#new-item');
-  var $input_button = $('#new-item-add-btn');
+{#  // handle add people#}
+{#  var $input_box = $('#new-item');#}
+{#  var $input_button = $('#new-item-add-btn');#}
+{##}
+{#  // handle add#}
+{#  $input_button.click(function() {#}
+{#    var val = $.trim($input_box.val());#}
+{#    var item_use = $('select[name="item_use"]').val();#}
+{#    if (val) {#}
+{#      // add to contract regardless of which function to use.#}
+{#      $.post("{% url 'contract:match_add' pk=contract.id %}", {email_field: val}, function(match_add_data) {#}
+{#        // add to circle if instructed#}
+{#        if (item_use == 'add_sitter' || item_use == 'add_parent') {#}
+{#          $.post("{% url 'circle:membership_activate' pk=circle.id %}", {email_field: val, is_sitter: (item_use == 'add_sitter')}, function(membership_data) {#}
+{#            if ((match_add_data['processed'] && match_add_data['processed'].length > 0) || (membership_data['processed'] && membership_data['processed'].length > 0)) {#}
+{#              window.location.reload();#}
+{#            }#}
+{#          });#}
+{#        }#}
+{#        else if (match_add_data['processed'] && match_add_data['processed'].length > 0) {#}
+{#          window.location.reload();#}
+{#        }#}
+{#      });#}
+{#    }#}
+{#    $input_box.val('');#}
+{#  });#}
+{#  // bind "enter" as well#}
+{#  $input_box.keyup(function(e) {#}
+{#    if(e.keyCode == 13) {#}
+{#      $input_button.trigger('click');#}
+{#    }#}
+{#  });#}
+
+  // select2 stuff
+  var $select = $("select[name='candidate']");
+  var $select_btn = $('#candidate-add-btn');
+
+  function decorateSelection (state) {
+    return state.text;
+{#    if (!state.id) { return state.text; }#}
+{#    var $state = $(#}
+{#        '<span class="circle-tag hover-pointer" data-id="' + state.id + '">' + state.text + '</span>'#}
+{#    );#}
+{#    return $state;#}
+  }
+  var $select_select2 = $select.select2({
+    placeholder: 'Select from the list or type in new email addresses.',
+    tags: true,
+    tokenSeparators: [',', ' '],
+    templateSelection: decorateSelection,
+  });
 
   // handle add
-  $input_button.click(function() {
-    var val = $.trim($input_box.val());
+  $select_btn.click(function() {
+    var val = $select.val();
     var item_use = $('select[name="item_use"]').val();
     if (val) {
+      val = val.join();
       // add to contract regardless of which function to use.
       $.post("{% url 'contract:match_add' pk=contract.id %}", {email_field: val}, function(match_add_data) {
         // add to circle if instructed
@@ -82,30 +131,17 @@ $(document).ready(function() {
         }
       });
     }
-    $input_box.val('');
-  });
-  // bind "enter" as well
-  $input_box.keyup(function(e) {
-    if(e.keyCode == 13) {
-      $input_button.trigger('click');
-    }
+    // $select.select2().val([]).trigger('change');
   });
 
-  // select2 stuff
-  var $select = $("select[name='candidate']");
-  function decorateSelection (state) {
-    return state.text;
-{#    if (!state.id) { return state.text; }#}
-{#    var $state = $(#}
-{#        '<span class="circle-tag hover-pointer" data-id="' + state.id + '">' + state.text + '</span>'#}
-{#    );#}
-{#    return $state;#}
-  }
-  $select.select2({
-    placeholder: 'Email address. Separate multiple addresses with spaces.',
-    tags: true,
-    tokenSeparators: [',', ' '],
-    templateSelection: decorateSelection,
+  // handle select all/none
+  $('#candidate-select-all').click(function() {
+    $select.find('option').prop("selected","selected");
+    $select.trigger("change");// Trigger change to select 2
+  });
+  $('#candidate-select-none').click(function() {
+    $select.find('option').removeAttr("selected");
+    $select.trigger("change");// Trigger change to select 2
   });
 });
 </script>
@@ -158,21 +194,21 @@ $(document).ready(function() {
   {% if not contract.is_expired %}
     <div class="section-title">Add Contacts</div>
 
-    <div class="input-group">
-      <input id="new-item" class="form-control" placeholder="Email address. Separate multiple addresses with spaces." autofocus>
-      <span class="input-group-btn"><button class="btn btn-primary" id="new-item-add-btn"><i class="fa fa-user-plus"></i> {% block add-button-name %}Add{% endblock %}</button></span>
-    </div>
+{#    <div class="input-group">#}
+{#      <input id="new-item" class="form-control" placeholder="Email address. Separate multiple addresses with spaces." autofocus>#}
+{#      <span class="input-group-btn"><button class="btn btn-primary" id="new-item-add-btn"><i class="fa fa-user-plus"></i> {% block add-button-name %}Add{% endblock %}</button></span>#}
+{#    </div>#}
+{##}
+{#    <div class="form-group">#}
+{#      <select class="form-control" name="item_use" id="id_item_use">#}
+{#        <option value="add_parent" selected="selected">Add new contact(s) into my network for future use.</option>#}
+{#        <option value="add_sitter">Add new contact(s) as my preferred babysitter.</option>#}
+{#        <option value="once">Use new contact(s) for the job post only.</option>#}
+{#      </select>#}
+{#    </div>#}
 
     <div class="form-group">
-      <select class="form-control" name="item_use" id="id_item_use">
-        <option value="add_parent" selected="selected">Add new contact(s) into my network for future use.</option>
-        <option value="add_sitter">Add new contact(s) as my preferred babysitter.</option>
-        <option value="once">Use new contact(s) for the job post only.</option>
-      </select>
-    </div>
-
-    <div class="form-group">
-      <select class="form-control" name="candidate" id="id_candidate" multiple>
+      <select class="form-control" name="candidate" id="candidate-select" multiple>
       {% if parent_candidate_list %}
       <optgroup label="My Network">
         {% for candidate in parent_candidate_list %}
@@ -188,6 +224,27 @@ $(document).ready(function() {
       </optgroup>
       {% endif %}
       </select>
+    </div>
+
+    <div class="form-inline min-margin-bottom">
+      <div class="form-group margin-right-10">
+        <div class="btn-group btn-group-sm">
+          <button type="button" class="btn btn-default" id="candidate-select-all">Select All</button>
+          <button type="button" class="btn btn-default" id="candidate-select-none">Select None</button>
+        </div>
+      </div>
+      <div class="form-group">
+{#        <label class="control-label" for="id_item_use">How to handle new contacts?</label>#}
+        <select class="form-control" name="item_use" id="id_item_use">
+          <option value="add_parent" selected="selected">Add new contacts into my network (as parents).</option>
+          <option value="add_sitter">Add new contacts as my preferred babysitter.</option>
+          <option value="once">Use new contacts once for this post only.</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="form-group">
+      <button class="btn btn-primary" id="candidate-add-btn">Add to Post</button>
     </div>
 
   {% endif %}
