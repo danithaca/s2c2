@@ -44,8 +44,10 @@ class ContractDetail(LoginRequiredMixin, ContractAccessMixin, DetailView):
         context.update({
             'matches': matches,
             'circle': circle,
-            'parent_candidate_list': parent_candidate_list,
-            'sitter_candidate_list': sitter_candidate_list,
+            'options_tabs': (
+                {'title': 'My Network', 'candidate_list': parent_candidate_list,},
+                {'title': 'My Babysitters', 'candidate_list': sitter_candidate_list,},
+            )
         })
 
         # tabs = []

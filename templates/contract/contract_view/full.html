@@ -96,12 +96,16 @@ $(document).ready(function() {
   var $select_btn = $('#candidate-add-btn');
 
   function decorateSelection (state) {
-    return state.text;
-{#    if (!state.id) { return state.text; }#}
-{#    var $state = $(#}
-{#        '<span class="circle-tag hover-pointer" data-id="' + state.id + '">' + state.text + '</span>'#}
-{#    );#}
-{#    return $state;#}
+{#    console.log(state);#}
+{#    return state.text;#}
+    var img_url = $(state.element).data('img-url');
+    if (!img_url) {
+      var $state = $('<span data-id="' + state.id + '">' + state.text + ' <span class="text-danger">(new!)</span></span>');
+      return $state;
+    } else {
+      var $state = $('<span data-id="' + state.id + '"><img class="img-18 img-circle" src="' + img_url + '">' + state.text + '</span>');
+      return $state;
+    }
   }
   var $select_select2 = $select.select2({
     placeholder: 'Select from the list or type in new email addresses.',
@@ -209,20 +213,15 @@ $(document).ready(function() {
 
     <div class="form-group">
       <select class="form-control" name="candidate" id="candidate-select" multiple>
-      {% if parent_candidate_list %}
-      <optgroup label="My Network">
-        {% for candidate in parent_candidate_list %}
-          <option value="{{ candidate.id }}">{% user-full-name candidate %} ({{ candidate.email }})</option>
+      {% for options_tab in options_tabs %}
+      {% if options_tab.candidate_list %}
+      <optgroup label="{{ options_tab.title }}">
+        {% for candidate in options_tab.candidate_list %}
+          <option value="{{ candidate.id }}" data-img-url="{% user_picture_url candidate %}">{% user-full-name candidate %} ({{ candidate.email }})</option>
         {% endfor %}
       </optgroup>
       {% endif %}
-      {% if sitter_candidate_list %}
-      <optgroup label="My Babysitters">
-        {% for candidate in sitter_candidate_list %}
-          <option value="{{ candidate.id }}">{% user-full-name candidate %} ({{ candidate.email }})</option>
-        {% endfor %}
-      </optgroup>
-      {% endif %}
+      {% endfor %}
       </select>
     </div>
 
