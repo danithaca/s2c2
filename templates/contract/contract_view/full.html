@@ -4,7 +4,11 @@
 {% load p2_tags %}
 
 {% block extra_header %}
+<link href="//cdnjs.cloudflare.com/ajax/libs/select2/4.0.0/css/select2.min.css" rel="stylesheet" />
+<script src="//cdnjs.cloudflare.com/ajax/libs/select2/4.0.0/js/select2.min.js"></script>
+
 {% include 'includes/js_grid.html' %}
+
 <script type="text/javascript">
 $(document).ready(function() {
   // update status
@@ -86,6 +90,23 @@ $(document).ready(function() {
       $input_button.trigger('click');
     }
   });
+
+  // select2 stuff
+  var $select = $("select[name='candidate']");
+  function decorateSelection (state) {
+    return state.text;
+{#    if (!state.id) { return state.text; }#}
+{#    var $state = $(#}
+{#        '<span class="circle-tag hover-pointer" data-id="' + state.id + '">' + state.text + '</span>'#}
+{#    );#}
+{#    return $state;#}
+  }
+  $select.select2({
+    placeholder: 'Email address. Separate multiple addresses with spaces.',
+    tags: true,
+    tokenSeparators: [',', ' '],
+    templateSelection: decorateSelection,
+  });
 });
 </script>
 {% endblock %}
@@ -142,16 +163,6 @@ $(document).ready(function() {
       <span class="input-group-btn"><button class="btn btn-primary" id="new-item-add-btn"><i class="fa fa-user-plus"></i> {% block add-button-name %}Add{% endblock %}</button></span>
     </div>
 
-{#    <div class="form-group form-horizontal">#}
-{#      <label class="control-label col-sm-4" for="id_item_use">How to use the contacts?</label>#}
-{#      <div class="col-sm-8">#}
-{#        <select class="form-control" name="item_use" id="id_item_use">#}
-{#          <option value="add_parent" selected="selected">Add new contact(s) into my network for future use.</option>#}
-{#          <option value="add_sitter">Add new contact(s) as my preferred babysitter.</option>#}
-{#          <option value="once">Use new contact(s) for the job post only.</option>#}
-{#        </select>#}
-{#      </div>#}
-{#    </div>#}
     <div class="form-group">
       <select class="form-control" name="item_use" id="id_item_use">
         <option value="add_parent" selected="selected">Add new contact(s) into my network for future use.</option>
@@ -159,6 +170,26 @@ $(document).ready(function() {
         <option value="once">Use new contact(s) for the job post only.</option>
       </select>
     </div>
+
+    <div class="form-group">
+      <select class="form-control" name="candidate" id="id_candidate" multiple>
+      {% if parent_candidate_list %}
+      <optgroup label="My Network">
+        {% for candidate in parent_candidate_list %}
+          <option value="{{ candidate.id }}">{% user-full-name candidate %} ({{ candidate.email }})</option>
+        {% endfor %}
+      </optgroup>
+      {% endif %}
+      {% if sitter_candidate_list %}
+      <optgroup label="My Babysitters">
+        {% for candidate in sitter_candidate_list %}
+          <option value="{{ candidate.id }}">{% user-full-name candidate %} ({{ candidate.email }})</option>
+        {% endfor %}
+      </optgroup>
+      {% endif %}
+      </select>
+    </div>
+
   {% endif %}
 
 {#  {% if contract.initiate_user.to_puser.is_isolated %}#}

@@ -16,6 +16,7 @@ from django.conf import settings
 from django.views.generic.detail import SingleObjectMixin
 from sitetree.sitetreeapp import get_sitetree
 
+from circle.models import Membership
 from contract.forms import ContractForm
 from contract.models import Contract, Match, Engagement
 from p2.utils import RegisteredRequiredMixin, is_valid_email, UserRole
@@ -29,9 +30,23 @@ class ContractDetail(LoginRequiredMixin, ContractAccessMixin, DetailView):
 
     def get_context_data(self, **kwargs):
         contract = self.object
+        matches = contract.match_set.all().order_by('-score', '-updated')
+        circle = contract.initiate_user.to_puser().get_personal_circle(area=contract.area)
+
+        existing_uid = set([m.target_user.id for m in matches])
+        parent_uid = set([mid for mid in Membership.objects.filter(circle=circle, active=True, as_role=UserRole.PARENT.value).exclude(approved=False).values_list('member__id', flat=True)])
+        sitter_uid = set([mid for mid in Membership.objects.filter(circle=circle, active=True, as_role=UserRole.SITTER.value).exclude(approved=False).values_list('member__id', flat=True)])
+
+        parent_candidate_list = PUser.objects.filter(id__in=parent_uid-existing_uid, is_active=True)
+        sitter_candidate_list = PUser.objects.filter(id__in=sitter_uid-existing_uid, is_active=True)
+
         context = super().get_context_data(**kwargs)
-        context['matches'] = contract.match_set.all().order_by('-score', '-updated')
-        context['circle'] = contract.initiate_user.to_puser().get_personal_circle(area=contract.area)
+        context.update({
+            'matches': matches,
+            'circle': circle,
+            'parent_candidate_list': parent_candidate_list,
+            'sitter_candidate_list': sitter_candidate_list,
+        })
 
         # tabs = []
         # for status in (Match.Status.ACCEPTED, Match.Status.ENGAGED, Match.Status.DECLINED, Match.Status.INITIALIZED):
