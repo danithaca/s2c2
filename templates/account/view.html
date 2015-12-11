@@ -5,21 +5,14 @@
 
 {% block extra_header %}
   {% include 'includes/js_grid.html' %}
+{#  <style>#}
+{#  #content-introduction img {#}
+{#    padding-left: 20px;#}
+{#  }#}
+{#  </style>#}
 {% endblock %}
 
 {% block panel-attributes %}data-uid="{{ target_user.id }}"{% endblock %}
-
-{% block content-header %}
-  <h4 class="text-center">
-    <img src="{% user_picture_url target_user %}" alt="user picture" class="img-circle img-50">
-    {% user-full-name target_user %}
-  </h4>
-  <p class="text-center">
-    {% if not target_user.is_registered %}<span class="label label-danger">not registered</span>{% endif %}
-    {% include 'elements/user_level.html' with user=target_user only %}
-    {% if interactions %}{% include 'elements/interactions.html' with count=interactions help='Previous number of interactions with this user on babysitting.' %}{% endif %}
-  </p>
-{% endblock %}
 
 {% block content-command-list %}
   {% if current_user != target_user %}
@@ -37,10 +30,27 @@
         <a href="{% url 'circle:parent_add' uid=target_user.id %}" class="btn btn-xs btn-success"><i class="fa fa-user-plus"></i> Add</a>
       {% endif %}
     {% endif %}
+  {% else %}
+    <div class="btn-group btn-group-xs">
+      <div class="btn-group btn-group-xs">
+        <button class="btn btn-warning dropdown-toggle" data-toggle="dropdown"><i class="fa fa-pencil"></i> Edit Account <span class="caret"></span></button>
+          <ul class="dropdown-menu">
+            <li><a><i class="fa fa-exit"></i> Log out</a></li>
+          </ul>
+      </div>
+      <a class="btn btn-default" href="{% url 'account_logout' %}"><i class="fa fa-sign-out"></i> Log out</a>
+    </div>
   {% endif %}
 {% endblock %}
 
 {% block content-introduction %}
+  <img src="{% user_picture_url target_user %}" align="right" alt="user picture" class="img-thumbnail img-round img-150">
+  <p class="section-title">
+    {% user-full-name target_user %}
+    {% if not target_user.is_registered %}<span class="label label-danger">not registered</span>{% endif %}
+    {% include 'elements/user_level.html' with user=target_user only %}
+    {% if interactions %}{% include 'elements/interactions.html' with count=interactions help='Previous number of interactions with this user on babysitting.' %}{% endif %}
+  </p>
   {% if reverse_user_connection.trusted %}
     <ul class="list-inline">
       <li><i class="fa fa-envelope"></i> {{ target_user.email }}</li>
@@ -68,6 +78,7 @@
 {#    {% endfor %}#}
 {#  </div>#}
 
+  <div class="section-title">Connections & Social Groups</div>
   <div class="grid">
     {% for membership in list_personal_membership %}
       <div class="grid-item">{% include 'includes/card/membership.html' with membership=membership user=membership.member.to_puser only %}</div>
