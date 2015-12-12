@@ -23,7 +23,7 @@ from contract.models import Contract
 from p2.utils import RegisteredRequiredMixin, TrustLevel, TrustedMixin
 from puser.forms import UserInfoForm, UserPictureForm, LoginEmailAdvForm, UserInfoOnboardForm, \
     SignupFullForm, WaitingForm, UserPreferenceForm
-from puser.models import Info, PUser, Waiting
+from puser.models import Info, PUser, Waiting, MenuItem
 from puser.serializers import UserSerializer
 from shout.tasks import notify_send
 from p2.utils import auto_user_name
@@ -222,11 +222,14 @@ class UserView(LoginRequiredMixin, RegisteredRequiredMixin, RemoteTrustedMixin, 
         user_connection = UserConnection(current_user, target_user)
         reverse_user_connection = UserConnection(target_user, current_user)
 
+        edit_account_menu_items = MenuItem.objects.filter(id__in=(17, 19, 20, 38)).order_by('sort_order')
+
         context = {
             'current_user': self.request.puser,
             'full_access': user_connection.trusted(TrustLevel.FULL.value),
             'user_connection': user_connection,
             'reverse_user_connection': reverse_user_connection,
+            'edit_account_menu_items': [(m.title, reverse(m.url)) for m in edit_account_menu_items]
         }
 
         if target_user != self.request.puser:

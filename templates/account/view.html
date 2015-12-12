@@ -5,38 +5,38 @@
 
 {% block extra_header %}
   {% include 'includes/js_grid.html' %}
-{#  <style>#}
-{#  #content-introduction img {#}
-{#    padding-left: 20px;#}
-{#  }#}
-{#  </style>#}
+  <style>
+  #content-introduction  {
+    min-height: 190px;
+  }
+  </style>
 {% endblock %}
 
 {% block panel-attributes %}data-uid="{{ target_user.id }}"{% endblock %}
 
 {% block content-command-list %}
   {% if current_user != target_user %}
+    <div class="btn-group btn-group-xs">
     <a class="btn btn-primary btn-xs" href="{% url 'shout:user' uid=target_user.id %}"><i class="fa fa-bullhorn"></i> Message</a>
     {% if user_membership %}
-      {% if user_membership.is_role_sitter %}
-        <a href="{% url 'circle:membership_edit_sitter' pk=user_membership.id %}" class="btn btn-xs btn-warning"><i class="fa fa-edit"></i> Edit Relation</a>
-      {% else %}
-        <a href="{% url 'circle:membership_edit_parent' pk=user_membership.id %}" class="btn btn-xs btn-warning"><i class="fa fa-edit"></i> Edit Relation</a>
-      {% endif %}
+      <a href="{% url 'circle:membership_edit' pk=user_membership.id %}" class="btn btn-xs btn-warning" title="{{ user_membership.note|default:'No endorsement statement.' }}" data-toggle="tooltip"><i class="fa fa-edit"></i> Edit Connection</a>
     {% else %}
       {% if target_user.is_sitter %}
-        <a href="{% url 'circle:sitter_add' uid=target_user.id %}" class="btn btn-xs btn-success"><i class="fa fa-user-plus"></i> Add</a>
+        <a href="{% url 'circle:sitter_add' uid=target_user.id %}" class="btn btn-xs btn-success"><i class="fa fa-user-plus"></i> Add to My Network</a>
       {% else %}
-        <a href="{% url 'circle:parent_add' uid=target_user.id %}" class="btn btn-xs btn-success"><i class="fa fa-user-plus"></i> Add</a>
+        <a href="{% url 'circle:parent_add' uid=target_user.id %}" class="btn btn-xs btn-success"><i class="fa fa-user-plus"></i> Add to My Network</a>
       {% endif %}
     {% endif %}
+    </div>
   {% else %}
     <div class="btn-group btn-group-xs">
       <div class="btn-group btn-group-xs">
-        <button class="btn btn-warning dropdown-toggle" data-toggle="dropdown"><i class="fa fa-pencil"></i> Edit Account <span class="caret"></span></button>
-          <ul class="dropdown-menu">
-            <li><a><i class="fa fa-exit"></i> Log out</a></li>
-          </ul>
+        <button class="btn btn-primary dropdown-toggle" data-toggle="dropdown"><i class="fa fa-pencil"></i> Edit Account <span class="caret"></span></button>
+        <ul class="dropdown-menu">
+          {% for menu_item in edit_account_menu_items %}
+            <li><a href="{{ menu_item.1 }}">{{ menu_item.0 }}</a></li>
+          {% endfor %}
+        </ul>
       </div>
       <a class="btn btn-default" href="{% url 'account_logout' %}"><i class="fa fa-sign-out"></i> Log out</a>
     </div>
@@ -44,10 +44,16 @@
 {% endblock %}
 
 {% block content-introduction %}
-  <img src="{% user_picture_url target_user %}" align="right" alt="user picture" class="img-thumbnail img-round img-150">
+  {% if current_user == target_user %}
+    <a href="{% url 'account_picture' %}"><img src="{% user_picture_url target_user %}" align="right" alt="user picture" class="img-thumbnail img-round img-150"></a>
+  {% else %}
+    <img src="{% user_picture_url target_user %}" align="right" alt="user picture" class="img-thumbnail img-round img-150">
+  {% endif %}
   <p class="section-title">
     {% user-full-name target_user %}
-    {% if not target_user.is_registered %}<span class="label label-danger">not registered</span>{% endif %}
+  </p>
+  <p class="text-large">
+    {% if not target_user.is_registered %}<span class="label label-danger">Unregistered</span>{% endif %}
     {% include 'elements/user_level.html' with user=target_user only %}
     {% if interactions %}{% include 'elements/interactions.html' with count=interactions help='Previous number of interactions with this user on babysitting.' %}{% endif %}
   </p>
@@ -78,6 +84,7 @@
 {#    {% endfor %}#}
 {#  </div>#}
 
+  {% if list_personal_membership or list_public_membership %}
   <div class="section-title">Connections & Social Groups</div>
   <div class="grid">
     {% for membership in list_personal_membership %}
@@ -87,5 +94,6 @@
       <div class="grid-item">{% include 'includes/card/group.html' with circle=membership.circle only %}</div>
     {% endfor %}
   </div>
+  {% endif %}
 
 {% endblock %}

@@ -4,7 +4,7 @@
 
 {% block card-note %}
   {% for connected_circle in user_connection.get_circle_list %}
-    <span class="label label-primary">{{ connected_circle.display }}</span>
+    <span class="label label-default">{{ connected_circle.display }}</span>
   {% endfor %}
 {% endblock %}
 

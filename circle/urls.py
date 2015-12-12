@@ -22,8 +22,8 @@ urlpatterns = patterns(
 
     # membership related
     url(r"^membership/(?P<pk>\d+)/edit/$", views.MembershipEditView.as_view(), name="membership_edit"),
-    url(r"^parent/list/(?P<pk>\d+)/edit/$", views.MembershipEditView.as_view(), name="membership_edit_parent"),
-    url(r"^sitter/list/(?P<pk>\d+)/edit/$", views.MembershipEditView.as_view(), name="membership_edit_sitter"),
+    # url(r"^parent/list/(?P<pk>\d+)/edit/$", views.MembershipEditView.as_view(), name="membership_edit_parent"),
+    # url(r"^sitter/list/(?P<pk>\d+)/edit/$", views.MembershipEditView.as_view(), name="membership_edit_sitter"),
     url(r"^group/list/(?P<pk>\d+)/edit/$", views.MembershipEditView.as_view(), name="membership_edit_group"),
     url(r"^membership/(?P<pk>\d+)/approval/$", views.MembershipApprovalView.as_view(), name="approval"),
 

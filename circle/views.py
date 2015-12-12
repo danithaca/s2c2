@@ -1,3 +1,4 @@
+import random
 from itertools import groupby
 import json
 import re
@@ -150,7 +151,7 @@ class GroupCreateView(LoginRequiredMixin, RegisteredRequiredMixin, CreateView):
     model = Circle
     form_class = CircleCreateForm
     template_name = 'circle/group/add.html'
-    success_url = reverse_lazy('circle:group')
+    # success_url = reverse_lazy('circle:discover')
 
     def form_valid(self, form):
         circle = form.instance
@@ -256,6 +257,7 @@ class CircleJoinView(LoginRequiredMixin, RegisteredRequiredMixin, SingleObjectMi
     form_class = MembershipCreateForm
     context_object_name = 'circle'
 
+    # specifies which user is to be added to the circle.
     def get_user(self):
         return self.request.puser
 
@@ -349,23 +351,20 @@ class PersonalJoinView(CircleJoinView):
 
     def get_form(self, form_class=None):
         form = super().get_form(form_class=form_class)
-        form.fields['note'].label = 'Relationship'
-        form.fields['note'].help_text = 'Add a note of your relationship to the person.'
+        form.fields['note'].label = 'Note & Endorsement'
+        form.fields['note'].help_text = 'Add a note about how your are connected to the person.'
         return form
+
+    def get_success_url(self):
+        return reverse('account_view', kwargs={'pk': self.get_user().pk})
 
 
 class ParentJoinView(PersonalJoinView):
     template_name = 'circle/membership/parent_add.html'
 
-    def get_success_url(self):
-        return reverse('circle:parent')
-
 
 class SitterJoinView(PersonalJoinView):
     template_name = 'circle/membership/sitter_add.html'
-
-    def get_success_url(self):
-        return reverse('circle:sitter')
 
     def get_initial(self):
         initial = super().get_initial()
@@ -414,17 +413,19 @@ class MembershipEditView(LoginRequiredMixin, RegisteredRequiredMixin, AllowMembe
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['circle'] = self.get_membership().circle
+        membership = self.get_membership()
+        context['target_user'] = membership.member.to_puser()
+        context['circle'] = membership.circle
         return context
 
     def get_form(self, form_class=None):
         form = super().get_form(form_class=form_class)
         membership = self.get_object()
         if membership.is_valid_parent_relation():
-            form.fields['note'].label = 'Endorsement'
+            form.fields['note'].label = 'Note & Endorsement'
             form.fields['as_admin'].label = 'Mark as a family member'
         elif membership.is_valid_sitter_relation():
-            form.fields['note'].label = 'Endorsement'
+            form.fields['note'].label = 'Note & Endorsement'
             form.fields['as_admin'].widget = HiddenInput()
             form.fields['as_admin'].initial = False
         elif membership.is_valid_group_membership():
@@ -446,10 +447,8 @@ class MembershipEditView(LoginRequiredMixin, RegisteredRequiredMixin, AllowMembe
 
     def get_success_url(self):
         membership = self.get_object()
-        if membership.is_valid_parent_relation():
-            return reverse('circle:parent')
-        elif membership.is_valid_sitter_relation():
-            return reverse('circle:sitter')
+        if membership.is_valid_parent_relation() or membership.is_valid_sitter_relation():
+            return reverse('account_view', kwargs={'pk': membership.member.id})
         elif membership.is_valid_group_membership():
             return reverse('circle:group_view', kwargs={'pk': membership.circle.id})
         # if self.redirect_url:
@@ -488,12 +487,68 @@ class DiscoverView(LoginRequiredMixin, RegisteredRequiredMixin, DetailView):
     model = PUser
     context_object_name = 'target_user'
     template_name = 'circle/discover.html'
+    display_limit = 30
 
     def get_object(self, queryset=None):
         return self.request.puser
 
+    def get_extended(self, as_role):
+        me = self.object
+        area = me.get_area()
+        my_personal_circle = me.get_personal_circle(area=area)
+        # my network (use to filter existing users)
+        existing_membership = my_personal_circle.membership_set.filter(active=True).exclude(member=me)
+
+        # my extended network
+        my_parent_list = [m.member for m in my_personal_circle.membership_set.filter(active=True, as_role=UserRole.PARENT.value).exclude(approved=False).exclude(member=me)]
+        extended_circle_list = Circle.objects.filter(owner__in=my_parent_list, type=my_personal_circle.type, area=my_personal_circle.area).values_list('id', flat=True)
+
+        # my public network
+        public_circle_list = me.membership_set.filter(circle__type=Circle.Type.PUBLIC.value, active=True, circle__area=me.get_area()).exclude(approved=False).values_list('circle__id', flat=True)
+
+        combined_circle_list = list(extended_circle_list) + list(public_circle_list)
+
+        # need to sort by member in order to use groupby.
+        list_extended = Membership.objects.filter(active=True, approved=True, circle__id__in=combined_circle_list, as_role=as_role).exclude(member=me).exclude(member__id__in=existing_membership.values_list('member__id', flat=True)).order_by('member', '-updated')
+
+        # build
+        extended = []
+        for member, membership_list in groupby(list_extended, lambda m: m.member):
+            extended.append(UserConnection(me, member, list(membership_list)))
+        extended.sort(key=lambda x: len(x.membership_list), reverse=True)
+
+        return extended
+
+    def get_extended_sitter(self):
+        return self.get_extended(UserRole.SITTER.value)
+
+    def get_extended_parent(self):
+        return self.get_extended(UserRole.PARENT.value)
+
+    def get_groups(self):
+        me = self.object
+        area = me.get_area()
+        mapping = {m.circle: m for m in Membership.objects.filter(circle__type=Circle.Type.PUBLIC.value, member=me, active=True, circle__area=area).exclude(approved=False)}
+        list_groups = []
+        for circle in Circle.objects.filter(type=Circle.Type.PUBLIC.value, area=area, active=True).order_by('-updated', '-created'):
+            if circle not in mapping:
+                list_groups.append(circle)
+        return list_groups
+
     def get_context_data(self, **kwargs):
+        def process_list(t):
+            mt = t[:display_max]
+            random.shuffle(mt)
+            return mt[:self.display_limit]
+
         context = super().get_context_data(**kwargs)
+        display_max = self.display_limit * 2
+        context.update({
+            'circle': self.object.get_personal_circle(),
+            'list_extended_sitter': process_list(self.get_extended_sitter()),
+            'list_extended_parent': process_list(self.get_extended_parent()),
+            'list_groups': self.get_groups()
+        })
         return context
 
 

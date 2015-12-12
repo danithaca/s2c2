@@ -3,8 +3,6 @@
 {% load bootstrap %}
 {% load p2_tags %}
 
-{% block content-title %}Add a Parent{% endblock %}
-
 {% block content-introduction %}Fill in the form to add <em>{% user-full-name target_user %}</em> into your network.{% endblock %}
 
 {% block content %}
@@ -14,7 +12,7 @@
     <div class="form-group">
       <div class="col-sm-offset-2 col-sm-10">
         <button type="submit" class="btn btn-primary">Add</button>
-        <a href="#" class="btn btn-default go-back">Go Back</a>
+{#        <a href="#" class="btn btn-default go-back">Go Back</a>#}
       </div>
     </div>
   </form>

@@ -6,7 +6,7 @@ from django.template.defaultfilters import truncatechars, urlencode
 from django.templatetags.static import static
 from django.templatetags.tz import utc
 from image_cropping.templatetags.cropping import cropped_thumbnail
-from sitetree.sitetreeapp import get_sitetree
+from sitetree.templatetags.sitetree import SimpleNode, sitetree
 
 from contract.models import Engagement
 from p2.utils import get_site_url
@@ -117,3 +117,19 @@ def p2_tag_gcal_url(engagement):
 #     navigation_type = 'menu'
 #     use_template = 'sitetree/breadcrumbs_dropdown.html'
 #     return sitetree.children(tree_item, navigation_type, use_template, context)
+
+
+@register.tag
+def menutree_dropdown(parser, token):
+    """Renders a title for current page, resolved against sitetree item representing current URL."""
+    return menutree_dropdownNode.for_tag(parser, token, 'from', 'menutree_dropdown from "mytree"')
+
+
+class menutree_dropdownNode(SimpleNode):
+    """Renders a page description from the specified site tree."""
+
+    def get_value(self, context):
+        current_item = sitetree.get_tree_current_item(self.item)
+        navigation_type = 'tree'
+        use_template = 'sitetree/breadcrumbs_dropdown.html'
+        return sitetree.children(current_item, navigation_type, use_template, context)

@@ -1,3 +1,142 @@
 {% extends 'base.html' %}
 
-{% block title %}{% endblock %}
+{% block extra_header %}
+{% include 'includes/js_grid.html' %}
+<script>
+$(document).ready(function() {
+  // handle invite clicks
+
+  function handle_click(box_id, btn_id, is_sitter) {
+    var $input_box = $(box_id);
+    var $input_button = $(btn_id);
+
+    // handle add
+    $input_button.click(function() {
+      var val = $.trim($input_box.val());
+      if (val) {
+        $.post("{% url 'circle:membership_activate' pk=circle.id %}", {email_field: val, is_sitter: is_sitter}, function(data) {
+          if (data['processed'] && data['processed'].length > 0) {
+            window.location.reload();
+          }
+        });
+      }
+      $input_box.val('');
+    });
+    // bind "enter" as well
+    $input_box.keyup(function(e) {
+      if(e.keyCode == 13) {
+        $input_button.trigger('click');
+      }
+    });
+  }
+
+  handle_click('#new-item-parent', '#new-item-btn-parent', false);
+  handle_click('#new-item-sitter', '#new-item-btn-sitter', true);
+
+  // handle group filter
+  var $grid = $('#grid-list-groups');
+  $('#grid-quicksearch').keyup(function() {
+    var qsRegex = new RegExp( $(this).val(), 'gi' );
+    $grid.isotope({filter: function() {
+      return qsRegex ? $(this).text().match( qsRegex ) : true;
+      // return qsRegex ? $(this).find('.card').data('slug').match( qsRegex ) : true;
+    }});
+  });
+});
+</script>
+
+<style>
+section {
+  margin-bottom: 80px;
+}
+</style>
+{% endblock %}
+
+{% block content %}
+
+{# parents #}
+<section>
+  <div class="section-title">
+    <span><i class="fa fa-users"></i> Parents You Might Know <small class="hover-pointer pale" data-toggle="collapse" href="#help-block-parent"><i class="fa fa-info-circle"></i></small></span>
+  </div>
+  <div class="collapse well" id="help-block-parent">
+    <p>The more connections you have within Servuno, the better the system will work for you. Add other parents to your network by entering their email address below – Servuno will then send them an email invitation so they can sign up!</p>
+    <p>You can do the following with your parent-to-parent connections:</p>
+    <ul>
+      <li>Ask for babysitting favors</li>
+      <li>Give babysitting favors</li>
+      <li>Share babysitting resources</li>
+    </ul>
+  </div>
+  <div class="input-group min-margin-bottom">
+    <input id="new-item-parent" class="form-control" placeholder="Email address" autofocus>
+    <span class="input-group-btn"><button class="btn btn-primary" id="new-item-btn-parent"><i class="fa fa-user-plus"></i> Invite</button></span>
+  </div>
+  {% if not list_extended_parent %}
+    <p>None is found. Join social groups and add more parents into your network to see recommendations here. Invite people you know by email.</p>
+  {% else %}
+    <div class="grid">
+      {% for user_connection in list_extended_parent %}
+        <div class="grid-item">{% include 'includes/card/connection_add_parent.html' with user_connection=user_connection user=user_connection.target_user only %}</div>
+      {% endfor %}
+    </div>
+  {% endif %}
+</section>
+
+<section>
+  {# sitters #}
+  <div class="section-title">
+    <span><i class="fa fa-car"></i> Babysitters from Your Network <small class="hover-pointer pale" data-toggle="collapse" href="#help-block-sitter"><i class="fa fa-info-circle"></i></small></span>
+  </div>
+  <div class="collapse well" id="help-block-sitter">
+    <p>This is the place for you to add all of your trusted babysitters for easy reach-out when you need someone at a moment’s notice! Add anyone you can think of – grandparents, friends, professional babysitters – as long as they are someone you can trust.</p>
+  </div>
+  <div class="input-group min-margin-bottom">
+    <input id="new-item-sitter" class="form-control" placeholder="Email address" autofocus>
+    <span class="input-group-btn"><button class="btn btn-primary" id="new-item-btn-sitter"><i class="fa fa-user-plus"></i> Invite</button></span>
+  </div>
+  {% if not list_extended_sitter %}
+    <p>None is found. Join social groups and add more parents into your network to be able to access their endorsed babysitters. Add contacts of your trusted babysitters to share with your network!</p>
+  {% else %}
+    <div class="grid">
+      {% for user_connection in list_extended_sitter %}
+        <div class="grid-item">{% include 'includes/card/connection_add_sitter.html' with user_connection=user_connection user=user_connection.target_user only %}</div>
+      {% endfor %}
+    </div>
+  {% endif %}
+</section>
+
+<section>
+  {# groups #}
+  <div class="section-title">
+    <span><i class="fa fa-paw"></i>  Social Groups of Interests <small class="hover-pointer pale" data-toggle="collapse" href="#help-block-group"><i class="fa fa-info-circle"></i></small></span>
+  </div>
+  <div class="collapse well" id="help-block-group">
+    <p>Join groups to meet new parents in <em>{{ target_user.get_area.name }}</em>. For example, connect with other parents in your kids' classroom. Start a new group of interests so that parents can join and get connected.</p>
+  </div>
+  <div class="horizontal-justified min-margin-bottom">
+    {#  <div class="input-group">#}
+    {#    <span class="input-group-addon">Filter</span>#}
+    {#    <input id="grid-quicksearch" class="form-control" placeholder="Search ...">#}
+    {#  </div>#}
+    <div class="">
+      <input id="grid-quicksearch" class="form-control" placeholder="Type to search ...">
+    </div>
+    <div class="btn-toolbar">
+      <div class="btn-group">
+        <a href="{% url 'circle:group_add' %}" class="btn btn-primary"><i class="fa fa-plus-square"></i> Start a New Group</a>
+      </div>
+    </div>
+  </div>
+  {% if not list_groups %}
+    <p>No parent groups in this area.</p>
+  {% else %}
+    <div class="grid" id="grid-list-groups">
+      {% for group in list_groups %}
+        <div class="grid-item{% if group.user_membership %} is_member{% endif %}">{% include 'includes/card/group.html' with circle=group only %}</div>
+      {% endfor %}
+    </div>
+  {% endif %}
+</section>
+
+{% endblock %}
