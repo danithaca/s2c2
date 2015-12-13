@@ -1,6 +1,7 @@
 {% extends 'includes/card/base.html' %}
 {% load p2_tags %}
 
+{% block card-type %}group{% endblock %}
 {% block container-classes %}thumbnail clickable{% endblock %}
 {% block container-attributes %}data-cid="{{ circle.id }}" data-slug="{{ circle.name|slugify }}" data-url="{% url 'circle:group_view' pk=circle.id %}"{% endblock %}
 

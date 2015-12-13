@@ -461,6 +461,12 @@ class Membership(models.Model):
         self.refresh_from_db()
         assert self.active is False
 
+    def js_display_role(self):
+        return UserRole(self.as_role).name.lower()
+
+    # def js_display_circle_type(self):
+    #     return Circle.Type(self.circle.type).name.lower()
+
 
 class UserConnection(object):
     """

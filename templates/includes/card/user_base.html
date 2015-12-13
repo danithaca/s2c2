@@ -1,7 +1,8 @@
 {% extends 'includes/card/base.html' %}
 {% load p2_tags %}
 
-{% block container-classes %}thumbnail clickable{% endblock %}
+{% block card-type %}user{% endblock %}
+{% block container-classes %}thumbnail clickable {% block user-extra-classes %}{% endblock %}{% endblock %}
 {% block container-attributes %}data-uid="{{ user.id }}" data-email="{{ user.email }}" data-url="{{ user.get_absolute_url }}" {% block container-attributes-extra %}{% endblock %}{% endblock %}
 
 {% block card-image %}{% if user.has_picture %}<img class="img-50 img-circle" src="{% user_picture_url user %}">{% endif %}{% endblock %}

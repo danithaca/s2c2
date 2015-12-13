@@ -1,7 +1,9 @@
 {% extends 'includes/card/user_base.html' %}
 {% load p2_tags %}
 
-{% block container-attributes-extra %}data-membership-id="{{ membership.id }}"{% endblock %}
+{% block card-type %}membership{% endblock %}
+
+{% block container-attributes-extra %}data-membership-id="{{ membership.id }}" data-role="{{ membership.js_display_role }}"{% endblock %}
 
 {% block card-title-badge %}
   {% if membership.as_admin or membership.as_favorite %}<span class="text-warning"><i class="fa fa-star"></i></span>{% endif %}

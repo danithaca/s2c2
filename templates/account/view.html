@@ -4,12 +4,44 @@
 {% load bootstrap %}
 
 {% block extra_header %}
-  {% include 'includes/js_grid.html' %}
-  <style>
-  #content-introduction  {
-    min-height: 190px;
-  }
-  </style>
+{% include 'includes/js_grid.html' %}
+<style>
+#content-introduction  {
+  min-height: 190px;
+}
+</style>
+<script>
+$(document).ready(function() {
+  var $grid = $('#grid-list-connections');
+
+  // change filter
+  var $filter_option = $('select[name="select-connection-show"]');
+  $filter_option.change(function() {
+    var option = $filter_option.val();
+    if (option == 'parent') {
+      $grid.isotope({filter: '[data-option="parent"]'});
+    }
+    else if (option == 'sitter') {
+      $grid.isotope({filter: '[data-option="sitter"]'});
+    }
+    else if (option == 'group') {
+      $grid.isotope({filter: '[data-option="group"]'});
+    }
+    else if (option == 'all') {
+      $grid.isotope({filter: '*'});
+    }
+  });
+
+  // handle group filter
+  $('#grid-quicksearch').keyup(function() {
+    var qsRegex = new RegExp( $(this).val(), 'gi' );
+    $grid.isotope({filter: function() {
+      return qsRegex ? $(this).text().match( qsRegex ) : true;
+      // return qsRegex ? $(this).find('.card').data('slug').match( qsRegex ) : true;
+    }});
+  });
+});
+</script>
 {% endblock %}
 
 {% block panel-attributes %}data-uid="{{ target_user.id }}"{% endblock %}
@@ -22,9 +54,9 @@
       <a href="{% url 'circle:membership_edit' pk=user_membership.id %}" class="btn btn-xs btn-warning" title="{{ user_membership.note|default:'No endorsement statement.' }}" data-toggle="tooltip"><i class="fa fa-edit"></i> Edit Connection</a>
     {% else %}
       {% if target_user.is_sitter %}
-        <a href="{% url 'circle:sitter_add' uid=target_user.id %}" class="btn btn-xs btn-success"><i class="fa fa-user-plus"></i> Add to My Network</a>
+        <a href="{% url 'circle:sitter_add' uid=target_user.id %}" class="btn btn-xs btn-success"><i class="fa fa-user-plus"></i> Add</a>
       {% else %}
-        <a href="{% url 'circle:parent_add' uid=target_user.id %}" class="btn btn-xs btn-success"><i class="fa fa-user-plus"></i> Add to My Network</a>
+        <a href="{% url 'circle:parent_add' uid=target_user.id %}" class="btn btn-xs btn-success"><i class="fa fa-user-plus"></i> Add</a>
       {% endif %}
     {% endif %}
     </div>
@@ -86,12 +118,32 @@
 
   {% if list_personal_membership or list_public_membership %}
   <div class="section-title">Connections & Social Groups</div>
-  <div class="grid">
+
+  <div class="horizontal-justified min-margin-bottom">
+    {#  <div class="input-group">#}
+    {#    <span class="input-group-addon">Filter</span>#}
+    {#    <input id="grid-quicksearch" class="form-control" placeholder="Search ...">#}
+    {#  </div>#}
+    <div class="">
+      <input id="grid-quicksearch" class="form-control" placeholder="Type to search ...">
+    </div>
+    <div class="form-group">
+{#      <label class="control-label" for="select-connection-show">Show</label>#}
+      <select class="form-control" name="select-connection-show">
+        <option selected value="all">Show All</option>
+        <option value="parent">Show Parents</option>
+        <option value="sitter">Show Babysitters</option>
+        <option value="group">Show Social Groups</option>
+      </select>
+    </div>
+  </div>
+
+  <div class="grid" id="grid-list-connections">
     {% for membership in list_personal_membership %}
-      <div class="grid-item">{% include 'includes/card/membership.html' with membership=membership user=membership.member.to_puser only %}</div>
+      <div class="grid-item" data-option="{{ membership.js_display_role }}">{% include 'includes/card/membership.html' with membership=membership user=membership.member.to_puser only %}</div>
     {% endfor %}
     {% for membership in list_public_membership %}
-      <div class="grid-item">{% include 'includes/card/group.html' with circle=membership.circle only %}</div>
+      <div class="grid-item" data-option="group">{% include 'includes/card/group.html' with circle=membership.circle only %}</div>
     {% endfor %}
   </div>
   {% endif %}

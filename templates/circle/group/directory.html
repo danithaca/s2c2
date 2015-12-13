@@ -9,7 +9,6 @@
 
     // change filter
     $('input[name=filter-options]').change(function() {
-      console.log('haha');
       var option = $('input[name=filter-options]:checked').val();
       if (option == 'member') {
         $grid.isotope({filter: '.is_member'});

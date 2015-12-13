@@ -1,4 +1,4 @@
-<div class="card {% block container-classes %}{% endblock %}" {% block container-attributes %}{% endblock %}>
+<div class="card {% block container-classes %}{% endblock %}" data-card="{% block card-type %}basic{% endblock %}" {% block container-attributes %}{% endblock %}>
   <div class="hidden-if-none">{% block card-header %}{% endblock %}</div>
   <div class="vertical-align well well-sm">
     <div class="hidden-if-none">{% block card-image %}{% endblock %}</div>
