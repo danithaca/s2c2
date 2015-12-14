@@ -40,6 +40,23 @@ $(document).ready(function() {
       // return qsRegex ? $(this).find('.card').data('slug').match( qsRegex ) : true;
     }});
   });
+
+  // handle remove
+  $('.destroy-btn').click(function(e) {
+    var $this = $(this);
+    var url = $this.data('url');
+    if (url) {
+      bootbox.confirm('Are you sure you want to remove this person from your network? ', function(result) {
+        if (result) {
+          $.post(url, function(data) {
+            if (data['success']) {
+              window.location.reload();
+            }
+          });
+        }
+      });
+    }
+  });
 });
 </script>
 {% endblock %}
@@ -48,22 +65,23 @@ $(document).ready(function() {
 
 {% block content-command-list %}
   {% if current_user != target_user %}
-    <div class="btn-group btn-group-xs">
-    <a class="btn btn-primary btn-xs" href="{% url 'shout:user' uid=target_user.id %}"><i class="fa fa-bullhorn"></i> Message</a>
-    {% if user_membership %}
-      <a href="{% url 'circle:membership_edit' pk=user_membership.id %}" class="btn btn-xs btn-warning" title="{{ user_membership.note|default:'No endorsement statement.' }}" data-toggle="tooltip"><i class="fa fa-edit"></i> Edit Connection</a>
+    <div class="btn-group btn-group-sm">
+    <a class="btn btn-primary" href="{% url 'shout:user' uid=target_user.id %}"><i class="fa fa-bullhorn"></i> Message</a>
+    {% if user_membership.is_active and not user_membership.is_disapproved %}
+      <a href="{% url 'circle:membership_edit' pk=user_membership.id %}" class="btn btn-warning" title="{{ user_membership.note|default:'No endorsement statement.' }}" data-toggle="tooltip"><i class="fa fa-edit"></i> Endorse</a>
+      <span class="btn btn-default destroy-btn" data-url="{% url 'circle:membership_deactivate' pk=user_membership.id %}"><i class="fa fa-sign-out"></i> {% if target_user.is_sitter %}Remove{% else %}Unfriend{% endif %}</span>
     {% else %}
       {% if target_user.is_sitter %}
-        <a href="{% url 'circle:sitter_add' uid=target_user.id %}" class="btn btn-xs btn-success"><i class="fa fa-user-plus"></i> Add</a>
+        <a href="{% url 'circle:sitter_add' uid=target_user.id %}" class="btn btn-success"><i class="fa fa-user-plus"></i> Add</a>
       {% else %}
-        <a href="{% url 'circle:parent_add' uid=target_user.id %}" class="btn btn-xs btn-success"><i class="fa fa-user-plus"></i> Add</a>
+        <a href="{% url 'circle:parent_add' uid=target_user.id %}" class="btn btn-success"><i class="fa fa-user-plus"></i> Add</a>
       {% endif %}
     {% endif %}
     </div>
   {% else %}
-    <div class="btn-group btn-group-xs">
-      <div class="btn-group btn-group-xs">
-        <button class="btn btn-primary dropdown-toggle" data-toggle="dropdown"><i class="fa fa-pencil"></i> Edit Account <span class="caret"></span></button>
+    <div class="btn-group btn-group-sm">
+      <div class="btn-group btn-group-sm">
+        <button class="btn btn-primary dropdown-toggle" data-toggle="dropdown"><i class="fa fa-pencil"></i> Edit My Account <span class="caret"></span></button>
         <ul class="dropdown-menu">
           {% for menu_item in edit_account_menu_items %}
             <li><a href="{{ menu_item.1 }}">{{ menu_item.0 }}</a></li>

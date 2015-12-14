@@ -57,7 +57,7 @@
       $('[data-active-url*="' + window.location.pathname + '"]').addClass('active');
 
       // turn on tooltip, popover
-      $('[data-toggle="tooltip"]').tooltip();
+      try { $('[data-toggle="tooltip"]').tooltip(); } catch(err) {}
 
       // previous link
       $('a.go-back').click(function() {

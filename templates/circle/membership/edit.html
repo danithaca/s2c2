@@ -3,6 +3,28 @@
 {% load bootstrap %}
 {% load p2_tags %}
 
+{#{% block extra_header %}#}
+{#<script>#}
+{#$(function() {#}
+{#  $('.destroy').click(function(e) {#}
+{#    var $this = $(this);#}
+{#    var url = $this.data('url');#}
+{#    if (url) {#}
+{#      bootbox.confirm('Are you sure you want to remove this person from your network? ', function(result) {#}
+{#        if (result) {#}
+{#          $.post(url, function(data) {#}
+{#            if (data['success']) {#}
+{#              window.location = '{% url 'account_view' pk=membership.member.id %}';#}
+{#            }#}
+{#          });#}
+{#        }#}
+{#      });#}
+{#    }#}
+{#  });#}
+{# })#}
+{#</script>#}
+{#{% endblock %}#}
+
 {#{% block content-title %}#}
 {#  {% user-full-name membership.member %} {# <small class="text-muted">{{ membership.circle.display }}</small> #}
 {#{% endblock %}#}
@@ -19,6 +41,7 @@
 {#          <button type="submit" class="btn btn-primary">Update</button>#}
 {#        {% endif %}#}
         <button type="submit" class="btn btn-primary">Update</button>
+{#        <span class="btn btn-danger destroy" data-url="{% url 'circle:membership_deactivate' pk=membership.id %}">Remove</span>#}
 {#        <a href="#" class="btn btn-default go-back">Go Back</a>#}
       </div>
     </div>

@@ -200,6 +200,12 @@
 .card .well {
   margin-bottom: 0px;
 }
+.card .card-title-link {
+  display: none;
+}
+.card:hover .card-title-link {
+  display: inline;
+}
 
 /******** for contract related *********/
 

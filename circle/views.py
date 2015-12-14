@@ -428,13 +428,6 @@ class MembershipEditView(LoginRequiredMixin, RegisteredRequiredMixin, AllowMembe
             form.fields['note'].label = 'Note & Endorsement'
             form.fields['as_admin'].widget = HiddenInput()
             form.fields['as_admin'].initial = False
-        elif membership.is_valid_group_membership():
-            form.fields['note'].label = 'Group Affiliation'
-            if self.request.puser.id in set([u.id for u in membership.circle.get_admin_users()]):
-                form.fields['as_admin'].label = 'Mark as group administrator'
-                # form.fields['as_admin'].help_text = 'This option available only to current administrators'
-            else:
-                form.fields['as_admin'].widget = HiddenInput()
         return form
 
     # def get_initial(self):
@@ -449,12 +442,26 @@ class MembershipEditView(LoginRequiredMixin, RegisteredRequiredMixin, AllowMembe
         membership = self.get_object()
         if membership.is_valid_parent_relation() or membership.is_valid_sitter_relation():
             return reverse('account_view', kwargs={'pk': membership.member.id})
-        elif membership.is_valid_group_membership():
+        return '/'
+
+
+class GroupMembershipEditView(MembershipEditView):
+    def get_form(self, form_class=None):
+        form = super().get_form(form_class=form_class)
+        membership = self.get_object()
+        if membership.is_valid_group_membership():
+            form.fields['note'].label = 'Group Affiliation'
+            if self.request.puser.id in set([u.id for u in membership.circle.get_admin_users()]):
+                form.fields['as_admin'].label = 'Mark as group administrator'
+                # form.fields['as_admin'].help_text = 'This option available only to current administrators'
+            else:
+                form.fields['as_admin'].widget = HiddenInput()
+        return form
+
+    def get_success_url(self):
+        membership = self.get_object()
+        if membership.is_valid_group_membership():
             return reverse('circle:group_view', kwargs={'pk': membership.circle.id})
-        # if self.redirect_url:
-        #     return self.redirect_url
-        # else:
-        #     return '/'
         return '/'
 
 
