@@ -1,1 +1,7 @@
 {% extends 'circle/membership/edit.html' %}
+
+{% block content-introduction %}
+  {% if membership.is_pending_approval %}
+    <span class="text-danger">Connection request is pending approval from the group's administrators.</span>
+  {% endif %}
+{% endblock %}

@@ -17,7 +17,7 @@ from django.contrib import messages
 from rest_framework.generics import RetrieveAPIView
 from rest_framework.response import Response
 
-from circle.models import Circle, Membership, UserConnection
+from circle.models import Circle, Membership, UserConnection, Friendship
 from circle.views import ParentManageView
 from contract.models import Contract
 from p2.utils import RegisteredRequiredMixin, TrustLevel, TrustedMixin
@@ -233,13 +233,12 @@ class UserView(LoginRequiredMixin, RegisteredRequiredMixin, RemoteTrustedMixin, 
         }
 
         if target_user != self.request.puser:
-            context.update({
-                'interactions': self.request.puser.count_interactions(target_user),
-                # 'current_user_shared_circles': self.request.puser.get_shared_connection(target_user).get_circle_list(),
-            })
             try:
                 membership = user_connection.find_personal_membership()
                 context['user_membership'] = membership
+                if membership.is_valid_parent_relation():
+                    context['friendship'] = Friendship(current_user, target_user, main_membership=membership)
+                    context['reverse_friendship'] = context['friendship'].to_reverse()
             except Membership.DoesNotExist:
                 pass
 
@@ -255,13 +254,18 @@ class UserView(LoginRequiredMixin, RegisteredRequiredMixin, RemoteTrustedMixin, 
             # my_sitters = list(Membership.objects.filter(circle=target_user.my_circle(Circle.Type.SITTER), active=True, approved=True).exclude(member=target_user).order_by('created'))
             # my_memberships = list(Membership.objects.filter(member=target_user, circle__type=Circle.Type.TAG.value, circle__area=area, active=True))
 
-            list_personal_membership = Membership.objects.filter(circle=target_user.get_personal_circle(), active=True, approved=True).exclude(member=target_user).order_by('-updated', '-created')
-            list_public_membership = Membership.objects.filter(circle__area=target_user.get_area(), circle__type=Circle.Type.PUBLIC.value, member=target_user, active=True, approved=True).order_by('-updated', '-created')
+            list_personal_membership = Membership.objects.filter(circle=target_user.get_personal_circle(), active=True).exclude(approved=False).exclude(member=target_user).order_by('-updated', '-created')
+            list_public_membership = Membership.objects.filter(circle__area=target_user.get_area(), circle__type=Circle.Type.PUBLIC.value, member=target_user, active=True).exclude(approved=False).order_by('-updated', '-created')
 
             context.update({
                 'list_personal_membership': list_personal_membership,
                 'list_public_membership': list_public_membership,
             })
+
+            if target_user == current_user:
+                # for the pending approval membership, we care about area. because
+                pending_approve_membership = Membership.objects.filter(member=current_user, active=True, approved__isnull=True, circle__type=Circle.Type.PERSONAL.value, circle__area=area).order_by('-updated', '-created')
+                context['list_pending_membership'] = pending_approve_membership
 
         # # favors karma
         # karma = defaultdict(int)

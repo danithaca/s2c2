@@ -11,20 +11,22 @@
   {% if match.response %}<p>{{ match.response }}</p>{% endif %}
 {% endblock %}
 
-{% block card-footer %}<div class="horizontal-justified">
-  <div>
-    {% if match.is_accepted and match.contract.is_active %}
-      <button class="btn btn-success btn-xs" name="change-status" value="confirm" data-match-id="{{ match.id }}">
-        <i class="fa fa-check"></i> Confirm
-      </button>
-    {% else %}
-      {% with status=match.display_status %}
-        <span class="label label-{{ status.color }}" title="{{ status.explanation }}" data-toggle="tooltip">{{ status.label }}</span>
-      {% endwith %}
-    {% endif %}
-    {% include 'elements/user_connection_interactions.html' with user_connection=match.to_user_connection only %}
-  </div>
-  <div>
-{#    <a href="{% url 'shout:user' uid=user.id %}" class="btn btn-xs btn-primary" data-expandable-text="Message"><i class="fa fa-bullhorn"></i></a>#}
-  </div>
-</div>{% endblock %}
+{% block card-footer %}
+  {% if match.is_accepted and match.contract.is_active %}
+    <button class="btn btn-success btn-block" name="change-status" value="confirm" data-match-id="{{ match.id }}">
+      <i class="fa fa-check"></i> Confirm
+    </button>
+  {% else %}
+    <div class="horizontal-justified">
+      <div>
+        {% with status=match.display_status %}
+          <span class="label label-{{ status.color }}" title="{{ status.explanation }}" data-toggle="tooltip">{{ status.label }}</span>
+        {% endwith %}
+      </div>
+      <div>
+        {% include 'elements/user_connection_interactions.html' with user_connection=match.to_user_connection only %}
+        {#    <a href="{% url 'shout:user' uid=user.id %}" class="btn btn-xs btn-primary" data-expandable-text="Message"><i class="fa fa-bullhorn"></i></a>#}
+      </div>
+    </div>
+  {% endif %}
+{% endblock %}

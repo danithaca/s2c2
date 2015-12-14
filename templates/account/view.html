@@ -41,22 +41,6 @@ $(document).ready(function() {
     }});
   });
 
-  // handle remove
-  $('.destroy-btn').click(function(e) {
-    var $this = $(this);
-    var url = $this.data('url');
-    if (url) {
-      bootbox.confirm('Are you sure you want to remove this person from your network? ', function(result) {
-        if (result) {
-          $.post(url, function(data) {
-            if (data['success']) {
-              window.location.reload();
-            }
-          });
-        }
-      });
-    }
-  });
 });
 </script>
 {% endblock %}
@@ -69,7 +53,10 @@ $(document).ready(function() {
     <a class="btn btn-primary" href="{% url 'shout:user' uid=target_user.id %}"><i class="fa fa-bullhorn"></i> Message</a>
     {% if user_membership.is_active and not user_membership.is_disapproved %}
       <a href="{% url 'circle:membership_edit' pk=user_membership.id %}" class="btn btn-warning" title="{{ user_membership.note|default:'No endorsement statement.' }}" data-toggle="tooltip"><i class="fa fa-edit"></i> Endorse</a>
-      <span class="btn btn-default destroy-btn" data-url="{% url 'circle:membership_deactivate' pk=user_membership.id %}"><i class="fa fa-sign-out"></i> {% if target_user.is_sitter %}Remove{% else %}Unfriend{% endif %}</span>
+      <span class="btn btn-default ajax-post-confirm-refresh" data-post-url="{% url 'circle:membership_deactivate' pk=user_membership.id %}" data-post-confirm-message="Are you sure you want to remove this person from your network?"><i class="fa fa-sign-out"></i> {% if target_user.is_sitter %}Remove{% else %}Unfriend{% endif %}</span>
+    {% elif reverse_friendship.is_pending_approval %}
+      <span class="btn btn-success ajax-post-refresh" data-post-url="{% url 'circle:membership_approve' pk=reverse_friendship.main_membership.id %}"><i class="fa fa-check"></i> Approve</span>
+      <span class="btn btn-danger ajax-post-confirm-refresh" data-post-url="{% url 'circle:membership_disapprove' pk=reverse_friendship.main_membership.id %}" data-post-confirm-message="Are you sure you want to block this person from your network?"><i class="fa fa-times"></i> Block</span>
     {% else %}
       {% if target_user.is_sitter %}
         <a href="{% url 'circle:sitter_add' uid=target_user.id %}" class="btn btn-success"><i class="fa fa-user-plus"></i> Add</a>
@@ -105,7 +92,7 @@ $(document).ready(function() {
   <p class="text-large">
     {% if not target_user.is_registered %}<span class="label label-danger">Unregistered</span>{% endif %}
     {% include 'elements/user_level.html' with user=target_user only %}
-    {% if interactions %}{% include 'elements/interactions.html' with count=interactions help='Previous number of interactions with this user on babysitting.' %}{% endif %}
+    {% if current_user != target_user %}{% include 'elements/user_connection_interactions.html' with user_connection=user_connection only %}{% endif %}
   </p>
   {% if reverse_user_connection.trusted %}
     <ul class="list-inline">
@@ -134,7 +121,7 @@ $(document).ready(function() {
 {#    {% endfor %}#}
 {#  </div>#}
 
-  {% if list_personal_membership or list_public_membership %}
+  {% if list_pending_membership or list_personal_membership or list_public_membership %}
   <div class="section-title">Connections & Social Groups</div>
 
   <div class="horizontal-justified min-margin-bottom">
@@ -157,11 +144,14 @@ $(document).ready(function() {
   </div>
 
   <div class="grid" id="grid-list-connections">
+    {% for membership in list_pending_membership %}
+      <div class="grid-item">{% include 'includes/card/membership_request.html' with membership=membership user=membership.circle.owner.to_puser %}</div>
+    {% endfor %}
     {% for membership in list_personal_membership %}
       <div class="grid-item" data-option="{{ membership.js_display_role }}">{% include 'includes/card/membership.html' with membership=membership user=membership.member.to_puser only %}</div>
     {% endfor %}
     {% for membership in list_public_membership %}
-      <div class="grid-item" data-option="group">{% include 'includes/card/group.html' with circle=membership.circle only %}</div>
+      <div class="grid-item" data-option="group">{% include 'includes/card/group.html' with circle=membership.get_circle only %}</div>
     {% endfor %}
   </div>
   {% endif %}

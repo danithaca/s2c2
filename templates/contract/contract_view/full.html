@@ -195,7 +195,7 @@ $(document).ready(function() {
     </p>
   {% endif %}
 
-  {% if not contract.is_expired %}
+  {% if not contract.is_expired and not contract.is_confirmed %}
     <div class="section-title">Add Contacts</div>
 
 {#    <div class="input-group">#}

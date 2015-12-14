@@ -88,6 +88,26 @@
         }
       });
 
+      // ajax post confirm refresh
+      $('.ajax-post-confirm-refresh').click(function(e) {
+        e.stopPropagation();
+        e.preventDefault();
+        var $this = $(this);
+        var url = $this.data('post-url');
+        var confirm_msg = $this.data('post-confirm-message');
+        if (url && confirm_msg) {
+          bootbox.confirm(confirm_msg, function(result) {
+            if (result) {
+              $.post(url, function(data) {
+                if (data['success']) {
+                  window.location.reload();
+                }
+              });
+            }
+          });
+        }
+      });
+
       // show expandable text
       $('[data-expandable-text]').hover(function() {
         var text = $(this).data('expandable-text');
@@ -102,6 +122,7 @@
       hide_if_empty('#content-introduction');
       hide_if_empty('#content-header');
       hide_if_empty('#content-body');
+      hide_if_empty('#content-footer');
 
       // for new user
       if (!window.localStorage.getItem('servuno_visited')) {
@@ -224,7 +245,7 @@
         </div>
         {% block content %}{% endblock %}
       </div>
-      <div class="panel-footer hidden-if-none">{% block content-footer %}{% endblock %}</div>
+      <div class="panel-footer" id="content-footer">{% block content-footer %}{% endblock %}</div>
     </div>
   </div></div>{% endblock %}
 

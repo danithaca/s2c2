@@ -28,6 +28,11 @@
 {#{% block content-title %}#}
 {#  {% user-full-name membership.member %} {# <small class="text-muted">{{ membership.circle.display }}</small> #}
 {#{% endblock %}#}
+{% block content-introduction %}
+{% if membership.is_pending_approval %}
+  <span class="text-danger">Connection request is pending approval from {% user-full-name target_user %}</span>
+{% endif %}
+{% endblock %}
 
 {% block content %}
   <form class="form form-horizontal" method="post">

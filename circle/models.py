@@ -470,6 +470,11 @@ class Membership(models.Model):
     # def js_display_circle_type(self):
     #     return Circle.Type(self.circle.type).name.lower()
 
+    def get_circle(self):
+        circle = self.circle
+        circle.user_membership = self
+        return circle
+
 
 class UserConnection(object):
     """
@@ -569,8 +574,9 @@ class UserConnection(object):
         return TrustLevel.NONE.value
 
     # could raise DoesNotExist or multiple find.
-    def find_personal_membership(self):
-        area = self.initiate_user.get_area()
+    def find_personal_membership(self, area=None):
+        if area is None:
+            area = self.initiate_user.get_area()
         return Membership.objects.get(member=self.target_user, circle__type=Circle.Type.PERSONAL.value, circle__owner=self.initiate_user, circle__area=area)
 
     # shared connection: in my parents friends' network
@@ -661,7 +667,7 @@ class Friendship(UserConnection):
         else:
             try:
                 reverse_user_connection = UserConnection(self.target_user, self.initiate_user)
-                reverse_membership = reverse_user_connection.find_personal_membership()
+                reverse_membership = reverse_user_connection.find_personal_membership(area=self.initiate_user.get_area())
                 # assert reverse_membership.as_parent is True
             except Membership.DoesNotExist:
                 pass

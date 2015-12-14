@@ -516,7 +516,7 @@ class DiscoverView(LoginRequiredMixin, RegisteredRequiredMixin, DetailView):
         combined_circle_list = list(extended_circle_list) + list(public_circle_list)
 
         # need to sort by member in order to use groupby.
-        list_extended = Membership.objects.filter(active=True, approved=True, circle__id__in=combined_circle_list, as_role=as_role).exclude(member=me).exclude(member__id__in=existing_membership.values_list('member__id', flat=True)).order_by('member', '-updated')
+        list_extended = Membership.objects.filter(active=True, approved=True, circle__id__in=combined_circle_list, as_role=as_role, member__info__area=area).exclude(member=me).exclude(member__id__in=existing_membership.values_list('member__id', flat=True)).order_by('member', '-updated')
 
         # build
         extended = []

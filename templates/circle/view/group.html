@@ -1,24 +1,24 @@
 {% extends "circle/view/base.html" %}
 {% load p2_tags %}
 
-{% block extra_header %}
-<script>
-  $(document).ready(function() {
-    $('.destroy-btn.destroy').click(function(e) {
-      e.stopPropagation();
-      var $this = $(this);
-      var url = $this.data('url');
-      if (url) {
-        $.post(url, function(data) {
-          if (data['success']) {
-            window.location.reload();
-          }
-        });
-      }
-    });
-  });
-</script>
-{% endblock %}
+{#{% block extra_header %}#}
+{#<script>#}
+{#  $(document).ready(function() {#}
+{#    $('.destroy-btn.destroy').click(function(e) {#}
+{#      e.stopPropagation();#}
+{#      var $this = $(this);#}
+{#      var url = $this.data('url');#}
+{#      if (url) {#}
+{#        $.post(url, function(data) {#}
+{#          if (data['success']) {#}
+{#            window.location.reload();#}
+{#          }#}
+{#        });#}
+{#      }#}
+{#    });#}
+{#  });#}
+{#</script>#}
+{#{% endblock %}#}
 
 {% block content-title %}
   {% if circle.homepage %}
@@ -29,13 +29,13 @@
 {% endblock %}
 
 {% block content-command-list %}
-  <div class="btn-group btn-group-xs">
+  <div class="btn-group btn-group-sm">
   {% if user_membership.is_admin %}
     <a href="{% url 'circle:group_edit' pk=circle.id %}" class="btn btn-info"><i class="fa fa-pencil"></i> Edit Group</a>
   {% endif %}
   {% if user_membership.is_joined %}
     <a href="{% url 'circle:membership_edit_group' pk=user_membership.id %}" class="btn btn-warning"><i class="fa fa-edit"></i> Edit Membership</a>
-    <span class="btn btn-xs btn-default destroy destroy-btn" data-url="{% url 'circle:membership_deactivate' pk=user_membership.id %}"><i class="fa fa-sign-out"></i> Leave Group</span>
+    <span class="btn btn-default ajax-post-refresh" data-post-url="{% url 'circle:membership_deactivate' pk=user_membership.id %}"><i class="fa fa-sign-out"></i> Leave Group</span>
   {% else %}
     <a href="{% url 'circle:group_join' pk=circle.id %}" class="btn btn-success"><i class="fa fa-sign-in"></i> Join</a>
   {% endif %}
