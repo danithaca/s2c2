@@ -1,15 +1,13 @@
 from collections import defaultdict
-from datetime import timedelta
 from enum import Enum
 from django.core.urlresolvers import reverse
 
 from django.db import models
 from django.conf import settings
-from django.utils import timezone
-from p2.utils import UserRole, TrustLevel
+from p2.utils import UserRole, TrustLevel, TrustedMixin
 
 
-class Circle(models.Model):
+class Circle(TrustedMixin, models.Model):
     """
     Define the circles users could join.
     """
@@ -211,6 +209,15 @@ class Circle(models.Model):
         admin_members = set([member for member in self.members.filter(membership__as_admin=True)])
         admin_members.add(self.owner)
         return admin_members
+
+    def is_user_trusted(self, user, level=TrustLevel.COMMON.value):
+        # FULL level: group owner
+        pass
+        # CLOSE level: group admins
+
+        # COMMON level: active/approved member
+
+        # REMOTE level:
 
 
 # class PersonalCircleManager(models.Manager):
