@@ -67,7 +67,7 @@ class UserConnectionForm(forms.Form):
 
 
 class MembershipCreateForm(forms.ModelForm):
-    introduce = forms.BooleanField(required=False, label='Ask for an introduction from shared social connections?', help_text='Check this box to allow Servuno email your shared connections with the person for an introduction.')
+    introduce = forms.BooleanField(required=False, label='Ask for an introduction from shared social connections?', help_text='Check this box to allow Servuno email your shared connections for an introduction.')
     is_sitter = forms.BooleanField(required=False, widget=forms.HiddenInput)
 
     class Meta:

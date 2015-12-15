@@ -1,5 +1,5 @@
 {% with level_data=user.get_level %}
 {% if level_data.count != 0 or not hide_initial_level %}
-<span class="user-level label label-{% if level_data.count > 0 %}info{% else %}default{% endif %}" title="You helped other parents {{ level_data.count }} time{{ level_data.count|pluralize }}. To achieve the next level '{{ level_data.next_level_title }}', help other parents {{ level_data.next_level_more }} more time{{ level_data.next_level_more|pluralize }}." data-toggle="tooltip">Level {{ level_data.level }} - {{ level_data.title }}</span>
+<span class="user-level label label-{% if level_data.count > 0 %}info{% else %}default{% endif %}" title="{% if level_data.count == 0 %}You haven't helped other parents.{% else %}You helped other parents {{ level_data.count }} time{{ level_data.count|pluralize }}.{% endif %} To achieve the next level '{{ level_data.next_level_title }}', help other parents {{ level_data.next_level_more }} more time{{ level_data.next_level_more|pluralize }}." data-toggle="tooltip">Level {{ level_data.level }} - {{ level_data.title }}</span>
 {% endif %}
 {% endwith %}

@@ -17,13 +17,10 @@ from circle.models import Membership, Circle, UserConnection
 from circle.tasks import circle_send_invitation
 from puser.models import PUser
 from p2.utils import RegisteredRequiredMixin, UserRole, is_valid_email, ObjectAccessMixin, TrustLevel
-
-
-################# Mixins ##################
+from shout.tasks import notify_send
 
 
 # todo/bug: for public circles, admins can't edit "active". for personal circles, owners can't edit "approved".
-
 class AllowMembershipEditMixin(UserPassesTestMixin):
     """
     Test if the user is able to edit the given membership. Requires implementing "get_membership".
@@ -255,6 +252,8 @@ class PublicCircleView(CircleView):
 #         return reverse('account_view', kwargs={'pk': self.target_user.id})
 
 
+# For public circle, the member is current_user, the circle is the group.
+# For personal circle, the member is the target_user, the circle is the current user's personal circle. "Friendship" is symmetric, which requires permission from the target user to add the current user as well.
 class CircleJoinView(LoginRequiredMixin, RegisteredRequiredMixin, SingleObjectMixin, FormValidMessageMixin, FormView):
     model = Circle
     form_class = MembershipCreateForm
@@ -286,10 +285,10 @@ class CircleJoinView(LoginRequiredMixin, RegisteredRequiredMixin, SingleObjectMi
                 redirect_url = '/'
                 if membership.is_valid_parent_relation():
                     msg = 'The parent is already in your network. Edit the connection here.'
-                    redirect_url = reverse('circle:membership_edit_parent', kwargs={'pk': membership.id})
+                    redirect_url = reverse('circle:membership_edit', kwargs={'pk': membership.id})
                 elif membership.is_valid_sitter_relation():
                     msg = 'The sitter is already in your network. Edit the connection here.'
-                    redirect_url = reverse('circle:membership_edit_sitter', kwargs={'pk': membership.id})
+                    redirect_url = reverse('circle:membership_edit', kwargs={'pk': membership.id})
                 elif membership.is_valid_group_membership():
                     msg = 'You have already joined this group. Edit your membership here.'
                     redirect_url = reverse('circle:membership_edit_group', kwargs={'pk': membership.id})
@@ -299,12 +298,11 @@ class CircleJoinView(LoginRequiredMixin, RegisteredRequiredMixin, SingleObjectMi
             pass
         return super().dispatch(request, *args, **kwargs)
 
-    def introduce(self):
-        # todo: handle introduction request. do nothing for now.
+    def send_notification(self, member, circle, introduce):
+        # member is added to circle. send notification
         pass
 
     def extra_process(self, membership):
-        # send notification
         pass
 
     def get_context_data(self, **kwargs):
@@ -327,8 +325,9 @@ class CircleJoinView(LoginRequiredMixin, RegisteredRequiredMixin, SingleObjectMi
             membership.as_role = UserRole.PARENT.value
         membership.save()
 
-        if form.cleaned_data.get('introduce', False):
-            self.introduce()
+        introduce = form.cleaned_data.get('introduce', False)
+        self.send_notification(target_user, circle, introduce)
+
         self.extra_process(membership)
         return super().form_valid(form)
 
@@ -365,6 +364,21 @@ class PersonalJoinView(CircleJoinView):
 class ParentJoinView(PersonalJoinView):
     template_name = 'circle/membership/parent_add.html'
 
+    def send_notification(self, member, circle, introduce):
+        # will need to send a notification to "member" because circle.owner is requesting.
+        ctx = {
+            'circle': circle,
+            'member': member,
+        }
+        if introduce:
+            uc = UserConnection(circle.owner, member)
+            shared_connection = uc.find_shared_connection_personal_symmetric()
+            cc_list = shared_connection
+            ctx['shared_connection'] = shared_connection
+        else:
+            cc_list = []
+        notify_send.delay(circle.owner, member, 'circle/messages/parent_added', ctx=ctx, cc_user_list=cc_list)
+
 
 class SitterJoinView(PersonalJoinView):
     template_name = 'circle/membership/sitter_add.html'
@@ -380,6 +394,21 @@ class SitterJoinView(PersonalJoinView):
         # todo: think about whether to auto approve sitter_add
         circle = self.get_object().to_proxy()
         circle.approve_membership(membership.member)
+
+    def send_notification(self, member, circle, introduce):
+        # will need to send a notification to "member" because circle.owner is requesting.
+        ctx = {
+            'circle': circle,
+            'member': member,
+        }
+        if introduce:
+            uc = UserConnection(circle.owner, member)
+            shared_connection = set([m.circle.owner for m in uc.find_shared_connection_personal()])
+            cc_list = shared_connection
+            ctx['shared_connection'] = shared_connection
+        else:
+            cc_list = []
+        notify_send.delay(circle.owner, member, 'circle/messages/sitter_added', ctx=ctx, cc_user_list=cc_list)
 
 
 class GroupJoinView(CircleJoinView):
@@ -399,6 +428,15 @@ class GroupJoinView(CircleJoinView):
         form.fields['note'].label = 'Affiliation'
         form.fields['note'].help_text = 'What is your affiliation to the group? E.g., Jack\'s mon.'
         return form
+
+    def send_notification(self, member, circle, introduce):
+        # will need to send a notification to circle admins to handle the request from "member"
+        ctx = {
+            'circle': circle,
+            'member': member,
+        }
+        admin_list = circle.get_admin_users()
+        notify_send.delay(member, admin_list, 'circle/messages/group_added', ctx=ctx)
 
 
 # todo: this has potential problem. e.g., a member goes to the personal circle and change herself as "admin".

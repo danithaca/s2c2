@@ -7,6 +7,8 @@ from django.core.mail import EmailMessage, get_connection
 from django.template.loader import render_to_string
 
 from django.conf import settings
+
+from p2.utils import is_valid_email
 from puser.models import PUser
 
 
@@ -42,7 +44,7 @@ class Notify(object):
         except PUser.DoesNotExist:
             return PUser.create(email, dummy=True)
 
-    def send(self, from_user, to_user, tpl_prefix, ctx=None, anonymous=False):
+    def send(self, from_user, to_user, tpl_prefix, ctx=None, anonymous=False, cc_user_list=[]):
         """
         Send notification regardless of the approach.
         """
@@ -57,7 +59,10 @@ class Notify(object):
 
         context = self.default_context()
         context['from_user'] = PUser.from_user(from_user)
-        context['to_user'] = PUser.from_user(to_user)
+        if isinstance(to_user, User):
+            context['to_user'] = PUser.from_user(to_user)
+        else:
+            context['to_user'] = to_user
         context['template_id'] = tpl_prefix
         if ctx:
             context.update(ctx)
@@ -71,13 +76,20 @@ class Notify(object):
         else:
             to_user_list = to_user
 
+        cc_email_list = []
+        for cc_user in cc_user_list:
+            if isinstance(cc_user, User):
+                cc_email_list.append(cc_user.email)
+            elif isinstance(cc_user, str) and is_valid_email(cc_user):
+                cc_email_list.append(cc_user)
+
         messages_list = []
         for u in to_user_list:
             if anonymous:
                 # if using bcc, then send message to 'from_user', put message in bcc.
-                msg = EmailMessage(subject, body, from_email=settings.DEFAULT_FROM_EMAIL, to=[from_user.email], reply_to=[from_user.email], bcc=[u.email])
+                msg = EmailMessage(subject, body, from_email=settings.DEFAULT_FROM_EMAIL, to=[from_user.email], reply_to=[from_user.email], bcc=[u.email], cc=cc_email_list)
             else:
-                msg = EmailMessage(subject, body, from_email=settings.DEFAULT_FROM_EMAIL, to=[u.email], reply_to=[from_user.email])
+                msg = EmailMessage(subject, body, from_email=settings.DEFAULT_FROM_EMAIL, to=[u.email], reply_to=[from_user.email], cc=cc_email_list)
             messages_list.append(msg)
 
         connection = get_connection(fail_silently=True)       # use the default email settings

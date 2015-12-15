@@ -23,6 +23,6 @@ def shout_to_circle(shout):
 
 
 @shared_task
-def notify_send(from_user, to_user, tpl_prefix, ctx=None, anonymous=False):
+def notify_send(from_user, to_user, tpl_prefix, ctx=None, anonymous=False, cc_user_list=[]):
     # same signature as Notify::send()
-    notify_agent.send(from_user, to_user, tpl_prefix, ctx, anonymous)
+    notify_agent.send(from_user, to_user, tpl_prefix, ctx, anonymous, cc_user_list)

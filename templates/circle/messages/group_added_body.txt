@@ -1,0 +1,7 @@
+{% extends 'email_body.txt' %}
+{% load p2_tags %}
+{% block body %}
+The user {% user-full-name member %} is requesting to join {{ circle.name }}. Please approve or block the request at:
+
+{{ site_url }}{% url 'circle:group_view' pk=circle.id %}
+{%endblock%}

@@ -1,0 +1,3 @@
+{% extends 'email_subject.txt' %}
+{% load p2_tags %}
+{% block subject %}Approval needed: new member signed for "{{ circle.name }}"{% endblock %}

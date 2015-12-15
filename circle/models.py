@@ -649,6 +649,15 @@ class UserConnection(object):
         result_membership = Membership.objects.filter(member=self.target_user, circle__owner__in=my_parent_list, circle__type=Circle.Type.PERSONAL.value, active=True).exclude(approved=False)
         return list(result_membership)
 
+    # compared to "find_shared_connection_personal", this only works for parents-parent, not for parents-sitter
+    # also, this returns the list of PUsers, not membership.
+    def find_shared_connection_personal_symmetric(self):
+        my_list = Membership.objects.filter(circle__owner=self.initiate_user, circle__type=Circle.Type.PERSONAL.value, active=True).exclude(approved=False).values_list('member__id', flat=True)
+        your_list = Membership.objects.filter(circle__owner=self.target_user, circle__type=Circle.Type.PERSONAL.value, active=True).exclude(approved=False).values_list('member__id', flat=True)
+        shared_list = set(my_list).intersection(set(your_list))
+        from puser.models import PUser
+        return list(PUser.objects.filter(pk__in=shared_list))
+
     # shared connection: both you and i are in the save public circle.
     def find_shared_connection_public(self):
         # my public circle membership

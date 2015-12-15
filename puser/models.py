@@ -401,12 +401,12 @@ class PUser(TrustedMixin, User):
     def get_level(self):
         count = self.count_favors_all()
         levels = [
-            (0, 0, 'Newborn Angel'),
-            (1, 1, 'Baby Angel'),
+            (0, 0, 'Unborn Angel'),
+            (1, 1, 'Infant Angel'),
             (2, 3, 'Toddler Angel'),
-            (3, 7, 'Teenage Angel'),
-            (4, 15, 'Young Angel'),
-            (5, 50, 'Arch Angel'),
+            (3, 7, 'Preschool Angel'),
+            (4, 15, 'Kindergarten Angel'),
+            (5, 50, 'Grade Angel'),
         ]
         next_levels = levels[1:] + [(6, 1000, 'God')]
         for this_level, next_level in zip(levels, next_levels):

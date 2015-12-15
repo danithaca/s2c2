@@ -1,5 +1,12 @@
 {% extends 'email_body.txt' %}
 {% load p2_tags %}
 {% block body %}
-You are receiving this email because {% user-full-name circle.owner %} added you to his/her parents network on {{ site_url }}. You can now swap favors babysitting for each other, and you would have access to {% user-short-name circle.owner %}'s trusted babysitters (and vice versa). Learn more about {{ site_name }} at {{ site_url }}
+Hi {% user-short-name member %},
+
+{% user-full-name circle.owner %} added you to his/her parents network on {{ site_url }}. Please review the request and approve/block it at:
+
+{{ site_url }}{% url 'account_view' pk=circle.owner.id %}
+{% if shared_connection %}
+Both of you shared the connections in the cc list. Please feel free to ask for a mutual introduction.
+{% endif %}
 {%endblock%}
