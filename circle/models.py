@@ -211,13 +211,9 @@ class Circle(TrustedMixin, models.Model):
         return admin_members
 
     def is_user_trusted(self, user, level=TrustLevel.COMMON.value):
-        # FULL level: group owner
-        pass
-        # CLOSE level: group admins
-
-        # COMMON level: active/approved member
-
-        # REMOTE level:
+        proxy = self.to_proxy()
+        assert proxy.__class__ != Circle
+        return proxy.is_user_trusted(user, level)
 
 
 # class PersonalCircleManager(models.Manager):
@@ -278,10 +274,37 @@ class PersonalCircle(Circle):
             pass
         super().deactivate_membership(user)
 
+    def is_user_trusted(self, user, level=TrustLevel.COMMON.value):
+        # delegate 'trust" to the personal circle's owner
+        return self.owner.to_puser().is_user_trusted(user, level)
+
 
 class PublicCircle(Circle):
     class Meta:
         proxy = True
+
+    def is_user_trusted(self, user, level=TrustLevel.COMMON.value):
+        trust_level = TrustLevel.NONE.value
+        # FULL level: group owner
+        if self.owner == user:
+            trust_level = TrustLevel.FULL.value
+        # CLOSE level: group admins
+        elif user in self.get_admin_users():
+            trust_level = TrustLevel.CLOSE.value
+        # COMMON level: active/approved member
+        elif self.is_valid_member(user):
+            trust_level = TrustLevel.COMMON.value
+        else:
+            try:
+                membership = self.get_membership(user)
+                if membership.approved is False:
+                    trust_level = TrustLevel.FORBIDDEN.value
+                else:
+                    trust_level = TrustLevel.REMOTE.value
+            except:
+                pass
+        # REMOTE level: pending approval members
+        return trust_level >= level
 
 
 class ParentCircleManager(models.Manager):

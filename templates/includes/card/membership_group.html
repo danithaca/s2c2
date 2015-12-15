@@ -1,0 +1,20 @@
+{% extends 'includes/card/membership.html' %}
+{% load p2_tags %}
+
+{% block pending-message %}
+  <span class="text-warning" title="Membership request is pending for group administrator approval." data-toggle="tooltip"><i class="fa fa-hourglass-start"> </i> Pending</span>
+{% endblock %}
+
+{% block card-footer-extra %}
+  <div class="btn-group btn-group-xs">
+  {% if allow_edit and membership.is_valid_group_membership %}
+    {% if membership.is_pending_approval %}
+      <span class="btn btn-success ajax-post-refresh" data-post-url="{% url 'circle:membership_approve' pk=membership.id %}" data-expandable-text="Approve"><i class="fa fa-check"></i></span>
+      <span class="btn btn-danger ajax-post-confirm-refresh" data-post-url="{% url 'circle:membership_disapprove' pk=membership.id %}" data-post-confirm-message="Are your sure you want to block the user from accessing the group?" data-expandable-text="Block"><i class="fa fa-times"></i></span>
+    {% else %}
+      <a href="{% url 'circle:membership_edit_group' pk=membership.id %}" class="btn btn-warning" data-expandable-text="Note"><i class="fa fa-edit"></i></a>
+      <span class="btn btn-danger ajax-post-confirm-refresh" data-expandable-text="Remove" data-post-url="{% url 'circle:membership_deactivate' pk=membership.id %}" data-post-confirm-message="Are your sure you want to remove the user from the group?"><i class="fa fa-trash"></i></span>
+    {% endif %}
+  {% endif %}
+</div>
+{% endblock %}

@@ -1,32 +1,33 @@
 from collections import OrderedDict
+
+import account.forms
+import account.views
+from account.conf import settings
 from account.mixins import LoginRequiredMixin
 from account.models import SignupCode
-import account.views
-import account.forms
-from account.conf import settings
-from braces.views import UserPassesTestMixin, FormValidMessageMixin, AnonymousRequiredMixin
-from django.contrib.auth.decorators import login_required
+from braces.views import FormValidMessageMixin, AnonymousRequiredMixin
 from django.contrib import auth
+from django.contrib import messages
 from django.contrib.auth import forms as auth_forms
+from django.contrib.auth.decorators import login_required
 from django.core.urlresolvers import reverse_lazy, reverse
 from django.http import HttpResponseRedirect
 from django.shortcuts import redirect
-from django.views.generic import FormView, TemplateView, UpdateView, DetailView, CreateView
+from django.views.generic import FormView, TemplateView, UpdateView, DetailView
 from django.views.generic.base import ContextMixin
-from django.contrib import messages
 from rest_framework.generics import RetrieveAPIView
 from rest_framework.response import Response
 
 from circle.models import Circle, Membership, UserConnection, Friendship
 from circle.views import ParentManageView
 from contract.models import Contract
-from p2.utils import RegisteredRequiredMixin, TrustLevel, TrustedMixin
+from p2.utils import RegisteredRequiredMixin, TrustLevel, ObjectAccessMixin
+from p2.utils import auto_user_name
 from puser.forms import UserInfoForm, UserPictureForm, LoginEmailAdvForm, UserInfoOnboardForm, \
     SignupFullForm, WaitingForm, UserPreferenceForm
 from puser.models import Info, PUser, Waiting, MenuItem
 from puser.serializers import UserSerializer
 from shout.tasks import notify_send
-from p2.utils import auto_user_name
 
 
 @login_required
@@ -169,23 +170,6 @@ class UserPicture(LoginRequiredMixin, FormValidMessageMixin, UpdateView):
     def get_object(self, queryset=None):
         puser = self.request.puser
         return puser.get_info()
-
-
-class ObjectAccessMixin(UserPassesTestMixin):
-    raise_exception = True
-    trust_level = TrustLevel.COMMON.value
-    object_class = None
-
-    def test_func(self, user):
-        current_object = self.get_object()
-        assert isinstance(current_object, TrustedMixin)
-        if self.object_class is not None:
-            assert isinstance(current_object, self.object_class)
-        return current_object.is_user_trusted(user, self.trust_level)
-
-    def handle_no_permission(self, request):
-        messages.error(request, 'You do not have sufficient trust level to access the specified target.')
-        return super().handle_no_permission(request)
 
 
 class ContractAccessMixin(ObjectAccessMixin):

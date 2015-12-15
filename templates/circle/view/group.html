@@ -34,7 +34,7 @@
     <a href="{% url 'circle:group_edit' pk=circle.id %}" class="btn btn-info"><i class="fa fa-pencil"></i> Edit Group</a>
   {% endif %}
   {% if user_membership.is_joined %}
-    <a href="{% url 'circle:membership_edit_group' pk=user_membership.id %}" class="btn btn-warning"><i class="fa fa-edit"></i> Edit Membership</a>
+    <a href="{% url 'circle:membership_edit_group' pk=user_membership.id %}" class="btn btn-warning"><i class="fa fa-edit"></i> Note</a>
     <span class="btn btn-default ajax-post-refresh" data-post-url="{% url 'circle:membership_deactivate' pk=user_membership.id %}"><i class="fa fa-sign-out"></i> Leave Group</span>
   {% else %}
     <a href="{% url 'circle:group_join' pk=circle.id %}" class="btn btn-success"><i class="fa fa-sign-in"></i> Join</a>
@@ -57,12 +57,28 @@
   <p>{% if circle.description %}{{ circle.description }}{% endif %}</p>
 {% endblock %}
 
+{% block membership-display %}
+  {% if is_view_access %}
+    {% if not list_membership %}
+      <p>No one is in this group.</p>
+    {% else %}
+      <div class="grid">
+        {% for membership in list_membership %}
+          <div class="grid-item">{% include 'includes/card/membership_group.html' with membership=membership user=membership.member.to_puser allow_edit=is_admin_access only %}</div>
+        {% endfor %}
+      </div>
+    {% endif %}
+  {% else %}
+    <p>You are not a member of the group and cannot view other members of the group. Please join the group if you are affliated. Membership is pending on approval from the group administrators.</p>
+  {% endif %}
+{% endblock %}
+
 {% block extended-block %}
-  {% if list_sitter_membership %}
+  {% if is_view_access and list_sitter_membership %}
     <div class="page-header"><h6>Babysitters Endorsed by This Group</h6></div>
     <div class="grid">
       {% for sitter_membership in list_sitter_membership %}
-        <div class="grid-item">{% include 'includes/card/membership.html' with user=sitter_membership.member membership=sitter_membership allow_edit=full_access only %}</div>
+        <div class="grid-item">{% include 'includes/card/membership_group.html' with user=sitter_membership.member membership=sitter_membership only %}</div>
       {% endfor %}
     </div>
   {% endif %}

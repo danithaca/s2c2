@@ -49,25 +49,28 @@ $(document).ready(function() {
 {% endblock %}
 
 {% block content %}
-  {% if full_access %}
+  {% is-trusted circle 'close' as is_admin_access %}
+  {% is-trusted circle 'remote' as is_view_access %}
+  {% if is_admin_access %}
     <div class="input-group min-margin-bottom">
       <input id="new-item" class="form-control" placeholder="Email address" autofocus>
       <span class="input-group-btn"><button class="btn btn-primary" id="new-item-add-btn"><i class="fa fa-user-plus"></i> {% block add-button-name %}Add{% endblock %}</button></span>
     </div>
     <div class="checkbox min-margin-bottom {% if not show_sitter_switch %}hidden{% endif %}"><label><input name="is_sitter" type="checkbox" {% if is_sitter %}checked{% endif %}> <span>Add as an endorsed babysitter</span></label></div>
-{#    <hr>#}
   {% endif %}
 
+  {% block membership-display %}
   {% if not list_membership %}
     <p>None.</p>
   {% else %}
     <div class="grid">
       {% block grid-extra %}{% endblock %}
       {% for membership in list_membership %}
-        <div class="grid-item">{% include 'includes/card/membership.html' with membership=membership user=membership.member.to_puser allow_edit=full_access only %}</div>
+        <div class="grid-item">{% include 'includes/card/membership.html' with membership=membership user=membership.member.to_puser allow_edit=is_admin_access only %}</div>
       {% endfor %}
     </div>
   {% endif %}
+  {% endblock %}
 
   {% block extended-block %}{% endblock %}
 {% endblock %}

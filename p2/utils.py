@@ -3,7 +3,7 @@ from enum import Enum
 import functools
 import sys
 import warnings
-from braces.views import FormValidMessageMixin
+from braces.views import FormValidMessageMixin, UserPassesTestMixin
 from django.contrib import messages
 from django.contrib.auth import REDIRECT_FIELD_NAME
 
@@ -113,6 +113,7 @@ class TrustLevel(Enum):
     COMMON = 50
     REMOTE = 25
     NONE = 0
+    FORBIDDEN = -100
 
 
 ################# mixin ####################
@@ -152,3 +153,19 @@ class TrustedMixin(object):
 #         else:
 #             return super().get_success_url()
 
+
+class ObjectAccessMixin(UserPassesTestMixin):
+    raise_exception = True
+    trust_level = TrustLevel.COMMON.value
+    object_class = None
+
+    def test_func(self, user):
+        current_object = self.get_object()
+        assert isinstance(current_object, TrustedMixin)
+        if self.object_class is not None:
+            assert isinstance(current_object, self.object_class)
+        return current_object.is_user_trusted(user, self.trust_level)
+
+    def handle_no_permission(self, request):
+        messages.error(request, 'You do not have sufficient trust level to access the specified target.')
+        return super().handle_no_permission(request)

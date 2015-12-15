@@ -9,7 +9,7 @@ from image_cropping.templatetags.cropping import cropped_thumbnail
 from sitetree.templatetags.sitetree import SimpleNode, sitetree
 
 from contract.models import Engagement
-from p2.utils import get_site_url
+from p2.utils import get_site_url, TrustedMixin, TrustLevel
 from puser.models import PUser
 
 register = template.Library()
@@ -133,3 +133,19 @@ class menutree_dropdownNode(SimpleNode):
         navigation_type = 'tree'
         use_template = 'sitetree/breadcrumbs_dropdown.html'
         return sitetree.children(current_item, navigation_type, use_template, context)
+
+
+@register.assignment_tag(takes_context=True, name='is-trusted')
+def p2_tag_current_user_trusted(context, object, level):
+    assert object is not None and isinstance(object, TrustedMixin)
+    user = context.get('current_user', None)
+    if user is None:
+        user = context.get('user', None)
+    assert user is not None
+
+    mapping = {e.name.lower(): e.value for e in list(TrustLevel)}
+    level = mapping.get(level.strip().lower())
+    if level is None:
+        level = int(level)
+
+    return object.is_user_trusted(user, level)

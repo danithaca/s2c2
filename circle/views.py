@@ -5,26 +5,25 @@ import re
 
 from braces.views import LoginRequiredMixin, FormValidMessageMixin, UserPassesTestMixin, JSONResponseMixin, AjaxResponseMixin
 from django.contrib import messages
-from django.core.urlresolvers import reverse_lazy, reverse
+from django.core.urlresolvers import reverse
 
-
-# Create your views here.
 from django.forms import HiddenInput
 from django.shortcuts import redirect
-from django.views.defaults import bad_request, permission_denied
+from django.views.defaults import permission_denied
 from django.views.generic import FormView, CreateView, UpdateView, TemplateView, DetailView, View
 from django.views.generic.detail import SingleObjectMixin
 from circle.forms import CircleCreateForm, MembershipCreateForm, MembershipEditForm
 from circle.models import Membership, Circle, UserConnection
 from circle.tasks import circle_send_invitation
 from puser.models import PUser
-from p2.utils import RegisteredRequiredMixin, UserRole, is_valid_email
+from p2.utils import RegisteredRequiredMixin, UserRole, is_valid_email, ObjectAccessMixin, TrustLevel
 
 
 ################# Mixins ##################
 
 
 # todo/bug: for public circles, admins can't edit "active". for personal circles, owners can't edit "approved".
+
 class AllowMembershipEditMixin(UserPassesTestMixin):
     """
     Test if the user is able to edit the given membership. Requires implementing "get_membership".
@@ -58,10 +57,15 @@ class CircleAdminMixin(UserPassesTestMixin):
         return self.get_object()
 
 
+class CircleAccessMixin(ObjectAccessMixin):
+    object_class = Circle
+    trust_level = TrustLevel.NONE.value
+
+
 ################## regular views ####################
 
 
-class CircleView(LoginRequiredMixin, RegisteredRequiredMixin, DetailView):
+class CircleView(LoginRequiredMixin, RegisteredRequiredMixin, CircleAccessMixin, DetailView):
     model = Circle
     template_name = 'circle/view/base.html'
     context_object_name = 'circle'
@@ -192,13 +196,10 @@ class PublicCircleView(CircleView):
         list_sitter_membership = circle.membership_set.filter(active=True, as_role=UserRole.SITTER.value).exclude(approved=False).order_by('-updated')
         context['list_sitter_membership'] = list_sitter_membership
 
-        context['full_access'] = False
         context['show_sitter_switch'] = True
         try:
             user_membership = circle.get_membership(self.request.puser)
             context['user_membership'] = user_membership
-            if user_membership.is_admin():
-                context['full_access'] = True
         except:
             pass
         return context
