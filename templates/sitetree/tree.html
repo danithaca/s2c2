@@ -8,7 +8,7 @@
           {% if item.fa_icon %}<i class="fa fa-{{ item.fa_icon }}"></i>{% endif %}
           {{ item.title_resolved }}
         </a>
-        {% if item.hint %}<small class="text-muted">{{ item.hint }}</small>{% endif %}
+        {% if item.hint %}<br><small class="text-muted">{{ item.hint }}</small>{% endif %}
 				{% if item.has_children %}
 					{% sitetree_children of item for sitetree template "sitetree/tree.html" %}
 				{% endif %}

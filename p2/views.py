@@ -9,6 +9,7 @@ from circle.models import Membership, Circle
 from contract.models import Contract
 
 from puser.forms import WaitingForm
+from puser.models import MenuItem
 
 
 def home(request):
@@ -37,11 +38,16 @@ class TourView(LoginRequiredMixin, TemplateView):
         context = super().get_context_data(**kwargs)
         target_user = self.request.puser
         context['current_user'] = target_user
-        if target_user.is_registered():
-            my_parents = list(Membership.objects.filter(circle=target_user.my_circle(Circle.Type.PARENT), active=True, approved=True).exclude(member=target_user).order_by('-updated'))
-            my_memberships = list(Membership.objects.filter(member=target_user, circle__type=Circle.Type.TAG.value, circle__area=target_user.get_area(), active=True))
-            context['my_parents'] = my_parents
-            context['my_memberships'] = my_memberships
+        # if target_user.is_registered():
+        #     my_parents = list(Membership.objects.filter(circle=target_user.my_circle(Circle.Type.PARENT), active=True, approved=True).exclude(member=target_user).order_by('-updated'))
+        #     my_memberships = list(Membership.objects.filter(member=target_user, circle__type=Circle.Type.TAG.value, circle__area=target_user.get_area(), active=True))
+        #     context['my_parents'] = my_parents
+        #     context['my_memberships'] = my_memberships
+        context.update({
+            'menu_item_post': MenuItem.objects.get(url='contract:engagement_list'),
+            'menu_item_discover': MenuItem.objects.get(url='circle:discover'),
+            'menu_item_account': MenuItem.objects.get(url='account_view'),
+        })
         return context
 
 
