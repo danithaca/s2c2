@@ -288,15 +288,30 @@ class MultiStepViewsMixin(ContextMixin):
 
     @classmethod
     def get_steps_meta(cls):
-        step_order = ['SignupView', 'OnboardPreference', 'OnboardParentCircle']
-        step_url = [reverse('account_signup'), reverse('onboard_preference'), reverse('onboard_parent')]
-        next_step_url = list(step_url)
-        next_step_url.append(cls.final_url)
-        del(next_step_url[0])
+        step_order = [SignupView, OnboardPreference]
         steps_meta = OrderedDict()
-        for name, url, next_url in zip(step_order, step_url, next_step_url):
-            steps_meta[name] = {'url': url, 'next_url': next_url}
+        for step_i, step_class in enumerate(step_order):
+            step_title = step_class.step_title
+            step_url = step_class.step_url
+            if step_i < len(step_order) - 1:
+                next_step_url = step_order[step_i + 1]
+            else:
+                next_step_url = cls.final_url
+            steps_meta[step_class.__name__] = {
+                'url': step_url,
+                'title': step_title,
+                'next_url': next_step_url,
+            }
         return steps_meta
+
+        # step_url = [reverse('account_signup'), reverse('onboard_preference')]
+        # next_step_url = list(step_url)
+        # next_step_url.append(cls.final_url)
+        # del(next_step_url[0])
+        # steps_meta = OrderedDict()
+        # for c, url, next_url in zip(step_order, step_url, next_step_url):
+        #     steps_meta[c.__name__] = {'url': url, 'next_url': next_url, 'title': c.step_title}
+        # return steps_meta
 
     # def get_step_url(self):
     #     assert hasattr(self, 'step_url')
@@ -348,6 +363,7 @@ class MultiStepViewsMixin(ContextMixin):
 class SignupView(MultiStepViewsMixin, account.views.SignupView):
     step_title = 'Create an Account'
     step_note = 'Your information is only visible to people in your network.'
+    step_url = reverse_lazy('account_signup')
     form_class = SignupFullForm
 
     def get(self, *args, **kwargs):
@@ -393,6 +409,7 @@ class SignupView(MultiStepViewsMixin, account.views.SignupView):
         return initial
 
     def form_valid(self, form):
+        self.messages['email_confirmation_sent']['level'] = messages.SUCCESS
         if self.created_user:
             # account already created earlier. need to: 1) set password, 2) set names, 3) set info
             existing_user = self.created_user
@@ -451,7 +468,8 @@ class OnboardProfile(MultiStepViewsMixin, UserEdit):
 
 class OnboardPreference(MultiStepViewsMixin, UserPreference):
     template_name = 'account/onboard/form.html'
-    step_title = 'Edit Site Preference'
+    step_title = 'Edit Preference'
+    step_url = reverse_lazy('onboard_preference')
 
 
 class OnboardParentCircle(MultiStepViewsMixin, ParentManageView):

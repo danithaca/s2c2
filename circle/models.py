@@ -225,7 +225,9 @@ class Circle(TrustedMixin, models.Model):
         code_length = 4
         # try a maximum of 1000 times
         for i in range(1000):
-            token = ''.join(random.SystemRandom().choice(string.ascii_lowercase + string.digits) for _ in range(code_length))
+            # token = ''.join(random.SystemRandom().choice(string.ascii_lowercase + string.digits) for _ in range(code_length))
+            # excluding o O l 1.
+            token = ''.join(random.SystemRandom().choice('abcdefghijkmnpqrstuvwxyz23456789') for _ in range(code_length))
             if not SignupCode.exists(code=token):
                 code = SignupCode.objects.create(code=token)
                 self.signup_code = code

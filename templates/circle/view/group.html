@@ -48,7 +48,7 @@
   <p>{{ circle.description|default:"No group description." }}</p>
   {% is-trusted circle 'common' as is_common_access %}
   {% if is_common_access %}
-    <p><i class="fa fa-key"></i> Sign up code: <strong title="Invite people to join the group using this code during Sign Up." data-toggle="tooltip">{{ signup_code.code }}</strong></p>
+    <p><i class="fa fa-key"></i> Sign up code: <strong title="Invite people to join the group using this code during Sign Up." data-toggle="tooltip">{{ signup_code.code|upper }}</strong></p>
   {% endif %}
   <ul class="list-inline text-right">
     {% for admin_user in circle.get_admin_users %}
