@@ -194,8 +194,11 @@ function debounce( fn, threshold ) {
 
 
 function hide_if_empty(element) {
-  var $element = $(element);
-  if (!$element.text().trim()) {
-    $element.hide();
-  }
+  $(element).each(function() {
+    var $el = $(this);
+    if (!$el.text().trim()) {
+      $el.hide();
+    }
+  });
+
 }

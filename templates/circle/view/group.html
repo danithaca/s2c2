@@ -21,11 +21,13 @@
 {#{% endblock %}#}
 
 {% block content-title %}
+  <i class="fa fa-paw"></i>
   {% if circle.homepage %}
     <a href="{{ circle.homepage }}" target="_blank">{{ circle.display }} <i class="fa fa-external-link"></i></a>
   {% else %}
     {{ circle.display }}
   {% endif %}
+{#  <small class="label label-info" title="Invite people to join the group using this code during Sign Up." data-toggle="tooltip"><i class="fa fa-key"></i> {{ signup_code.code }}</small>#}
 {% endblock %}
 
 {% block content-command-list %}
@@ -43,18 +45,23 @@
 {% endblock %}
 
 {% block content-introduction %}
-  <ul class="list-inline">
+  <p>{{ circle.description|default:"No group description." }}</p>
+  {% is-trusted circle 'common' as is_common_access %}
+  {% if is_common_access %}
+    <p><i class="fa fa-key"></i> Sign up code: <strong title="Invite people to join the group using this code during Sign Up." data-toggle="tooltip">{{ signup_code.code }}</strong></p>
+  {% endif %}
+  <ul class="list-inline text-right">
     {% for admin_user in circle.get_admin_users %}
-    <li>
-      {% if admin_user == circle.owner %}
-        {% include 'account/view/inline_full.html' with user=admin_user.to_puser extra_info='(owner)' only %}
-      {% else %}
-        {% include 'account/view/inline_full.html' with user=admin_user.to_puser extra_info='(admin)' only %}
-      {% endif %}
-    </li>
+      <li>
+        {% if admin_user == circle.owner %}
+          {% include 'account/view/inline_full.html' with user=admin_user.to_puser extra_info='(owner)' only %}
+        {% else %}
+          {% include 'account/view/inline_full.html' with user=admin_user.to_puser extra_info='(admin)' only %}
+        {% endif %}
+      </li>
     {% endfor %}
+    <li title="Number of group members." data-toggle="tooltip">{% include 'elements/circle_member_count.html' with count=circle.count %}</li>
   </ul>
-  <p>{% if circle.description %}{{ circle.description }}{% endif %}</p>
 {% endblock %}
 
 {% block membership-display %}

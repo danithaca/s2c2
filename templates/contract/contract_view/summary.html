@@ -32,7 +32,7 @@
     {% endif %}
   </ul>
 
-  <p class="text-muted text-small pull-right">Last updated: {{ contract.updated|timesince }} ago{#  | <a href="{% url 'contract:calendar' %}?day={{ contract.event_start|date:'Y-m-d' }}">view in calendar</a> #}
+  <p class="text-muted text-small text-right">Last updated: {{ contract.updated|timesince }} ago{#  | <a href="{% url 'contract:calendar' %}?day={{ contract.event_start|date:'Y-m-d' }}">view in calendar</a> #}
     {% if contract.is_confirmed and display_mode == "contract" %}
       | <a href="{% gcal-url contract.to_engagement %}">export to GCal</a>
     {% elif contract.is_confirmed and display_mode == "my_confirmed_match" %}

@@ -1,5 +1,9 @@
+import random
+import string
 from collections import defaultdict
 from enum import Enum
+
+from account.models import SignupCode
 from django.core.urlresolvers import reverse
 
 from django.db import models
@@ -50,6 +54,7 @@ class Circle(TrustedMixin, models.Model):
 
     # circle's listing area. doesn't necessarily mean every member in the circle have to be in the area
     area = models.ForeignKey('puser.Area')
+    signup_code = models.OneToOneField('account.SignupCode', blank=True, null=True, on_delete=models.SET_NULL)
 
     def to_proxy(self):
         assert isinstance(self, Circle)
@@ -127,6 +132,7 @@ class Circle(TrustedMixin, models.Model):
             membership = self.get_membership(user)
             if membership.active:
                 membership.active = False
+                membership.approved = None
                 membership.save()
         except Membership.DoesNotExist:
             pass
@@ -214,6 +220,29 @@ class Circle(TrustedMixin, models.Model):
         proxy = self.to_proxy()
         assert proxy.__class__ != Circle
         return proxy.is_user_trusted(user, level)
+
+    def generate_signup_code(self):
+        code_length = 4
+        # try a maximum of 1000 times
+        for i in range(1000):
+            token = ''.join(random.SystemRandom().choice(string.ascii_lowercase + string.digits) for _ in range(code_length))
+            if not SignupCode.exists(code=token):
+                code = SignupCode.objects.create(code=token)
+                self.signup_code = code
+                self.save()
+                return code
+        else:
+            raise RuntimeError('Cannot generate a unique token')
+
+    def get_signup_code(self, force=True):
+        code = self.signup_code
+        if code:
+            return code
+        elif force:
+            code = self.generate_signup_code()
+            return code
+        else:
+            return code
 
 
 # class PersonalCircleManager(models.Manager):

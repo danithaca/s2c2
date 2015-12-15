@@ -202,6 +202,8 @@ class PublicCircleView(CircleView):
             context['user_membership'] = user_membership
         except:
             pass
+
+        context['signup_code'] = circle.get_signup_code()
         return context
 
 

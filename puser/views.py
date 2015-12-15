@@ -139,8 +139,8 @@ class InviteView(AnonymousRequiredMixin, FormView):
             if not Waiting.objects.filter(email=email).exists():
                 Waiting.objects.create(email=email)
 
-            # try signup code
-            code_str = form.cleaned_data['invitation_code']
+            # try signup code, change to lower case!
+            code_str = form.cleaned_data['invitation_code'].lower()
             if code_str:
                 try:
                     SignupCode.check_code(code_str)
@@ -417,11 +417,22 @@ class SignupView(MultiStepViewsMixin, account.views.SignupView):
         self.created_user.first_name = form.cleaned_data['first_name']
         self.created_user.last_name = form.cleaned_data['last_name']
         self.created_user.save()
+
         # update area
         info = self.created_user.to_puser().get_info()
         info.registered = True          # registered is always True after successfully go thru this step.
         info.set_area(form.cleaned_data['area'])
         info.save()
+
+        # handle signup code reference
+        if self.signup_code:
+            try:
+                circle = self.signup_code.circle
+                circle = circle.to_proxy()
+                circle.activate_membership(self.created_user)
+                circle.approve_membership(self.created_user)
+            except:
+                pass
 
         # send admin notice
         notify_send.delay(None, None, 'account/email/admin_new_user_signup', ctx={'user': self.created_user})
