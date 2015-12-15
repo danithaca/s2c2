@@ -584,11 +584,11 @@ class UserConnection(object):
         # if Match.objects.filter(target_user=self.target_user, contract__initiate_user=self.initiate_user, contract__event_end__lt=window_end, contract__event_start__gt=window_start).exists():
         #     return TrustLevel.COMMON.value
 
-        # COMMON: trust anyone who have a confirmed match regardless of time
+        # CLOSE: trust anyone who have a confirmed match regardless of time
         if Contract.objects.filter(initiate_user=self.initiate_user, confirmed_match__target_user=self.target_user, status__in=(Contract.Status.CONFIRMED.value, Contract.Status.SUCCESSFUL.value)).exists():
-            return TrustLevel.COMMON.value
+            return TrustLevel.CLOSE.value
         if Contract.objects.filter(initiate_user=self.target_user, confirmed_match__target_user=self.initiate_user, status__in=(Contract.Status.CONFIRMED.value, Contract.Status.SUCCESSFUL.value)).exists():
-            return TrustLevel.COMMON.value
+            return TrustLevel.CLOSE.value
 
         # REMOTE: friend's friends, sitters in extended network.
         personal_circle_membership = self.initiate_user.personal_circle_membership_queryset().filter(active=True, approved=True).values_list('member__id', flat=True)

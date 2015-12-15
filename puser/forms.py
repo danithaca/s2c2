@@ -87,8 +87,8 @@ class UserInfoForm(ModelForm):
         help_texts = {
             'area': 'This is where most of the babysitting activities take place. Limited to Ann Arbor and Ypsilanti at the time being.',
             # 'phone': 'This number will be shown to people your trust.',
-            'address': 'This helps your contacts find you for babysitting activities.',
-            'note': 'Tell people a little bit about yourself and the kids to be taken care of.'
+            'address': 'This helps your contacts find you for babysitting activities. Only visible to people in your network.',
+            'note': 'Tell people a little bit about yourself. Everyone on the site is able to see this.'
         }
 
 

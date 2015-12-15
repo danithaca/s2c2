@@ -15,7 +15,7 @@
 
 {% block card-footer %}<div class="horizontal-justified">
   <div>
-    {% if membership.is_pending_approval %}{% block pending-message %}<span class="text-muted" title="The user has not approved your request to be added in your network yet." data-toggle="tooltip"><i class="fa fa-hourglass-start"> </i> Pending</span>{% endblock %}{% endif %}
+    {% if membership.is_pending_approval %}{% block pending-message %}<span class="text-warning" title="The user has not approved your request to be added in your network yet." data-toggle="tooltip"><i class="fa fa-hourglass-start"> </i> Pending</span>{% endblock %}{% endif %}
   </div>
   <div>
     {% block card-footer-extra %}{% endblock %}

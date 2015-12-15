@@ -94,7 +94,8 @@ $(document).ready(function() {
     {% include 'elements/user_level.html' with user=target_user only %}
     {% if current_user != target_user %}{% include 'elements/user_connection_interactions.html' with user_connection=user_connection only %}{% endif %}
   </p>
-  {% if reverse_user_connection.trusted %}
+  {% is-trusted target_user 'common' as is_common_access %}
+  {% if is_common_access %}
     <ul class="list-inline">
       <li><i class="fa fa-envelope"></i> {{ target_user.email }}</li>
       {% if target_user.info.phone %}
@@ -120,7 +121,9 @@ $(document).ready(function() {
 {#      {% endif %}#}
 {#    {% endfor %}#}
 {#  </div>#}
+  {% is-trusted target_user 'common' as is_common_access %}
 
+  {% if is_common_access %}
   {% if list_pending_membership or list_personal_membership or list_public_membership %}
   <div class="section-title">Connections & Social Groups</div>
 
@@ -144,9 +147,11 @@ $(document).ready(function() {
   </div>
 
   <div class="grid" id="grid-list-connections">
+    {% if current_user == target_user%}
     {% for membership in list_pending_membership %}
       <div class="grid-item">{% include 'includes/card/membership_request.html' with membership=membership user=membership.circle.owner.to_puser %}</div>
     {% endfor %}
+    {% endif %}
     {% for membership in list_personal_membership %}
       <div class="grid-item" data-option="{{ membership.js_display_role }}">{% include 'includes/card/membership.html' with membership=membership user=membership.member.to_puser only %}</div>
     {% endfor %}
@@ -154,6 +159,7 @@ $(document).ready(function() {
       <div class="grid-item" data-option="group">{% include 'includes/card/group.html' with circle=membership.get_circle only %}</div>
     {% endfor %}
   </div>
+  {% endif %}
   {% endif %}
 
 {% endblock %}

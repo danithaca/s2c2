@@ -210,7 +210,6 @@ class UserView(LoginRequiredMixin, RegisteredRequiredMixin, RemoteTrustedMixin, 
 
         context = {
             'current_user': self.request.puser,
-            'full_access': user_connection.trusted(TrustLevel.FULL.value),
             'user_connection': user_connection,
             'reverse_user_connection': reverse_user_connection,
             'edit_account_menu_items': [(m.title, reverse(m.url)) for m in edit_account_menu_items]
