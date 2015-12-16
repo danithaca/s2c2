@@ -179,10 +179,10 @@ class Circle(TrustedMixin, models.Model):
     def is_type_tag(self):
         return self.type == Circle.Type.TAG.value
 
-    def count(self, membership_type=None):
-        qs = self.membership_set.filter(active=True, approved=True)
-        if type is not None:
-            qs.filter(type=membership_type)
+    def count(self, as_role=None):
+        qs = self.membership_set.filter(active=True).exclude(approved=False)
+        if as_role is not None:
+            qs.filter(as_role=as_role)
         return qs.count()
 
     def is_empty(self):
