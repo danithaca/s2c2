@@ -1,0 +1,5 @@
+{% extends 'email_body.txt' %}
+{% load p2_tags %}
+{% block body %}
+{% user-full-name circle.owner %} added you to his/her parents network on {{ site_url }}.
+{%endblock%}

@@ -14,7 +14,7 @@ from django.views.generic import FormView, CreateView, UpdateView, TemplateView,
 from django.views.generic.detail import SingleObjectMixin
 from circle.forms import CircleCreateForm, MembershipCreateForm, MembershipEditForm
 from circle.models import Membership, Circle, UserConnection
-from circle.tasks import circle_send_invitation
+from circle.tasks import circle_invite
 from puser.models import PUser
 from p2.utils import RegisteredRequiredMixin, UserRole, is_valid_email, ObjectAccessMixin, TrustLevel
 from shout.tasks import notify_send
@@ -377,7 +377,7 @@ class ParentJoinView(PersonalJoinView):
             ctx['shared_connection'] = shared_connection
         else:
             cc_list = []
-        notify_send.delay(circle.owner, member, 'circle/messages/parent_added', ctx=ctx, cc_user_list=cc_list)
+        notify_send.delay(circle.owner, member, 'circle/messages/added_parent', ctx=ctx, cc_user_list=cc_list)
 
 
 class SitterJoinView(PersonalJoinView):
@@ -408,7 +408,7 @@ class SitterJoinView(PersonalJoinView):
             ctx['shared_connection'] = shared_connection
         else:
             cc_list = []
-        notify_send.delay(circle.owner, member, 'circle/messages/sitter_added', ctx=ctx, cc_user_list=cc_list)
+        notify_send.delay(circle.owner, member, 'circle/messages/added_sitter', ctx=ctx, cc_user_list=cc_list)
 
 
 class GroupJoinView(CircleJoinView):
@@ -436,7 +436,7 @@ class GroupJoinView(CircleJoinView):
             'member': member,
         }
         admin_list = circle.get_admin_users()
-        notify_send.delay(member, admin_list, 'circle/messages/group_added', ctx=ctx)
+        notify_send.delay(member, admin_list, 'circle/messages/added_group', ctx=ctx)
 
 
 # todo: this has potential problem. e.g., a member goes to the personal circle and change herself as "admin".
@@ -640,15 +640,18 @@ class ActivateMembership(LoginRequiredMixin, CircleAdminMixin, SingleObjectMixin
                         # send notification
                         # if the user is a dummy user, send invitation code instead.
                         current_user = self.request.user.to_puser()     # this is to make a separate copy of the user to prevent "change dict" error at runtime
-                        circle_send_invitation.delay(circle, target_puser, current_user)
+                        # this should be a celery "delay" task. but for some reason the task is not discovered by celery.
+                        circle_invite(circle, target_puser, current_user)
                         processed_list.append(email)
                     else:
                         invalid_list.append(email)
                 else:
                     invalid_list.append(email)
 
-        if len(processed_list) > 0:
+        if len(processed_list) > 0 and circle.is_type_personal():
             messages.success(request, 'Successfully added %s into your network.' % ', '.join(processed_list))
+        elif len(processed_list) > 0 and circle.is_type_public():
+            messages.success(request, 'Successfully added %s into the group.' % ', '.join(processed_list))
         return self.render_json_response({'processed': processed_list, 'invalid': invalid_list})
 
 

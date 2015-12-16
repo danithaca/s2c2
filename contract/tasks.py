@@ -4,9 +4,9 @@ from celery import shared_task
 from django.utils.timezone import localtime, now
 
 
-@shared_task
-def dummy(x, y):
-    return x + y
+# @shared_task
+# def dummy(x, y):
+#     return x + y
 
 
 @shared_task

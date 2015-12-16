@@ -62,7 +62,9 @@ INSTALLED_APPS = (
     # customized
     'p2',
     'puser.apps.PUserConfig',
+    # for some reason using the CircleConfig will make celery not able to find/register tasks.
     'circle.apps.CircleConfig',
+    # 'circle',
     'contract.apps.ContractConfig',
     'shout',
 )

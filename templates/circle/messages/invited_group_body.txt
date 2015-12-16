@@ -3,5 +3,5 @@
 {% block body %}
 You are receiving this email because {% user-full-name from_user %} invited you to join the group "{{ circle.display }}" on {{ site_name }}. You can browse other parents affiliated with the group at:
 
-{{ site_url }}{{ circle.get_absolute_url }}
+{{ site_url }}{% url 'circle:group_view' pk=circle.id %}
 {%endblock%}

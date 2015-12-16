@@ -1,9 +1,14 @@
 from celery import shared_task
-from django.core.urlresolvers import reverse
-
-from puser.models import PUser
 
 
+@shared_task
+def dummy(x, y):
+    return x + y
+
+
+# from puser.models import PUser
+#
+#
 # @shared_task
 # def handle_public_membership_approval(membership):
 #     assert membership.circle.is_type_public() and membership.active
@@ -21,31 +26,34 @@ from puser.models import PUser
 #         })
 
 
+# todo: if we use circle.apps.AppConfig in settings.py to register the circle app, then these tasks are not discovered.
+# need to figure out what went wrong ...
 @shared_task
-def circle_send_invitation(circle, target_user, send_user):
+def circle_invite(circle, member, initiate_user):
     """
-    This is the hub that sends out invitation to users (new or existing) when they are added to a circle.
+    This is the hub that sends out invitation to the "member" user (new or existing) when s/he is added to the "circle" by "initiate_user".
     """
-    target_user = target_user.to_puser()
+    member = member.to_puser()
+    membership = circle.get_membership(member)
+
     from shout.notify import notify_agent
     #link = reverse('circle:parent')
 
     context = {
         # 'review_link': link,
         'circle': circle,
-        'target_user': target_user,
-        'member': target_user
+        'member': member
     }
-    if not target_user.is_registered():
+    if not member.is_registered():
         context['signup_warning'] = True
 
-    if send_user is None:
-        send_user = circle.owner
+    if initiate_user is None:
+        initiate_user = circle.owner
 
     # todo: fix this
-    if circle.is_type_parent():
-        notify_agent.send(send_user, target_user, 'circle/messages/parent_added', context)
-    elif circle.is_type_sitter():
-        notify_agent.send(send_user, target_user, 'circle/messages/sitter_added', context)
-    elif circle.is_type_tag():
-        notify_agent.send(send_user, target_user, 'circle/messages/group_invited', context)
+    if membership.is_valid_parent_relation():
+        notify_agent.send(initiate_user, member, 'circle/messages/invited_parent', context)
+    elif membership.is_valid_sitter_relation():
+        notify_agent.send(initiate_user, member, 'circle/messages/invited_sitter', context)
+    elif membership.is_valid_group_membership():
+        notify_agent.send(initiate_user, member, 'circle/messages/invited_group', context)
