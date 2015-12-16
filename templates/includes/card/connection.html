@@ -4,7 +4,13 @@
 
 {% block card-note %}
   {% for connected_circle in user_connection.get_circle_list %}
-    <span class="label label-default">{{ connected_circle.display }}</span>
+    {% if connected_circle.is_type_public %}
+      <a href="{% url 'circle:group_view' pk=connected_circle.id %}"><span class="label label-default">{{ connected_circle.display }}</span></a>
+    {% elif connected_circle.is_type_personal %}
+      <a href="{% url 'account_view' pk=connected_circle.owner.id %}"><span class="label label-default">{{ connected_circle.display }}</span></a>
+    {% else %}
+      <span class="label label-default">{{ connected_circle.display }}
+    {% endif %}
   {% endfor %}
 {% endblock %}
 
