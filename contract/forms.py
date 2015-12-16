@@ -76,7 +76,7 @@ class ContractForm(forms.ModelForm):
         # self.fields['area'].widget.attrs['disabled'] = True
 
         self.fields['audience_type'].choices = (
-            (Contract.AudienceType.SMART.value, 'Let Servuno choose automatically (recommended)'),
+            (Contract.AudienceType.SMART.value, 'Let Servuno choose automatically'),
             (Contract.AudienceType.MANUAL.value, 'Choose manually')
         )
         # self.fields['audience_type'].widget.attrs = {'class': 'form-control'}

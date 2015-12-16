@@ -29,7 +29,7 @@ def dummy(x, y):
 # todo: if we use circle.apps.AppConfig in settings.py to register the circle app, then these tasks are not discovered.
 # need to figure out what went wrong ...
 @shared_task
-def circle_invite(circle, member, initiate_user):
+def circle_invite(circle, member, initiate_user, personal_note):
     """
     This is the hub that sends out invitation to the "member" user (new or existing) when s/he is added to the "circle" by "initiate_user".
     """
@@ -42,7 +42,8 @@ def circle_invite(circle, member, initiate_user):
     context = {
         # 'review_link': link,
         'circle': circle,
-        'member': member
+        'member': member,
+        'personal_note': personal_note
     }
     if not member.is_registered():
         context['signup_warning'] = True

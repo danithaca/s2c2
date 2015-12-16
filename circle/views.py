@@ -612,6 +612,7 @@ class ActivateMembership(LoginRequiredMixin, CircleAdminMixin, SingleObjectMixin
         circle = self.get_circle().to_proxy()
         email_field = request.POST.get('email_field', None)
         is_sitter = json.loads(request.POST.get('is_sitter', 'false'))      # this is json string.
+        personal_note = request.POST.get('personal_note', '')
         as_role = UserRole.PARENT.value if not is_sitter else UserRole.SITTER.value
         processed_list = []
         invalid_list = []
@@ -641,7 +642,7 @@ class ActivateMembership(LoginRequiredMixin, CircleAdminMixin, SingleObjectMixin
                         # if the user is a dummy user, send invitation code instead.
                         current_user = self.request.user.to_puser()     # this is to make a separate copy of the user to prevent "change dict" error at runtime
                         # this should be a celery "delay" task. but for some reason the task is not discovered by celery.
-                        circle_invite(circle, target_puser, current_user)
+                        circle_invite(circle, target_puser, current_user, personal_note)
                         processed_list.append(email)
                     else:
                         invalid_list.append(email)

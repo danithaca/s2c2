@@ -2,4 +2,9 @@
 {% load p2_tags %}
 {% block body %}
 {% user-full-name circle.owner %} added you to his/her parents network on {{ site_url }}.
+{% if personal_note %}
+Note from {% user-full-name circle.owner %}:
+
+{{ personal_note }}
+{% endif %}
 {%endblock%}
