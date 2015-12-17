@@ -487,6 +487,8 @@ class MembershipEditView(LoginRequiredMixin, RegisteredRequiredMixin, AllowMembe
 
 
 class GroupMembershipEditView(MembershipEditView):
+    template_name = 'circle/membership/edit_group.html'
+
     def get_form(self, form_class=None):
         form = super().get_form(form_class=form_class)
         membership = self.get_object()

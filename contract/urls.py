@@ -8,7 +8,7 @@ from contract import views
 urlpatterns = patterns(
     "",
     url(r'^(?P<pk>\d+)/$', views.ContractDetail.as_view(), name='view'),
-    url(r"^list/$", views.EngagementList.as_view(), name="engagement_list"),
+    url(r"^$", views.EngagementList.as_view(), name="engagement_list"),
     url(r"^calendar/$", views.CalendarView.as_view(), name="calendar"),
     url(r"^(?P<pk>\d+)/edit/$", views.ContractEdit.as_view(), name="edit"),
 
@@ -22,7 +22,7 @@ urlpatterns = patterns(
     # url(r'^match/(?P<pk>\d+)/edit/$', views.MatchDetail.as_view(edit=True), name='match_edit'),
 
     # only available for staff members to see all contracts.
-    url(r"^$", staff_member_required(views.ContractList.as_view(), login_url=reverse_lazy('account_login')), name="list"),
+    # url(r"^$", staff_member_required(views.ContractList.as_view(), login_url=reverse_lazy('account_login')), name="list"),
 
     # api related
     url(r'^(?P<pk>\d+)/status$', views.ContractChangeStatus.as_view(), name='change_status'),

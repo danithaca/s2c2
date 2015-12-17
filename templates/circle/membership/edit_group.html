@@ -1,7 +1,10 @@
 {% extends 'circle/membership/edit.html' %}
+{% load p2_tags %}
+
+{% block content-title %}{% user-full-name membership.member.to_puser %} <small class="text-muted">({{ membership.circle.display }})</small>{% endblock %}
 
 {% block content-introduction %}
   {% if membership.is_pending_approval %}
-    <span class="text-danger">Connection request is pending approval from the group's administrators.</span>
+    <p class="text-danger">Connection request is pending approval from the group's administrators.</p>
   {% endif %}
 {% endblock %}
