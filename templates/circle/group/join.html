@@ -4,7 +4,10 @@
 
 {% block content-title %}Join Group as a Parent{% endblock %}
 
-{% block content-introduction %}Fill in the form to join <em>{{ circle.name }}</em>.{% endblock %}
+{% block content-introduction %}
+  <p>Fill in the form to join <em>{{ circle.name }}</em>.</p>
+  {% if circle.is_agency %}<p>This group is maintained by a 3rd party agency. If you join the group as a parent, you will not be listed in the group's page. Babysitters are by invitation only and cannot join the group using this form.</p>{% endif %}
+{% endblock %}
 
 {% block content %}
   <form class="form form-horizontal" method="post">

@@ -23,7 +23,7 @@
 {% block content-title %}
   <i class="fa fa-paw"></i>
   {% if circle.homepage %}
-    <a href="{{ circle.homepage }}" target="_blank">{{ circle.display }} <i class="fa fa-external-link"></i></a>
+    {{ circle.display }} <a href="{{ circle.homepage }}" target="_blank"><i class="fa fa-external-link"></i></a>
   {% else %}
     {{ circle.display }}
   {% endif %}
@@ -61,10 +61,14 @@
       </li>
     {% endfor %}
     <li title="Number of group members." data-toggle="tooltip">{% include 'elements/circle_member_count.html' with count=circle.count %}</li>
+    {% if circle.is_agency %}
+      <li class=""><strong><span class="" title="This group is maintained by 3rd parties with an intent to provide high quality babysitters. Parents who joined the group will not be listed here." data-toggle="tooltip"><i class="fa fa-shield"></i> AGENCY</span></strong></li>
+    {% endif %}
   </ul>
 {% endblock %}
 
 {% block membership-display %}
+  {% if not circle.is_agency %}
   {% if is_view_access %}
     {% if not list_membership %}
       <p>No one is in this group.</p>
@@ -77,6 +81,7 @@
     {% endif %}
   {% else %}
     <p>You are not a member of the group and cannot view other members of the group. Please join the group if you are affliated. Membership is pending on approval from the group administrators.</p>
+  {% endif %}
   {% endif %}
 {% endblock %}
 

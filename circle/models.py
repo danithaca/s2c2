@@ -48,7 +48,12 @@ class Circle(TrustedMixin, models.Model):
     owner = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='owner')
     created = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True)
+
+    # "active" is obsolete. need to remove at some point.
     active = models.BooleanField(default=True)
+    mark_agency = models.BooleanField(default=False, help_text='Whether this circle is "Agency". Only valid for public circles.')
+    # use this name to be distinguished from Membership.approved.
+    mark_approved = models.NullBooleanField(default=None, help_text='Whether this circle is approved by site admins. Only valid for public circles.')
 
     members = models.ManyToManyField(settings.AUTH_USER_MODEL, through='Membership')
 
@@ -178,6 +183,9 @@ class Circle(TrustedMixin, models.Model):
 
     def is_type_tag(self):
         return self.type == Circle.Type.TAG.value
+
+    def is_agency(self):
+        return self.is_type_public() and self.mark_agency
 
     def count(self, as_role=None):
         qs = self.membership_set.filter(active=True).exclude(approved=False)

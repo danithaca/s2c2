@@ -7,9 +7,12 @@
 
 {% block card-title %}<a href="{% url 'circle:group_view' pk=circle.id %}" class="">{{ circle.name }}</a>{% endblock %}
 
-{% block card-title-badge %}{% if circle.user_membership and circle.user_membership.is_admin %}<span class="text-warning" title="Group administrator" data-toggle="tooltip"><i class="fa fa-star"></i></span>{% endif %}{% endblock %}
+{% block card-title-badge %}
+  {% if circle.user_membership and circle.user_membership.is_admin %}<span class="text-warning" title="Group administrator" data-toggle="tooltip"><i class="fa fa-star"></i></span>{% endif %}
+  {% if circle.is_agency %}<span class="text-info" title="This group is maintained by 3rd parties with the intention to provide high quality babysitters." data-toggle="tooltip"><i class="fa fa-shield"></i></span>{% endif %}
+{% endblock %}
 
-{% block card-note %}{% if circle.description %}<span class="">{{ circle.description }}</span>{% endif %}{% endblock %}
+{% block card-note %}{% if circle.description %}<span class="">{{ circle.description|truncatechars:200 }}</span>{% endif %}{% endblock %}
 
 {% block card-footer %}<div class="horizontal-justified">
   <div></div>

@@ -56,7 +56,7 @@ $(document).ready(function() {
       <input id="new-item" class="form-control" placeholder="Email address" autofocus>
       <span class="input-group-btn"><button class="btn btn-primary" id="new-item-add-btn"><i class="fa fa-user-plus"></i> {% block add-button-name %}Add{% endblock %}</button></span>
     </div>
-    <div class="checkbox min-margin-bottom {% if not show_sitter_switch %}hidden{% endif %}"><label><input name="is_sitter" type="checkbox" {% if is_sitter %}checked{% endif %}> <span>Add as an endorsed babysitter</span></label></div>
+    <div class="checkbox min-margin-bottom {% if not show_sitter_switch %}hidden{% endif %}"><label><input name="is_sitter" type="checkbox" {% if is_sitter %}checked{% endif %}> <span>Add endorsed babysitters</span></label></div>
   {% endif %}
 
   {% block membership-display %}

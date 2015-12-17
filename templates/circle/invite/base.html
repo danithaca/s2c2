@@ -3,8 +3,10 @@
 
 {% block extra_header %}
 {% include 'includes/js_grid.html' %}
+<script src="//cdnjs.cloudflare.com/ajax/libs/spin.js/2.3.2/spin.min.js"></script>
 <script>
 $(document).ready(function() {
+
   // handle invite clicks
   $('#id-new-item-btn').click(function() {
     var val = $.trim($('#id-new-item').val());
@@ -20,6 +22,11 @@ $(document).ready(function() {
           {% endif %}
         }
       });
+      // show spinner while waiting
+      var spinner = new Spinner({
+        color: '#0D87E9'
+      }).spin();
+      $('body').append(spinner.el);
     }
   });
 });
@@ -29,7 +36,6 @@ $(document).ready(function() {
 
 {% block content %}
   <form class="form form-horizontal">
-
     <div class="form-group">
       <label class="control-label col-sm-2" for="id-new-item">Email</label>
       <div class=" col-sm-10 col-lg-10 ">
@@ -42,7 +48,7 @@ $(document).ready(function() {
       <div class=" col-sm-offset-2 col-sm-10">
         <div class="checkbox">
           <label>
-            <input type="checkbox" name="is_sitter" {% if sitter_checked_default %}checked="checked"{% endif %}> <span>Add as an endorsed babysitter</span>
+            <input type="checkbox" name="is_sitter" {% if sitter_checked_default %}checked="checked"{% endif %}> <span>Add as endorsed babysitters</span>
           </label>
           <p class="help-block">If unchecked, the contact will be added into the group/network as parents</p>
         </div>

@@ -45,6 +45,7 @@ class CircleAdminMixin(UserPassesTestMixin):
 
     def test_func(self, user):
         circle = self.get_circle()
+        assert circle is not None
         if user in circle.get_admin_users():
             return True
         else:
@@ -606,7 +607,7 @@ class BaseInviteView(LoginRequiredMixin, RegisteredRequiredMixin, CircleAdminMix
     template_name = 'circle/invite/base.html'
 
     def get_circle(self):
-        self.request.puser.get_personal_circle()
+        return self.request.puser.get_personal_circle()
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -637,6 +638,8 @@ class GroupInviteView(BaseInviteView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['show_sitter_switch'] = True
+        if self.get_circle().is_agency():
+            context['sitter_checked_default'] = True
         return context
 
 

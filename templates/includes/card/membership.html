@@ -7,6 +7,7 @@
 
 {% block card-title-badge %}
   {% if membership.as_admin or membership.as_favorite %}<span class="text-warning"><i class="fa fa-star"></i></span>{% endif %}
+{#  {% if membership.circle.is_agency %}<span class="text-info"><i class="fa fa-shield"></i></span>{% endif %}#}
 {% endblock %}
 
 {#{% block user-name-extra-classes %}{% if membership.is_pending_approval %}text-muted{% endif %}{% endblock %}#}
