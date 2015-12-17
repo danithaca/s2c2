@@ -602,6 +602,44 @@ class DiscoverView(LoginRequiredMixin, RegisteredRequiredMixin, DetailView):
         return context
 
 
+class BaseInviteView(LoginRequiredMixin, RegisteredRequiredMixin, CircleAdminMixin, TemplateView):
+    template_name = 'circle/invite/base.html'
+
+    def get_circle(self):
+        self.request.puser.get_personal_circle()
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['current_user'] = self.request.puser
+        context['circle'] = self.get_circle()
+        return context
+
+
+class ParentInviteView(BaseInviteView):
+    template_name = 'circle/invite/parent.html'
+
+
+class SitterInviteView(BaseInviteView):
+    template_name = 'circle/invite/sitter.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['sitter_checked_default'] = True
+        return context
+
+
+class GroupInviteView(BaseInviteView):
+    template_name = 'circle/invite/group.html'
+
+    def get_circle(self):
+        return Circle.objects.get(pk=self.kwargs.get('pk', None))
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['show_sitter_switch'] = True
+        return context
+
+
 ################## views for API ########################
 
 

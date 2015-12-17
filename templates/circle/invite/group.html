@@ -1,0 +1,6 @@
+{% extends "circle/invite/base.html" %}
+{% load p2_tags %}
+
+{% block content-title %}Invite People to Join "{{ circle.display }}"{% endblock %}
+
+{% block default_message %}Dear friend, I would like to invite you to join the parents group on "{{ circle.display }}". You are able to access the group's endorsed babysitters and co-op with other parents for occasional babysitting. -- {% user-short-name current_user %}{% endblock %}

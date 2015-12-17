@@ -33,9 +33,9 @@
 {% block content-command-list %}
   <div class="btn-group btn-group-sm">
   {% if user_membership.is_admin %}
+    <a href="{% url 'circle:group_invite' pk=circle.id %}" class="btn btn-primary"><i class="fa fa-user-plus"></i> Invite</a>
     <a href="{% url 'circle:group_edit' pk=circle.id %}" class="btn btn-info"><i class="fa fa-pencil"></i> Edit Group</a>
-  {% endif %}
-  {% if user_membership.is_joined %}
+  {% elif user_membership.is_joined %}
     <a href="{% url 'circle:membership_edit_group' pk=user_membership.id %}" class="btn btn-warning"><i class="fa fa-edit"></i> Note</a>
     <span class="btn btn-default ajax-post-refresh" data-post-url="{% url 'circle:membership_deactivate' pk=user_membership.id %}"><i class="fa fa-sign-out"></i> Leave Group</span>
   {% else %}
@@ -48,7 +48,7 @@
   <p>{{ circle.description|default:"No group description." }}</p>
   {% is-trusted circle 'common' as is_common_access %}
   {% if is_common_access %}
-    <p><i class="fa fa-key"></i> Sign up code: <strong title="Invite people to join the group using this code during Sign Up." data-toggle="tooltip">{{ signup_code.code|upper }}</strong></p>
+    <p><span title="Invite people to join the group using this code during Sign Up." data-toggle="tooltip"><i class="fa fa-key"></i> Sign up code: <strong>{{ signup_code.code|upper }}</strong></span></p>
   {% endif %}
   <ul class="list-inline text-right">
     {% for admin_user in circle.get_admin_users %}
@@ -82,7 +82,7 @@
 
 {% block extended-block %}
   {% if is_view_access and list_sitter_membership %}
-    <div class="page-header"><h6>Babysitters Endorsed by This Group</h6></div>
+    <div class="section-title min-margin-top"><small>Babysitters Endorsed by This Group</small></div>
     <div class="grid">
       {% for sitter_membership in list_sitter_membership %}
         <div class="grid-item">{% include 'includes/card/membership_group.html' with user=sitter_membership.member.to_puser membership=sitter_membership allow_edit=is_admin_access only %}</div>

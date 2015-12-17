@@ -56,8 +56,9 @@ section {
 
 {# parents #}
 <section>
-  <div class="section-title">
+  <div class="section-title horizontal-justified">
     <span><i class="fa fa-users"></i> Parents You Might Know <small class="hover-pointer pale" data-toggle="collapse" href="#help-block-parent"><i class="fa fa-info-circle"></i></small></span>
+    <a class="btn btn-primary" href="{% url 'circle:parent_invite' %}"><i class="fa fa-user-plus"></i> Invite Parents</a>
   </div>
   <div class="collapse well" id="help-block-parent">
     <p>The more connections you have within Servuno, the better the system will work for you. Add other parents to your network by entering their email address below – Servuno will then send them an email invitation so they can sign up!</p>
@@ -68,10 +69,10 @@ section {
       <li>Share babysitting resources</li>
     </ul>
   </div>
-  <div class="input-group min-margin-bottom">
-    <input id="new-item-parent" class="form-control" placeholder="Email address">
-    <span class="input-group-btn"><button class="btn btn-primary" id="new-item-btn-parent"><i class="fa fa-user-plus"></i> Invite</button></span>
-  </div>
+{#  <div class="input-group min-margin-bottom">#}
+{#    <input id="new-item-parent" class="form-control" placeholder="Email address">#}
+{#    <span class="input-group-btn"><button class="btn btn-primary" id="new-item-btn-parent"><i class="fa fa-user-plus"></i> Invite</button></span>#}
+{#  </div>#}
   {% if not list_extended_parent %}
     <p>None is found. Join social groups and add more parents into your network to see recommendations here. Invite people you know by email.</p>
   {% else %}
@@ -85,16 +86,17 @@ section {
 
 <section>
   {# sitters #}
-  <div class="section-title">
+  <div class="section-title horizontal-justified">
     <span><i class="fa fa-car"></i> Babysitters from Your Network <small class="hover-pointer pale" data-toggle="collapse" href="#help-block-sitter"><i class="fa fa-info-circle"></i></small></span>
+    <a class="btn btn-primary" href="{% url 'circle:sitter_invite' %}"><i class="fa fa-user-plus"></i> Invite Sitters</a>
   </div>
   <div class="collapse well" id="help-block-sitter">
     <p>This is the place for you to add all of your trusted babysitters for easy reach-out when you need someone at a moment’s notice! Add anyone you can think of – grandparents, friends, professional babysitters – as long as they are someone you can trust.</p>
   </div>
-  <div class="input-group min-margin-bottom">
-    <input id="new-item-sitter" class="form-control" placeholder="Email address">
-    <span class="input-group-btn"><button class="btn btn-primary" id="new-item-btn-sitter"><i class="fa fa-user-plus"></i> Invite</button></span>
-  </div>
+{#  <div class="input-group min-margin-bottom">#}
+{#    <input id="new-item-sitter" class="form-control" placeholder="Email address">#}
+{#    <span class="input-group-btn"><button class="btn btn-primary" id="new-item-btn-sitter"><i class="fa fa-user-plus"></i> Invite</button></span>#}
+{#  </div>#}
   {% if not list_extended_sitter %}
     <p>None is found. Join social groups and add more parents into your network to be able to access their endorsed babysitters. Add contacts of your trusted babysitters to share with your network!</p>
   {% else %}

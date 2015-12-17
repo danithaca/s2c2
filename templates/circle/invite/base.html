@@ -1,0 +1,65 @@
+{% extends "base.html" %}
+{% load p2_tags %}
+
+{% block extra_header %}
+{% include 'includes/js_grid.html' %}
+<script>
+$(document).ready(function() {
+  // handle invite clicks
+  $('#id-new-item-btn').click(function() {
+    var val = $.trim($('#id-new-item').val());
+    var is_sitter = $('input[name="is_sitter"]').is(':checked');
+    var personal_note = $.trim($('#id-personal-note').val());
+    if (val) {
+      $.post("{% url 'circle:membership_activate' pk=circle.id %}", {email_field: val, is_sitter: is_sitter, personal_note: personal_note}, function(data) {
+        if (data['processed'] && data['processed'].length > 0) {
+          {% if circle.is_type_public %}
+            window.location = '{% url 'circle:group_view' pk=circle.id %}';
+          {% else %}
+            window.location = '{% url 'circle:discover' %}';
+          {% endif %}
+        }
+      });
+    }
+  });
+});
+</script>
+{% endblock %}
+
+
+{% block content %}
+  <form class="form form-horizontal">
+
+    <div class="form-group">
+      <label class="control-label col-sm-2" for="id-new-item">Email</label>
+      <div class=" col-sm-10 col-lg-10 ">
+        <textarea class="form-control" id="id-new-item" name="new-item" placeholder="" rows="2"></textarea>
+        <p class="help-block">The email address of the people you want to invite. Separate multiple email addresses using spaces or commas.</p>
+      </div>
+    </div>
+
+    <div class="form-group {% if not show_sitter_switch %}hidden{% endif %}">
+      <div class=" col-sm-offset-2 col-sm-10">
+        <div class="checkbox">
+          <label>
+            <input type="checkbox" name="is_sitter" {% if sitter_checked_default %}checked="checked"{% endif %}> <span>Add as an endorsed babysitter</span>
+          </label>
+          <p class="help-block">If unchecked, the contact will be added into the group/network as parents</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label class="control-label col-sm-2" for="id-personal-note">Message</label>
+      <div class=" col-sm-10 col-lg-10 ">
+        <textarea class=" form-control" cols="40" id="id-personal-note" name="personal-note" placeholder="" rows="5">{% block default_message %}{% endblock %}</textarea>
+        <p class="help-block">A personal note.</p>
+      </div>
+    </div>
+    <div class="form-group">
+      <div class="col-sm-offset-2 col-sm-10">
+        <span id="id-new-item-btn" name="new-item-btn" class="btn btn-primary">Send Invitation</span>
+      </div>
+    </div>
+  </form>
+{% endblock %}

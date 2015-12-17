@@ -1,0 +1,6 @@
+{% extends "circle/invite/base.html" %}
+{% load p2_tags %}
+
+{% block content-title %}Invite Babysitters to Join My Network{% endblock %}
+
+{% block default_message %}Dear friend, I would like to invite you to join Servuno, a site that helps parents share access to babysitters for on demand babysitting needs. -- {% user-short-name current_user %}{% endblock %}

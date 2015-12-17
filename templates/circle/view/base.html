@@ -51,7 +51,7 @@ $(document).ready(function() {
 {% block content %}
   {% is-trusted circle 'close' as is_admin_access %}
   {% is-trusted circle 'remote' as is_view_access %}
-  {% if is_admin_access %}
+  {% if is_admin_access and circle.is_type_personal %}
     <div class="input-group min-margin-bottom">
       <input id="new-item" class="form-control" placeholder="Email address" autofocus>
       <span class="input-group-btn"><button class="btn btn-primary" id="new-item-add-btn"><i class="fa fa-user-plus"></i> {% block add-button-name %}Add{% endblock %}</button></span>
