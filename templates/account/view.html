@@ -93,6 +93,9 @@ $(document).ready(function() {
     {% if not target_user.is_registered %}<span class="label label-danger">Unregistered</span>{% endif %}
     {% include 'elements/user_level.html' with user=target_user only %}
     {% if current_user != target_user %}{% include 'elements/user_connection_interactions.html' with user_connection=user_connection only %}{% endif %}
+    {% for agency_membership in target_user.find_agency_membership %}
+      <span class="label label-success" title="{% user-short-name target_user %} is endorsed by this group" data-toggle="tooltip"><i class="fa fa-shield"></i> {{ agency_membership.circle.display }}</span>
+    {% endfor %}
   </p>
   {% is-trusted target_user 'common' as is_common_access %}
   {% if is_common_access %}

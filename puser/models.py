@@ -487,6 +487,9 @@ class PUser(TrustedMixin, User):
             name = self.username
         return name
 
+    def find_agency_membership(self):
+        return list(Membership.objects.filter(member=self, circle__type=Circle.Type.PUBLIC.value, circle__mark_agency=True, active=True, approved=True, as_role=UserRole.SITTER.value))
+
 
 # @receiver(password_changed, sender=PasswordResetTokenView)
 # @receiver(password_changed, sender=ChangePasswordView)
