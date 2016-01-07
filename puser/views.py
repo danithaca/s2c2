@@ -285,24 +285,26 @@ class MultiStepViewsMixin(ContextMixin):
     """
 
     final_url = reverse_lazy('tour')
+    _steps_meta = None
 
-    @classmethod
-    def get_steps_meta(cls):
-        step_order = [SignupView, OnboardPreference]
-        steps_meta = OrderedDict()
-        for step_i, step_class in enumerate(step_order):
-            step_title = step_class.step_title
-            step_url = step_class.step_url
-            if step_i < len(step_order) - 1:
-                next_step_url = step_order[step_i + 1]
-            else:
-                next_step_url = cls.final_url
-            steps_meta[step_class.__name__] = {
-                'url': step_url,
-                'title': step_title,
-                'next_url': next_step_url,
-            }
-        return steps_meta
+    def get_steps_meta(self):
+        if self._steps_meta is None:
+            step_order = [SignupView, OnboardPreference]
+            steps_meta = OrderedDict()
+            for step_i, step_class in enumerate(step_order):
+                step_title = step_class.step_title
+                step_url = step_class.step_url
+                if step_i < len(step_order) - 1:
+                    next_step_url = step_order[step_i + 1].step_url
+                else:
+                    next_step_url = self.final_url
+                steps_meta[step_class.__name__] = {
+                    'url': step_url,
+                    'title': step_title,
+                    'next_url': next_step_url,
+                }
+            self._steps_meta = steps_meta
+        return self._steps_meta
 
         # step_url = [reverse('account_signup'), reverse('onboard_preference')]
         # next_step_url = list(step_url)
@@ -337,10 +339,9 @@ class MultiStepViewsMixin(ContextMixin):
         context['next_step_url'] = self.get_next_step_url()
         return context
 
-    @classmethod
-    def get_next_step_url(cls):
-        steps_meta = cls.get_steps_meta()
-        current_step_name = cls.__name__
+    def get_next_step_url(self):
+        steps_meta = self.get_steps_meta()
+        current_step_name = self.__class__.__name__
         return steps_meta[current_step_name]['next_url']
 
     # this only works for FormView where sucess_url is needed.

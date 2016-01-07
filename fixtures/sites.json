@@ -1,1 +1,18 @@
-[{"fields": {"domain": "center.servuno.com", "name": "Servuno Children's Center"}, "model": "sites.site", "pk": 1}, {"fields": {"domain": "servuno.com", "name": "Servuno Main Site"}, "model": "sites.site", "pk": 2}]
+[
+  {
+    "fields": {
+      "domain": "center.servuno.com",
+      "name": "Servuno Children's Center"
+    },
+    "model": "sites.site",
+    "pk": 1
+  },
+  {
+    "fields": {
+      "domain": "servuno.com",
+      "name": "Servuno Main Site"
+    },
+    "model": "sites.site",
+    "pk": 2
+  }
+]

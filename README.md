@@ -38,6 +38,15 @@ Important places for promotion purposes:
   * templates/account/new_user_invite
 
 
+Rebuild database
+----------------------
+
+1. Run `manage.py migrate`
+2. Run `manage.py createsuperuser`
+3. Load fixtures
+4. Recreate sitetreeload with `--mode=replace` (in order to keep ID)
+
+
 WSGI Settings
 -------------
 
