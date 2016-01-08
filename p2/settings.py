@@ -114,7 +114,10 @@ MEDIA_ROOT = os.path.join(BASE_DIR_ASSETS, 'media')
 MEDIA_URL = '/media/'
 
 # data dir for internal use
-DATA_DIR = os.path.join(BASE_DIR, 'fixtures')
+# DATA_DIR = os.path.join(BASE_DIR, 'fixtures')
+
+# fixtures dir for testing, loaddata
+FIXTURE_DIRS = [os.path.join(BASE_DIR, 'fixtures'),]
 
 
 ################# services ###################

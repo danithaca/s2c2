@@ -1,11 +1,11 @@
-from datetime import date, time, datetime
+import json
+from datetime import date, time, datetime, timedelta
 from enum import Enum
 import functools
 import sys
 import warnings
 from braces.views import FormValidMessageMixin, UserPassesTestMixin
 from django.contrib import messages
-from django.contrib.auth import REDIRECT_FIELD_NAME
 
 from django.contrib.messages import get_messages
 from django.contrib.sites.models import Site
@@ -13,7 +13,6 @@ from django.shortcuts import redirect
 
 from django.template.loader import render_to_string
 from django.utils import timezone
-
 
 def get_site_url():
     current_site = Site.objects.get_current()
@@ -169,3 +168,70 @@ class ObjectAccessMixin(UserPassesTestMixin):
     def handle_no_permission(self, request):
         messages.error(request, 'You do not have sufficient trust level to access the specified target.')
         return super().handle_no_permission(request)
+
+
+################ for test purposes ################
+
+
+class TestEnvMixin(object):
+    fixtures = ['area.json', 'signup_code.json', 'sites.json']
+
+    def setUp(self):
+        recreate_test_env()
+
+
+def recreate_test_env():
+    from puser.models import PUser
+    from circle.models import Friendship
+    from contract.models import Contract, Match
+    from contract.algorithms import ManualRecommender
+
+    # delete all old users
+    PUser.objects.filter(email__in=['test' + s + '@servuno.com' for s in ('', '1', '2', '3', '4', '5')]).delete()
+
+    ###  create users
+    t = PUser.create('test@servuno.com', 'password', False)
+    t.first_name, t.last_name = 'John', 'Smith'
+    t.info.phone = '555-555-5555'
+    t.info.note = 'This is a test account.'
+    t.save()
+    t.info.save()
+
+    t1 = PUser.create('test1@servuno.com', 'password', False)
+    t1.first_name, t.last_name = 'Test1', 'Bot'
+    t1.info.note = 'This is another test account.'
+    t1.save()
+    t1.info.save()
+
+    t2 = PUser.create('test2@servuno.com', 'Pa22w0rd', False)
+    t2.first_name, t.last_name = 'Nancy', 'Doe'
+    t2.is_staff = True
+    t2.info.note = 'This is another test account.'
+    t2.save()
+    t2.info.save()
+
+    # 'test3' is a dummy user to test other things.
+    t3 = PUser.create('test3@servuno.com', 'password', dummy=True)
+
+    ### add circles
+    f_t_t1 = Friendship(t, t1)
+    f_t_t1.activate()
+    f_t_t1.approve()
+
+    f_t_t2 = Friendship(t, t2)
+    f_t_t2.activate()
+    f_t_t2.approve()
+
+    ### add contracts
+    current_time = timezone.now()
+    t_c = Contract.objects.create(initiate_user=t, area=t.info.area, price=0, event_start=(current_time - timedelta(hours=4)), event_end=(current_time - timedelta(hours=3)), audience_type=Contract.AudienceType.MANUAL.value, audience_data=json.dumps({'users': [t1.id, t2.id]}))
+
+    # this will not work because the contract is already expired.
+    # t_c.recommend(initial=True)
+    recommender = ManualRecommender(t_c)
+    recommender.recommend_initial()
+
+    t_c_m = t_c.match_set.get(target_user=t1)
+    t_c_m.accept()
+    t_c.confirm(t_c_m)
+    t_c.succeed()

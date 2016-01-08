@@ -265,56 +265,6 @@ class PUser(TrustedMixin, User):
         uc = UserConnection(self, user)
         return uc.trusted(level)
 
-    # todo: add caching mechanism here. manually deal with cache key-value pairs.
-    def trusted(self, puser):
-        user_connection = UserConnection(self, puser)
-        return user_connection.trusted()
-        # """
-        # Return whether the "self" user trust the puser in parameter. The relationship doesn't have to be mutual.
-        # """
-        # if isinstance(puser, User):
-        #     puser = PUser.from_user(puser)
-        # assert isinstance(puser, PUser)
-        #
-        # # always trust one's self.
-        # if self == puser:
-        #     return True
-        #
-        # # trust someone in my personal/parent/sitter circle
-        # my_personal_circles = Circle.objects.filter(type__in=(Circle.Type.PERSONAL.value, Circle.Type.PARENT.value, Circle.Type.SITTER.value), owner=self)
-        # if Membership.objects.filter(circle__in=my_personal_circles, member=puser, active=True).exists():
-        #     return True
-        #
-        # # trust someone i'm part of her personal/parent/sitter circle which I approved
-        # their_personal_circles = Circle.objects.filter(type__in=(Circle.Type.PERSONAL.value, Circle.Type.PARENT.value, Circle.Type.SITTER.value), owner=puser)
-        # if Membership.objects.filter(circle__in=their_personal_circles, member=self, approved=True).exists():
-        #     return True
-        #
-        # # trust someone in the public/TAG circles where I'm a member of.
-        # my_public_circles = Circle.objects.filter(type__in=(Circle.Type.PUBLIC.value, Circle.Type.TAG.value), membership__member=self, membership__active=True, membership__approved=True)
-        # if Membership.objects.filter(circle__in=my_public_circles, member=puser, active=True, approved=True).exists():
-        #     return True
-        #
-        # # trust anyone who has a "match" object within +/1 7days window
-        # # this is mostly for agency users.
-        # window_start = timezone.now() - timedelta(days=7)
-        # window_end = timezone.now() + timedelta(days=7)
-        # if Match.objects.filter(target_user=self, contract__initiate_user=puser, contract__event_end__lt=window_end, contract__event_start__gt=window_start).exists():
-        #     return True
-        # if Match.objects.filter(target_user=puser, contract__initiate_user=self, contract__event_end__lt=window_end, contract__event_start__gt=window_start).exists():
-        #     return True
-        #
-        # # trust anyone who have a upcoming confirmed match regardless of time
-        # if Contract.objects.filter(initiate_user=self, confirmed_match__target_user=puser, status=Contract.Status.CONFIRMED.value, event_start__gt=timezone.now()).exists():
-        #     return True
-        # if Contract.objects.filter(initiate_user=puser, confirmed_match__target_user=self, status=Contract.Status.CONFIRMED.value, event_start__gt=timezone.now()).exists():
-        #     return True
-        #
-        # # todo: friend's friend
-        # # might need to create another type of circles for friends' friends.
-        #
-        # return False
-
     def personal_circle_membership_queryset(self):
         return Membership.objects.filter(circle__owner=self, circle__type=Circle.Type.PERSONAL.value)
 
