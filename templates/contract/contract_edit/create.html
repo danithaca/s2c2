@@ -33,36 +33,36 @@ $(document).ready(function() {
     $event_start.val(start_timestamp.format(datetime_format));
     $event_end.val(start_timestamp.add(1, 'hours').format(datetime_format));
   }
-    $event_start.focusout(function () {
-        var val = parseDatetime($event_start.val());
-        if (val) {
-            $event_start.val(val.format(datetime_format));
-            $event_end.val(val.add(1, 'hours').format(datetime_format));
-        }
-    }).closest('.datetimepicker-control').on('dp.change', function (date) {
-                // skip opening widget
-                if (date.oldDate != null) {
-                    $event_start.focusout()
-                }
-            });
+  $event_start.focusout(function () {
+    var val = parseDatetime($event_start.val());
+    if (val) {
+      $event_start.val(val.format(datetime_format));
+      $event_end.val(val.add(1, 'hours').format(datetime_format));
+    }
+  }).closest('.datetimepicker-control').on('dp.change', function (date) {
+    // skip opening widget
+    if (date.oldDate != null) {
+      $event_start.focusout()
+    }
+  });
 
-    $event_end.focusout(function () {
-        var end = parseDatetime($event_end.val());
-        if(end){
-            $event_end.val(end.format(datetime_format));
-        }
-        if ($event_start.val()) {
-            var start = parseDatetime($event_start.val());
-            if (start && end && !end.isAfter(start)) {
-                $event_start.val(end.subtract(1, 'hours').format(datetime_format));
-            }
-        }
-    }).closest('.datetimepicker-control').on('dp.change', function (date) {
-                // skip opening widget
-                if (date.oldDate != null) {
-                    $event_end.focusout()
-                }
-            })
+  $event_end.focusout(function () {
+    var end = parseDatetime($event_end.val());
+    if (end) {
+      $event_end.val(end.format(datetime_format));
+    }
+    if ($event_start.val()) {
+      var start = parseDatetime($event_start.val());
+      if (start && end && !end.isAfter(start)) {
+        $event_start.val(end.subtract(1, 'hours').format(datetime_format));
+      }
+    }
+  }).closest('.datetimepicker-control').on('dp.change', function (date) {
+    // skip opening widget
+    if (date.oldDate != null) {
+      $event_end.focusout()
+    }
+  });
 
 
   /*$event_start.focusout(function () {
