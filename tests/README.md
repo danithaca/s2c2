@@ -16,7 +16,9 @@ Test users:
   test5@servuno.com | Test5 Bot   | Yes         | Default location is "Metro Detroit"
   test-a1@servuno.com
   test-a2@servuno.com
-  
+
+See details in p2/utils.py => recreate_test_env().
+
 
 Notes
 ---------------
