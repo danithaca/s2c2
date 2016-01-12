@@ -4,25 +4,80 @@
 
 {% block extra_header %}
   {% include 'includes/js_grid.html' %}
+  <style>
+  .guided-buttons { margin-bottom: 36px; }
+  .guided-buttons a { margin-bottom: 12px; }
+  .guided-buttons a .title {
+    font-size: 2em;
+    border-bottom-style: solid;
+    border-bottom-width: 1px;
+  }
+  .guided-buttons a .description {
+    text-transform: lowercase;
+    white-space: normal;
+  }
+  .workflow-step {
+    margin-top: 12px;
+    margin-bottom: 12px;
+  }
+  .workflow-step * {
+    vertical-align: middle;
+  }
+  .workflow-step > div {
+    display: inline-block;
+    margin-right: 12px;
+    text-align: center;
+    padding: 5px;
+    /*border: 1px solid lightgray;
+    border-radius: 2px;*/
+    max-width: 20vw;
+    line-height: 1;
+  }
+  .workflow-step > div > div {
+    font-size: 1.1em;
+    padding: 2px;
+  }
+  .workflow-step > i {
+    margin-right: 12px;
+  }
+  </style>
 {% endblock %}
 
-{% block content %}<div class="row">
+{% block content %}
+<div class="section-title"><i class="fa fa-arrow-circle-right"></i> What are you looking to do today?</div>
+<div class="row guided-buttons">
+  <div class="col-sm-4 col-xs-12">
+    <a class="btn btn-primary btn-block" href="{% url 'contract:post_parent' %}">
+      <span class="title">Get Help</span><br><span class="description">Ask for a favor from family or friends</span>
+    </a>
+  </div>
+  <div class="col-sm-4 col-xs-12">
+    <a class="btn btn-success btn-block" href="{% url 'contract:post_offer' %}">
+      <span class="title">Give Help</span><br><span class="description">Facilitate a playdate to help family and friends</span>
+    </a>
+  </div>
+  <div class="col-sm-4 col-xs-12">
+    <a class="btn btn-warning btn-block" href="{% url 'contract:post_sitter' %}">
+      <span class="title">Book Help</span><br><span class="description">Find a recommended babysitter</span>
+    </a>
+  </div>
+</div>
+
+{% if list_contract or list_match %}
+<div class="row">
 {#  {% sitetree_children of current_item for sitetree template "sitetree/tree.html" %}#}
   {# my jobs #}
   <div class="col-xs-12 col-sm-6">
     <div class="section-title horizontal-justified">
       <span>My Posts</span>
-      <span class="btn-group">
-        <button class="btn btn-primary dropdown-toggle" data-toggle="dropdown"><i class="fa fa-plus"></i> New Post <span class="caret"></span></button>
-{#      {% sitetree_children of sitetree_item_post for menu template "sitetree/breadcrumbs_dropdown.html" %}#}
-{#      {% current-menutree-dropdown %}#}
-{#      {% sitetree_menu from "main" include "post" template 'sitetree/breadcrumbs_dropdown.html' %}#}
-        <ul class="dropdown-menu">
-          {% for menu_item in post_menu_items %}
-            <li><a href="{{ menu_item.1 }}">{{ menu_item.0 }}</a></li>
-          {% endfor %}
-        </ul>
-      </span>
+{#      <span class="btn-group">#}
+{#        <button class="btn btn-primary dropdown-toggle" data-toggle="dropdown"><i class="fa fa-plus"></i> New Post <span class="caret"></span></button>#}
+{#        <ul class="dropdown-menu">#}
+{#          {% for menu_item in post_menu_items %}#}
+{#            <li><a href="{{ menu_item.1 }}">{{ menu_item.0 }}</a></li>#}
+{#          {% endfor %}#}
+{#        </ul>#}
+{#      </span>#}
     </div>
     {% for contract in list_contract %}
       {% include 'contract/engagement_view/card.html' with engagement=contract.to_engagement only %}
@@ -42,7 +97,36 @@
       <p>No post found.</p>
     {% endfor %}
   </div>
-</div>{% endblock %}
+</div>
+{% else %}
+  <div class="section-title">How it works</div>
+  <div class="workflow-step">
+    <div class="text-large">
+      <span class="text-primary">Get Help<br></span>
+      <span class="text-success">Give Help<br></span>
+    </div>
+    <i class="fa fa-arrow-right"></i>
+    <div><div>Make a Post</div><small>leave a time and note</small></div>
+    <i class="fa fa-arrow-right"></i>
+    <div><div>Add Contacts</div><small>select from existing connections or add new contacts</small></div>
+    <i class="fa fa-arrow-right"></i>
+    <div><div>Confirm</div><small>pick a family who accepts the post</small></div>
+    <i class="fa fa-arrow-right"></i>
+    <div><div>Play</div><small>have kids play together </small></div>
+  </div>
+  <div class="workflow-step">
+    <div class="text-warning text-large">Book Help</div>
+    <i class="fa fa-arrow-right"></i>
+    <div><div>Make a Post</div><small>leave a time, price, and note</small></div>
+    <i class="fa fa-arrow-right"></i>
+    <div><div>Browse Babysitters</div><small>let Servuno recommend babysitters from network</small></div>
+    <i class="fa fa-arrow-right"></i>
+    <div><div>Hire</div><small>pick a babysitter to hire</small></div>
+    <i class="fa fa-arrow-right"></i>
+    <div><div>Pay for Your Care</div></div>
+  </div>
+{% endif %}
+{% endblock %}
 
 {#{% block page-content %}#}
 {#  {% if engagements %}#}
