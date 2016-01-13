@@ -5,6 +5,7 @@ from account.models import Account, EmailAddress
 from account.signals import password_changed
 from account.views import PasswordResetTokenView
 from django.contrib.auth.models import User, AbstractUser
+from django.core.cache import cache
 from django.core.urlresolvers import reverse
 from django.db import models
 from django.db.models import Q, F
@@ -299,9 +300,18 @@ class PUser(TrustedMixin, User):
         # 1. if i'm the client, then always show if it's initiated, active or confirmed.
         # 2. if i'm the server, then show when i'm confirmed or i haven't responded.
         # use "id" as the 2nd "order by" for consistent ordering.
+
+        engagement = cache.get('user_engagement')
+
+        if engagement is not None:
+            return engagement
+
         engagement_list = self.engagement_list(lambda qs: qs.filter((Q(initiate_user=self) & Q(status__in=(Contract.Status.INITIATED.value, Contract.Status.ACTIVE.value, Contract.Status.CONFIRMED.value))) | (Q(match__target_user=self) & (Q(match__status__in=(Match.Status.ENGAGED.value,)) | Q(match=F('confirmed_match'))))).filter(event_start__gt=timezone.now(), event_end__lt=timezone.now() + timedelta(days=60)).order_by('event_start', 'id')[:1])
         if engagement_list:
-            return engagement_list[0]
+            engagement = engagement_list[0]
+            # in cache for 10 minutes
+            cache.set('user_engagement', engagement, 600)
+            return engagement
         else:
             # if not found, then return None
             return None
