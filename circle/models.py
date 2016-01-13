@@ -19,15 +19,15 @@ class Circle(TrustedMixin, models.Model):
     class Type(Enum):
         PERSONAL = 1
         PUBLIC = 2
-        AGENCY = 3          # obsolete in favor of "PUBLIC" with options
-        SUPERSET = 4        # obsolete in favor of CircleTag (not implemented)
+        # AGENCY = 3          # obsolete in favor of "PUBLIC" with options
+        # SUPERSET = 4        # obsolete in favor of CircleTag (not implemented)
         # SUBSCRIBER = 5    # people who suscribed to certain circles
         # LOOP = 6          # the circle of people who added me as favorite.
-        PARENT = 7          # obsolete in p2/v5
-        SITTER = 8          # obsolete in p2/v5
+        # PARENT = 7          # obsolete in p2/v5
+        # SITTER = 8          # obsolete in p2/v5
 
         # PUBLIC vs. TAG: tag membership is approved by default. flat hierarchy.
-        TAG = 9             # tag-like circle type in v3 design. obsolete in p2/v5. using "PUBLIC" with options
+        # TAG = 9             # tag-like circle type in v3 design. obsolete in p2/v5. using "PUBLIC" with options
         # HELPER = 10       # the circle that tracks the helpers (members) to circle-owner. e.g, daniel helped tyler, and daniel is in tyler's helper list.
         # HYBRID = 11       # both as parent and as sitter
 
@@ -73,10 +73,10 @@ class Circle(TrustedMixin, models.Model):
         name = self.owner.get_full_name() or self.owner.username
         if self.type == Circle.Type.PERSONAL.value:
             return '%s\'s network' % name
-        elif self.type == Circle.Type.PARENT.value:
-            return '%s\'s friend' % name
-        elif self.type == Circle.Type.SITTER.value:
-            return '%s\'s babysitter' % name
+        # elif self.type == Circle.Type.PARENT.value:
+        #     return '%s\'s friend' % name
+        # elif self.type == Circle.Type.SITTER.value:
+        #     return '%s\'s babysitter' % name
         else:
             return self.name
 
@@ -175,14 +175,14 @@ class Circle(TrustedMixin, models.Model):
     def is_type_public(self):
         return self.type == Circle.Type.PUBLIC.value
 
-    def is_type_parent(self):
-        return self.type == Circle.Type.PARENT.value
+    # def is_type_parent(self):
+    #     return self.type == Circle.Type.PARENT.value
+    #
+    # def is_type_sitter(self):
+    #     return self.type == Circle.Type.SITTER.value
 
-    def is_type_sitter(self):
-        return self.type == Circle.Type.SITTER.value
-
-    def is_type_tag(self):
-        return self.type == Circle.Type.TAG.value
+    # def is_type_tag(self):
+    #     return self.type == Circle.Type.TAG.value
 
     def is_agency(self):
         return self.is_type_public() and self.mark_agency
@@ -346,61 +346,61 @@ class PublicCircle(Circle):
         return trust_level >= level
 
 
-class ParentCircleManager(models.Manager):
-    def get_queryset(self):
-        return super().get_queryset().filter(type=Circle.Type.PARENT.value)
+# class ParentCircleManager(models.Manager):
+#     def get_queryset(self):
+#         return super().get_queryset().filter(type=Circle.Type.PARENT.value)
 
 
 # TODO: make obsolete in favor of "Membership" activate/deactivate.
-class ParentCircle(Circle):
-    # proxy circle for "Parent" type
-    class Meta:
-        proxy = True
+# class ParentCircle(Circle):
+#     # proxy circle for "Parent" type
+#     class Meta:
+#         proxy = True
+#
+#     objects = ParentCircleManager()
+#
+#     # case 1: no membership exists. after execution, both membership active and approved.
+#     # case 2: A->B not active, B->A active but not approved: B->A should be approved
+#     # case 3: A->B not active, B-> not active not approved: B->A active and approved.
+#     # simply put, when activating parent membership, the other person will activate everything as well.
+#     # this doesn't allow "decline friendship request", but we could change the behavior later
+#     # if by default adding a friend needs approval, we'll set "approved" to be False by default, and then have the other person approve before activate.
+#     def activate_membership(self, user, membership_type=None, approved=None):
+#         # first, active this membership, and set approved to be True regardless of the paramenter.
+#         self._activate_membership(user, membership_type, True)
+#         # since the parent-parent relationship should be symmetric, we should active the other membership, if not already.
+#         other_circle = user.to_puser().my_circle(type=Circle.Type.PARENT, area=self.area)
+#         assert isinstance(other_circle, ParentCircle)
+#         other_circle._activate_membership(self.owner, membership_type, True)
+#
+#     def deactivate_membership(self, user):
+#         # first, deactivate the membership
+#         super().deactivate_membership(user)
+#         # then set "approved" as False to the other membership.
+#         other_circle = user.to_puser().my_circle(type=Circle.Type.PARENT, area=self.area)
+#         try:
+#             other_membership = other_circle.get_membership(self.owner)
+#             if other_membership.approved:
+#                 other_membership.approved = False
+#                 other_membership.save()
+#         except Membership.DoesNotExist:
+#             pass
 
-    objects = ParentCircleManager()
 
-    # case 1: no membership exists. after execution, both membership active and approved.
-    # case 2: A->B not active, B->A active but not approved: B->A should be approved
-    # case 3: A->B not active, B-> not active not approved: B->A active and approved.
-    # simply put, when activating parent membership, the other person will activate everything as well.
-    # this doesn't allow "decline friendship request", but we could change the behavior later
-    # if by default adding a friend needs approval, we'll set "approved" to be False by default, and then have the other person approve before activate.
-    def activate_membership(self, user, membership_type=None, approved=None):
-        # first, active this membership, and set approved to be True regardless of the paramenter.
-        self._activate_membership(user, membership_type, True)
-        # since the parent-parent relationship should be symmetric, we should active the other membership, if not already.
-        other_circle = user.to_puser().my_circle(type=Circle.Type.PARENT, area=self.area)
-        assert isinstance(other_circle, ParentCircle)
-        other_circle._activate_membership(self.owner, membership_type, True)
-
-    def deactivate_membership(self, user):
-        # first, deactivate the membership
-        super().deactivate_membership(user)
-        # then set "approved" as False to the other membership.
-        other_circle = user.to_puser().my_circle(type=Circle.Type.PARENT, area=self.area)
-        try:
-            other_membership = other_circle.get_membership(self.owner)
-            if other_membership.approved:
-                other_membership.approved = False
-                other_membership.save()
-        except Membership.DoesNotExist:
-            pass
-
-
-class SupersetRel(models.Model):
-    """
-    Many-many to track circle inclusions.
-    """
-
-    # child can be any type of circle
-    child = models.ForeignKey(Circle, related_name='child')
-    # parent has to be 'superset'
-    parent = models.ForeignKey(Circle, related_name='parent', limit_choices_to={'type': Circle.Type.SUPERSET.value})
-
-    created = models.DateTimeField(auto_now_add=True)
-
-    class Meta:
-        unique_together = ('child', 'parent')
+# class SupersetRel(models.Model):
+#     """
+#     Many-many to track circle inclusions.
+#     """
+#
+#     # child can be any type of circle
+#     child = models.ForeignKey(Circle, related_name='child')
+#     # parent has to be 'superset'
+#     parent = models.ForeignKey(Circle, related_name='parent', limit_choices_to={'type': Circle.Type.SUPERSET.value})
+#
+#     created = models.DateTimeField(auto_now_add=True)
+#
+#     class Meta:
+#         unique_together = ('child', 'parent')
 
 
 class Membership(models.Model):
@@ -438,7 +438,7 @@ class Membership(models.Model):
     approved = models.NullBooleanField(blank=True, null=True, default=None)
 
     # seems we don't need a "owner" type. the admin will suffice
-    type = models.PositiveSmallIntegerField(choices=[(t.value, t.name.capitalize()) for t in Type], default=Type.NORMAL.value)
+    # type = models.PositiveSmallIntegerField(choices=[(t.value, t.name.capitalize()) for t in Type], default=Type.NORMAL.value)
 
     created = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True)
@@ -451,11 +451,11 @@ class Membership(models.Model):
         # relieving the assumption will affect many existing code
         unique_together = ('member', 'circle')
 
-    def is_type_normal(self):
-        return self.type == Membership.Type.NORMAL.value
+    # def is_type_normal(self):
+    #     return self.type == Membership.Type.NORMAL.value
 
-    def is_type_partial(self):
-        return self.type == Membership.Type.PARTIAL.value
+    # def is_type_partial(self):
+    #     return self.type == Membership.Type.PARTIAL.value
 
     def is_admin(self):
         return self.member == self.circle.owner or self.as_admin
@@ -477,7 +477,9 @@ class Membership(models.Model):
         return self.approved is None
 
     def is_star(self):
-        return self.is_admin() or self.type == Membership.Type.FAVORITE.value
+        # return self.is_admin() or self.type == Membership.Type.FAVORITE.value
+        # todo: might need more logic here
+        return self.is_admin()
 
     # def deactivate(self):
     #     # todo: code dedup for Circle->deactivate_membership

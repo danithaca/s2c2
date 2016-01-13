@@ -8,14 +8,14 @@ class CircleAdmin(admin.ModelAdmin):
     list_display = ('name', 'type', 'owner', 'area')
 
 
-@admin.register(models.SupersetRel)
-class SupersetAdmin(admin.ModelAdmin):
-    list_display = ('child', 'parent', 'created')
+# @admin.register(models.SupersetRel)
+# class SupersetAdmin(admin.ModelAdmin):
+#     list_display = ('child', 'parent', 'created')
 
 
 @admin.register(models.Membership)
 class MembershipAdmin(admin.ModelAdmin):
-    list_display = ('member', 'circle', 'active', 'approved', 'type', 'created', 'updated')
+    list_display = ('member', 'circle', 'active', 'approved', 'created', 'updated')
     actions = ['approve_membership', 'disapprove_membership']
 
     def approve_membership(self, request, queryset):

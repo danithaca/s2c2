@@ -15,7 +15,7 @@ from localflavor.us.models import PhoneNumberField, USStateField
 from django.conf import settings
 from sitetree.models import TreeItemBase
 
-from circle.models import Membership, Circle, ParentCircle, UserConnection
+from circle.models import Membership, Circle, UserConnection
 from contract.models import Contract, Match, Engagement
 from login_token.models import Token
 from p2.utils import auto_user_name, UserRole, TrustedMixin, TrustLevel
@@ -168,18 +168,18 @@ class PUser(TrustedMixin, User):
 
         # make sure to use the proxy class
         circle_class = Circle
-        if type == Circle.Type.PARENT:
-            circle_class = ParentCircle
+        # if type == Circle.Type.PARENT:
+        #     circle_class = ParentCircle
         circle, created = circle_class.objects.get_or_create(type=type.value, owner=self, area=area, defaults={
             'name': default_name
         })
         return circle
 
-    def get_tag_circle_set(self, area=None):
-        if area is None:
-            area = self.get_area()
-        membership = self.membership_set.filter(circle__type=Circle.Type.TAG.value, active=True, approved=True, circle__area=area)
-        return set([m.circle for m in membership])
+    # def get_tag_circle_set(self, area=None):
+    #     if area is None:
+    #         area = self.get_area()
+    #     membership = self.membership_set.filter(circle__type=Circle.Type.TAG.value, active=True, approved=True, circle__area=area)
+    #     return set([m.circle for m in membership])
 
     # public circles the user joined (and approved)
     def get_public_circle_set(self, area=None):
@@ -188,12 +188,12 @@ class PUser(TrustedMixin, User):
         membership = self.membership_set.filter(circle__type=Circle.Type.PUBLIC.value, active=True, approved=True, circle__area=area)
         return set([m.circle for m in membership])
 
-    def get_agency_circle_set(self, area=None):
-        if area is None:
-            area = self.get_area()
-        # we don't care about "approve" here.
-        membership = self.membership_set.filter(circle__type=Circle.Type.AGENCY.value, active=True, type=Membership.Type.PARTIAL.value, circle__area=area)
-        return set([m.circle for m in membership])
+    # def get_agency_circle_set(self, area=None):
+    #     if area is None:
+    #         area = self.get_area()
+    #     # we don't care about "approve" here.
+    #     membership = self.membership_set.filter(circle__type=Circle.Type.AGENCY.value, active=True, type=Membership.Type.PARTIAL.value, circle__area=area)
+    #     return set([m.circle for m in membership])
 
     @staticmethod
     def create(email, password=None, dummy=True, area=None):
@@ -424,12 +424,18 @@ class PUser(TrustedMixin, User):
 
     def is_isolated(self):
         # we count non-active/approved here.
-        count_parent = Membership.objects.filter(circle__owner=self, circle__type=Circle.Type.PARENT.value, active=True, approved=True).count()
-        count_sitter = Membership.objects.filter(circle__owner=self, circle__type=Circle.Type.SITTER.value, active=True, approved=True).count()
-        if count_parent + count_sitter <= 3:
+        # count_parent = Membership.objects.filter(circle__owner=self, circle__type=Circle.Type.PARENT.value, active=True, approved=True).count()
+        # count_sitter = Membership.objects.filter(circle__owner=self, circle__type=Circle.Type.SITTER.value, active=True, approved=True).count()
+        # if count_parent + count_sitter <= 3:
+        #     return True
+        # else:
+        #     return False
+        count = Membership.objects.filter(circle__owner=self, circle__type=Circle.Type.PERSONAL.value, active=True, approved=True).count()
+        if count <= 3:
             return True
         else:
             return False
+
 
     def get_full_name(self):
         name = super().get_full_name()

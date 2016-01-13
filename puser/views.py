@@ -506,10 +506,10 @@ class APIGetByEmail(LoginRequiredMixin, RetrieveAPIView):
                 serializer = self.get_serializer(target_user)
                 data = serializer.data
                 data['membership_id'] = membership.id
-                data['membership_type'] = membership.type
+                # data['membership_type'] = membership.type
                 if membership.note:
                     data['note'] = membership.note
-                if membership.type == Membership.Type.FAVORITE.value or membership.is_admin():
+                if membership.is_star():
                     data['star'] = True
                 # the only alternative that doesn't do super().
                 return Response(data)

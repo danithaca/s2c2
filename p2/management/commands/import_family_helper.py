@@ -20,7 +20,7 @@ class Command(BaseCommand):
             logging.info("Total records: %d" % len(data))
             emails = []
 
-            helper_circle = Circle.objects.get(type=Circle.Type.AGENCY.value, name__icontains='family helper', area=Area.default())
+            helper_circle = Circle.objects.get(type=Circle.Type.PUBLIC.value, mark_agency=True, name__icontains='family helper', area=Area.default())
 
             for record in data:
                 # if record['services'].lower().find('child care') != -1:
