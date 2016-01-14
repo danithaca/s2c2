@@ -20,13 +20,13 @@
           {
             element: "#menu-item-discover a i",
             title: "First, build a network",
-            content: "Add parents and babysitters you trust into your network so that you can find help when you need it. Those connections are also valuable resources to share with your friends who need help babysit. Don't have many connections? You can discover other parents from groups such as your children's classroom.",
+            content: "Add parents and babysitters you trust into your network so that you can find help when you need it. You can also pool your resources to help your friends.",
             placement: 'bottom'
           },
           {
             element: "#menu-item-post a i",
             title: "Then, post a job",
-            content: "When you need a babysitter, post a job here and Servuno will match a babysitter from your network of parents and their babysitters. You can also offer help to another family while find a playdate for your kids.",
+            content: "Post a job here and Servuno will match a babysitter or family from your network. You can also offer help to another family by facilitating a playdate for your kids.",
             placement: 'bottom'
           },
           {
@@ -99,11 +99,12 @@
 {#</fieldset>#}
 {#{% endif %}#}
   <div class="section-title">Hello, {% user-short-name current_user %}!</div>
-  <p><span class="lead">Welcome to Servuno, the forum that helps parents help each other!</span> Unlike other child care sites (e.g. care.com), Servuno let you find child care services from people you already know and trust.</p>
+  <p><span class="lead">Welcome to Servuno, the forum that helps parents help each other!</span></p>
+  <p><span class="lead">Servuno is different from other childcare websites in that it encourages families to do favors for one another. When you're in a pinch, Servuno will contact other parents within your network to orchestrate a playdate. Parents availabile to help receive the benefit of their children being occupied and you get the babysitting help you need. It's a win-win!</p>
 
-  <p>Use {% include 'elements/menu_link.html' with menu_item=menu_item_post only %} to post a job. Use {% include 'elements/menu_link.html' with menu_item=menu_item_discover only %} to add people into your network; the larger your network, the easier you'll find a babysitter. Use {% include 'elements/menu_link.html' with menu_item=menu_item_account only %} to view your network and update your profile.</p>
+  <p>If you're here because you already need babysitting help, {% include 'elements/menu_link.html' with menu_item=menu_item_post only %} a job right now! Otherwise, explore the {% include 'elements/menu_link.html' with menu_item=menu_item_discover only %} section of the site to add others to your network. Remember, the larger your network, the easier it will be for you to find a babysitter at a moment's notice. You can also use {% include 'elements/menu_link.html' with menu_item=menu_item_account only %} to view your network and update your profile.</p>
 
-  <p><strong>Note:</strong> All users on Servuno are by invitation only. Our team are made of parents as well; privacy and safety are our top priority.</p>
+  <p><strong>NOTE:</strong> Servuno is a service created for parents by parents, so we understand that your top priority is the safety of your family. We have gone to great lengths to ensure your privacy, and welcome any further suggestions you may have. Please know that membership to Servuno is invite only, and that you have the ability to hide your personal information (e.g. street address) within the forum if you choose.</p>
 
   <div class="section-title">Sitemap</div>
   {% sitetree_tree from 'main' %}
