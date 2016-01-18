@@ -41,10 +41,12 @@ Steps
 ```
 default |  When I open the recent email: :index
 default |  When I open the last email
+default |  When I open the last email from :from_email to :to_email
 default |  Then (I )break
 default |  Then show email content
 default |  Then show email parsed content
 default |  Then check email sent from :from_email to :to_email
+default |  Then check email sent to :to_email
 default |  Then check email contains :text
 default |  Then check email subject contains :text
 default |  When I follow the email link like :link_pattern
@@ -55,6 +57,14 @@ default |  Then /^save last response$/
 default |  Then print the setting :key
 default |  Then /^pause (?P<seconds>\d+) second(s?)$/
 default |  When I run the following Javascript:
+default |  When I evaluate the following Javascript:
+default |  Then check Javascript result is true
+default |  Then the :element element is hidden
+default |  When I click the :element element
+default |  When I arbitrarily click the :element element
+default | Given /^I set browser window size to "([^"]*)" x "([^"]*)"$/
+default | Given I set browser mobile
+default |  When I grab family helper data
 default | Given /^(?:|I )am on (?:|the )homepage$/
 default |  When /^(?:|I )go to (?:|the )homepage$/
 default | Given /^(?:|I )am on "(?P<page>[^"]+)"$/

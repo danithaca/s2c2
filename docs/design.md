@@ -9,7 +9,7 @@ Social Connections
 
 Code related to social connections, building network, joining groups, etc., is in the `circle` app. A personal network or a public social group is coded as `Circle`. A user can be added into a `Circle` through `Membership`. Important models are discussed below.
 
-#### `Circle`
+#### Circle
 
 The field `type` specifies whether a `circle` instance is personal or public. A personal `circle` is a user's personal network in an `area`. Usually there is only one personal `circle` for one user in an `area` (but the user might have other personal circles in other areas). The field `owner` specifies which user the personal circle belongs to, and will not change. A public `circle` is a "Social Group". Its `owner` is usually the user who created the circle, but could be transferred to another user.
 

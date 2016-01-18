@@ -3,6 +3,7 @@
 /logfiles
 /db.sqlite3
 /celerydb.sqlite3
+/tests/selenium.jar
 
 /.vagrant/
 

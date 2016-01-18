@@ -68,9 +68,13 @@ Vagrant.configure(2) do |config|
   # documentation for more information about their specific syntax and use.
   config.vm.provision "shell", inline: <<-SHELL
     # sudo apt-get update
-    sudo apt-get install -y python3-pip htop php5-cli
+    sudo apt-get install -y python3-pip htop
     sudo apt-get install -y python3-pil python3-imaging python3-amqp
 	# cd /vagrant
 	# sudo pip3 install -U -r requirements.txt
+
+	# need to install behat testing (php, behat)
+	sudo apt-get install -y php5-cli default-jre firefox xvfb
+	curl -sS https://getcomposer.org/installer | sudo php -- --install-dir=/usr/local/bin --filename=composer
   SHELL
 end
