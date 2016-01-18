@@ -301,16 +301,16 @@ class PUser(TrustedMixin, User):
         # 2. if i'm the server, then show when i'm confirmed or i haven't responded.
         # use "id" as the 2nd "order by" for consistent ordering.
 
-        engagement = cache.get('user_engagement')
-
-        if engagement is not None:
-            return engagement
+        # cache it in template
+        # engagement = cache.get('user_engagement')
+        # if engagement is not None:
+        #     return engagement
 
         engagement_list = self.engagement_list(lambda qs: qs.filter((Q(initiate_user=self) & Q(status__in=(Contract.Status.INITIATED.value, Contract.Status.ACTIVE.value, Contract.Status.CONFIRMED.value))) | (Q(match__target_user=self) & (Q(match__status__in=(Match.Status.ENGAGED.value,)) | Q(match=F('confirmed_match'))))).filter(event_start__gt=timezone.now(), event_end__lt=timezone.now() + timedelta(days=60)).order_by('event_start', 'id')[:1])
         if engagement_list:
             engagement = engagement_list[0]
-            # in cache for 10 minutes
-            cache.set('user_engagement', engagement, 600)
+            # in cache for 5 minutes
+            # cache.set('user_engagement', engagement, 300)
             return engagement
         else:
             # if not found, then return None

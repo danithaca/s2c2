@@ -2,6 +2,7 @@
 {% load staticfiles %}
 {% load p2_tags %}
 {% load sitetree %}
+{% load cache %}
 <html lang="en">
 <head>
   <meta charset="utf-8">
@@ -215,17 +216,19 @@
     <span class="navbar-text hidden-xs">It takes a village to raise a child</span>
   </div>
   <div id="navbar-content" class="collapse navbar-collapse">{% if user and user.is_authenticated %}
-    {% if user.info.registered %}
+    {% if user.to_puser.is_registered %}
       {% sitetree_menu from 'main' include 'trunk' %}
+      {% cache 120 navbar_engagement_link user.id %}
         {% with user.to_puser.engagement_headline as engagement %}
-            {% if engagement != None %}
-            <ul class="nav navbar-nav navbar-right">
-            <li title="See upcoming jobs">
-                <a href="{{ engagement.get_link }}"><i class="fa fa-bell"></i>Upcoming</a>
+          {% if engagement %}
+          <ul class="nav navbar-nav navbar-right">
+            <li title="See the upcoming job">
+              <a href="{{ engagement.get_link }}"><i class="fa fa-bell"></i> Upcoming</a>
             </li>
-            </ul>
-            {% endif %}
+          </ul>
+          {% endif %}
         {% endwith %}
+      {% endcache %}
     {% else %}
       <ul class="nav navbar-nav navbar-right">
         <li data-active-url="{% url 'about' %}"><a href="{% url 'about' %}" id="nav-about"><i class="fa fa-book"></i> Learn More</a></li>
