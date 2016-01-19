@@ -8,7 +8,7 @@ from django.core.urlresolvers import reverse
 
 from django.db import models
 from django.conf import settings
-from p2.utils import UserRole, TrustLevel, TrustedMixin, UserRelationship
+from p2.utils import UserRole, TrustLevel, TrustedMixin
 
 
 class Circle(TrustedMixin, models.Model):
@@ -419,8 +419,14 @@ class Membership(models.Model):
     #as_parent = models.BooleanField(default=True)
     #as_sitter = models.BooleanField(default=False)
 
-    # this is only used for personal circle
-    as_type = models.PositiveSmallIntegerField(choices=[(t.value, t.name.capitalize()) for t in UserRelationship], blank=True, null=True, default=None)
+    # the next few columns are only used in personal circle, to specify the relationship between circle owner and the member.
+    rel_direct_family = models.BooleanField(default=False)          # parents and grandparents of the kids
+    rel_extended_family = models.BooleanField(default=False)        # uncles, aunts, cousins
+    rel_neighbor = models.BooleanField(default=False)               # live close together
+    rel_colleague = models.BooleanField(default=False)              # work together
+    rel_friend = models.BooleanField(default=False)                 # share friendship
+    rel_kid_friend = models.BooleanField(default=False)             # the kids are friends (kids go to school together)
+    # rel_other = models.CharField(max_length=100, blank=True)        # other relationship. might not show.
 
     # this specifies whether the user is disabled or activated
     # private circle (favorite): whether the member is still in the circle
