@@ -167,14 +167,18 @@ function defaultBootstrapSwitchOptions() {
   }
 }
 
-function resizeCards() {
-  if (!is_viewport_xs()) {
+function setEqualHeight(selector) {
+    if (!is_viewport_xs()) {
     var maxHeight = 0;
-    $('.card').each(function() {
+    $(selector).each(function() {
       maxHeight = Math.max(maxHeight, $(this).height());
     });
-    $('.card').height(maxHeight);
+    $(selector).height(maxHeight);
   }
+}
+
+function resizeCards() {
+  setEqualHeight('.card')
 }
 
 // from isotope documentation about not doing filters every milisecond.

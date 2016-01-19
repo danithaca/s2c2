@@ -1,0 +1,21 @@
+{% extends 'base.html' %}
+{# this is the template for top level pages without breadcrumb. the block structure tries to follow base.html so it's easy to switch back. #}
+{% load sitetree %}
+{% block page %}
+<div class="row page-content">
+  <div class="{% block page-size %}col-xs-12 col-sm-offset-1 col-sm-10{% endblock %}" {% block panel-attributes %}{% endblock %}>
+    {% for message in messages %}
+      {% include "includes/message.html" with message=message only %}
+    {% endfor %}
+    {% block headline %}{% endblock %}
+    <div class="hidden-if-none section-title">{% block content-title %}{% endblock %}</div>
+    <div class="well" id="content-introduction">
+      {% block content-introduction %}{% endblock %}
+    </div>
+    {% block content-command-list %}{% endblock %}
+    {% block content-header %}{% endblock %}
+    {% block content %}{% endblock %}
+    {% block content-footer %}{% endblock %}
+  </div>
+</div>
+{% endblock %}

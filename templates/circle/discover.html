@@ -42,6 +42,17 @@ $(document).ready(function() {
       // return qsRegex ? $(this).find('.card').data('slug').match( qsRegex ) : true;
     }});
   });
+
+  // auto collapse info
+  {% if not list_extended_parent %}
+    $('#help-block-parent').collapse();
+  {% endif %}
+  {% if not list_extended_sitter %}
+    $('#help-block-sitter').collapse();
+  {% endif %}
+  {% if not list_extended_parent or not list_extended_sitter or not list_groups %}
+    $('#help-block-group').collapse();
+  {% endif %}
 });
 </script>
 
@@ -111,7 +122,7 @@ section {
 <section>
   {# groups #}
   <div class="section-title">
-    <span><i class="fa fa-globe"></i>  Social Groups <small class="hover-pointer pale" data-toggle="collapse" href="#help-block-group"><i class="fa fa-info-circle"></i></small></span>
+    <span><i class="fa fa-coffee"></i>  Social Groups <small class="hover-pointer pale" data-toggle="collapse" href="#help-block-group"><i class="fa fa-info-circle"></i></small></span>
   </div>
   <div class="collapse well" id="help-block-group">
     <p>Join groups to meet new parents in <em>{{ target_user.get_area.name }}</em>. For example, connect with other parents in your kids' classroom. Start a new group of interests so that parents can join and get connected.</p>
@@ -131,7 +142,7 @@ section {
     </div>
   </div>
   {% if not list_groups %}
-    <p>No parent groups in this area.</p>
+    <p>Found no recommended parent groups in this area.</p>
   {% else %}
     <div class="grid" id="grid-list-groups">
       {% for group in list_groups %}
