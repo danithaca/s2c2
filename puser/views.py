@@ -4,7 +4,7 @@ import account.forms
 import account.views
 from account.conf import settings
 from account.mixins import LoginRequiredMixin
-from account.models import SignupCode
+from account.models import SignupCode, Account
 from braces.views import FormValidMessageMixin, AnonymousRequiredMixin
 from django.contrib import auth
 from django.contrib import messages
@@ -441,6 +441,14 @@ class SignupView(MultiStepViewsMixin, account.views.SignupView):
         info.registered = True          # registered is always True after successfully go thru this step.
         info.set_area(form.cleaned_data['area'])
         info.save()
+
+        # update Account timezone
+        try:
+            account = self.created_user.account
+        except Account.DoesNotExist:
+            account = Account.create(user=self.created_user)
+        account.timezone = info.area.get_timezone()
+        account.save()
 
         # handle signup code reference
         if self.signup_code:

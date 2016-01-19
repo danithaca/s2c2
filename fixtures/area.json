@@ -1,20 +1,29 @@
 [
 {
+  "pk": 1,
   "fields": {
-    "description": "Serving Ann Arbor, Ypsilanti, Saline and nearby areas.",
     "state": "MI",
-    "name": "Ann Arbor"
+    "name": "Ann Arbor",
+    "description": "Serving Ann Arbor, Ypsilanti, Saline and nearby areas."
   },
-  "model": "puser.area",
-  "pk": 1
+  "model": "puser.area"
 },
 {
+  "pk": 2,
   "fields": {
-    "description": "Serving Metro Detroit areas, including (but not limited to) Troy, Royal Oak, Dearborn, etc.",
     "state": "MI",
-    "name": "Metro Detroit"
+    "name": "Metro Detroit",
+    "description": "Serving Metro Detroit areas, including (but not limited to) Troy, Royal Oak, Dearborn, etc."
   },
-  "model": "puser.area",
-  "pk": 2
+  "model": "puser.area"
+},
+{
+  "pk": 3,
+  "fields": {
+    "state": "WA",
+    "name": "Seattle",
+    "description": "Great Seattle Area"
+  },
+  "model": "puser.area"
 }
 ]

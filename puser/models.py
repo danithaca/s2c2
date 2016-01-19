@@ -45,6 +45,8 @@ class Area(models.Model):
     def get_timezone(self):
         if self.state in ('MI',):
             return pytz.timezone('US/Eastern')
+        elif self.state in ('WA',):
+            return pytz.timezone('US/Pacific')
         else:
             return pytz.timezone('US/Eastern')
 
@@ -148,6 +150,18 @@ class PUser(TrustedMixin, User):
         #     return None
         # raise exception if it doesn't have one.
         return self.info.area
+
+    def get_timezone(self, update=True):
+        tz = self.get_area().get_timezone()
+        if update:
+            try:
+                account = self.account
+            except Account.DoesNotExist:
+                account = Account.create(user=self)
+            if account.timezone != tz:
+                account.timezone = tz
+                account.save()
+        return tz
 
     # a person could have multiple personal list based on area.
     def get_personal_circle(self, area=None):

@@ -181,7 +181,7 @@ class TestEnvMixin(object):
 
 
 def recreate_test_env():
-    from puser.models import PUser
+    from puser.models import PUser, Area
     from circle.models import Friendship
     from contract.models import Contract, Match
     from contract.algorithms import ManualRecommender
@@ -212,6 +212,16 @@ def recreate_test_env():
 
     # 'test3' is a dummy user to test other things.
     t3 = PUser.create('test3@servuno.com', 'password', dummy=True)
+
+    try:
+        another_area = Area.objects.get(name='Seattle')
+    except:
+        another_area = Area.default()
+    t5 = PUser.create('test5@servuno.com', 'password', False, another_area)
+    t5.first_name, t.last_name = 'Test5', 'Bot'
+    t5.info.note = 'This is a test account home in Seattle.'
+    t5.save()
+    t5.info.save()
 
     ### add circles
     f_t_t1 = Friendship(t, t1)
