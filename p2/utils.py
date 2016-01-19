@@ -115,6 +115,15 @@ class TrustLevel(Enum):
     FORBIDDEN = -100
 
 
+class UserRelationship(Enum):
+    SPOUSE = 1
+    FAMILY = 2
+    NEIGHBOR = 3
+    COLLEAGUE = 4
+    FRIEND = 5
+    KIDFRIEND = 6       # kids go to school together
+
+
 ################# mixin ####################
 
 

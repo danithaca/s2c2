@@ -8,7 +8,7 @@ from django.core.urlresolvers import reverse
 
 from django.db import models
 from django.conf import settings
-from p2.utils import UserRole, TrustLevel, TrustedMixin
+from p2.utils import UserRole, TrustLevel, TrustedMixin, UserRelationship
 
 
 class Circle(TrustedMixin, models.Model):
@@ -411,13 +411,6 @@ class Membership(models.Model):
     The 'active' field is for the "initiator". The "approved" field is for the "target"
     """
 
-    # obsolete in favor the the booleans
-    class Type(Enum):
-        NORMAL = 1
-        ADMIN = 2
-        PARTIAL = 3         # this is a passive membership that only receive notifications, e.g., subscribe to a agency circle
-        FAVORITE = 4            # counted as the same user, or sharing the same kids.
-
     member = models.ForeignKey(settings.AUTH_USER_MODEL)
     circle = models.ForeignKey(Circle)
 
@@ -425,6 +418,9 @@ class Membership(models.Model):
     as_admin = models.BooleanField(default=False)
     #as_parent = models.BooleanField(default=True)
     #as_sitter = models.BooleanField(default=False)
+
+    # this is only used for personal circle
+    as_type = models.PositiveSmallIntegerField(choices=[(t.value, t.name.capitalize()) for t in UserRelationship], blank=True, null=True, default=None)
 
     # this specifies whether the user is disabled or activated
     # private circle (favorite): whether the member is still in the circle
