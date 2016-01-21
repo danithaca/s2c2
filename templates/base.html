@@ -127,6 +127,9 @@
       // this will hide the <i> buttons
       // hide_if_empty('.card .card-footer');
 
+      // move upcoming after post if it exists
+      $('#engagement-headline-link').removeClass('hidden').detach().appendTo('#menu-item-post a');
+
       // for new user
       if (!window.localStorage.getItem('servuno_visited')) {
         if (getParameterByName('login_token')) {
@@ -218,14 +221,10 @@
   <div id="navbar-content" class="collapse navbar-collapse">{% if user and user.is_authenticated %}
     {% if user.to_puser.is_registered %}
       {% sitetree_menu from 'main' include 'trunk' %}
-      {% cache 120 navbar_engagement_link user.id %}
+      {% cache 60 navbar_engagement_link user.id %}
         {% with user.to_puser.engagement_headline as engagement %}
           {% if engagement %}
-          <ul class="nav navbar-nav navbar-right">
-            <li title="See the upcoming job">
-              <a href="{{ engagement.get_link }}"><i class="fa fa-bell"></i> Upcoming</a>
-            </li>
-          </ul>
+            <span class="hidden" id="engagement-headline-link"><a href="{{ engagement.get_link }}" class="label label-primary" title="Click to view the upcoming event.">upcoming event</a></span>
           {% endif %}
         {% endwith %}
       {% endcache %}
