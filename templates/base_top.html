@@ -3,7 +3,7 @@
 {% load sitetree %}
 {% block page %}
 <div class="row page-content">
-  <div class="{% block page-size %}col-xs-12 col-sm-offset-1 col-sm-10{% endblock %}" {% block panel-attributes %}{% endblock %}>
+  <div class="{% block page-size %}col-xs-12 col-md-offset-1 col-md-10{% endblock %}" {% block panel-attributes %}{% endblock %}>
     {% for message in messages %}
       {% include "includes/message.html" with message=message only %}
     {% endfor %}
