@@ -1,7 +1,7 @@
-<!DOCTYPE html>
 {% load staticfiles %}
 {% load p2_tags %}
 {% load sitetree %}
+{% load cache %}
 <html lang="en">
 <head>
   <meta charset="utf-8">
@@ -44,27 +44,29 @@
 
   <script>
     $(document).ready(function() {
+
+      // move upcoming after post if it exists
+      var $upcoming_item = $('#upcoming-item').eq(0);
+      if ($upcoming_item.length){
+          $upcoming_item.remove();
+          $('#menu-item-post').after($upcoming_item.find('li'));
+      }
       /*$('nav.navbar a.dropdown-toggle').each(function() {
         $(this).hover()
       });*/
-
       // add active to menu mbar
       /*var path = window.location.pathname;
        $('ul.nav>li>a[href="'+ path +'"]').parent().addClass('active');*/
-
       // turn on "active" for any item that has data-active-url
       $('[data-active-url]').removeClass('active');
       $('[data-active-url*="' + window.location.pathname + '"]').addClass('active');
-
       // turn on tooltip, popover
       try { $('[data-toggle="tooltip"]').tooltip(); } catch(err) {}
-
       // previous link
       $('a.go-back').click(function() {
         window.history.back();
         return false;
       });
-
       // clickable click (doesn't work on modified DOM)
       $('.clickable').click(function() {
         var url = $(this).data('url');
@@ -72,7 +74,6 @@
           window.location = url;
         }
       });
-
       // ajax post refresh
       $('.ajax-post-refresh').click(function(e) {
         e.stopPropagation();
@@ -87,7 +88,6 @@
           });
         }
       });
-
       // ajax post confirm refresh
       $('.ajax-post-confirm-refresh').click(function(e) {
         e.stopPropagation();
@@ -107,7 +107,6 @@
           });
         }
       });
-
       // show expandable text
       $('[data-expandable-text]').hover(function() {
         var text = $(this).data('expandable-text');
@@ -117,7 +116,6 @@
       }, function() {
           $(this).find('span.expanded-text').remove();
       });
-
       // hide content-introduction if empty
       hide_if_empty('#content-introduction');
       hide_if_empty('#content-header');
@@ -125,7 +123,6 @@
       hide_if_empty('#content-footer');
       // this will hide the <i> buttons
       // hide_if_empty('.card .card-footer');
-
       // for new user
       if (!window.localStorage.getItem('servuno_visited')) {
         if (getParameterByName('login_token')) {
@@ -141,12 +138,10 @@
         }
         window.localStorage.setItem('servuno_visited', true);
       }
-
       // noty
       //$.noty.defaults['layout'] = 'topCenter';
       //$.noty.defaults['theme'] = 'bootstrap';
       //$.noty.defaults['type'] = 'sucess';
-
       // load jotForm
       $.getScript('http://www.jotform.com/min/?g=feedback2', function() {
         new JotformFeedback({
@@ -215,17 +210,19 @@
     <span class="navbar-text hidden-xs">It takes a village to raise a child</span>
   </div>
   <div id="navbar-content" class="collapse navbar-collapse">{% if user and user.is_authenticated %}
-    {% if user.info.registered %}
+    {% if user.to_puser.is_registered %}
       {% sitetree_menu from 'main' include 'trunk' %}
+      {% cache 120 navbar_engagement_link user.id %}
         {% with user.to_puser.engagement_headline as engagement %}
-            {% if engagement != None %}
-            <ul class="nav navbar-nav navbar-right">
-            <li title="See upcoming jobs">
-                <a href="{{ engagement.get_link }}"><i class="fa fa-bell"></i></a>
+          {% if engagement %}
+          <ul class="nav navbar-nav navbar-right" id="upcoming-item">
+            <li title="See the upcoming job">
+              <a href="{{ engagement.get_link }}"><span class="badge"><i class="fa fa-bell"></i></span></a>
             </li>
-            </ul>
-            {% endif %}
+          </ul>
+          {% endif %}
         {% endwith %}
+      {% endcache %}
     {% else %}
       <ul class="nav navbar-nav navbar-right">
         <li data-active-url="{% url 'about' %}"><a href="{% url 'about' %}" id="nav-about"><i class="fa fa-book"></i> Learn More</a></li>
@@ -270,7 +267,7 @@
 {#    </div></div>#}
 
     <p class="text-center text-muted" style="font-size:80%">
-      <i class="fa fa-copyright"></i> 2015 <a href="http://consulting.knowsun.com">Knowsun LLC</a>, in collaboration with <a href="http://hr.umich.edu/childcare/">University of Michigan Children's Centers</a><br>
+      <i class="fa fa-copyright"></i> 2015~2016 <a href="http://consulting.knowsun.com">Knowsun LLC</a>, in collaboration with <a href="http://hr.umich.edu/childcare/">University of Michigan Children's Centers</a><br>
       <i class="fa fa-map-marker"></i> 201 S Division St, Ann Arbor, MI 48104
     </p>
 
