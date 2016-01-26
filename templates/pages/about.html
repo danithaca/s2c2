@@ -37,89 +37,43 @@
     {% include "includes/message.html" with message=message only %}
   {% endfor %}
 
-  <p>
-    <img src="{% static 'images/story_1.png' %}" class="img-responsive center-block">
-  </p>
+  <div>
+      <h2>About Us</h2>
 
-  <div class="well center-block text-center">
-    <div class="row"><div class="col-xs-offset-3 col-xs-6">
-      <h4 class="text-success"><i class="fa fa-laptop"></i> Sign Up</h4>
-      <p>Create an account. It's easy!</p>
-      <h4><i class="fa fa-arrow-down"></i></h4>
-    </div></div>
+      <p>If you are a parent of young children without family members living close by, you know it wears on you when it
+          comes to babysitting. Not only does it make it difficult to get a much-needed night out, it adds stress when
+          something unexpected comes up at work or when you need to run a quick, child-free errand.</p>
 
-    <div class="row"><div class="col-xs-offset-3 col-xs-6">
-      <h4 class="text-success"><i class="fa fa-users"></i> Connect to Families</h4>
-      <p>Build a parent network to trade babysitting</p>
-      <h4><i class="fa fa-arrow-down"></i></h4>
-    </div></div>
+      <p>You are more than willing to pay a babysitter, but it would also be nice to have someone at your disposal you
+          can call at a moment’s notice … especially since you’d be happy to return the favor anytime!</p>
 
-    <div class="row"><div class="col-xs-offset-3 col-xs-6">
-      <h4 class="text-success"><i class="fa fa-female"></i> Add Babysitters</h4>
-      <p>Collectively build a pool of babysitters you have used before</p>
-    </div></div>
+      <p>That’s where Servuno comes in. All you have to do is create a trusted network of your friends, other parents in
+          your child’s class at school, or your neighbors, and you have instant access to ask them for a quick favor
+          anytime you need one. You also gain access to their trusted pool of babysitters, making it easy to pay someone
+          for a night out. </p>
 
-    <div class="row">
-      <div class="col-xs-6">
-        <div class="about-step-block">
-          <h4><i class="fa fa-arrow-down rotate-45"></i></h4>
-          <h4 class="text-primary"><i class="fa fa-pencil"></i> Post a "Trade" Job</h4>
-          <p>Servuno will contact your parent friends added in the previous step for help babysit on the basis of reciprocity</p>
-          <h4><i class="fa fa-arrow-down"></i></h4>
-        </div>
-      </div>
-      <div class="col-xs-6">
-        <div class="about-step-block">
-          <h4><i class="fa fa-arrow-right rotate-45"></i></h4>
-          <h4 class="text-warning"><i class="fa fa-pencil"></i> Post a Paid Job</h4>
-          <p>Servuno will contact your babysitters added in the previous step, as well as your friends babysitters. No babysitter can sign up on the site unless invited</p>
-          <h4><i class="fa fa-arrow-down"></i></h4>
-        </div>
-      </div>
-    </div>
+      <p>What are you waiting for? <a href="{% url 'tour' %}">Learn how to start building your network
+          now</a>!</p>
 
-    <div class="row">
-      <div class="col-xs-6">
-        <div class="about-step-block">
-          <h4 class="text-primary"><i class="fa fa-home"></i> Pick a Family</h4>
-          <p>From those who responded yes, pick one to babysit for you</p>
-          <h4><i class="fa fa-arrow-down"></i></h4>
+      <h2>Meet the Team</h2>
 
-        </div>
-      </div>
-      <div class="col-xs-6">
-        <div class="about-step-block">
-          <h4 class="text-warning"><i class="fa fa-car"></i> Hire a Babysitter</h4>
-          <p>From those who responded yes, pick one to babysit for you. No interview is needed because either you or your friends used the babysitter before</p>
-          <h4><i class="fa fa-arrow-down"></i></h4>
-        </div>
-      </div>
-    </div>
+      <h3>Daniel Zhou</h3>
 
-    <div class="row">
-      <div class="col-xs-6">
-        <div class="about-step-block">
-          <h4 class="text-primary"><i class="fa fa-child"></i> Have Kids Play Together</h4>
-          <p>... while you go on a date night, run some errands, etc.</p>
-          <h4><i class="fa fa-arrow-right rotate-45"></i></h4>
-        </div>
-      </div>
-      <div class="col-xs-6">
-        <div class="about-step-block">
-          <h4 class="text-warning"><i class="fa fa-dollar"></i> Pay for your care </h4>
-          <p>Right now you have to pay the babysitter offline. Online payment will be added later.</p>
-          <h4><i class="fa fa-arrow-down rotate-45"></i></h4>
-        </div>
-      </div>
-    </div>
+      <h3>Chrissie Wywrot, Senior Marketing Strategist</h3>
 
-    <div class="row"><div class="col-xs-offset-2 col-xs-8">
-      <h4 class="text-success"><i class="fa fa-lightbulb-o"></i> Lastly, you can ...</h4>
-      <ul>
-        <li><strong>Join parents groups</strong> to reach out to other families with similar background</li>
-        <li><strong>Post an offer to help other parents babysit</strong> on your convenience, while build up karma.</li>
-      </ul>
-    </div></div>
+      <p>Chrissie Wywrot is a PR and marketing professional living in Michigan. She is married with three children, ages
+          5, 3, and 1, so her need for a babysitter is at an all-time high! When she is lucky enough to have a
+          babysitter, her favorite things to do include attending concerts, sporting events, and get-togethers with
+          friends.</p>
+
+      <h2>Partners</h2>
+
+      <p>Servuno is proud to hold a partnership with the <a
+              href="https://hr.umich.edu/benefits-wellness/family/childrens-centers">University of Michigan Children’s
+          Center</a> in Ann Arbor. The UM Children’s Center provides faculty, staff and students with “the highest
+          quality early education and care for their children,” in part through current University students looking to
+          make additional money while attending school. All eligible babysitters go through a background check before
+          they can be hired.</p>
   </div>
 
   {% if user.is_anonymous %}
