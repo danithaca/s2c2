@@ -68,7 +68,11 @@ class Info(models.Model):
     address = models.CharField(max_length=200, blank=True)
     phone = PhoneNumberField(blank=True)
     phone_backup = PhoneNumberField(blank=True, help_text='Phone number added by other people')
+
     note = models.TextField(blank=True)
+    # the private_note will never show to the public. only to specific people
+    private_note = models.TextField(blank=True)
+
     homepage = models.URLField(blank=True)
 
     picture_original = ImageCropField(upload_to='picture', blank=True, null=True)

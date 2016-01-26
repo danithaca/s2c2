@@ -447,6 +447,8 @@ class Membership(models.Model):
 
     # allow the member or circle owner add note to the membership
     note = models.TextField(blank=True)
+    # this note will never be public. only available to the member and circle admins.
+    private_note = models.TextField(blank=True)
 
     class Meta:
         # here we assume a user won't have multiple "membership" instances to the same circle.
