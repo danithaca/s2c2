@@ -40,7 +40,7 @@ class SignupFullForm(ModelForm, account.views.SignupForm):
         # this is for ModelForm.clean()
         super().clean()
         # this is SignupForm.clean
-        account.views.SignupForm.clean(self)
+        return account.views.SignupForm.clean(self)
 
     class Meta:
         model = User

@@ -12,7 +12,7 @@ from django.shortcuts import redirect
 from django.views.defaults import permission_denied
 from django.views.generic import FormView, CreateView, UpdateView, TemplateView, DetailView, View
 from django.views.generic.detail import SingleObjectMixin
-from circle.forms import CircleCreateForm, MembershipCreateForm, MembershipEditForm
+from circle.forms import CircleCreateForm, MembershipCreateForm, MembershipEditForm, ParentAddForm
 from circle.models import Membership, Circle, UserConnection
 from circle.tasks import circle_invite
 from puser.models import PUser
@@ -315,11 +315,13 @@ class CircleJoinView(LoginRequiredMixin, RegisteredRequiredMixin, SingleObjectMi
         circle = self.get_object().to_proxy()
         target_user = self.get_user()
         circle.activate_membership(target_user)
-        note = form.cleaned_data.get('note', None)
+        private_note = form.cleaned_data.get('private_note', None)
+        as_rel = form.cleaned_data.get('as_rel', '')
 
         # save regardless of whether it's changed or not.
         membership = circle.get_membership(target_user)
-        membership.note = note
+        membership.private_note = private_note
+        membership.as_rel = as_rel
         if form.cleaned_data.get('is_sitter', False):
             membership.as_role = UserRole.SITTER.value
         else:
@@ -330,6 +332,8 @@ class CircleJoinView(LoginRequiredMixin, RegisteredRequiredMixin, SingleObjectMi
         self.send_notification(target_user, circle, introduce)
 
         self.extra_process(membership)
+
+        # this is not ModelView, and therefore membershihp is not automatically saved.
         return super().form_valid(form)
 
     def get_form_kwargs(self):
@@ -340,7 +344,7 @@ class CircleJoinView(LoginRequiredMixin, RegisteredRequiredMixin, SingleObjectMi
 
 
 class PersonalJoinView(CircleJoinView):
-    form_valid_message = 'Successfully added.'
+    form_valid_message = 'Successfully submitted your request. '
 
     def get_queryset(self):
         qs = super().get_queryset()
@@ -352,11 +356,10 @@ class PersonalJoinView(CircleJoinView):
     def get_user(self):
         return PUser.objects.get(pk=self.kwargs['uid'])
 
-    def get_form(self, form_class=None):
-        form = super().get_form(form_class=form_class)
-        form.fields['note'].label = 'Note & Endorsement'
-        form.fields['note'].help_text = 'Add a note about how your are connected to the person.'
-        return form
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        kwargs['target_user'] = self.get_user()
+        return kwargs
 
     def get_success_url(self):
         return reverse('account_view', kwargs={'pk': self.get_user().pk})
@@ -364,6 +367,7 @@ class PersonalJoinView(CircleJoinView):
 
 class ParentJoinView(PersonalJoinView):
     template_name = 'circle/membership/parent_add.html'
+    form_class = ParentAddForm
 
     def send_notification(self, member, circle, introduce):
         # will need to send a notification to "member" because circle.owner is requesting.

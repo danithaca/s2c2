@@ -11,6 +11,7 @@ from django.conf import settings
 from p2.utils import UserRole, TrustLevel, TrustedMixin
 
 
+# long term todo: separate personal/public circles into different classes.
 class Circle(TrustedMixin, models.Model):
     """
     Define the circles users could join.
@@ -419,13 +420,14 @@ class Membership(models.Model):
     #as_parent = models.BooleanField(default=True)
     #as_sitter = models.BooleanField(default=False)
 
+    as_rel = models.CommaSeparatedIntegerField(max_length=100, blank=True, default='')
     # the next few columns are only used in personal circle, to specify the relationship between circle owner and the member.
-    rel_direct_family = models.BooleanField(default=False)          # parents and grandparents of the kids
-    rel_extended_family = models.BooleanField(default=False)        # uncles, aunts, cousins
-    rel_neighbor = models.BooleanField(default=False)               # live close together
-    rel_colleague = models.BooleanField(default=False)              # work together
-    rel_friend = models.BooleanField(default=False)                 # share friendship
-    rel_kid_friend = models.BooleanField(default=False)             # the kids are friends (kids go to school together)
+    # rel_direct_family = models.BooleanField(default=False)          # parents and grandparents of the kids
+    # rel_extended_family = models.BooleanField(default=False)        # uncles, aunts, cousins
+    # rel_neighbor = models.BooleanField(default=False)               # live close together
+    # rel_colleague = models.BooleanField(default=False)              # work together
+    # rel_friend = models.BooleanField(default=False)                 # share friendship
+    # rel_kid_friend = models.BooleanField(default=False)             # the kids are friends (kids go to school together)
     # rel_other = models.CharField(max_length=100, blank=True)        # other relationship. might not show.
 
     # this specifies whether the user is disabled or activated

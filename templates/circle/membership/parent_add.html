@@ -6,14 +6,14 @@
 {% block content-introduction %}Fill in the form to add <em>{% user-full-name target_user %}</em> into your network. Only add people you know and trust.{% endblock %}
 
 {% block content %}
-  <form class="form form-horizontal" method="post">
+  <form class="form" method="post">
     {% csrf_token %}
-    {{ form|bootstrap_horizontal }}
+    {{ form|bootstrap }}
     <div class="form-group">
-      <div class="col-sm-offset-2 col-sm-10">
+{#      <div class="col-sm-offset-2 col-sm-10">#}
         <button type="submit" class="btn btn-primary">Add</button>
 {#        <a href="#" class="btn btn-default go-back">Go Back</a>#}
-      </div>
+{#      </div>#}
     </div>
   </form>
 {% endblock %}

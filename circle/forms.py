@@ -3,7 +3,7 @@ import re
 from django import forms
 
 from circle.models import Circle, Membership
-from p2.utils import is_valid_email
+from p2.utils import is_valid_email, RelationshipType
 from puser.models import PUser
 
 
@@ -51,38 +51,57 @@ class CircleCreateForm(forms.ModelForm):
         }
 
 
-# update user connection from initiate_user to target_user.
-# class UserConnectionForm(forms.Form):
-#     # initiate_user = forms.ModelChoiceField(queryset=PUser.objects.all())
-#     # target_user = forms.ModelChoiceField(queryset=PUser.objects.all())
-#     parent_circle = forms.BooleanField(required=False, label='Connect as parent')
-#     sitter_circle = forms.BooleanField(required=False, label='Connect as paid babysitter')
-#
-#     def __init__(self, initiate_user=None, target_user=None, *args, **kwargs):
-#         assert initiate_user is not None and target_user is not None
-#         super().__init__(*args, **kwargs)
-#         area = initiate_user.get_area()
-#         self.initial['parent_circle'] = Membership.objects.filter(member=target_user, circle__owner=initiate_user, circle__type=Circle.Type.PARENT.value, circle__area=area, active=True, approved=True).exists()
-#         self.initial['sitter_circle'] = Membership.objects.filter(member=target_user, circle__owner=initiate_user, circle__type=Circle.Type.SITTER.value, circle__area=area, active=True, approved=True).exists()
-
-
 class MembershipCreateForm(forms.ModelForm):
-    introduce = forms.BooleanField(required=False, label='Ask for an introduction from shared social connections?', help_text='Check this box to allow Servuno email your shared connections for an introduction.')
+    introduce = forms.BooleanField(required=False, label='I would like a shared friend to introduce me.')
     is_sitter = forms.BooleanField(required=False, widget=forms.HiddenInput)
+
+    def __init__(self, *args, **kwargs):
+        # only applies to personal circle join.
+        self.target_user = kwargs.pop('target_user', None)
+        super().__init__(*args, **kwargs)
 
     class Meta:
         model = Membership
         # the rest of the field is handled by View
-        fields = ['note']
-        # labels = {
-        #     'note': 'Affiliation',
-        # }
+        fields = ['as_rel', 'private_note']
+        labels = {
+            'as_rel': 'How do you know %s (Check all that apply)',
+            'private_note': 'Additional note (optional)',
+        }
         widgets = {
-            'note': forms.Textarea(attrs={'placeholder': 'Type in here ...', 'rows': 3}),
+            'private_note': forms.Textarea(attrs={'placeholder': 'Add a private note between you and the person you are connecting with.', 'rows': 2}),
         }
         # help_texts = {
-        #     'note': 'What is your affiliation to the group? E.g., Jack\'s mon.'
+        #     'private_note': 'This note is private between you and the person you are connecting with.'
         # }
+
+    def clean_as_rel(self):
+        as_rel_val = self.data.getlist('as_rel', [])
+        as_rel_db_val = RelationshipType.to_db(as_rel_val)
+        return as_rel_db_val
+
+    def clean(self):
+        cleaned_data = super().clean()
+        # self.data has the raw data, where as_rel is in the list form.
+        # cleaned_data['as_rel'] = RelationshipType.to_db(self.data['as_rel'])
+        return cleaned_data
+
+
+class ParentAddForm(MembershipCreateForm):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        assert self.target_user is not None
+        self.fields['as_rel'].label = self.fields['as_rel'].label % self.target_user.get_full_name()
+        self.fields['introduce'].label = 'I don\'t know %s. I would like a shared friend to introduce me.' % self.target_user.get_full_name()
+        rel_choices = [
+            (RelationshipType.NEIGHBOR.value, 'We are neighbors'),
+            (RelationshipType.EXTENDED_FAMILY.value, 'We are family'),
+            (RelationshipType.FRIEND.value, 'We are friends'),
+            (RelationshipType.COLLEAGUE.value, 'We work together'),
+            (RelationshipType.KID_FRIEND.value, 'Our kids go to school together'),
+        ]
+        self.fields['as_rel'].widget = forms.CheckboxSelectMultiple(choices=rel_choices)
+        # self.fields['as_rel'].initial =
 
 
 class MembershipEditForm(forms.ModelForm):
@@ -125,14 +144,3 @@ class MembershipEditForm(forms.ModelForm):
     #     if type is not None:
     #         self.fields['type'].initial = type
     #         self.fields['type'].widget = forms.HiddenInput()
-
-
-# class MembershipActivationForm(forms.ModelForm):
-#     redirect = forms.CharField(required=False, widget=forms.HiddenInput)
-#
-#     class Meta:
-#         model = Membership
-#         fields = ['active']
-#         widgets = {
-#             'active': forms.HiddenInput(),
-#         }

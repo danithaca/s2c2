@@ -115,6 +115,43 @@ class TrustLevel(Enum):
     FORBIDDEN = -100
 
 
+class RelationshipType(Enum):
+    DIRECT_FAMILY = 1, 'Close Family'               # parents and grandparents of the kids
+    EXTENDED_FAMILY = 2, 'Family'                   # uncles, aunts, cousins
+    NEIGHBOR = 3, 'Neighbor'                        # live close together
+    COLLEAGUE = 4, 'Colleague'                      # work together
+    FRIEND = 5, 'Friend'                            # share friendship
+    KID_FRIEND = 6, 'Kids Are Friends'              # the kids are friends (kids go to school together)
+    SHARED_CONNECTION = 7, 'Shared Connection'      # shared common connections
+
+    def __new__(cls, value, label):
+        obj = object.__new__(cls)
+        obj._value_ = value
+        obj.label = label
+        return obj
+
+    @staticmethod
+    def to_db(list_type):
+        assert isinstance(list_type, list)
+        result = []
+        for e in list_type:
+            if isinstance(e, int):
+                result.append(str(e))
+            elif isinstance(e, RelationshipType):
+                result.append(str(e.value))
+            elif isinstance(e, str):
+                i = int(e)
+                result.append(e)
+            else:
+                assert False
+        return ','.join(result)
+
+    @staticmethod
+    def from_db(db_str):
+        s = db_str.split(',')
+        return [RelationshipType(int(i)) for i in s]
+
+
 ################# mixin ####################
 
 
