@@ -101,17 +101,9 @@ class ParentAddForm(MembershipCreateForm):
             (RelationshipType.KID_FRIEND.value, 'Our kids go to school together'),
         ]
         self.fields['as_rel'].widget = forms.CheckboxSelectMultiple(choices=rel_choices)
-        # self.fields['as_rel'].initial =
 
 
 class MembershipEditForm(forms.ModelForm):
-    # redirect = forms.CharField(required=False, widget=forms.HiddenInput)
-
-    # def __init__(self, *args, **kwargs):
-    #     choices = kwargs.pop('choices', None)
-    #     if choices:
-    #         self.fields['type'].choices = choices
-    #     help_message = kwargs.pop('help')
 
     class Meta:
         model = Membership
@@ -126,21 +118,3 @@ class MembershipEditForm(forms.ModelForm):
             'note': forms.Textarea(attrs={'placeholder': 'Leave an optional note.', 'rows': 3}),
             # 'approved': forms.HiddenInput(),
         }
-
-    # def __init__(self, circle=None, member=None, active=None, approved=None, type=None, *args, **kwargs):
-    #     super().__init__(*args, **kwargs)
-    #     if circle is not None:
-    #         self.fields['circle'].initial = circle
-    #         self.fields['circle'].widget = forms.HiddenInput()
-    #     if member is not None:
-    #         self.fields['member'].initial = member
-    #         self.fields['member'].widget = forms.HiddenInput()
-    #     if active is not None:
-    #         self.fields['active'].initial = active
-    #         self.fields['active'].widget = forms.HiddenInput()
-    #     if approved is not None:
-    #         self.fields['approved'].initial = approved
-    #         self.fields['approved'].widget = forms.HiddenInput()
-    #     if type is not None:
-    #         self.fields['type'].initial = type
-    #         self.fields['type'].widget = forms.HiddenInput()

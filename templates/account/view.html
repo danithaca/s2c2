@@ -52,7 +52,7 @@ $(document).ready(function() {
     <div class="btn-group btn-group-sm">
     <a class="btn btn-primary" href="{% url 'shout:user' uid=target_user.id %}"><i class="fa fa-bullhorn"></i> Message</a>
     {% if user_membership.is_active and not user_membership.is_disapproved %}
-      <a href="{% url 'circle:membership_edit' pk=user_membership.id %}" class="btn btn-warning" title="{{ user_membership.note|default:'No endorsement statement.' }}" data-toggle="tooltip"><i class="fa fa-edit"></i> Endorse</a>
+{#      <a href="{% url 'circle:membership_edit' pk=user_membership.id %}" class="btn btn-warning" title="{{ user_membership.note|default:'No endorsement statement.' }}" data-toggle="tooltip"><i class="fa fa-edit"></i> Endorse</a>#}
       <span class="btn btn-default ajax-post-confirm-refresh" data-post-url="{% url 'circle:membership_deactivate' pk=user_membership.id %}" data-post-confirm-message="Are you sure you want to remove this person from your network?"><i class="fa fa-sign-out"></i> {% if target_user.is_sitter %}Remove{% else %}Unfriend{% endif %}</span>
     {% elif reverse_friendship.is_pending_approval %}
       <span class="btn btn-success ajax-post-refresh" data-post-url="{% url 'circle:membership_approve' pk=reverse_friendship.main_membership.id %}"><i class="fa fa-check"></i> Approve</span>

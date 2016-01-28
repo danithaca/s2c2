@@ -17,6 +17,7 @@ urlpatterns = patterns(
     url(r"^group/(?P<pk>\d+)/join/$", views.GroupJoinView.as_view(), name="group_join"),
     url(r"^group/(?P<pk>\d+)/invite/$", views.GroupInviteView.as_view(), name="group_invite"),
 
+    # make connections
     # url(r"^user/(?P<uid>\d+)/$", views.UserConnectionView.as_view(), name="user_connection"),
     url(r"^parent/add/(?P<uid>\d+)/$", views.ParentJoinView.as_view(), name="parent_add"),
     url(r"^sitter/add/(?P<uid>\d+)/$", views.SitterJoinView.as_view(), name="sitter_add"),
@@ -25,8 +26,8 @@ urlpatterns = patterns(
 
     # membership related
     url(r"^membership/(?P<pk>\d+)/edit/$", views.MembershipEditView.as_view(), name="membership_edit"),
-    # url(r"^parent/list/(?P<pk>\d+)/edit/$", views.MembershipEditView.as_view(), name="membership_edit_parent"),
-    # url(r"^sitter/list/(?P<pk>\d+)/edit/$", views.MembershipEditView.as_view(), name="membership_edit_sitter"),
+    # url(r"^parent/edit/(?P<pk>\d+)/$", views.MembershipEditView.as_view(), name="membership_edit_parent"),
+    # url(r"^sitter/edit/(?P<pk>\d+)/$", views.MembershipEditView.as_view(), name="membership_edit_sitter"),
     url(r"^group/membership/(?P<pk>\d+)/edit/$", views.GroupMembershipEditView.as_view(), name="membership_edit_group"),
     url(r"^membership/(?P<pk>\d+)/approval/$", views.MembershipApprovalView.as_view(), name="approval"),
 
