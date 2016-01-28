@@ -50,7 +50,7 @@ $(document).ready(function() {
 {% block content-command-list %}
   {% if current_user != target_user %}
     <div class="btn-group btn-group-sm">
-    <a class="btn btn-primary" href="{% url 'shout:user' uid=target_user.id %}"><i class="fa fa-bullhorn"></i> Message</a>
+    <a class="btn btn-primary" href="{% url 'shout:user' uid=target_user.id %}"><i class="fa fa-envelope"></i> Message</a>
     {% if user_membership.is_active and not user_membership.is_disapproved %}
 {#      <a href="{% url 'circle:membership_edit' pk=user_membership.id %}" class="btn btn-warning" title="{{ user_membership.note|default:'No endorsement statement.' }}" data-toggle="tooltip"><i class="fa fa-edit"></i> Endorse</a>#}
       <span class="btn btn-default ajax-post-confirm-refresh" data-post-url="{% url 'circle:membership_deactivate' pk=user_membership.id %}" data-post-confirm-message="Are you sure you want to remove this person from your network?"><i class="fa fa-sign-out"></i> {% if target_user.is_sitter %}Remove{% else %}Unfriend{% endif %}</span>
@@ -100,7 +100,7 @@ $(document).ready(function() {
   {% is-trusted target_user 'common' as is_common_access %}
   {% if is_common_access %}
     <ul class="list-inline">
-      <li><i class="fa fa-envelope"></i> {{ target_user.email }}</li>
+      <li><i class="fa fa-envelope-o"></i> {{ target_user.email }}</li>
       {% if target_user.info.phone %}
         <li><i class="fa fa-phone"></i> {{ target_user.info.phone }}</li>
       {% endif %}

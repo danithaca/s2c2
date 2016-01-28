@@ -14,7 +14,7 @@
         <div class="flex-imgbox-txt">
           <div class="text-large">
             <a href="{% url 'account_view' pk=confirmed_user.id %}">{% user-full-name confirmed_user %}</a>
-            <a href="{% url 'shout:user' uid=confirmed_user.id %}"><i class="fa fa-bullhorn"></i></a>
+            <a href="{% url 'shout:user' uid=confirmed_user.id %}"><i class="fa fa-envelope"></i></a>
           </div>
           <div>{{ contract.confirmed_match.response }}</div>
         </div>
@@ -73,7 +73,7 @@
         <div class="flex-imgbox-txt">
           <div class="text-large">
             <a href="{% url 'account_view' pk=target_user.id %}">{% user-full-name target_user %}</a>
-            <a href="{% url 'shout:user' uid=target_user.id %}"><i class="fa fa-bullhorn"></i></a>
+            <a href="{% url 'shout:user' uid=target_user.id %}"><i class="fa fa-envelope"></i></a>
           </div>
           <div>{{ contract.description|truncatechars:'80' }}</div>
         </div>

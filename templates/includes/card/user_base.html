@@ -7,7 +7,7 @@
 
 {% block card-image %}{% if user.has_picture %}<img class="img-50 img-circle" src="{% user_picture_url user %}">{% endif %}{% endblock %}
 {% block card-title %}<a href="{{ user.get_absolute_url }}" class="{% block user-name-extra-classes %}{% endblock %}">{% user-full-name user %}</a>{% endblock %}
-{% block card-title-link %}<small class="text-small pale"><a href="{% url 'shout:user' uid=user.id %}"><i class="fa fa-bullhorn"></i></a></small>{% endblock %}
+{% block card-title-link %}<small class="text-small pale"><a href="{% url 'shout:user' uid=user.id %}"><i class="fa fa-envelope"></i></a></small>{% endblock %}
 
 {#{% block card-footer %}#}
 {#  <span class="btn btn-xs btn-primary"><i class="fa fa-bullhorn"></i></span>#}

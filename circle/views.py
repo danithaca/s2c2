@@ -542,7 +542,7 @@ class DiscoverView(LoginRequiredMixin, RegisteredRequiredMixin, DetailView):
     model = PUser
     context_object_name = 'target_user'
     template_name = 'circle/discover.html'
-    display_limit = 30
+    display_limit = 12
 
     def get_object(self, queryset=None):
         return self.request.puser
