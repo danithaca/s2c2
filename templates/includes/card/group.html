@@ -14,9 +14,8 @@
 
 {% block card-note %}{% if circle.description %}<span class="">{{ circle.description|truncatechars:200 }}</span>{% endif %}{% endblock %}
 
-{% block card-footer %}<div class="horizontal-justified">
-  <div></div>
-  <div>
+{% block card-footer %}
+  <div class="text-right">
     {% include 'elements/circle_member_count.html' with count=circle.count %}
 {#    {% if circle.user_membership %}#}
 {#      <a href="{% url 'circle:membership_edit_group' pk=circle.user_membership.id %}" class="btn btn-xs btn-warning" data-expandable-text="Edit"><i class="fa fa-edit"></i></a>#}
@@ -25,7 +24,7 @@
 {#      <a href="{% url 'circle:group_join' pk=circle.id %}" class="btn btn-xs btn-success" data-expandable-text="Join"><i class="fa fa-sign-in"></i></a>#}
 {#    {% endif %}#}
   </div>
-</div>{% endblock %}
+{% endblock %}
 
 {#      <li class="list-group-item" data-slug="{{ circle.name|slugify }}">#}
 {#        <a href="{% url 'circle:tag_view' pk=circle.id %}">{{ circle.name }}</a>#}

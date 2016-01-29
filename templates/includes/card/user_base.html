@@ -5,7 +5,7 @@
 {% block container-classes %}thumbnail clickable {% block user-extra-classes %}{% endblock %}{% endblock %}
 {% block container-attributes %}data-uid="{{ user.id }}" data-email="{{ user.email }}" data-url="{{ user.get_absolute_url }}" {% block container-attributes-extra %}{% endblock %}{% endblock %}
 
-{% block card-image %}{% if user.has_picture %}<img class="img-50 img-circle" src="{% user_picture_url user %}">{% endif %}{% endblock %}
+{% block card-image %}<img class="img-80 img-circle" align="left" src="{% user_picture_url user %}">{% endblock %}
 {% block card-title %}<a href="{{ user.get_absolute_url }}" class="{% block user-name-extra-classes %}{% endblock %}">{% user-full-name user %}</a>{% endblock %}
 {% block card-title-link %}<small class="text-small pale"><a href="{% url 'shout:user' uid=user.id %}"><i class="fa fa-envelope"></i></a></small>{% endblock %}
 

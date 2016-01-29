@@ -1,4 +1,5 @@
 {% load p2_tags %}
+{% load staticfiles %}
 {% with contract=engagement.contract match=engagement.match %}
   <div class="card thumbnail clickable {% if contract.is_event_expired and not contract.is_feedback_needed %}pale{% endif %}" data-contract-id="{{ contract.id }}" data-match-id="{{ match.id }}"
       data-url="{% if engagement.is_main_contract %}{% url 'contract:view' pk=contract.id %}{% elif engagement.is_main_match %}{% url 'contract:match_view' pk=match.id %}{% endif %}">
@@ -9,7 +10,7 @@
       {% with confirmed_user=contract.confirmed_match.target_user.to_puser %}
       <div class="flex-imgbox min-margin-bottom">
         <div class="flex-imgbox-img">
-          <img  class="img-circle img-50" src="{% user_picture_url confirmed_user %}">
+          <img  class="img-circle img-80" src="{% user_picture_url confirmed_user %}">
         </div>
         <div class="flex-imgbox-txt">
           <div class="text-large">
@@ -29,7 +30,14 @@
       {% endif %}
     {% else %}
       {# case 2: unconfirmed contract #}
-      <p class="text-large">{{ contract.description|truncatechars:'80' }}</p>
+      <div class="flex-imgbox min-margin-bottom">
+        <div class="flex-imgbox-img">
+          <img  class="img-circle img-80" src="{% static 'images/question_200x200.png' %}">
+        </div>
+        <div class="flex-imgbox-txt">
+          <p class="text-large">{{ contract.description|truncatechars:'80' }}</p>
+        </div>
+      </div>
       <ul class="list-inline">
         <li><i class="fa fa-clock-o"></i> {{ contract.display_event_range }}</li>
         {% if contract.is_event_expired %}
@@ -49,7 +57,7 @@
       {% with target_user=engagement.initiate_user.to_puser %}
         <div class="flex-imgbox min-margin-bottom">
           <div class="flex-imgbox-img">
-            <img  class="img-circle img-50" src="{% user_picture_url target_user %}">
+            <img  class="img-circle img-80" src="{% user_picture_url target_user %}">
           </div>
           <div class="flex-imgbox-txt">
             <div>
@@ -68,7 +76,7 @@
       {% with target_user=engagement.initiate_user.to_puser %}
       <div class="flex-imgbox min-margin-bottom">
         <div class="flex-imgbox-img">
-          <img  class="img-circle img-50" src="{% user_picture_url target_user %}">
+          <img  class="img-circle img-80" src="{% user_picture_url target_user %}">
         </div>
         <div class="flex-imgbox-txt">
           <div class="text-large">
