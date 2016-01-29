@@ -1,75 +1,97 @@
+{# check previous commit for the multiform (login/signup) landing page #}
 {% extends "base.html" %}
 {% load staticfiles %}
 {% load bootstrap %}
 
-{% block title %}Homepage{% endblock %}
+{% block title %}Servuno{% endblock %}
 
 {% block page %}
-<div class="row jumbotron">
+  <p>
+    <img src="{% static 'images/story_1.png' %}" class="img-responsive center-block">
+  </p>
 
-  <div class="col-sm-7">
-    {#  <div><img src="{% static 'logo.png' %}"></div>#}
-    <h1>Servuno</h1>
-{#    <p>A Uber-like app to help you find one time babysitters your trust</p>#}
-    <p>{% include 'elements/slogan.html' %}</p>
+  <div class="well center-block text-center">
+    <div class="row"><div class="col-xs-offset-3 col-xs-6">
+      <h4 class="text-success"><i class="fa fa-laptop"></i> Sign Up</h4>
+      <p>Create an account. It's easy!</p>
+      <h4><i class="fa fa-arrow-down"></i></h4>
+    </div></div>
 
-    <h3>How does it work?</h3>
-    <small>{% include 'elements/how_it_works.html' %}</small>
-    <p>
-{#      <a class="btn btn-primary btn-lg" href="{% url 'account_signup' %}" role="button">Sign Up</a>#}
-      {#      <a class="btn btn-primary btn-lg" href="{% url 'user:login' %}" role="button">Login</a>#}
-    </p>
-  </div>
-  <div class="col-sm-5">
-    <div class="panel panel-default">
-      <div class="panel-heading">
-        <ul class="nav nav-pills">
-          <li class="active"><a href="#tab-login" data-toggle="tab">Log in</a></li>
-          <li><a href="#tab-signup" data-toggle="tab">Sign up</a></li>
-        </ul>
-      </div>
-      <div class="tab-content">
-        <div class="tab-pane active" id="tab-login">
-          <div class="panel-body">
-            <form class="form-horizontal" role="form" method="post" action="{% url 'account_login' %}">
-              {% csrf_token %}
-              {{ form_login|bootstrap_horizontal:'col-sm-4' }}
-              <div class="form-group">
-                <div class="col-sm-offset-4 col-sm-8">
-                  <button type="submit" class="btn btn-success">Log in</button>
-                </div>
-              </div>
-            </form>
-          </div>
-          <div class="panel-footer">
-            <a href="{% url 'account_password_reset' %}">Forget password?</a>
-          </div>
+    <div class="row"><div class="col-xs-offset-3 col-xs-6">
+      <h4 class="text-success"><i class="fa fa-users"></i> Connect to Families</h4>
+      <p>Build a parent network to trade babysitting</p>
+      <h4><i class="fa fa-arrow-down"></i></h4>
+    </div></div>
+
+    <div class="row"><div class="col-xs-offset-3 col-xs-6">
+      <h4 class="text-success"><i class="fa fa-female"></i> Add Babysitters</h4>
+      <p>Collectively build a pool of babysitters you have used before</p>
+    </div></div>
+
+    <div class="row">
+      <div class="col-xs-6">
+        <div class="about-step-block">
+          <h4><i class="fa fa-arrow-down rotate-45"></i></h4>
+          <h4 class="text-primary"><i class="fa fa-pencil"></i> Post a "Trade" Job</h4>
+          <p>Servuno will contact your parent friends added in the previous step for help babysit on the basis of reciprocity</p>
+          <h4><i class="fa fa-arrow-down"></i></h4>
         </div>
-        <div class="tab-pane" id="tab-signup">
-          <div class="panel-body">
-            <form class="form-horizontal" role="form" method="post" action="{% url 'account_signup' %}">
-              {% csrf_token %}
-              {{ form_signup|bootstrap_horizontal:'col-sm-4' }}
-              <div class="form-group">
-                <div class="col-sm-offset-4 col-sm-8">
-                  <button type="submit" class="btn btn-success">Sign up</button>
-                </div>
-              </div>
-            </form>
-          </div>
+      </div>
+      <div class="col-xs-6">
+        <div class="about-step-block">
+          <h4><i class="fa fa-arrow-right rotate-45"></i></h4>
+          <h4 class="text-warning"><i class="fa fa-pencil"></i> Post a Paid Job</h4>
+          <p>Servuno will contact your babysitters added in the previous step, as well as your friends babysitters. No babysitter can sign up on the site unless invited</p>
+          <h4><i class="fa fa-arrow-down"></i></h4>
         </div>
       </div>
     </div>
+
+    <div class="row">
+      <div class="col-xs-6">
+        <div class="about-step-block">
+          <h4 class="text-primary"><i class="fa fa-home"></i> Pick a Family</h4>
+          <p>From those who responded yes, pick one to babysit for you</p>
+          <h4><i class="fa fa-arrow-down"></i></h4>
+
+        </div>
+      </div>
+      <div class="col-xs-6">
+        <div class="about-step-block">
+          <h4 class="text-warning"><i class="fa fa-car"></i> Hire a Babysitter</h4>
+          <p>From those who responded yes, pick one to babysit for you. No interview is needed because either you or your friends used the babysitter before</p>
+          <h4><i class="fa fa-arrow-down"></i></h4>
+        </div>
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="col-xs-6">
+        <div class="about-step-block">
+          <h4 class="text-primary"><i class="fa fa-child"></i> Have Kids Play Together</h4>
+          <p>... while you go on a date night, run some errands, etc.</p>
+          <h4><i class="fa fa-arrow-right rotate-45"></i></h4>
+        </div>
+      </div>
+      <div class="col-xs-6">
+        <div class="about-step-block">
+          <h4 class="text-warning"><i class="fa fa-dollar"></i> Pay for your care </h4>
+          <p>Right now you have to pay the babysitter offline. Online payment will be added later.</p>
+          <h4><i class="fa fa-arrow-down rotate-45"></i></h4>
+        </div>
+      </div>
+    </div>
+
+    <div class="row"><div class="col-xs-offset-2 col-xs-8">
+      <h4 class="text-success"><i class="fa fa-lightbulb-o"></i> Lastly, you can ...</h4>
+      <ul>
+        <li><strong>Join parents groups</strong> to reach out to other families with similar background</li>
+        <li><strong>Post an offer to help other parents babysit</strong> on your convenience, while build up karma.</li>
+      </ul>
+    </div></div>
   </div>
-</div>
-{#<div class="row">#}
-{#  <div class="col-sm-12">#}
-{#    <ul>#}
-{#      <li>Find help from family and friends</li>#}
-{#      <li>Return the favor of helping them</li>#}
-{#      <li>Smart recommendations</li>#}
-{#      <li>On demand</li>#}
-{#    </ul>#}
-{#  </div>#}
-{#</div>#}
+
+  {% if user.is_anonymous %}
+    <div class="text-center"><a href="{% url 'account_signup' %}" class="btn btn-lg btn-success">Sign Up Now!</a></div>
+  {% endif %}
 {% endblock %}
