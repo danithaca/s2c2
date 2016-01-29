@@ -14,7 +14,7 @@ from puser.models import MenuItem
 
 def home(request):
     if request.user.is_anonymous():
-        return redirect(reverse('about'))
+        return redirect(reverse('landing'))
     else:
         puser = request.puser
         if not puser.is_registered():

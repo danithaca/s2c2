@@ -11,7 +11,7 @@ urlpatterns = patterns(
     url(r'^tour/$', views.TourView.as_view(), name='tour'),
     url(r'^sitemap/$', views.SitemapView.as_view(), name='sitemap'),
     url(r'^about/$', views.AboutView.as_view(), name='about'),
-    url(r'^landing/$', views.LandingView.as_view(), name='landing'),
+    url(r'^welcome/$', views.LandingView.as_view(), name='landing'),
 
     url(r'^dashboard/$', views.DashboardView.as_view(), name='dashboard'),
 
