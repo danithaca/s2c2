@@ -8,7 +8,7 @@ from django.core.urlresolvers import reverse
 
 from django.db import models
 from django.conf import settings
-from p2.utils import UserRole, TrustLevel, TrustedMixin
+from p2.utils import UserRole, TrustLevel, TrustedMixin, RelationshipType
 
 
 # long term todo: separate personal/public circles into different classes.
@@ -551,6 +551,9 @@ class Membership(models.Model):
         circle = self.circle
         circle.user_membership = self
         return circle
+
+    def get_relationship_type(self):
+        return RelationshipType.from_db(self.as_rel)
 
 
 class UserConnection(object):

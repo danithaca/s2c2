@@ -148,8 +148,11 @@ class RelationshipType(Enum):
 
     @staticmethod
     def from_db(db_str):
-        s = db_str.split(',')
-        return [RelationshipType(int(i)) for i in s]
+        if db_str:
+            s = db_str.split(',')
+            return [RelationshipType(int(i)) for i in s]
+        else:
+            return []
 
 
 ################# mixin ####################

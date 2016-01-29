@@ -12,7 +12,9 @@
 
 {#{% block user-name-extra-classes %}{% if membership.is_pending_approval %}text-muted{% endif %}{% endblock %}#}
 
-{% block card-note %}{% if membership.note %}<span class="">{{ membership.note }}</span>{% endif %}{% endblock %}
+{% block card-note %}{% for relationship_type in membership.get_relationship_type %}
+  <span class="label label-success">{{ relationship_type.label }}</span>
+{% endfor %}{% endblock %}
 
 {% block card-footer %}<div class="horizontal-justified">
   <div>
