@@ -42,8 +42,8 @@ class StatusMixin(object):
         }
 
         match_display_map = {
-            Match.Status.INITIALIZED: ('default', 'Waiting', 'Not yet notified the potential babysitter.'),
-            Match.Status.ENGAGED: ('default', 'Notified & Waiting', 'The user was notified; waiting for response.'),
+            Match.Status.INITIALIZED: ('default', 'Inactive', 'Not yet notified the potential babysitter.'),
+            Match.Status.ENGAGED: ('default', 'Waiting', 'The user was notified; waiting for response.'),
             Match.Status.ACCEPTED: ('primary', 'Accepted', 'The user agreed to help babysit.'),
             Match.Status.DECLINED: ('danger', 'Declined', 'The user declined to help babysit.'),
             Match.Status.CANCELED: ('danger', 'Canceled', 'Request was canceled.'),
@@ -62,7 +62,7 @@ class StatusMixin(object):
             else:
                 if status == Contract.Status.ACTIVE:
                     if not self.match_set.filter(status=Match.Status.ACCEPTED.value).exists():
-                        label, explanation = 'Active - Searching', 'Searching for a babysitter. No one has agreed to help yet.'
+                        label, explanation = 'Searching', 'Searching for a babysitter. No one has agreed to help yet.'
                     else:
                         color, label, explanation = 'warning', 'Active - Found', 'Found at least 1 user agreed to babysit. The parent has not confirmed yet.'
 

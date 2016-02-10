@@ -13,7 +13,7 @@ from django.views.defaults import permission_denied
 from django.views.generic import FormView, CreateView, UpdateView, TemplateView, DetailView, View
 from django.views.generic.detail import SingleObjectMixin
 from circle.forms import CircleCreateForm, MembershipCreateForm, MembershipEditForm, ParentAddForm
-from circle.models import Membership, Circle, UserConnection
+from circle.models import Membership, Circle, UserConnection, Friendship
 from circle.tasks import circle_invite
 from puser.models import PUser
 from p2.utils import RegisteredRequiredMixin, UserRole, is_valid_email, ObjectAccessMixin, TrustLevel
@@ -383,6 +383,16 @@ class ParentJoinView(PersonalJoinView):
         else:
             cc_list = []
         notify_send.delay(circle.owner, member, 'circle/messages/added_parent', ctx=ctx, cc_user_list=cc_list)
+
+    def extra_process(self, membership):
+        super().extra_process(membership)
+        # mark "as_rel" of friendship membership
+        # at this point, the "reverse membership" should already been created.
+        friendship = Friendship(membership.circle.owner, membership.member, membership)
+        reverse_membership = friendship.reverse_membership
+        assert reverse_membership is not None
+        reverse_membership.as_rel = membership.as_rel
+        reverse_membership.save()
 
 
 class SitterJoinView(PersonalJoinView):
