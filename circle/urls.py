@@ -6,8 +6,8 @@ urlpatterns = patterns(
     "",
     # basic pages
     url(r"^$", views.DiscoverView.as_view(), name="discover"),
-    url(r"^parent/$", views.ParentManageView.as_view(), name="parent"),
-    url(r"^sitter/$", views.SitterManageView.as_view(), name="sitter"),
+    #url(r"^parent/$", views.ParentManageView.as_view(), name="parent"),
+    #url(r"^sitter/$", views.SitterManageView.as_view(), name="sitter"),
     url(r"^group/$", views.GroupDirectoryView.as_view(), name="group"),
 
     # group related
