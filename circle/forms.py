@@ -103,6 +103,27 @@ class ParentAddForm(MembershipCreateForm):
         self.fields['as_rel'].widget = forms.CheckboxSelectMultiple(choices=rel_choices)
 
 
+class SitterAddForm(forms.ModelForm):
+    is_sitter = forms.BooleanField(required=False, widget=forms.HiddenInput, initial=True)
+    introduce = forms.BooleanField(required=False, label='I would like a shared friend to introduce me.')
+
+    class Meta:
+        model = Membership
+        fields = ['private_note']
+        labels = {
+            'private_note': 'Private Note',
+        }
+        widgets = {
+            'private_note': forms.Textarea(attrs={'placeholder': 'This private note is visible only between you and the person you are connecting with.', 'rows': 2}),
+        }
+
+    def __init__(self, *args, **kwargs):
+        self.target_user = kwargs.pop('target_user', None)
+        super().__init__(*args, **kwargs)
+        assert self.target_user is not None
+        self.fields['introduce'].label = 'I don\'t know %s. I would like a shared friend to introduce me.' % self.target_user.get_full_name()
+
+
 class MembershipEditForm(forms.ModelForm):
 
     class Meta:

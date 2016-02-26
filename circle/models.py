@@ -441,6 +441,10 @@ class Membership(models.Model):
     # agency: usually should always be true. subscribers are always true.
     approved = models.NullBooleanField(blank=True, null=True, default=None)
 
+    # measures how strong is the relationship from circle.owner to member.
+    # this is asymetric. e.g., 0.8 means the circle.owner trusts the member 80%.
+    strength = models.FloatField(null=False, default=0.5)
+
     # seems we don't need a "owner" type. the admin will suffice
     # type = models.PositiveSmallIntegerField(choices=[(t.value, t.name.capitalize()) for t in Type], default=Type.NORMAL.value)
 
