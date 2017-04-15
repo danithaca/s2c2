@@ -104,7 +104,6 @@ class ParentAddForm(MembershipCreateForm):
 
 
 class SitterAddForm(forms.ModelForm):
-    is_sitter = forms.BooleanField(required=False, widget=forms.HiddenInput, initial=True)
     introduce = forms.BooleanField(required=False, label='I would like a shared friend to introduce me.')
 
     class Meta:

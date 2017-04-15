@@ -12,7 +12,7 @@ from django.shortcuts import redirect
 from django.views.defaults import permission_denied
 from django.views.generic import FormView, CreateView, UpdateView, TemplateView, DetailView, View
 from django.views.generic.detail import SingleObjectMixin
-from circle.forms import CircleCreateForm, MembershipCreateForm, MembershipEditForm, ParentAddForm
+from circle.forms import CircleCreateForm, MembershipCreateForm, MembershipEditForm, ParentAddForm, SitterAddForm
 from circle.models import Membership, Circle, UserConnection, Friendship
 from circle.tasks import circle_invite
 from puser.models import PUser
@@ -264,7 +264,7 @@ class CircleJoinView(LoginRequiredMixin, RegisteredRequiredMixin, SingleObjectMi
     def get_user(self):
         return self.request.puser
 
-    def dispatch(self, request, *args, **kwargs):
+    def dispatch_init(self):
         self.object = self.get_object()
         circle = self.object
         target_user = self.get_user()
@@ -273,31 +273,8 @@ class CircleJoinView(LoginRequiredMixin, RegisteredRequiredMixin, SingleObjectMi
         try:
             membership = circle.get_membership(target_user)
             self.existing_membership = membership
-            if membership.is_disapproved():
-                msg = ''
-                if membership.is_valid_parent_relation() or membership.is_valid_sitter_relation():
-                    msg = 'You are not allowed to add this person because it is blocked.'
-                elif membership.is_valid_group_membership():
-                    msg = 'Your are not allowed to join this group. Please contact the group administrators and have them manually add you into the group.'
-                messages.error(request, msg)
-                return permission_denied(request)
-            elif membership.active:
-                msg = ''
-                redirect_url = '/'
-                if membership.is_valid_parent_relation():
-                    msg = 'The parent is already in your network. Edit the connection here.'
-                    redirect_url = reverse('circle:membership_edit', kwargs={'pk': membership.id})
-                elif membership.is_valid_sitter_relation():
-                    msg = 'The sitter is already in your network. Edit the connection here.'
-                    redirect_url = reverse('circle:membership_edit', kwargs={'pk': membership.id})
-                elif membership.is_valid_group_membership():
-                    msg = 'You have already joined this group. Edit your membership here.'
-                    redirect_url = reverse('circle:membership_edit_group', kwargs={'pk': membership.id})
-                messages.info(request, msg)
-                return redirect(redirect_url)
         except Membership.DoesNotExist:
             pass
-        return super().dispatch(request, *args, **kwargs)
 
     def send_notification(self, member, circle, introduce):
         # member is added to circle. send notification
@@ -310,6 +287,60 @@ class CircleJoinView(LoginRequiredMixin, RegisteredRequiredMixin, SingleObjectMi
         context = super().get_context_data(**kwargs)
         context['target_user'] = self.get_user()
         return context
+
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        if self.existing_membership is not None:
+            kwargs['instance'] = self.existing_membership
+        return kwargs
+
+
+class PersonalJoinView(CircleJoinView):
+    form_valid_message = 'Successfully submitted your request. '
+
+    def dispatch(self, request, *args, **kwargs):
+        self.dispatch_init()
+        membership = self.existing_membership
+        if membership:
+            assert membership.is_valid_parent_relation() or membership.is_valid_sitter_relation()
+            if membership.is_disapproved():
+                messages.error(request, 'You are not allowed to add this person because it is blocked.')
+                return permission_denied(request)
+            elif membership.active:
+                msg = ''
+                redirect_url = '/'
+                if membership.is_valid_parent_relation():
+                    msg = 'The parent is already in your network. Edit the connection here.'
+                    redirect_url = reverse('circle:membership_edit', kwargs={'pk': membership.id})
+                elif membership.is_valid_sitter_relation():
+                    msg = 'The sitter is already in your network. Edit the connection here.'
+                    redirect_url = reverse('circle:membership_edit', kwargs={'pk': membership.id})
+                messages.info(request, msg)
+                return redirect(redirect_url)
+        return super().dispatch(request, *args, **kwargs)
+
+    def get_queryset(self):
+        qs = super().get_queryset()
+        return qs.filter(type=Circle.Type.PERSONAL.value)
+
+    def get_object(self, queryset=None):
+        return self.request.puser.get_personal_circle()
+
+    def get_user(self):
+        return PUser.objects.get(pk=self.kwargs['uid'])
+
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        kwargs['target_user'] = self.get_user()
+        return kwargs
+
+    def get_success_url(self):
+        return reverse('account_view', kwargs={'pk': self.get_user().pk})
+
+
+class ParentJoinView(PersonalJoinView):
+    template_name = 'circle/membership/parent_add.html'
+    form_class = ParentAddForm
 
     def form_valid(self, form):
         circle = self.get_object().to_proxy()
@@ -335,39 +366,6 @@ class CircleJoinView(LoginRequiredMixin, RegisteredRequiredMixin, SingleObjectMi
 
         # this is not ModelView, and therefore membershihp is not automatically saved.
         return super().form_valid(form)
-
-    def get_form_kwargs(self):
-        kwargs = super().get_form_kwargs()
-        if self.existing_membership is not None:
-            kwargs['instance'] = self.existing_membership
-        return kwargs
-
-
-class PersonalJoinView(CircleJoinView):
-    form_valid_message = 'Successfully submitted your request. '
-
-    def get_queryset(self):
-        qs = super().get_queryset()
-        return qs.filter(type=Circle.Type.PERSONAL.value)
-
-    def get_object(self, queryset=None):
-        return self.request.puser.get_personal_circle()
-
-    def get_user(self):
-        return PUser.objects.get(pk=self.kwargs['uid'])
-
-    def get_form_kwargs(self):
-        kwargs = super().get_form_kwargs()
-        kwargs['target_user'] = self.get_user()
-        return kwargs
-
-    def get_success_url(self):
-        return reverse('account_view', kwargs={'pk': self.get_user().pk})
-
-
-class ParentJoinView(PersonalJoinView):
-    template_name = 'circle/membership/parent_add.html'
-    form_class = ParentAddForm
 
     def send_notification(self, member, circle, introduce):
         # will need to send a notification to "member" because circle.owner is requesting.
@@ -397,18 +395,33 @@ class ParentJoinView(PersonalJoinView):
 
 class SitterJoinView(PersonalJoinView):
     template_name = 'circle/membership/sitter_add.html'
+    form_class = SitterAddForm
 
-    def get_initial(self):
-        initial = super().get_initial()
-        initial['is_sitter'] = True
-        return initial
+    def form_valid(self, form):
+        circle = self.get_object().to_proxy()
+        target_user = self.get_user()
+        circle.activate_membership(target_user, as_role=UserRole.SITTER.value)
+        private_note = form.cleaned_data.get('private_note', None)
 
-    def extra_process(self, membership):
-        super().extra_process(membership)
+        # save regardless of whether it's changed or not.
+        membership = circle.get_membership(target_user)
+        membership.private_note = private_note
+        membership.as_role = UserRole.SITTER.value
+        introduce = form.cleaned_data.get('introduce', False)
+        if introduce:
+            # here, we implicitly infer that if "asking for introduction" means that there's no strength.
+            membership.strength = 0.0
+        membership.save()
+
+        # send notification.
+        self.send_notification(target_user, circle, introduce)
+
         # auto approve this membership
         # todo: think about whether to auto approve sitter_add
-        circle = self.get_object().to_proxy()
         circle.approve_membership(membership.member)
+
+        # this is not ModelView, and therefore membershihp is not automatically saved.
+        return super().form_valid(form)
 
     def send_notification(self, member, circle, introduce):
         # will need to send a notification to "member" because circle.owner is requesting.
@@ -430,6 +443,19 @@ class GroupJoinView(CircleJoinView):
     template_name = 'circle/group/join.html'
     form_valid_message = 'Successfully joined the group.'
 
+    def dispatch(self, request, *args, **kwargs):
+        self.dispatch_init()
+        membership = self.existing_membership
+        if membership:
+            assert membership.is_valid_group_membership()
+            if membership.is_disapproved():
+                messages.error(request, 'Your are not allowed to join this group. Please contact the group administrators and have them manually add you into the group.')
+                return permission_denied(request)
+            elif membership.active:
+                messages.info(request, 'You have already joined this group. Edit your membership here.')
+                return redirect(reverse('circle:membership_edit_group', kwargs={'pk': membership.id}))
+        return super().dispatch(request, *args, **kwargs)
+
     def get_queryset(self):
         qs = super().get_queryset()
         return qs.filter(type=Circle.Type.PUBLIC.value)
@@ -443,6 +469,31 @@ class GroupJoinView(CircleJoinView):
         form.fields['note'].label = 'Affiliation'
         form.fields['note'].help_text = 'What is your affiliation to the group? E.g., Jack\'s mon.'
         return form
+
+    def form_valid(self, form):
+        circle = self.get_object().to_proxy()
+        target_user = self.get_user()
+        circle.activate_membership(target_user)
+        private_note = form.cleaned_data.get('private_note', None)
+        as_rel = form.cleaned_data.get('as_rel', '')
+
+        # save regardless of whether it's changed or not.
+        membership = circle.get_membership(target_user)
+        membership.private_note = private_note
+        membership.as_rel = as_rel
+        if form.cleaned_data.get('is_sitter', False):
+            membership.as_role = UserRole.SITTER.value
+        else:
+            membership.as_role = UserRole.PARENT.value
+        membership.save()
+
+        introduce = form.cleaned_data.get('introduce', False)
+        self.send_notification(target_user, circle, introduce)
+
+        self.extra_process(membership)
+
+        # this is not ModelView, and therefore membershihp is not automatically saved.
+        return super().form_valid(form)
 
     def send_notification(self, member, circle, introduce):
         # will need to send a notification to circle admins to handle the request from "member"
@@ -557,6 +608,10 @@ class DiscoverView(LoginRequiredMixin, RegisteredRequiredMixin, DetailView):
     def get_object(self, queryset=None):
         return self.request.puser
 
+    # the logic here is:
+    # 1. find my friends (network)
+    # 2. find my friends' friends who are not in my network
+    # 3. if those people haven't disapproved me, then show them.
     def get_extended(self, as_role):
         me = self.object
         area = me.get_area()
@@ -579,7 +634,10 @@ class DiscoverView(LoginRequiredMixin, RegisteredRequiredMixin, DetailView):
         # build
         extended = []
         for member, membership_list in groupby(list_extended, lambda m: m.member):
-            extended.append(UserConnection(me, member, list(membership_list)))
+            # if trust level is too low, then don't add.
+            member_to_me = UserConnection(member, me)
+            if member_to_me.trusted(TrustLevel.REMOTE):
+                extended.append(UserConnection(me, member, list(membership_list)))
         extended.sort(key=lambda x: len(x.membership_list), reverse=True)
 
         return extended
